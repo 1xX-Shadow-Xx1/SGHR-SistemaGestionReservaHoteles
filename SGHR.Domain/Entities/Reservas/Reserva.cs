@@ -1,5 +1,7 @@
 ﻿
 
+using SGHR.Domain.Entities.Configuration;
+
 namespace SGHR.Domain.Entities.Reserva
 {
     public sealed class Reserva : Base.BaseEntity
@@ -10,47 +12,44 @@ namespace SGHR.Domain.Entities.Reserva
             FechaInicio = fechaInicio;
             FechaFin = fechaFin;
             CostoTotal = costoTotal;
+            Estado = "Activa";
         }
 
         //Logica de Reserva
-        public void crearReserva()
+        public Reserva crearReserva(string fechaInicio,string fechaFin,decimal costoTotal)
         {
-
+            Reserva reserva = new Reserva(fechaInicio, fechaFin, costoTotal);
+            return reserva;
         }
-        public void ModificarReserva()
+        public void ModificarReserva(string? nuevaFechaInicio,string? nuevaFechaFin,decimal? nuevoCostoTotal,int usuarioID)
         {
+            if (nuevaFechaInicio != null) FechaInicio = nuevaFechaInicio; 
+            if (nuevaFechaFin != null) FechaFin = nuevaFechaFin;
+            if (nuevoCostoTotal != null) CostoTotal = (decimal)nuevoCostoTotal;
 
+             
         }
-        public void CancelarReserva()
+        public Reserva CancelarReserva(Reserva reserva)
         {
-
+            reserva.Estado = "Cancelada";
+            return reserva;
         }
         public void CalcularTotal()
         {
 
         }
-
-        //Metodos para Modificar los atributos de Reserva
-        public void CambiarFechaInicioReserva(string nuevaFechaInicio,int usuarioID)
+        //Metodos para modificar atributos de Reserva
+        public void CambiarFechaInicio(string fechaInicio,int usuarioID)
         {
-            FechaInicio = nuevaFechaInicio;
-            RegistrarModificacion(usuarioID);
-        }
-        public void CambiarFechaFinReserva(string nuevaFechafin, int usuarioID)
-        {
-            FechaFin = nuevaFechafin;
-            RegistrarModificacion(usuarioID);
-        }
-        public void CambiarCostoTotalReserva(decimal nuevoCostoTotal, int usuarioID)
-        {
-            CostoTotal = nuevoCostoTotal;
-            RegistrarModificacion(usuarioID);
+            FechaInicio = fechaInicio;
+            RegistrarModificacion(usuarioID,"Modifico la Fecha de Inicio de la Reserva");
         }
 
         //Atributos de Reserva
         public string FechaInicio { get; private set; }
         public string FechaFin { get; private set; }
         public decimal CostoTotal { get; private set; }
+        public string Estado {  get; private set; }
 
     }
 }

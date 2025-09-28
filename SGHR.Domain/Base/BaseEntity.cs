@@ -6,6 +6,7 @@ namespace SGHR.Domain.Base
     public abstract class BaseEntity
     {
         public int Id { get; set; }
+        public string ModificacionRealizada { get; set; }
         public DateTime FechaCreacion { get; set; }
         public DateTime? FechaModificacion { get; set; }
         public int? UsuarioModificacion { get; set; }
@@ -20,10 +21,11 @@ namespace SGHR.Domain.Base
             IsDeleted = true;
             FechaModificacion = TimeNow();
         }
-        public void RegistrarModificacion(int usuarioid)
+        public void RegistrarModificacion(int usuarioid,string modifigicacion)
         {
             FechaModificacion = TimeNow();
             UsuarioModificacion = usuarioid;
+            ModificacionRealizada = modifigicacion;
         }
         public void RegistrarCreacion()
         {
