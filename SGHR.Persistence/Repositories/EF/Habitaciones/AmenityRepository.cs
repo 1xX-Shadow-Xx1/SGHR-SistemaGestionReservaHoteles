@@ -8,11 +8,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SGHR.Persistence.Repositories.Habitaciones
+namespace SGHR.Persistence.Repositories.EF.Habitaciones
 {
-    public class PisoRepository : BaseRepository<Piso>, IPisoRepository
+    public sealed class AmenityRepository : BaseRepository<Amenities>, IAmenityRepository
     {
-        public PisoRepository(SGHRContext context) : base(context)
+        public AmenityRepository(SGHRContext context)
+            : base(context)
         {
         }
     }

@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SGHR.Persistence.Repositories.Reservas
+namespace SGHR.Persistence.Repositories.EF.Reservas
 {
-    public class ServicioAdicionalRepository : BaseRepository<ServicioAdicional>, IServicioAdicionalRepository
+    public sealed class ServicioAdicionalRepository : BaseRepository<ServicioAdicional>, IServicioAdicionalRepository
     {
         public ServicioAdicionalRepository(SGHRContext context) : base(context)
         {

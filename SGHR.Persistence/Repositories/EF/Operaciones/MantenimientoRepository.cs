@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SGHR.Persistence.Repositories.Operaciones
+namespace SGHR.Persistence.Repositories.EF.Operaciones
 {
-    public class MantenimientoRepository : BaseRepository<Mantenimiento>, IMantenimientoRepository
+    public sealed class MantenimientoRepository : BaseRepository<Mantenimiento>, IMantenimientoRepository
     {
         public MantenimientoRepository(SGHRContext context) : base(context)
         {

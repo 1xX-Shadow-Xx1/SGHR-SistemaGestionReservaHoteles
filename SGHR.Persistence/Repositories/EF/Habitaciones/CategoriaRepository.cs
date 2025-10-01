@@ -10,9 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SGHR.Persistence.Repositories.Habitaciones
+namespace SGHR.Persistence.Repositories.EF.Habitaciones
 {
-    public class CategoriaRepository : BaseRepository<Categoria>, ICategoriaRepository
+    public sealed class CategoriaRepository : BaseRepository<Categoria>, ICategoriaRepository
     {
         public CategoriaRepository(SGHRContext context)
             : base(context)

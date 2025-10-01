@@ -11,9 +11,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SGHR.Persistence.Repositories.Habitaciones
+namespace SGHR.Persistence.Repositories.EF.Habitaciones
 {
-    public class HabitacionRepository : BaseRepository<Habitacion>, IHabitacionRepository
+    public sealed class HabitacionRepository : BaseRepository<Habitacion>, IHabitacionRepository
     {
         private readonly SGHRContext _context;
         private readonly ILogger<HabitacionRepository> _logger;
@@ -33,7 +33,7 @@ namespace SGHR.Persistence.Repositories.Habitaciones
 
                 return OperationResult<List<Habitacion>>.Ok(habitaciones);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error obteniendo habitaciones disponibles");
                 return OperationResult<List<Habitacion>>.Fail($"Error: {ex.Message}");

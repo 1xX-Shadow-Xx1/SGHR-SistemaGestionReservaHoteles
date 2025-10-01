@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SGHR.Persistence.Repositories.Operaciones
+namespace SGHR.Persistence.Repositories.EF.Operaciones
 {
-    public class CheckInOutRepository : BaseRepository<CheckInOut>, ICheckInOut
+    public sealed class CheckInOutRepository : BaseRepository<CheckInOut>, ICheckInOut
     {
         public CheckInOutRepository(SGHRContext context) : base(context)
         {

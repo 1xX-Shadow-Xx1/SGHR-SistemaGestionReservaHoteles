@@ -11,9 +11,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SGHR.Persistence.Repositories.Users
+namespace SGHR.Persistence.Repositories.EF.Users
 {
-    public class ClienteRepository : BaseRepository<Cliente>, IClienteRepository
+    public sealed class ClienteRepository : BaseRepository<Cliente>, IClienteRepository
     {
         private readonly SGHRContext _context;
         private readonly ILogger<ClienteRepository> _logger;
@@ -36,7 +36,7 @@ namespace SGHR.Persistence.Repositories.Users
 
                 return OperationResult<Cliente>.Ok(cliente);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error obteniendo cliente por cedula");
                 return OperationResult<Cliente>.Fail($"Error: {ex.Message}");

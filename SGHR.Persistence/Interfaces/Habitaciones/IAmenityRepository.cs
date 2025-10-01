@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SGHR.Persistence.Interfaces.Habitaciones
 {
-    public interface IAmenitiesRepository : IBaseRepository<Amenities>
+    public interface IAmenityRepository : IBaseRepository<Amenities>
     {
     }
 }

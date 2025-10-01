@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SGHR.Persistence.Repositories.Reservas
+namespace SGHR.Persistence.Repositories.EF.Reservas
 {
-    public class TarifaRepository : BaseRepository<Tarifa>, ITarifaRepository
+    public sealed class TarifaRepository : BaseRepository<Tarifa>, ITarifaRepository
     {
         public TarifaRepository(SGHRContext context) : base(context)
         {

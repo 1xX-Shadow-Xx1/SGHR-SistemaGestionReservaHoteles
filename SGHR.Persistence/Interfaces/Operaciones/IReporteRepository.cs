@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SGHR.Persistence.Interfaces.Reportes
 {
-    public interface IReportesRepository : IBaseRepository<Reporte>
+    public interface IReporteRepository : IBaseRepository<Reporte>
     {
     }
 }

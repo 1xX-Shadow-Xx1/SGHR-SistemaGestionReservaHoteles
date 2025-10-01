@@ -11,9 +11,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SGHR.Persistence.Repositories.Reservas
+namespace SGHR.Persistence.Repositories.EF.Reservas
 {
-    public class ReservaRepository : BaseRepository<Reserva>, IReservaRepository
+    public sealed class ReservaRepository : BaseRepository<Reserva>, IReservaRepository
     {
         private readonly SGHRContext _context;
         private readonly ILogger<ReservaRepository> _logger;
@@ -33,7 +33,7 @@ namespace SGHR.Persistence.Repositories.Reservas
 
                 return OperationResult<List<Reserva>>.Ok(reservas);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error obteniendo reservas activas");
                 return OperationResult<List<Reserva>>.Fail($"Error: {ex.Message}");

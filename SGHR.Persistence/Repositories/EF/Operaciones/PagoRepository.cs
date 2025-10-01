@@ -1,5 +1,5 @@
 ﻿using SchoolPoliApp.Persistence.Base;
-using SGHR.Domain.Entities.Configuration.Reportes;
+using SGHR.Domain.Entities.Configuration.Operaciones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Reportes;
 using System;
@@ -8,11 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SGHR.Persistence.Repositories.Operaciones
+namespace SGHR.Persistence.Repositories.EF.Operaciones
 {
-    public class ReporteRepository : BaseRepository<Reporte>, IReportesRepository
+    public sealed class PagoRepository : BaseRepository<Pago>, IPagoRepository
     {
-        public ReporteRepository(SGHRContext context) : base(context)
+        public PagoRepository(SGHRContext context) : base(context)
         {
         }
     }

@@ -7,14 +7,14 @@ using SGHR.Domain.Repository;
 using SGHR.Persistence.Contex;
 
 
-namespace SGHR.Persistence.Repositories.Users
+namespace SGHR.Persistence.Repositories.EF.Users
 {
-    public class UserRepository : BaseRepository<Usuario> ,IUsuarioRepository
+    public sealed class UsuarioRepository : BaseRepository<Usuario> ,IUsuarioRepository
     {
         private readonly SGHRContext _context;
-        private readonly ILogger<UserRepository> _logger;
+        private readonly ILogger<UsuarioRepository> _logger;
 
-        public UserRepository(SGHRContext context, ILogger<UserRepository> logger)
+        public UsuarioRepository(SGHRContext context, ILogger<UsuarioRepository> logger)
             : base(context)
         {
             _context = context;
