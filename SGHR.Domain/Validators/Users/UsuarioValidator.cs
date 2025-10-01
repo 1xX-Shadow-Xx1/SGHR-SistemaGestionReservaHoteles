@@ -1,36 +1,30 @@
 ﻿using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Usuers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SGHR.Domain.Validators.Configuration;
+
 
 namespace SGHR.Domain.Validators.Users
 {
     public static class UsuarioValidator
     {
-        public static OperationResult<Usuario> ValidateSave(Usuario entity)
+        public static OperationResult<Usuario> Validate(Usuario usuario)
         {
-            if (entity == null)
-                return OperationResult<Usuario>.Fail("El usuario no puede ser nulo");
+            string nombre = "El nombre";
+            string correo = "El correo";
+            string contraseña= "La contraseña";
 
-            if (string.IsNullOrWhiteSpace(entity.Nombre))
-                return OperationResult<Usuario>.Fail("El nombre no puede estar vacío");
-
-            if (entity.Nombre.Length > 100)
-                return OperationResult<Usuario>.Fail("El nombre no puede tener más de 100 caracteres");
-
-            if (string.IsNullOrWhiteSpace(entity.Correo))
-                return OperationResult<Usuario>.Fail("El correo no puede estar vacío");
-
-            if (string.IsNullOrWhiteSpace(entity.Contrasena))
-                return OperationResult<Usuario>.Fail("La contraseña no puede estar vacía");
-
-            if (entity.Contrasena.Length > 255)
-                return OperationResult<Usuario>.Fail("La contraseña no puede tener más de 255 caracteres");
-
-            return OperationResult<Usuario>.Ok(entity);
+            var rules = new List<Func<Usuario, (bool, string)>>
+            {
+                RuleHelper.Required<Usuario>(u => u.Nombre, nombre),
+                RuleHelper.Required<Usuario>(u => u.Correo, correo),
+                RuleHelper.Required<Usuario>(u => u.Contrasena, contraseña),
+                RuleHelper.MinLength<Usuario>(u => u.Contrasena, 6, contraseña),
+                RuleHelper.MaxLength<Usuario>(u => u.Nombre, 20, nombre),
+                RuleHelper.MaxLength<Usuario>(u => u.Contrasena, 50, contraseña),
+                RuleHelper.MaxLength<Usuario>(u => u.Correo, 40, correo),
+                RuleHelper.Email<Usuario>(u => u.Correo, correo)
+            };                  
+            return ValidatorHelper.Validate(usuario, rules, "El usuario");
         }
     }
 }

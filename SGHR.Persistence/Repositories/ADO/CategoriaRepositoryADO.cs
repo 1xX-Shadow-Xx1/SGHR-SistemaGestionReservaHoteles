@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
+using SGHR.Domain.Validators.Habitaciones;
 using SGHR.Persistence.Interfaces.Habitaciones;
 using System;
 using System.Collections.Generic;
@@ -30,12 +31,9 @@ namespace SGHR.Persistence.Repositories.ADO
 
         public async Task<OperationResult<Categoria>> Save(Categoria entity)
         {
-            var result = new OperationResult<Categoria>();
-
-            if (entity == null)
+            var result = CategoriaValidator.Validate(entity);
+            if (!result.Success)
             {
-                result.Success = false;
-                result.Message = "La categoría no puede ser nula";
                 return result;
             }
 
@@ -76,12 +74,9 @@ namespace SGHR.Persistence.Repositories.ADO
         }
         public async Task<OperationResult<Categoria>> Update(Categoria entity)
         {
-            var result = new OperationResult<Categoria>();
-
-            if (entity == null)
+            var result = CategoriaValidator.Validate(entity);
+            if (!result.Success)
             {
-                result.Success = false;
-                result.Message = "La categoría no puede ser nula";
                 return result;
             }
 
@@ -123,12 +118,9 @@ namespace SGHR.Persistence.Repositories.ADO
 
         public async Task<OperationResult<Categoria>> Delete(Categoria entity)
         {
-            var result = new OperationResult<Categoria>();
-
-            if (entity == null)
+            var result = CategoriaValidator.Validate(entity);
+            if (!result.Success)
             {
-                result.Success = false;
-                result.Message = "La categoría no puede ser nula";
                 return result;
             }
 

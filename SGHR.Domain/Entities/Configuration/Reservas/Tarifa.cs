@@ -15,5 +15,6 @@ namespace SGHR.Domain.Entities.Configuration.Reservas
         public decimal Precio { get; set; }
 
         public Categoria Categoria { get; set; }
+
     }
 }

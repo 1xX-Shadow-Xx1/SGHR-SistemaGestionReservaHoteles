@@ -5,6 +5,7 @@ using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Repository;
+using SGHR.Domain.Validators.Users;
 using SGHR.Persistence.Contex;
 
 
@@ -26,7 +27,11 @@ namespace SGHR.Persistence.Repositories.EF.Users
         }
         public override async Task<OperationResult<Usuario>> Save(Usuario entity)
         {
-            var result = await base.Save(entity);
+            var result = UsuarioValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Usuario creado correctamente con correo {Correo}", entity.Correo);
@@ -38,7 +43,11 @@ namespace SGHR.Persistence.Repositories.EF.Users
 
         public override async Task<OperationResult<Usuario>> Update(Usuario entity)
         {
-            var result = await base.Update(entity);
+            var result = UsuarioValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Usuario actualizado correctamente: {Id} - {Correo}", entity.Id, entity.Correo);
@@ -50,7 +59,11 @@ namespace SGHR.Persistence.Repositories.EF.Users
 
         public override async Task<OperationResult<Usuario>> Delete(Usuario entity)
         {
-            var result = await base.Delete(entity);
+            var result = UsuarioValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Usuario eliminado correctamente: {Id} - {Correo}", entity.Id, entity.Correo);

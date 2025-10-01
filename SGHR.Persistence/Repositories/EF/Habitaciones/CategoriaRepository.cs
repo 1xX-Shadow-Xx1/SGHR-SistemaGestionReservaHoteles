@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
+using SGHR.Domain.Validators.Habitaciones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Habitaciones;
 using System;
@@ -31,7 +32,12 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
         public override async Task<OperationResult<Categoria>> Save(Categoria entity)
         {
-            var result = await base.Save(entity);
+            var result = CategoriaValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
+
             if (result.Success)
                 _logger.LogInformation("Categoría registrada: {Id} - {Nombre}", entity.Id, entity.Nombre);
             else
@@ -42,7 +48,12 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
         public override async Task<OperationResult<Categoria>> Update(Categoria entity)
         {
-            var result = await base.Update(entity);
+            var result = CategoriaValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
+
             if (result.Success)
                 _logger.LogInformation("Categoría actualizada: {Id}", entity.Id);
             else
@@ -53,7 +64,12 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
         public override async Task<OperationResult<Categoria>> Delete(Categoria entity)
         {
-            var result = await base.Delete(entity);
+            var result = CategoriaValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
+
             if (result.Success)
                 _logger.LogInformation("Categoría eliminada correctamente: {Id}", entity.Id);
             else

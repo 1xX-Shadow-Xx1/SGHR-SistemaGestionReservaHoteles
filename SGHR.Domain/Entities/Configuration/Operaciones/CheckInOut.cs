@@ -18,5 +18,6 @@ namespace SGHR.Domain.Entities.Configuration.Operaciones
 
         public Reserva Reserva { get; set; }
         public Usuario Usuario { get; set; }
+
     }
 }

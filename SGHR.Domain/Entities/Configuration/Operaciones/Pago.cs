@@ -10,5 +10,6 @@ namespace SGHR.Domain.Entities.Configuration.Operaciones
         public DateTime FechaPago { get; set; } = DateTime.Now;
 
         public Reserva Reserva { get; set; }
+
     }
 }

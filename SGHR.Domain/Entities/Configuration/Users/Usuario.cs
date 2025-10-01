@@ -8,5 +8,6 @@
         public string Rol { get; set; }   
         public string Estado { get; set; } = "Activo";
         public ICollection<Cliente> Clientes { get; set; }
+
     }
 }

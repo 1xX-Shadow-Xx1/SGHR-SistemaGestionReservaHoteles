@@ -5,6 +5,7 @@ using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Repository;
+using SGHR.Domain.Validators.Reservas;
 using SGHR.Persistence.Contex;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,11 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 
         public override async Task<OperationResult<Reserva>> Save(Reserva entity)
         {
-            var result = await base.Save(entity);
+            var result = ReservaValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Reserva creada: {Id} - Cliente {ClienteId} - Habitación {HabitacionId}", entity.Id, entity.IdCliente, entity.IdHabitacion);
@@ -43,7 +48,11 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 
         public override async Task<OperationResult<Reserva>> Update(Reserva entity)
         {
-            var result = await base.Update(entity);
+            var result = ReservaValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Reserva actualizada: {Id}", entity.Id);
@@ -55,7 +64,11 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 
         public override async Task<OperationResult<Reserva>> Delete(Reserva entity)
         {
-            var result = await base.Delete(entity);
+            var result = ReservaValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Reserva eliminada correctamente: {Id}", entity.Id);

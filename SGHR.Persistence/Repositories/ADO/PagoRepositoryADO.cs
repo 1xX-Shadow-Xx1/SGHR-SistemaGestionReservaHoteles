@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
+using SGHR.Domain.Validators.Habitaciones;
+using SGHR.Domain.Validators.Operaciones;
 using SGHR.Persistence.Interfaces.Reportes;
 using System;
 using System.Collections.Generic;
@@ -31,9 +33,11 @@ namespace SGHR.Persistence.Repositories.ADO
 
         public async Task<OperationResult<Pago>> Save(Pago entity)
         {
-            var result = new OperationResult<Pago>();
-            if (entity == null)
-                return OperationResult<Pago>.Fail("El pago no puede ser nulo");
+            var result = PagoValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             try
             {
@@ -75,9 +79,11 @@ namespace SGHR.Persistence.Repositories.ADO
 
         public async Task<OperationResult<Pago>> Update(Pago entity)
         {
-            var result = new OperationResult<Pago>();
-            if (entity == null)
-                return OperationResult<Pago>.Fail("El pago no puede ser nulo");
+            var result = PagoValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             try
             {
@@ -119,9 +125,11 @@ namespace SGHR.Persistence.Repositories.ADO
 
         public async Task<OperationResult<Pago>> Delete(Pago entity)
         {
-            var result = new OperationResult<Pago>();
-            if (entity == null)
-                return OperationResult<Pago>.Fail("El pago no puede ser nulo");
+            var result = PagoValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             try
             {

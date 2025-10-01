@@ -13,5 +13,6 @@ namespace SGHR.Domain.Entities.Configuration.Habitaciones
         public Categoria Categoria { get; set; }
         public Piso Piso { get; set; }
         public ICollection<Reserva> Reservas { get; set; }
+
     }
 }

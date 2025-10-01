@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
+using SGHR.Domain.Validators.Operaciones;
+using SGHR.Domain.Validators.Reservas;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Reportes;
 using System;
@@ -31,7 +33,11 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
         public override async Task<OperationResult<Pago>> Save(Pago entity)
         {
-            var result = await base.Save(entity);
+            var result = PagoValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Pago registrado: {Id} - Monto {Monto}", entity.Id, entity.Monto);
@@ -43,7 +49,11 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
         public override async Task<OperationResult<Pago>> Update(Pago entity)
         {
-            var result = await base.Update(entity);
+            var result = PagoValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Pago actualizado: {Id}", entity.Id);
@@ -55,7 +65,11 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
         public override async Task<OperationResult<Pago>> Delete(Pago entity)
         {
-            var result = await base.Delete(entity);
+            var result = PagoValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Pago eliminado correctamente: {Id}", entity.Id);

@@ -19,5 +19,6 @@ namespace SGHR.Domain.Entities.Configuration.Reservas
         public Habitacion Habitacion { get; set; }
         public Usuario Usuario { get; set; }
         public ICollection<Pago> Pagos { get; set; }
+
     }
 }

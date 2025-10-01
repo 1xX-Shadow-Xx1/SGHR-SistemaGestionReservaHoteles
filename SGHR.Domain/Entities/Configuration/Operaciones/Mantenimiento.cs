@@ -22,5 +22,6 @@ namespace SGHR.Domain.Entities.Configuration.Operaciones
         public Piso Piso { get; set; }
         public Habitacion Habitacion { get; set; }
         public Usuario Usuario { get; set; }
+
     }
 }

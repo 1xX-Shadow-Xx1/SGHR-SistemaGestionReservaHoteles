@@ -10,5 +10,6 @@ namespace SGHR.Domain.Entities.Configuration.Habitaciones
         public ICollection<Habitacion> Habitaciones { get; set; }
         public ICollection<Tarifa> Tarifas { get; set; }
         public ICollection<Amenity> Amenities { get; set; }
+
     }
 }

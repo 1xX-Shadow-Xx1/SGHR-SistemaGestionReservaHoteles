@@ -17,5 +17,6 @@ namespace SGHR.Domain.Entities.Configuration.Operaciones
         public string Detalle { get; set; }
 
         public Usuario Usuario { get; set; }
+
     }
 }

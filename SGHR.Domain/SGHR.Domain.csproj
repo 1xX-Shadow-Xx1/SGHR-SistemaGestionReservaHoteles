@@ -6,9 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Validators\Reservas\" />
-    <Folder Include="Validators\Operaciones\" />
-  </ItemGroup>
-
 </Project>

@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
+using SGHR.Domain.Validators.Habitaciones;
+using SGHR.Domain.Validators.Operaciones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Habitaciones;
 using System;
@@ -31,7 +33,12 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
         public override async Task<OperationResult<Piso>> Save(Piso entity)
         {
-            var result = await base.Save(entity);
+            var result = PisoValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
+
             if (result.Success)
                 _logger.LogInformation("Piso registrado: {Id} - Número {Numero}", entity.Id, entity.NumeroPiso);
             else
@@ -42,7 +49,12 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
         public override async Task<OperationResult<Piso>> Update(Piso entity)
         {
-            var result = await base.Update(entity);
+            var result = PisoValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
+
             if (result.Success)
                 _logger.LogInformation("Piso actualizado: {Id}", entity.Id);
             else
@@ -53,7 +65,12 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
         public override async Task<OperationResult<Piso>> Delete(Piso entity)
         {
-            var result = await base.Delete(entity);
+            var result = PisoValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
+
             if (result.Success)
                 _logger.LogInformation("Piso eliminado correctamente: {Id}", entity.Id);
             else

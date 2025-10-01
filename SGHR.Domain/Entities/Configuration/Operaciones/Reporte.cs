@@ -10,5 +10,6 @@ namespace SGHR.Domain.Entities.Configuration.Reportes
         public string RutaArchivo { get; set; }
 
         public Usuario Usuario { get; set; }
+
     }
 }

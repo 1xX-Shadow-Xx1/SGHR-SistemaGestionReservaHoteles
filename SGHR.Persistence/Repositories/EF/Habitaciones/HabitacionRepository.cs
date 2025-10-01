@@ -5,6 +5,7 @@ using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Repository;
+using SGHR.Domain.Validators.Habitaciones;
 using SGHR.Persistence.Contex;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,12 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
         public override async Task<OperationResult<Habitacion>> Save(Habitacion entity)
         {
-            var result = await base.Save(entity);
+            var result = HabitacionValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
+
             if (result.Success)
                 _logger.LogInformation("Habitación registrada: {Id} - Número {Numero}", entity.Id, entity.Numero);
             else
@@ -42,7 +48,12 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
         public override async Task<OperationResult<Habitacion>> Update(Habitacion entity)
         {
-            var result = await base.Update(entity);
+            var result = HabitacionValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
+
             if (result.Success)
                 _logger.LogInformation("Habitación actualizada: {Id}", entity.Id);
             else
@@ -53,7 +64,12 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
         public override async Task<OperationResult<Habitacion>> Delete(Habitacion entity)
         {
-            var result = await base.Delete(entity);
+            var result = HabitacionValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
+
             if (result.Success)
                 _logger.LogInformation("Habitación eliminada correctamente: {Id}", entity.Id);
             else

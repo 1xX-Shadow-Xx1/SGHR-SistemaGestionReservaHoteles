@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Reservas;
+using SGHR.Domain.Validators.Reservas;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Reservas;
 using System;
@@ -30,7 +31,11 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 
         public override async Task<OperationResult<ServicioAdicional>> Save(ServicioAdicional entity)
         {
-            var result = await base.Save(entity);
+            var result = ServicioAdicionalValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Servicio adicional creado: {Id} - {Nombre} - Costo {Costo}", entity.Id, entity.Nombre, entity.Precio);
@@ -42,7 +47,11 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 
         public override async Task<OperationResult<ServicioAdicional>> Update(ServicioAdicional entity)
         {
-            var result = await base.Update(entity);
+            var result = ServicioAdicionalValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Servicio adicional actualizado: {Id} - {Nombre}", entity.Id, entity.Nombre);
@@ -54,7 +63,11 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 
         public override async Task<OperationResult<ServicioAdicional>> Delete(ServicioAdicional entity)
         {
-            var result = await base.Delete(entity);
+            var result = ServicioAdicionalValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Servicio adicional eliminado correctamente: {Id} - {Nombre}", entity.Id, entity.Nombre);

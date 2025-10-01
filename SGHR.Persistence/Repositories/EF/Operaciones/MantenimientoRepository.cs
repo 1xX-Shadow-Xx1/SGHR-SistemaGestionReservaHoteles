@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
+using SGHR.Domain.Validators.Operaciones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Operaciones;
 using System;
@@ -31,7 +32,11 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
         public override async Task<OperationResult<Mantenimiento>> Save(Mantenimiento entity)
         {
-            var result = await base.Save(entity);
+            var result = MantenimientoValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Mantenimiento registrado: {Id} - Habitación {HabitacionId}", entity.Id, entity.IdHabitacion);
@@ -43,7 +48,11 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
         public override async Task<OperationResult<Mantenimiento>> Update(Mantenimiento entity)
         {
-            var result = await base.Update(entity);
+            var result = MantenimientoValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Mantenimiento actualizado: {Id}", entity.Id);
@@ -55,7 +64,11 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
         public override async Task<OperationResult<Mantenimiento>> Delete(Mantenimiento entity)
         {
-            var result = await base.Delete(entity);
+            var result = MantenimientoValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Mantenimiento eliminado correctamente: {Id}", entity.Id);

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Usuers;
+using SGHR.Domain.Validators.Users;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Users;
 using System;
@@ -30,7 +31,11 @@ namespace SGHR.Persistence.Repositories.EF.Users
         }
         public override async Task<OperationResult<Cliente>> Save(Cliente entity)
         {
-            var result = await base.Save(entity);
+            var result = ClienteValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Cliente creado correctamente: {Id} - {Nombre}", entity.Id, entity.Nombre);
@@ -42,7 +47,11 @@ namespace SGHR.Persistence.Repositories.EF.Users
 
         public override async Task<OperationResult<Cliente>> Update(Cliente entity)
         {
-            var result = await base.Update(entity);
+            var result = ClienteValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Cliente actualizado correctamente: {Id} - {Nombre}", entity.Id, entity.Nombre);
@@ -54,7 +63,11 @@ namespace SGHR.Persistence.Repositories.EF.Users
 
         public override async Task<OperationResult<Cliente>> Delete(Cliente entity)
         {
-            var result = await base.Delete(entity);
+            var result = ClienteValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Cliente eliminado (soft delete): {Id} - {Nombre}", entity.Id, entity.Nombre);

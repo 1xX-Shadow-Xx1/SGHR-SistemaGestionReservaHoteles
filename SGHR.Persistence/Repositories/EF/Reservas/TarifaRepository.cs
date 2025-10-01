@@ -4,6 +4,8 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Reservas;
+using SGHR.Domain.Validators.Reservas;
+using SGHR.Domain.Validators.Users;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Reservas;
 using System;
@@ -31,7 +33,11 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 
         public override async Task<OperationResult<Tarifa>> Save(Tarifa entity)
         {
-            var result = await base.Save(entity);
+            var result = TarifaValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Tarifa creada: {Id} - {Temporada} - Precio {Precio}", entity.Id, entity.Temporada, entity.Precio);
@@ -43,7 +49,11 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 
         public override async Task<OperationResult<Tarifa>> Update(Tarifa entity)
         {
-            var result = await base.Update(entity);
+            var result = TarifaValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Tarifa actualizada: {Id} - {Temporada} - Precio {Precio}", entity.Id, entity.Temporada, entity.Precio);
@@ -55,7 +65,11 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 
         public override async Task<OperationResult<Tarifa>> Delete(Tarifa entity)
         {
-            var result = await base.Delete(entity);
+            var result = TarifaValidator.Validate(entity);
+            if (!result.Success)
+            {
+                return result;
+            }
 
             if (result.Success)
                 _logger.LogInformation("Tarifa eliminada (soft delete): {Id} - {Temporada}", entity.Id, entity.Temporada);
