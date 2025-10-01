@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
+using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Habitaciones;
@@ -14,9 +16,110 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 {
     public sealed class CategoriaRepository : BaseRepository<Categoria>, ICategoriaRepository
     {
-        public CategoriaRepository(SGHRContext context)
-            : base(context)
+        private readonly SGHRContext _context;
+        private readonly ILogger<CategoriaRepository> _logger;
+        private readonly IConfiguration _configuration;
+
+        public CategoriaRepository(SGHRContext context,
+                                   ILogger<CategoriaRepository> logger,
+                                   IConfiguration configuration) : base(context)
         {
+            _context = context;
+            _logger = logger;
+            _configuration = configuration;
+        }
+
+        public override async Task<OperationResult<Categoria>> Save(Categoria entity)
+        {
+            var result = await base.Save(entity);
+            if (result.Success)
+                _logger.LogInformation("Categoría registrada: {Id} - {Nombre}", entity.Id, entity.Nombre);
+            else
+                _logger.LogError("Error al registrar Categoría: {Message}", result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<Categoria>> Update(Categoria entity)
+        {
+            var result = await base.Update(entity);
+            if (result.Success)
+                _logger.LogInformation("Categoría actualizada: {Id}", entity.Id);
+            else
+                _logger.LogError("Error al actualizar Categoría {Id}: {Message}", entity.Id, result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<Categoria>> Delete(Categoria entity)
+        {
+            var result = await base.Delete(entity);
+            if (result.Success)
+                _logger.LogInformation("Categoría eliminada correctamente: {Id}", entity.Id);
+            else
+                _logger.LogError("Error al eliminar Categoría {Id}: {Message}", entity.Id, result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<Categoria>> GetById(int id)
+        {
+            try
+            {
+                var entity = await _context.Categoria
+                    .Include(c => c.Habitaciones) 
+                    .Include(c => c.Amenities)    
+                    .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+
+                if (entity == null)
+                    return OperationResult<Categoria>.Fail("Categoría no encontrada");
+
+                return OperationResult<Categoria>.Ok(entity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener Categoría por Id {Id}", id);
+                return OperationResult<Categoria>.Fail($"Error: {ex.Message}");
+            }
+        }
+
+        public async Task<OperationResult<List<Categoria>>> GetActivasAsync()
+        {
+            try
+            {
+                var lista = await _context.Categoria
+                    .Where(c => !c.IsDeleted)
+                    .ToListAsync();
+
+                if (!lista.Any())
+                    return OperationResult<List<Categoria>>.Fail("No hay categorías activas");
+
+                return OperationResult<List<Categoria>>.Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener categorías activas");
+                return OperationResult<List<Categoria>>.Fail($"Error: {ex.Message}");
+            }
+        }
+
+        public async Task<OperationResult<Categoria>> GetByNombreAsync(string nombre)
+        {
+            try
+            {
+                var entity = await _context.Categoria
+                    .FirstOrDefaultAsync(c => c.Nombre == nombre && !c.IsDeleted);
+
+                if (entity == null)
+                    return OperationResult<Categoria>.Fail("Categoría no encontrada con ese nombre");
+
+                return OperationResult<Categoria>.Ok(entity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener Categoría por nombre {Nombre}", nombre);
+                return OperationResult<Categoria>.Fail($"Error: {ex.Message}");
+            }
         }
     }
 }

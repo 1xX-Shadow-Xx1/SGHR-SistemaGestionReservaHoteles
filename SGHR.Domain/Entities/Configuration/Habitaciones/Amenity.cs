@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SGHR.Domain.Entities.Configuration.Habitaciones
 {
-    public sealed class Amenities : BaseEntity
+    public sealed class Amenity : BaseEntity
     {
         public string Nombre { get; set; }
         public string Descripcion { get; set; }

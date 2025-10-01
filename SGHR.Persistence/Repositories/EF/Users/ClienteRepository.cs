@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
@@ -17,14 +18,63 @@ namespace SGHR.Persistence.Repositories.EF.Users
     {
         private readonly SGHRContext _context;
         private readonly ILogger<ClienteRepository> _logger;
+        private readonly IConfiguration _configuration;
 
-        public ClienteRepository(SGHRContext context, ILogger<ClienteRepository> logger)
-            : base(context)
+        public ClienteRepository(SGHRContext context,
+                                 ILogger<ClienteRepository> logger,
+                                 IConfiguration configuration) : base(context)
         {
             _context = context;
             _logger = logger;
+            _configuration = configuration;
+        }
+        public override async Task<OperationResult<Cliente>> Save(Cliente entity)
+        {
+            var result = await base.Save(entity);
+
+            if (result.Success)
+                _logger.LogInformation("Cliente creado correctamente: {Id} - {Nombre}", entity.Id, entity.Nombre);
+            else
+                _logger.LogError("Error al crear Cliente {Nombre}: {Message}", entity.Nombre, result.Message);
+
+            return result;
         }
 
+        public override async Task<OperationResult<Cliente>> Update(Cliente entity)
+        {
+            var result = await base.Update(entity);
+
+            if (result.Success)
+                _logger.LogInformation("Cliente actualizado correctamente: {Id} - {Nombre}", entity.Id, entity.Nombre);
+            else
+                _logger.LogError("Error al actualizar Cliente {Id}: {Message}", entity.Id, result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<Cliente>> Delete(Cliente entity)
+        {
+            var result = await base.Delete(entity);
+
+            if (result.Success)
+                _logger.LogInformation("Cliente eliminado (soft delete): {Id} - {Nombre}", entity.Id, entity.Nombre);
+            else
+                _logger.LogError("Error al eliminar Cliente {Id}: {Message}", entity.Id, result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<Cliente>> GetById(int id)
+        {
+            var result = await base.GetById(id);
+
+            if (result.Success)
+                _logger.LogInformation("Cliente encontrado: {Id}", id);
+            else
+                _logger.LogWarning("No se encontró el Cliente con Id {Id}", id);
+
+            return result;
+        }
         public async Task<OperationResult<Cliente>> GetByCedulaAsync(string cedula)
         {
             try

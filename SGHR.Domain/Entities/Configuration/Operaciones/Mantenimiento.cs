@@ -17,6 +17,7 @@ namespace SGHR.Domain.Entities.Configuration.Operaciones
         public DateTime FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
         public int RealizadoPor { get; set; }
+        public string Estado { get; set; }
 
         public Piso Piso { get; set; }
         public Habitacion Habitacion { get; set; }

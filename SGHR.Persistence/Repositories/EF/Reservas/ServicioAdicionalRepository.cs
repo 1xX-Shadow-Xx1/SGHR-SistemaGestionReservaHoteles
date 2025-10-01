@@ -1,4 +1,7 @@
-﻿using SchoolPoliApp.Persistence.Base;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using SchoolPoliApp.Persistence.Base;
+using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Reservas;
@@ -12,8 +15,65 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 {
     public sealed class ServicioAdicionalRepository : BaseRepository<ServicioAdicional>, IServicioAdicionalRepository
     {
-        public ServicioAdicionalRepository(SGHRContext context) : base(context)
+        private readonly SGHRContext _context;
+        private readonly ILogger<ServicioAdicionalRepository> _logger;
+        private readonly IConfiguration _configuration;
+
+        public ServicioAdicionalRepository(SGHRContext context,
+                                           ILogger<ServicioAdicionalRepository> logger,
+                                           IConfiguration configuration) : base(context)
         {
+            _context = context;
+            _logger = logger;
+            _configuration = configuration;
+        }
+
+        public override async Task<OperationResult<ServicioAdicional>> Save(ServicioAdicional entity)
+        {
+            var result = await base.Save(entity);
+
+            if (result.Success)
+                _logger.LogInformation("Servicio adicional creado: {Id} - {Nombre} - Costo {Costo}", entity.Id, entity.Nombre, entity.Precio);
+            else
+                _logger.LogError("Error al crear Servicio adicional: {Message}", result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<ServicioAdicional>> Update(ServicioAdicional entity)
+        {
+            var result = await base.Update(entity);
+
+            if (result.Success)
+                _logger.LogInformation("Servicio adicional actualizado: {Id} - {Nombre}", entity.Id, entity.Nombre);
+            else
+                _logger.LogError("Error al actualizar Servicio adicional {Id}: {Message}", entity.Id, result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<ServicioAdicional>> Delete(ServicioAdicional entity)
+        {
+            var result = await base.Delete(entity);
+
+            if (result.Success)
+                _logger.LogInformation("Servicio adicional eliminado correctamente: {Id} - {Nombre}", entity.Id, entity.Nombre);
+            else
+                _logger.LogError("Error al eliminar Servicio adicional {Id}: {Message}", entity.Id, result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<ServicioAdicional>> GetById(int id)
+        {
+            var result = await base.GetById(id);
+
+            if (result.Success)
+                _logger.LogInformation("Servicio adicional encontrado: {Id}", id);
+            else
+                _logger.LogWarning("No se encontró Servicio adicional con Id {Id}", id);
+
+            return result;
         }
     }
 }

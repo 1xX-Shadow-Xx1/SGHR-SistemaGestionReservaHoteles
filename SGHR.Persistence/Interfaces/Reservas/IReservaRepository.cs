@@ -11,6 +11,5 @@ namespace SGHR.Domain.Repository
 {
     public interface IReservaRepository : IBaseRepository<Reserva>
     {
-        public Task<OperationResult<List<Reserva>>> GetReservasActivasAsync();
     }
 }

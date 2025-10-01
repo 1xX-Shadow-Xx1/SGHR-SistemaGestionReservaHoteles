@@ -1,4 +1,8 @@
-﻿using SchoolPoliApp.Persistence.Base;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using SchoolPoliApp.Persistence.Base;
+using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Reservas;
@@ -12,8 +16,84 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 {
     public sealed class TarifaRepository : BaseRepository<Tarifa>, ITarifaRepository
     {
-        public TarifaRepository(SGHRContext context) : base(context)
+        private readonly SGHRContext _context;
+        private readonly ILogger<TarifaRepository> _logger;
+        private readonly IConfiguration _configuration;
+
+        public TarifaRepository(SGHRContext context,
+                                ILogger<TarifaRepository> logger,
+                                IConfiguration configuration) : base(context)
         {
+            _context = context;
+            _logger = logger;
+            _configuration = configuration;
+        }
+
+        public override async Task<OperationResult<Tarifa>> Save(Tarifa entity)
+        {
+            var result = await base.Save(entity);
+
+            if (result.Success)
+                _logger.LogInformation("Tarifa creada: {Id} - {Temporada} - Precio {Precio}", entity.Id, entity.Temporada, entity.Precio);
+            else
+                _logger.LogError("Error al crear Tarifa: {Message}", result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<Tarifa>> Update(Tarifa entity)
+        {
+            var result = await base.Update(entity);
+
+            if (result.Success)
+                _logger.LogInformation("Tarifa actualizada: {Id} - {Temporada} - Precio {Precio}", entity.Id, entity.Temporada, entity.Precio);
+            else
+                _logger.LogError("Error al actualizar Tarifa {Id}: {Message}", entity.Id, result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<Tarifa>> Delete(Tarifa entity)
+        {
+            var result = await base.Delete(entity);
+
+            if (result.Success)
+                _logger.LogInformation("Tarifa eliminada (soft delete): {Id} - {Temporada}", entity.Id, entity.Temporada);
+            else
+                _logger.LogError("Error al eliminar Tarifa {Id}: {Message}", entity.Id, result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<Tarifa>> GetById(int id)
+        {
+            var result = await base.GetById(id);
+
+            if (result.Success)
+                _logger.LogInformation("Tarifa encontrada: {Id}", id);
+            else
+                _logger.LogWarning("No se encontró Tarifa con Id {Id}", id);
+
+            return result;
+        }
+        public async Task<OperationResult<List<Tarifa>>> GetByTemporadaAsync(string temporada)
+        {
+            try
+            {
+                var tarifas = await _context.Tarifa
+                    .Where(t => t.Temporada == temporada && !t.IsDeleted)
+                    .ToListAsync();
+
+                if (!tarifas.Any())
+                    return OperationResult<List<Tarifa>>.Fail("No se encontraron tarifas para esa temporada");
+
+                return OperationResult<List<Tarifa>>.Ok(tarifas);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener tarifas por temporada {Temporada}", temporada);
+                return OperationResult<List<Tarifa>>.Fail($"Error: {ex.Message}");
+            }
         }
     }
 }

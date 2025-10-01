@@ -1,4 +1,8 @@
-﻿using SchoolPoliApp.Persistence.Base;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using SchoolPoliApp.Persistence.Base;
+using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Habitaciones;
@@ -12,8 +16,109 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 {
     public sealed class PisoRepository : BaseRepository<Piso>, IPisoRepository
     {
-        public PisoRepository(SGHRContext context) : base(context)
+        private readonly SGHRContext _context;
+        private readonly ILogger<PisoRepository> _logger;
+        private readonly IConfiguration _configuration;
+
+        public PisoRepository(SGHRContext context,
+                              ILogger<PisoRepository> logger,
+                              IConfiguration configuration) : base(context)
         {
+            _context = context;
+            _logger = logger;
+            _configuration = configuration;
+        }
+
+        public override async Task<OperationResult<Piso>> Save(Piso entity)
+        {
+            var result = await base.Save(entity);
+            if (result.Success)
+                _logger.LogInformation("Piso registrado: {Id} - Número {Numero}", entity.Id, entity.NumeroPiso);
+            else
+                _logger.LogError("Error al registrar Piso: {Message}", result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<Piso>> Update(Piso entity)
+        {
+            var result = await base.Update(entity);
+            if (result.Success)
+                _logger.LogInformation("Piso actualizado: {Id}", entity.Id);
+            else
+                _logger.LogError("Error al actualizar Piso {Id}: {Message}", entity.Id, result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<Piso>> Delete(Piso entity)
+        {
+            var result = await base.Delete(entity);
+            if (result.Success)
+                _logger.LogInformation("Piso eliminado correctamente: {Id}", entity.Id);
+            else
+                _logger.LogError("Error al eliminar Piso {Id}: {Message}", entity.Id, result.Message);
+
+            return result;
+        }
+
+        public override async Task<OperationResult<Piso>> GetById(int id)
+        {
+            try
+            {
+                var entity = await _context.Piso
+                    .Include(p => p.Habitaciones) 
+                    .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+
+                if (entity == null)
+                    return OperationResult<Piso>.Fail("Piso no encontrado");
+
+                return OperationResult<Piso>.Ok(entity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener Piso por Id {Id}", id);
+                return OperationResult<Piso>.Fail($"Error: {ex.Message}");
+            }
+        }
+
+        public async Task<OperationResult<List<Piso>>> GetPisosHabilitadosAsync()
+        {
+            try
+            {
+                var lista = await _context.Piso
+                    .Where(p => p.Estado == "Habilitado" && !p.IsDeleted)
+                    .ToListAsync();
+
+                if (!lista.Any())
+                    return OperationResult<List<Piso>>.Fail("No hay pisos habilitados");
+
+                return OperationResult<List<Piso>>.Ok(lista);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener pisos habilitados");
+                return OperationResult<List<Piso>>.Fail($"Error: {ex.Message}");
+            }
+        }
+
+        public async Task<OperationResult<Piso>> GetByNumeroAsync(int numero)
+        {
+            try
+            {
+                var entity = await _context.Piso
+                    .FirstOrDefaultAsync(p => p.NumeroPiso == numero && !p.IsDeleted);
+
+                if (entity == null)
+                    return OperationResult<Piso>.Fail("Piso no encontrado con ese número");
+
+                return OperationResult<Piso>.Ok(entity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener Piso por número {Numero}", numero);
+                return OperationResult<Piso>.Fail($"Error: {ex.Message}");
+            }
         }
     }
 }

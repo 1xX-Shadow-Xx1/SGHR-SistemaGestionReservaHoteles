@@ -10,7 +10,7 @@ namespace SGHR.Domain.Validators.Users
 {
     public static class UsuarioValidator
     {
-        public static OperationResult<Usuario> Validate(Usuario entity)
+        public static OperationResult<Usuario> ValidateSave(Usuario entity)
         {
             if (entity == null)
                 return OperationResult<Usuario>.Fail("El usuario no puede ser nulo");

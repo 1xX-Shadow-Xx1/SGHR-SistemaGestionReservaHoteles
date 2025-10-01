@@ -13,20 +13,22 @@ namespace SGHR.Persistence.Contex
         public SGHRContext(DbContextOptions<SGHRContext> options) : base(options) { }
 
         //Habitaciones
-        public DbSet<Amenities> Amenities { get; set; }
+        public DbSet<Amenity> Amenity { get; set; }
         public DbSet<Habitacion> Habitaciones { get; set; }
         public DbSet<Categoria> Categoria { get; set; }
-        public DbSet<Mantenimiento> Mantenimiento { get; set; }
         public DbSet<Piso> Piso { get; set; }
         
-        //Reportes
+        //Operaciones
+        public DbSet<CheckInOut> CheckInOut { get; set; }
         public DbSet<Reporte> Reportes { get; set; }
-        
+        public DbSet<Auditory> Auditory { get; set; }
+        public DbSet<Mantenimiento> Mantenimiento { get; set; }
+        public DbSet<Pago> Pagos { get; set; }
+
         //Reservas
         public DbSet<Reserva> Reservas { get; set; }
         public DbSet<ServicioAdicional> ServicioAdicional { get; set; }
         public DbSet<Tarifa> Tarifa { get; set; }
-        public DbSet<Pago> Pagos { get; set; } 
         
         //Users
         public DbSet<Usuario> Usuarios { get; set; }
