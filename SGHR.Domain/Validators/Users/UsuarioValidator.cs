@@ -17,10 +17,10 @@ namespace SGHR.Domain.Validators.Users
             {
                 RuleHelper.Required<Usuario>(u => u.Nombre, nombre),
                 RuleHelper.Required<Usuario>(u => u.Correo, correo),
-                RuleHelper.Required<Usuario>(u => u.Contrasena, contraseña),
-                RuleHelper.MinLength<Usuario>(u => u.Contrasena, 6, contraseña),
+                RuleHelper.Required<Usuario>(u => u.Contraseña, contraseña),
+                RuleHelper.MinLength<Usuario>(u => u.Contraseña, 6, contraseña),
                 RuleHelper.MaxLength<Usuario>(u => u.Nombre, 20, nombre),
-                RuleHelper.MaxLength<Usuario>(u => u.Contrasena, 50, contraseña),
+                RuleHelper.MaxLength<Usuario>(u => u.Contraseña, 50, contraseña),
                 RuleHelper.MaxLength<Usuario>(u => u.Correo, 40, correo),
                 RuleHelper.Email<Usuario>(u => u.Correo, correo)
             };                  

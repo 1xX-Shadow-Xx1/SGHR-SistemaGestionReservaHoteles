@@ -7,13 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SGHR.Domain\SGHR.Domain.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Base\" />
-    <Folder Include="Interfaces\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\SGHR.Domain\SGHR.Domain.csproj" />
+		<ProjectReference Include="..\SGHR.Persistence\SGHR.Persistence.csproj" />
+	</ItemGroup>
 
 </Project>

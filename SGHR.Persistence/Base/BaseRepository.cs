@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using SGHR.Domain.Base;
+using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Repository;
 using SGHR.Persistence.Contex;
 using System.Linq.Expressions;
@@ -89,6 +90,10 @@ namespace SchoolPoliApp.Persistence.Base
 
         public virtual async Task<OperationResult<TEntity>> GetById(int id)
         {
+            if (id <= 0)
+            {
+                return OperationResult<TEntity>.Fail("Id inválido");
+            }
             try
             {
                 var entity = await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);

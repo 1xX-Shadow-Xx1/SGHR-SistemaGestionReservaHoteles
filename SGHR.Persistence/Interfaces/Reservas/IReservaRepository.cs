@@ -1,11 +1,5 @@
-﻿using SGHR.Domain.Base;
-using SGHR.Domain.Entities.Configuration.Reservas;
-using System;
-using System.ClientModel.Primitives;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SGHR.Domain.Entities.Configuration.Reservas;
+
 
 namespace SGHR.Domain.Repository
 {

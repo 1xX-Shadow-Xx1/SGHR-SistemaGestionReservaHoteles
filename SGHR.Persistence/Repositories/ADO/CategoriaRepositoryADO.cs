@@ -5,13 +5,9 @@ using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Validators.Habitaciones;
 using SGHR.Persistence.Interfaces.Habitaciones;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace SGHR.Persistence.Repositories.ADO
 {

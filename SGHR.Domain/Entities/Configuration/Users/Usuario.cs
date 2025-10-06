@@ -4,7 +4,7 @@
     {
         public string Nombre { get; set; }
         public string Correo { get; set; }
-        public string Contrasena { get; set; }
+        public string Contraseña { get; set; }
         public string Rol { get; set; }   
         public string Estado { get; set; } = "Activo";
         public ICollection<Cliente> Clientes { get; set; }
