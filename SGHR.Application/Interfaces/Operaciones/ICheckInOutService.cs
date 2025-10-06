@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SGHR.Application.Base;
+using SGHR.Application.Dtos.Configuration.Operaciones.CheckInOut;
+
 
 namespace SGHR.Application.Interfaces.Operaciones
 {
-    internal interface ICheckInOutService
+    public interface ICheckInOutService : IBaseServices<CreateCheckInOutDto, UpdateCheckInOutDto, DeleteCheckInOutDto>
     {
     }
 }

@@ -7,11 +7,7 @@ using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Validators.Users;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Users;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace SGHR.Persistence.Repositories.EF.Users
 {
@@ -86,6 +82,15 @@ namespace SGHR.Persistence.Repositories.EF.Users
             else
                 _logger.LogWarning("No se encontró el Cliente con Id {Id}", id);
 
+            return result;
+        }
+        public override async Task<OperationResult<List<Cliente>>> GetAll()
+        {
+            var result = await base.GetAll();
+            if (result.Success)
+                _logger.LogInformation("Clientes obtenidos correctamente. Total: {Count}", result.Data.Count);
+            else
+                _logger.LogError("Error al obtener los Clientes: {Message}", result.Message);
             return result;
         }
         public async Task<OperationResult<Cliente>> GetByCedulaAsync(string cedula)

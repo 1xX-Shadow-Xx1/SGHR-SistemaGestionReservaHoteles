@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+
+using SGHR.Application.Base;
+using SGHR.Application.Dtos.Configuration.Operaciones.Pago;
 
 namespace SGHR.Application.Interfaces.Operaciones
 {
-    internal interface IPagoService
+    public interface IPagoService : IBaseServices<CreatePagoDto, UpdatePagoDto, DeletePagoDto>
     {
     }
 }

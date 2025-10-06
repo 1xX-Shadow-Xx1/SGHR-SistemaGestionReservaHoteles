@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SGHR.Application.Base;
+using SGHR.Application.Dtos.Configuration.Operaciones.Mantenimiento;
+
 
 namespace SGHR.Application.Interfaces.Operaciones
 {
-    internal interface IMantenimientoService
+    public interface IMantenimientoService : IBaseServices<CreateMantenimientoDto, UpdateMantenimientoDto, DeleteMantenimientoDto>
     {
     }
 }

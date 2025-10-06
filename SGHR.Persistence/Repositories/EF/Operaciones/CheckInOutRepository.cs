@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace SGHR.Persistence.Repositories.EF.Operaciones
 {
-    public sealed class CheckInOutRepository : BaseRepository<CheckInOut>, ICheckInOut
+    public sealed class CheckInOutRepository : BaseRepository<CheckInOut>, ICheckInOutRepository
     {
         private readonly SGHRContext _context;
         private readonly ILogger<CheckInOutRepository> _logger;

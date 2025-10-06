@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SGHR.Application.Base;
+using SGHR.Application.Dtos.Configuration.Users.Usuario;
+
 
 namespace SGHR.Application.Interfaces.Users
 {
-    internal interface IUsuarioService
+    public interface IUsuarioService : IBaseServices<CreateUsuarioDto, UpdateUsuarioDto, DeleteUsuarioDto>
     {
     }
 }

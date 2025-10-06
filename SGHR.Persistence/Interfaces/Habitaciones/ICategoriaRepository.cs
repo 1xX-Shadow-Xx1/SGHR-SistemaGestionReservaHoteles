@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SGHR.Persistence.Interfaces.Habitaciones
 {
-    internal interface ICategoriaRepository : IBaseRepository<Categoria>
+    public interface ICategoriaRepository : IBaseRepository<Categoria>
     {
     }
 }

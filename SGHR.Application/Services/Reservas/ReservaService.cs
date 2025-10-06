@@ -6,7 +6,7 @@ using SGHR.Application.Interfaces.Reservas;
 using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Repository;
 
-namespace SGHR.Application.Services
+namespace SGHR.Application.Services.Reservas
 {
     public class ReservaService : IReservaService
     {
@@ -98,6 +98,7 @@ namespace SGHR.Application.Services
                 if (opResult.Success)
                 {
                     result.Success = true;
+                    result.Data = opResult.Data;
                     result.Message = "Reserva eliminada correctamente.";
                 }
                 else
@@ -172,6 +173,7 @@ namespace SGHR.Application.Services
                 }
 
                 var existingReserva = existingReservaResult.Data;
+
                 existingReserva.FechaInicio = updateReservaDto.FechaInicio;
                 existingReserva.FechaFin = updateReservaDto.FechaFin;
                 existingReserva.IdHabitacion = updateReservaDto.IdHabitacion;

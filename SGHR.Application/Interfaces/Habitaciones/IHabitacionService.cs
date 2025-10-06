@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using SGHR.Application.Base;
+using SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion;
 
 namespace SGHR.Application.Interfaces.Habitaciones
 {
-    internal interface IHabitacionService
+    public interface IHabitacionService : IBaseServices<CreateHabitacionDto, UpdateHabitacionDto, DeleteHabitacionDto>
     {
     }
 }
