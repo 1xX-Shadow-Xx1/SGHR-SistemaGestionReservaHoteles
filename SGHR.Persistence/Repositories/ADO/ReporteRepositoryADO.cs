@@ -43,7 +43,6 @@ namespace SGHR.Persistence.Repositories.ADO
                     CommandType = CommandType.StoredProcedure
                 };
 
-                cmd.Parameters.AddWithValue("@id_reporte", entity.Id);
                 cmd.Parameters.AddWithValue("@tipo_reporte", entity.TipoReporte);
                 cmd.Parameters.AddWithValue("@fecha_generacion", entity.FechaGeneracion);
                 cmd.Parameters.AddWithValue("@generado_por", entity.GeneradoPor);

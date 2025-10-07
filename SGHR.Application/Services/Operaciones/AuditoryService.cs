@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
-using SGHR.Application.Base.;
 using SGHR.Application.Dtos.Configuration.Operaciones.Auditory;
 using SGHR.Application.Interfaces.Operaciones;
 using SGHR.Domain.Entities.Configuration.Operaciones;

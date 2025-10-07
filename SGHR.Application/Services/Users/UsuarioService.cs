@@ -32,12 +32,12 @@ namespace SGHR.Application.Services.Users
                 {
                     result.Success = true;
                     result.Data = opResult.Result.Data;
-                    result.Message = "Usuarios obtenidos correctamente.";
+                    result.Message = opResult.Result.Message;
                 }
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener los usuarios.";
+                    result.Message = opResult.Result.Message;
                 }
             }
             catch (Exception ex)
@@ -61,12 +61,12 @@ namespace SGHR.Application.Services.Users
                 {
                     result.Success = true;
                     result.Data = opResult.Result.Data;
-                    result.Message = "Usuario obtenido correctamente.";
+                    result.Message = opResult.Result.Message;
                 }
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener el usuario.";
+                    result.Message = opResult.Result.Message;
                 }
             }
             catch (Exception ex)
@@ -89,7 +89,7 @@ namespace SGHR.Application.Services.Users
                 if (!usuarioExists.Success || usuarioExists.Data == null)
                 {
                     result.Success = false;
-                    result.Message = "El usuario no existe.";
+                    result.Message = usuarioExists.Message;
                     return result;
                 }
 
@@ -98,12 +98,12 @@ namespace SGHR.Application.Services.Users
                 {
                     result.Success = true;
                     result.Data = opResult.Result.Data;
-                    result.Message = "Usuario eliminado correctamente.";
+                    result.Message = opResult.Result.Message;
                 }
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al eliminar el usuario.";
+                    result.Message = opResult.Result.Message;
                 }
             }
             catch (Exception ex)
@@ -135,12 +135,12 @@ namespace SGHR.Application.Services.Users
                 {
                     result.Success = true;
                     result.Data = opResult.Result.Data;
-                    result.Message = "Usuario creado correctamente.";
+                    result.Message = opResult.Result.Message;
                 }
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al crear el usuario.";
+                    result.Message = opResult.Result.Message;
                 }
             }
             catch (Exception ex)
@@ -163,7 +163,7 @@ namespace SGHR.Application.Services.Users
                 if (!usuarioExists.Success || usuarioExists.Data == null)
                 {
                     result.Success = false;
-                    result.Message = "El usuario no existe.";
+                    result.Message = usuarioExists.Message;
                     return result;
                 }
 
@@ -178,12 +178,12 @@ namespace SGHR.Application.Services.Users
                 {
                     result.Success = true;
                     result.Data = opResult.Result.Data;
-                    result.Message = "Usuario actualizado correctamente.";
+                    result.Message = opResult.Result.Message;
                 }
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al actualizar el usuario.";
+                    result.Message = opResult.Result.Message;
                 }
             }
             catch (Exception ex)
