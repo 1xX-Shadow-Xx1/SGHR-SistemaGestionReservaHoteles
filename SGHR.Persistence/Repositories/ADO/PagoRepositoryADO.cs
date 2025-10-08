@@ -47,7 +47,7 @@ namespace SGHR.Persistence.Repositories.ADO
                     CommandType = CommandType.StoredProcedure
                 };
 
-                cmd.Parameters.AddWithValue("@id_pago", entity.Id);
+                cmd.Parameters.AddWithValue("@id_pago", entity.ID);
                 cmd.Parameters.AddWithValue("@id_reserva", entity.IdReserva);
                 cmd.Parameters.AddWithValue("@monto", entity.Monto);
                 cmd.Parameters.AddWithValue("@metodo_pago", entity.MetodoPago);
@@ -66,7 +66,7 @@ namespace SGHR.Persistence.Repositories.ADO
                 result.Message = p_result.Value?.ToString() ?? "Pago guardado correctamente";
                 result.Data = entity;
 
-                _logger.LogInformation("Pago registrado: {IdPago}", entity.Id);
+                _logger.LogInformation("Pago registrado: {IdPago}", entity.ID);
             }
             catch (Exception ex)
             {
@@ -93,7 +93,7 @@ namespace SGHR.Persistence.Repositories.ADO
                     CommandType = CommandType.StoredProcedure
                 };
 
-                cmd.Parameters.AddWithValue("@id_pago", entity.Id);
+                cmd.Parameters.AddWithValue("@id_pago", entity.ID);
                 cmd.Parameters.AddWithValue("@id_reserva", entity.IdReserva);
                 cmd.Parameters.AddWithValue("@monto", entity.Monto);
                 cmd.Parameters.AddWithValue("@metodo_pago", entity.MetodoPago);
@@ -112,7 +112,7 @@ namespace SGHR.Persistence.Repositories.ADO
                 result.Message = p_result.Value?.ToString() ?? "Pago actualizado correctamente";
                 result.Data = entity;
 
-                _logger.LogInformation("Pago actualizado: {IdPago}", entity.Id);
+                _logger.LogInformation("Pago actualizado: {IdPago}", entity.ID);
             }
             catch (Exception ex)
             {
@@ -139,7 +139,7 @@ namespace SGHR.Persistence.Repositories.ADO
                     CommandType = CommandType.StoredProcedure
                 };
 
-                cmd.Parameters.AddWithValue("@id_pago", entity.Id);
+                cmd.Parameters.AddWithValue("@id_pago", entity.ID);
 
                 SqlParameter p_result = new SqlParameter("@Preresult", SqlDbType.VarChar, 1000)
                 {
@@ -150,12 +150,12 @@ namespace SGHR.Persistence.Repositories.ADO
                 await conn.OpenAsync();
                 await cmd.ExecuteNonQueryAsync();
 
-                entity.IsDeleted = true;
+                entity.is_deleted = true;
                 result.Success = true;
                 result.Message = p_result.Value?.ToString() ?? "Pago eliminado correctamente";
                 result.Data = entity;
 
-                _logger.LogInformation("Pago eliminado: {IdPago}", entity.Id);
+                _logger.LogInformation("Pago eliminado: {IdPago}", entity.ID);
             }
             catch (Exception ex)
             {
@@ -183,12 +183,12 @@ namespace SGHR.Persistence.Repositories.ADO
                 {
                     var pago = new Pago
                     {
-                        Id = Convert.ToInt32(reader["id_pago"]),
+                        ID = Convert.ToInt32(reader["id_pago"]),
                         IdReserva = Convert.ToInt32(reader["id_reserva"]),
                         Monto = Convert.ToDecimal(reader["monto"]),
                         MetodoPago = reader["metodo_pago"].ToString(),
                         FechaPago = Convert.ToDateTime(reader["fecha_pago"]),
-                        IsDeleted = Convert.ToBoolean(reader["is_deleted"])
+                        is_deleted = Convert.ToBoolean(reader["is_deleted"])
                     };
 
                     result.Success = true;
@@ -226,12 +226,12 @@ namespace SGHR.Persistence.Repositories.ADO
                 {
                     lista.Add(new Pago
                     {
-                        Id = Convert.ToInt32(reader["id_pago"]),
+                        ID = Convert.ToInt32(reader["id_pago"]),
                         IdReserva = Convert.ToInt32(reader["id_reserva"]),
                         Monto = Convert.ToDecimal(reader["monto"]),
                         MetodoPago = reader["metodo_pago"].ToString(),
                         FechaPago = Convert.ToDateTime(reader["fecha_pago"]),
-                        IsDeleted = Convert.ToBoolean(reader["is_deleted"])
+                        is_deleted = Convert.ToBoolean(reader["is_deleted"])
                     });
                 }
 

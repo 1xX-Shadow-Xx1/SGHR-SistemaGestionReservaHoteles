@@ -39,7 +39,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Mantenimiento registrado: {Id} - Habitación {HabitacionId}", entity.Id, entity.IdHabitacion);
+                _logger.LogInformation("Mantenimiento registrado: {Id} - Habitación {HabitacionId}", entity.ID, entity.IdHabitacion);
             else
                 _logger.LogError("Error al registrar mantenimiento: {Message}", result.Message);
 
@@ -55,9 +55,9 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Mantenimiento actualizado: {Id}", entity.Id);
+                _logger.LogInformation("Mantenimiento actualizado: {Id}", entity.ID);
             else
-                _logger.LogError("Error al actualizar mantenimiento {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al actualizar mantenimiento {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -71,9 +71,9 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Mantenimiento eliminado correctamente: {Id}", entity.Id);
+                _logger.LogInformation("Mantenimiento eliminado correctamente: {Id}", entity.ID);
             else
-                _logger.LogError("Error al eliminar mantenimiento {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al eliminar mantenimiento {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -84,7 +84,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 var entity = await _context.Mantenimiento
                     .Include(m => m.Habitacion) // relación con habitación
-                    .FirstOrDefaultAsync(m => m.Id == id && !m.IsDeleted);
+                    .FirstOrDefaultAsync(m => m.ID == id && !m.is_deleted);
 
                 if (entity == null)
                     return OperationResult<Mantenimiento>.Fail("Mantenimiento no encontrado");
@@ -104,7 +104,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var mantenimientos = await _context.Mantenimiento
-                    .Where(m => m.IdHabitacion == habitacionId && !m.IsDeleted)
+                    .Where(m => m.IdHabitacion == habitacionId && !m.is_deleted)
                     .ToListAsync();
 
                 if (!mantenimientos.Any())
@@ -124,7 +124,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var mantenimientos = await _context.Mantenimiento
-                    .Where(m => m.FechaInicio >= fechaInicio && m.FechaFin <= fechaFin && !m.IsDeleted)
+                    .Where(m => m.FechaInicio >= fechaInicio && m.FechaFin <= fechaFin && !m.is_deleted)
                     .ToListAsync();
 
                 if (!mantenimientos.Any())
@@ -144,7 +144,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var mantenimientos = await _context.Mantenimiento
-                    .Where(m => m.Estado == estado && !m.IsDeleted)
+                    .Where(m => m.Estado == estado && !m.is_deleted)
                     .ToListAsync();
 
                 if (!mantenimientos.Any())

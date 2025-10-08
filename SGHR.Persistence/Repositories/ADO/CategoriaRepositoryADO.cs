@@ -40,7 +40,7 @@ namespace SGHR.Persistence.Repositories.ADO
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.AddWithValue("@id_categoria", entity.Id);
+                    cmd.Parameters.AddWithValue("@id_categoria", entity.ID);
                     cmd.Parameters.AddWithValue("@nombre", entity.Nombre);
                     cmd.Parameters.AddWithValue("@descripcion", entity.Descripcion);
 
@@ -83,7 +83,7 @@ namespace SGHR.Persistence.Repositories.ADO
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.AddWithValue("@id_categoria", entity.Id);
+                    cmd.Parameters.AddWithValue("@id_categoria", entity.ID);
                     cmd.Parameters.AddWithValue("@nombre", entity.Nombre);
                     cmd.Parameters.AddWithValue("@descripcion", entity.Descripcion);
 
@@ -100,7 +100,7 @@ namespace SGHR.Persistence.Repositories.ADO
                     result.Message = p_result.Value?.ToString() ?? "Categoría actualizada correctamente";
                     result.Data = entity;
 
-                    _logger.LogInformation("Categoría actualizada: {Id}", entity.Id);
+                    _logger.LogInformation("Categoría actualizada: {Id}", entity.ID);
                 }
             }
             catch (Exception ex)
@@ -126,7 +126,7 @@ namespace SGHR.Persistence.Repositories.ADO
                 using (SqlCommand cmd = new SqlCommand("usp_Categoria_Delete", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@id_categoria", entity.Id);
+                    cmd.Parameters.AddWithValue("@id_categoria", entity.ID);
 
                     SqlParameter p_result = new SqlParameter("@Preresult", SqlDbType.VarChar, 1000)
                     {
@@ -137,12 +137,12 @@ namespace SGHR.Persistence.Repositories.ADO
                     await conn.OpenAsync();
                     await cmd.ExecuteNonQueryAsync();
 
-                    entity.IsDeleted = true;
+                    entity.is_deleted = true;
                     result.Success = true;
                     result.Message = p_result.Value?.ToString() ?? "Categoría eliminada correctamente";
                     result.Data = entity;
 
-                    _logger.LogInformation("Categoría eliminada: {Id}", entity.Id);
+                    _logger.LogInformation("Categoría eliminada: {Id}", entity.ID);
                 }
             }
             catch (Exception ex)
@@ -172,10 +172,10 @@ namespace SGHR.Persistence.Repositories.ADO
                         {
                             var categoria = new Categoria
                             {
-                                Id = Convert.ToInt32(reader["id_categoria"]),
+                                ID = Convert.ToInt32(reader["id_categoria"]),
                                 Nombre = reader["nombre"].ToString(),
                                 Descripcion = reader["descripcion"]?.ToString(),
-                                IsDeleted = Convert.ToBoolean(reader["is_deleted"])
+                                is_deleted = Convert.ToBoolean(reader["is_deleted"])
                             };
                             result.Success = true;
                             result.Data = categoria;
@@ -215,10 +215,10 @@ namespace SGHR.Persistence.Repositories.ADO
                         {
                             lista.Add(new Categoria
                             {
-                                Id = Convert.ToInt32(reader["id_categoria"]),
+                                ID = Convert.ToInt32(reader["id_categoria"]),
                                 Nombre = reader["nombre"].ToString(),
                                 Descripcion = reader["descripcion"]?.ToString(),
-                                IsDeleted = Convert.ToBoolean(reader["is_deleted"])
+                                is_deleted = Convert.ToBoolean(reader["is_deleted"])
                             });
                         }
                     }

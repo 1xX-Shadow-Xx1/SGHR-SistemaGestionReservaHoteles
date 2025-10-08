@@ -35,7 +35,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             var result = await base.Save(entity);
 
             if (result.Success)
-                _logger.LogInformation("Auditoría registrada: {Id} - Acción {Accion}", entity.Id, entity.Detalle);
+                _logger.LogInformation("Auditoría registrada: {Id} - Acción {Accion}", entity.ID, entity.Detalle);
             else
                 _logger.LogError("Error al registrar auditoría: {Message}", result.Message);
 
@@ -47,9 +47,9 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             var result = await base.Update(entity);
 
             if (result.Success)
-                _logger.LogInformation("Auditoría actualizada: {Id}", entity.Id);
+                _logger.LogInformation("Auditoría actualizada: {Id}", entity.ID);
             else
-                _logger.LogError("Error al actualizar auditoría {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al actualizar auditoría {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -59,9 +59,9 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             var result = await base.Delete(entity);
 
             if (result.Success)
-                _logger.LogInformation("Auditoría eliminada correctamente: {Id}", entity.Id);
+                _logger.LogInformation("Auditoría eliminada correctamente: {Id}", entity.ID);
             else
-                _logger.LogError("Error al eliminar auditoría {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al eliminar auditoría {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -72,7 +72,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 var entity = await _context.Auditory
                     .Include(a => a.Usuario)
-                    .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
+                    .FirstOrDefaultAsync(a => a.ID == id && !a.is_deleted);
 
                 if (entity == null)
                     return OperationResult<Auditory>.Fail("Auditoría no encontrada");
@@ -91,7 +91,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var lista = await _context.Auditory
-                    .Where(a => a.IdUsuario == usuarioId && !a.IsDeleted)
+                    .Where(a => a.IdUsuario == usuarioId && !a.is_deleted)
                     .OrderByDescending(a => a.Fecha)
                     .ToListAsync();
 
@@ -111,7 +111,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var lista = await _context.Auditory
-                    .Where(a => a.Operacion == accion && !a.IsDeleted)
+                    .Where(a => a.Operacion == accion && !a.is_deleted)
                     .OrderByDescending(a => a.Fecha)
                     .ToListAsync();
 
@@ -131,7 +131,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var lista = await _context.Auditory
-                    .Where(a => a.Fecha >= inicio && a.Fecha <= fin && !a.IsDeleted)
+                    .Where(a => a.Fecha >= inicio && a.Fecha <= fin && !a.is_deleted)
                     .OrderByDescending(a => a.Fecha)
                     .ToListAsync();
 
@@ -152,7 +152,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var lista = await _context.Auditory
-                    .Where(a => !a.IsDeleted)
+                    .Where(a => !a.is_deleted)
                     .OrderByDescending(a => a.Fecha)
                     .Take(cantidad)
                     .ToListAsync();

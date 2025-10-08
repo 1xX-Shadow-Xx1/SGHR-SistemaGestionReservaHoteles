@@ -40,7 +40,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Piso registrado: {Id} - Número {Numero}", entity.Id, entity.NumeroPiso);
+                _logger.LogInformation("Piso registrado: {Id} - Número {Numero}", entity.ID, entity.NumeroPiso);
             else
                 _logger.LogError("Error al registrar Piso: {Message}", result.Message);
 
@@ -56,9 +56,9 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Piso actualizado: {Id}", entity.Id);
+                _logger.LogInformation("Piso actualizado: {Id}", entity.ID);
             else
-                _logger.LogError("Error al actualizar Piso {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al actualizar Piso {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -72,9 +72,9 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Piso eliminado correctamente: {Id}", entity.Id);
+                _logger.LogInformation("Piso eliminado correctamente: {Id}", entity.ID);
             else
-                _logger.LogError("Error al eliminar Piso {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al eliminar Piso {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -85,7 +85,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             {
                 var entity = await _context.Piso
                     .Include(p => p.Habitaciones) 
-                    .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+                    .FirstOrDefaultAsync(p => p.ID == id && !p.is_deleted);
 
                 if (entity == null)
                     return OperationResult<Piso>.Fail("Piso no encontrado");
@@ -104,7 +104,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             try
             {
                 var lista = await _context.Piso
-                    .Where(p => p.Estado == "Habilitado" && !p.IsDeleted)
+                    .Where(p => p.Estado == "Habilitado" && !p.is_deleted)
                     .ToListAsync();
 
                 if (!lista.Any())
@@ -124,7 +124,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             try
             {
                 var entity = await _context.Piso
-                    .FirstOrDefaultAsync(p => p.NumeroPiso == numero && !p.IsDeleted);
+                    .FirstOrDefaultAsync(p => p.NumeroPiso == numero && !p.is_deleted);
 
                 if (entity == null)
                     return OperationResult<Piso>.Fail("Piso no encontrado con ese número");

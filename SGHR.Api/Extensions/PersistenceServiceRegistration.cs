@@ -6,6 +6,7 @@ using SGHR.Persistence.Interfaces.Operaciones;
 using SGHR.Persistence.Interfaces.Reportes;
 using SGHR.Persistence.Interfaces.Reservas;
 using SGHR.Persistence.Interfaces.Users;
+using SGHR.Persistence.Repositories.ADO;
 using SGHR.Persistence.Repositories.EF.Habitaciones;
 using SGHR.Persistence.Repositories.EF.Operaciones;
 using SGHR.Persistence.Repositories.EF.Reservas;
@@ -37,7 +38,8 @@ namespace SGHR.Api.Builders
             services.AddScoped<ICheckInOutRepository, CheckInOutRepository>();
             services.AddScoped<IMantenimientoRepository, MantenimientoRepository>();
             services.AddScoped<IPagoRepository, PagoRepository>();
-            services.AddScoped<IReporteRepository, ReporteRepository>();
+            services.AddScoped<IReporteRepository, ReporteRepositoryADO>();
+
 
             //Habitaciones
             services.AddScoped<IAmenityRepository, AmenityRepository>();

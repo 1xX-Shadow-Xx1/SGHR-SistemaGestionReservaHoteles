@@ -51,7 +51,7 @@ namespace SchoolPoliApp.Persistence.Base
         {
             try
             {
-                entity.IsDeleted = true; 
+                entity.is_deleted = true; 
                 _dbSet.Update(entity);
                 await _context.SaveChangesAsync();
                 return OperationResult<TEntity>.Ok(entity, "Registro eliminado correctamente");
@@ -66,7 +66,7 @@ namespace SchoolPoliApp.Persistence.Base
         {
             try
             {
-                var list = await _dbSet.Where(e => !e.IsDeleted).ToListAsync();
+                var list = await _dbSet.Where(e => !e.is_deleted).ToListAsync();
                 return OperationResult<List<TEntity>>.Ok(list);
             }
             catch (Exception ex)
@@ -79,7 +79,7 @@ namespace SchoolPoliApp.Persistence.Base
         {
             try
             {
-                var list = await _dbSet.Where(filter).Where(e => !e.IsDeleted).ToListAsync();
+                var list = await _dbSet.Where(filter).Where(e => !e.is_deleted).ToListAsync();
                 return OperationResult<List<TEntity>>.Ok(list);
             }
             catch (Exception ex)
@@ -96,7 +96,7 @@ namespace SchoolPoliApp.Persistence.Base
             }
             try
             {
-                var entity = await _dbSet.FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted);
+                var entity = await _dbSet.FirstOrDefaultAsync(e => e.ID == id && !e.is_deleted);
                 if (entity == null)
                     return OperationResult<TEntity>.Fail("Registro no encontrado");
 

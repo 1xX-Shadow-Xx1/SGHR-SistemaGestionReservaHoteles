@@ -38,7 +38,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             }
 
             if (result.Success)
-                _logger.LogInformation("Servicio adicional creado: {Id} - {Nombre} - Costo {Costo}", entity.Id, entity.Nombre, entity.Precio);
+                _logger.LogInformation("Servicio adicional creado: {Id} - {Nombre} - Costo {Costo}", entity.ID, entity.Nombre, entity.Precio);
             else
                 _logger.LogError("Error al crear Servicio adicional: {Message}", result.Message);
 
@@ -54,9 +54,9 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             }
 
             if (result.Success)
-                _logger.LogInformation("Servicio adicional actualizado: {Id} - {Nombre}", entity.Id, entity.Nombre);
+                _logger.LogInformation("Servicio adicional actualizado: {Id} - {Nombre}", entity.ID, entity.Nombre);
             else
-                _logger.LogError("Error al actualizar Servicio adicional {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al actualizar Servicio adicional {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -70,9 +70,9 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             }
 
             if (result.Success)
-                _logger.LogInformation("Servicio adicional eliminado correctamente: {Id} - {Nombre}", entity.Id, entity.Nombre);
+                _logger.LogInformation("Servicio adicional eliminado correctamente: {Id} - {Nombre}", entity.ID, entity.Nombre);
             else
-                _logger.LogError("Error al eliminar Servicio adicional {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al eliminar Servicio adicional {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }

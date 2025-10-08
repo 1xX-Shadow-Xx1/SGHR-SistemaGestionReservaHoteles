@@ -61,7 +61,7 @@ namespace SGHR.Persistence.Repositories.ADO
                 result.Message = p_result.Value?.ToString() ?? "Reporte guardado correctamente";
                 result.Data = entity;
 
-                _logger.LogInformation("Reporte registrado: {IdReporte}", entity.Id);
+                _logger.LogInformation("Reporte registrado: {IdReporte}", entity.ID);
             }
             catch (Exception ex)
             {
@@ -86,7 +86,7 @@ namespace SGHR.Persistence.Repositories.ADO
                     CommandType = CommandType.StoredProcedure
                 };
 
-                cmd.Parameters.AddWithValue("@id_reporte", entity.Id);
+                cmd.Parameters.AddWithValue("@id_reporte", entity.ID);
                 cmd.Parameters.AddWithValue("@tipo_reporte", entity.TipoReporte);
                 cmd.Parameters.AddWithValue("@fecha_generacion", entity.FechaGeneracion);
                 cmd.Parameters.AddWithValue("@generado_por", entity.GeneradoPor);
@@ -105,7 +105,7 @@ namespace SGHR.Persistence.Repositories.ADO
                 result.Message = p_result.Value?.ToString() ?? "Reporte actualizado correctamente";
                 result.Data = entity;
 
-                _logger.LogInformation("Reporte actualizado: {IdReporte}", entity.Id);
+                _logger.LogInformation("Reporte actualizado: {IdReporte}", entity.ID);
             }
             catch (Exception ex)
             {
@@ -130,7 +130,7 @@ namespace SGHR.Persistence.Repositories.ADO
                     CommandType = CommandType.StoredProcedure
                 };
 
-                cmd.Parameters.AddWithValue("@id_reporte", entity.Id);
+                cmd.Parameters.AddWithValue("@id_reporte", entity.ID);
 
                 SqlParameter p_result = new SqlParameter("@Preresult", SqlDbType.VarChar, 1000)
                 {
@@ -141,12 +141,12 @@ namespace SGHR.Persistence.Repositories.ADO
                 await conn.OpenAsync();
                 await cmd.ExecuteNonQueryAsync();
 
-                entity.IsDeleted = true;
+                entity.is_deleted = true;
                 result.Success = true;
                 result.Message = p_result.Value?.ToString() ?? "Reporte eliminado correctamente";
                 result.Data = entity;
 
-                _logger.LogInformation("Reporte eliminado: {IdReporte}", entity.Id);
+                _logger.LogInformation("Reporte eliminado: {IdReporte}", entity.ID);
             }
             catch (Exception ex)
             {
@@ -175,12 +175,12 @@ namespace SGHR.Persistence.Repositories.ADO
                 {
                     var reporte = new Reporte
                     {
-                        Id = Convert.ToInt32(reader["id_reporte"]),
+                        ID = Convert.ToInt32(reader["id_reporte"]),
                         TipoReporte = reader["tipo_reporte"].ToString(),
                         FechaGeneracion = Convert.ToDateTime(reader["fecha_generacion"]),
                         GeneradoPor = Convert.ToInt32(reader["generado_por"]),
                         RutaArchivo = reader["ruta_archivo"]?.ToString(),
-                        IsDeleted = Convert.ToBoolean(reader["is_deleted"])
+                        is_deleted = Convert.ToBoolean(reader["is_deleted"])
                     };
 
                     result.Success = true;
@@ -219,12 +219,12 @@ namespace SGHR.Persistence.Repositories.ADO
                 {
                     lista.Add(new Reporte
                     {
-                        Id = Convert.ToInt32(reader["id_reporte"]),
+                        ID = Convert.ToInt32(reader["id_reporte"]),
                         TipoReporte = reader["tipo_reporte"].ToString(),
                         FechaGeneracion = Convert.ToDateTime(reader["fecha_generacion"]),
                         GeneradoPor = Convert.ToInt32(reader["generado_por"]),
                         RutaArchivo = reader["ruta_archivo"]?.ToString(),
-                        IsDeleted = Convert.ToBoolean(reader["is_deleted"])
+                        is_deleted = Convert.ToBoolean(reader["is_deleted"])
                     });
                 }
 

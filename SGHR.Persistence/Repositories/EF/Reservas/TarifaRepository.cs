@@ -40,7 +40,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             }
 
             if (result.Success)
-                _logger.LogInformation("Tarifa creada: {Id} - {Temporada} - Precio {Precio}", entity.Id, entity.Temporada, entity.Precio);
+                _logger.LogInformation("Tarifa creada: {Id} - {Temporada} - Precio {Precio}", entity.ID, entity.Temporada, entity.Precio);
             else
                 _logger.LogError("Error al crear Tarifa: {Message}", result.Message);
 
@@ -56,9 +56,9 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             }
 
             if (result.Success)
-                _logger.LogInformation("Tarifa actualizada: {Id} - {Temporada} - Precio {Precio}", entity.Id, entity.Temporada, entity.Precio);
+                _logger.LogInformation("Tarifa actualizada: {Id} - {Temporada} - Precio {Precio}", entity.ID, entity.Temporada, entity.Precio);
             else
-                _logger.LogError("Error al actualizar Tarifa {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al actualizar Tarifa {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -72,9 +72,9 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             }
 
             if (result.Success)
-                _logger.LogInformation("Tarifa eliminada (soft delete): {Id} - {Temporada}", entity.Id, entity.Temporada);
+                _logger.LogInformation("Tarifa eliminada (soft delete): {Id} - {Temporada}", entity.ID, entity.Temporada);
             else
-                _logger.LogError("Error al eliminar Tarifa {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al eliminar Tarifa {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -95,7 +95,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             try
             {
                 var tarifas = await _context.Tarifa
-                    .Where(t => t.Temporada == temporada && !t.IsDeleted)
+                    .Where(t => t.Temporada == temporada && !t.is_deleted)
                     .ToListAsync();
 
                 if (!tarifas.Any())

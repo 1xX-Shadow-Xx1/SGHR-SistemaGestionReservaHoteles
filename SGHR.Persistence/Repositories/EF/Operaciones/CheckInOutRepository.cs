@@ -34,7 +34,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             var result = await base.Save(entity);
 
             if (result.Success)
-                _logger.LogInformation("CheckInOut registrado: {Id} - Reserva {ReservaId}", entity.Id, entity.IdReserva);
+                _logger.LogInformation("CheckInOut registrado: {Id} - Reserva {ReservaId}", entity.ID, entity.IdReserva);
             else
                 _logger.LogError("Error al registrar CheckInOut: {Message}", result.Message);
 
@@ -46,9 +46,9 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             var result = await base.Update(entity);
 
             if (result.Success)
-                _logger.LogInformation("CheckInOut actualizado: {Id}", entity.Id);
+                _logger.LogInformation("CheckInOut actualizado: {Id}", entity.ID);
             else
-                _logger.LogError("Error al actualizar CheckInOut {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al actualizar CheckInOut {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -58,9 +58,9 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             var result = await base.Delete(entity);
 
             if (result.Success)
-                _logger.LogInformation("CheckInOut eliminado (soft delete): {Id}", entity.Id);
+                _logger.LogInformation("CheckInOut eliminado (soft delete): {Id}", entity.ID);
             else
-                _logger.LogError("Error al eliminar CheckInOut {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al eliminar CheckInOut {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -73,7 +73,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
                     .Include(c => c.Reserva)
                         .ThenInclude(r => r.Usuario) 
                     .Include(c => c.Reserva.Habitacion) 
-                    .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+                    .FirstOrDefaultAsync(c => c.ID == id && !c.is_deleted);
 
                 if (entity == null)
                     return OperationResult<CheckInOut>.Fail("CheckInOut no encontrado");
@@ -96,7 +96,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
                     .Include(c => c.Reserva)
                         .ThenInclude(r => r.Usuario)
                     .Include(c => c.Reserva.Habitacion)
-                    .FirstOrDefaultAsync(c => c.IdReserva == reservaId && !c.IsDeleted);
+                    .FirstOrDefaultAsync(c => c.IdReserva == reservaId && !c.is_deleted);
 
                 if (entity == null)
                     return OperationResult<CheckInOut>.Fail("No se encontró CheckInOut para esta reserva");
@@ -116,7 +116,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 var lista = await _context.CheckInOut
                     .Include(c => c.Reserva)
-                    .Where(c => c.FechaCheckOut == null && !c.IsDeleted)
+                    .Where(c => c.FechaCheckOut == null && !c.is_deleted)
                     .ToListAsync();
 
                 if (!lista.Any())
@@ -138,7 +138,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 var lista = await _context.CheckInOut
                     .Include(c => c.Reserva)
-                    .Where(c => c.FechaCheckOut >= inicio && c.FechaCheckOut <= fin && !c.IsDeleted)
+                    .Where(c => c.FechaCheckOut >= inicio && c.FechaCheckOut <= fin && !c.is_deleted)
                     .ToListAsync();
 
                 if (!lista.Any())
@@ -160,7 +160,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
                 var lista = await _context.CheckInOut
                     .Include(c => c.Reserva)
                         .ThenInclude(r => r.Habitacion)
-                    .Where(c => c.Reserva.IdUsuario == usuarioId && !c.IsDeleted)
+                    .Where(c => c.Reserva.IdUsuario == usuarioId && !c.is_deleted)
                     .ToListAsync();
 
                 if (!lista.Any())

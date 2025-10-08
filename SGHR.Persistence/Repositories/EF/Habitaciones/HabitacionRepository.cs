@@ -39,7 +39,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Habitación registrada: {Id} - Número {Numero}", entity.Id, entity.Numero);
+                _logger.LogInformation("Habitación registrada: {Id} - Número {Numero}", entity.ID, entity.Numero);
             else
                 _logger.LogError("Error al registrar Habitación: {Message}", result.Message);
 
@@ -55,9 +55,9 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Habitación actualizada: {Id}", entity.Id);
+                _logger.LogInformation("Habitación actualizada: {Id}", entity.ID);
             else
-                _logger.LogError("Error al actualizar Habitación {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al actualizar Habitación {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -71,9 +71,9 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Habitación eliminada correctamente: {Id}", entity.Id);
+                _logger.LogInformation("Habitación eliminada correctamente: {Id}", entity.ID);
             else
-                _logger.LogError("Error al eliminar Habitación {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al eliminar Habitación {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -85,7 +85,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
                 var entity = await _context.Habitaciones
                     .Include(h => h.Categoria)
                     .Include(h => h.Piso)
-                    .FirstOrDefaultAsync(h => h.Id == id && !h.IsDeleted);
+                    .FirstOrDefaultAsync(h => h.ID == id && !h.is_deleted);
 
                 if (entity == null)
                     return OperationResult<Habitacion>.Fail("Habitación no encontrada");
@@ -105,7 +105,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             {
                 var lista = await _context.Habitaciones
                     .Include(h => h.Categoria)
-                    .Where(h => h.IdCategoria == categoriaId && !h.IsDeleted)
+                    .Where(h => h.IdCategoria == categoriaId && !h.is_deleted)
                     .ToListAsync();
 
                 if (!lista.Any())
@@ -126,7 +126,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             {
                 var lista = await _context.Habitaciones
                     .Include(h => h.Categoria)
-                    .Where(h => h.Estado == "Disponible" && !h.IsDeleted)
+                    .Where(h => h.Estado == "Disponible" && !h.is_deleted)
                     .ToListAsync();
 
                 if (!lista.Any())
@@ -147,7 +147,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             {
                 var lista = await _context.Habitaciones
                     .Include(h => h.Piso)
-                    .Where(h => h.IdPiso == pisoId && !h.IsDeleted)
+                    .Where(h => h.IdPiso == pisoId && !h.is_deleted)
                     .ToListAsync();
 
                 if (!lista.Any())

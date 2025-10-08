@@ -38,7 +38,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Amenity registrado: {Id} - {Nombre}", entity.Id, entity.Nombre);
+                _logger.LogInformation("Amenity registrado: {Id} - {Nombre}", entity.ID, entity.Nombre);
             else
                 _logger.LogError("Error al registrar Amenity: {Message}", result.Message);
 
@@ -54,9 +54,9 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Amenity actualizado: {Id}", entity.Id);
+                _logger.LogInformation("Amenity actualizado: {Id}", entity.ID);
             else
-                _logger.LogError("Error al actualizar Amenity {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al actualizar Amenity {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -70,9 +70,9 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Amenity eliminado correctamente: {Id}", entity.Id);
+                _logger.LogInformation("Amenity eliminado correctamente: {Id}", entity.ID);
             else
-                _logger.LogError("Error al eliminar Amenity {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al eliminar Amenity {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -83,7 +83,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             {
                 var entity = await _context.Amenity
                     .Include(a => a.Categorias) 
-                    .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
+                    .FirstOrDefaultAsync(a => a.ID == id && !a.is_deleted);
 
                 if (entity == null)
                     return OperationResult<Amenity>.Fail("Amenity no encontrado");
@@ -101,7 +101,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             try
             {
                 var lista = await _context.Amenity
-                    .Where(a => !a.IsDeleted)
+                    .Where(a => !a.is_deleted)
                     .ToListAsync();
 
                 if (!lista.Any())
@@ -120,7 +120,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             try
             {
                 var entity = await _context.Amenity
-                    .FirstOrDefaultAsync(a => a.Nombre == nombre && !a.IsDeleted);
+                    .FirstOrDefaultAsync(a => a.Nombre == nombre && !a.is_deleted);
 
                 if (entity == null)
                     return OperationResult<Amenity>.Fail("Amenity no encontrado con ese nombre");

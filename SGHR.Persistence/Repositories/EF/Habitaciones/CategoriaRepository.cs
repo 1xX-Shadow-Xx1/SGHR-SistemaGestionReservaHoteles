@@ -69,7 +69,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
                 var entity = await _context.Categoria
                     .Include(c => c.Habitaciones)
                     .Include(c => c.Amenities)
-                    .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
+                    .FirstOrDefaultAsync(c => c.ID == id && !c.is_deleted);
 
                 if (entity == null)
                     return OperationResult<Categoria>.Fail("Categoria no encontrada");
@@ -88,7 +88,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             try
             {
                 var lista = await _context.Categoria
-                    .Where(c => !c.IsDeleted)
+                    .Where(c => !c.is_deleted)
                     .ToListAsync();
 
                 if (!lista.Any())
@@ -108,7 +108,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             try
             {
                 var entity = await _context.Categoria
-                    .FirstOrDefaultAsync(c => c.Nombre == nombre && !c.IsDeleted);
+                    .FirstOrDefaultAsync(c => c.Nombre == nombre && !c.is_deleted);
 
                 if (entity == null)
                     return OperationResult<Categoria>.Fail("Categoría no encontrada con ese nombre");

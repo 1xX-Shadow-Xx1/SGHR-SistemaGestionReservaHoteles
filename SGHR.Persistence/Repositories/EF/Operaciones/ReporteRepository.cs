@@ -35,7 +35,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             var result = await base.Save(entity);
 
             if (result.Success)
-                _logger.LogInformation("Reporte creado: {Id} - Tipo {Tipo}", entity.Id, entity.TipoReporte);
+                _logger.LogInformation("Reporte creado: {Id} - Tipo {Tipo}", entity.ID, entity.TipoReporte);
             else
                 _logger.LogError("Error al crear Reporte: {Message}", result.Message);
 
@@ -47,9 +47,9 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             var result = await base.Update(entity);
 
             if (result.Success)
-                _logger.LogInformation("Reporte actualizado: {Id}", entity.Id);
+                _logger.LogInformation("Reporte actualizado: {Id}", entity.ID);
             else
-                _logger.LogError("Error al actualizar Reporte {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al actualizar Reporte {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -59,9 +59,9 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             var result = await base.Delete(entity);
 
             if (result.Success)
-                _logger.LogInformation("Reporte eliminado correctamente): {Id}", entity.Id);
+                _logger.LogInformation("Reporte eliminado correctamente): {Id}", entity.ID);
             else
-                _logger.LogError("Error al eliminar Reporte {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al eliminar Reporte {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -72,7 +72,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 var entity = await _context.Reportes
                     .Include(r => r.Usuario) 
-                    .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+                    .FirstOrDefaultAsync(r => r.ID == id && !r.is_deleted);
 
                 if (entity == null)
                     return OperationResult<Reporte>.Fail("Reporte no encontrado");
@@ -92,7 +92,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var reportes = await _context.Reportes
-                    .Where(r => r.TipoReporte == tipo && !r.IsDeleted)
+                    .Where(r => r.TipoReporte == tipo && !r.is_deleted)
                     .Include(r => r.Usuario)
                     .ToListAsync();
 
@@ -113,7 +113,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var reportes = await _context.Reportes
-                    .Where(r => r.FechaGeneracion >= fechaInicio && r.FechaGeneracion <= fechaFin && !r.IsDeleted)
+                    .Where(r => r.FechaGeneracion >= fechaInicio && r.FechaGeneracion <= fechaFin && !r.is_deleted)
                     .Include(r => r.Usuario)
                     .ToListAsync();
 
@@ -135,7 +135,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var reportes = await _context.Reportes
-                    .Where(r => r.GeneradoPor == usuarioId && !r.IsDeleted)
+                    .Where(r => r.GeneradoPor == usuarioId && !r.is_deleted)
                     .ToListAsync();
 
                 if (!reportes.Any())

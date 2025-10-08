@@ -144,7 +144,7 @@ namespace SGHR.Application.Services.Reservas
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Tarifa creada correctamente.";
-                    _logger.LogInformation("Tarifa creada correctamente: {Id} - {Precio}", tarifa.Id, tarifa.Precio);
+                    _logger.LogInformation("Tarifa creada correctamente: {Id} - {Precio}", tarifa.ID, tarifa.Precio);
                 }
                 else
                 {

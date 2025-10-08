@@ -39,7 +39,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             }
 
             if (result.Success)
-                _logger.LogInformation("Reserva creada: {Id} - Cliente {ClienteId} - Habitación {HabitacionId}", entity.Id, entity.IdCliente, entity.IdHabitacion);
+                _logger.LogInformation("Reserva creada: {Id} - Cliente {ClienteId} - Habitación {HabitacionId}", entity.ID, entity.IdCliente, entity.IdHabitacion);
             else
                 _logger.LogError("Error al crear Reserva: {Message}", result.Message);
 
@@ -55,9 +55,9 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             }
 
             if (result.Success)
-                _logger.LogInformation("Reserva actualizada: {Id}", entity.Id);
+                _logger.LogInformation("Reserva actualizada: {Id}", entity.ID);
             else
-                _logger.LogError("Error al actualizar Reserva {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al actualizar Reserva {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -71,9 +71,9 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             }
 
             if (result.Success)
-                _logger.LogInformation("Reserva eliminada correctamente: {Id}", entity.Id);
+                _logger.LogInformation("Reserva eliminada correctamente: {Id}", entity.ID);
             else
-                _logger.LogError("Error al eliminar Reserva {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al eliminar Reserva {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -86,7 +86,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
                     .Include(r => r.Cliente)
                     .Include(r => r.Habitacion)
                     .Include(r => r.Pagos)
-                    .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+                    .FirstOrDefaultAsync(r => r.ID == id && !r.is_deleted);
 
                 if (entity == null)
                     return OperationResult<Reserva>.Fail("Reserva no encontrada");
@@ -106,7 +106,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             try
             {
                 var reservas = await _context.Reservas
-                    .Where(r => r.IdCliente == clienteId && !r.IsDeleted)
+                    .Where(r => r.IdCliente == clienteId && !r.is_deleted)
                     .Include(r => r.Habitacion)
                     .ToListAsync();
 
@@ -127,7 +127,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             try
             {
                 var reservas = await _context.Reservas
-                    .Where(r => r.Estado == estado && !r.IsDeleted)
+                    .Where(r => r.Estado == estado && !r.is_deleted)
                     .Include(r => r.Cliente)
                     .ToListAsync();
 
@@ -148,7 +148,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             try
             {
                 var reservas = await _context.Reservas
-                    .Where(r => r.FechaInicio >= fechaInicio && r.FechaFin <= fechaFin && !r.IsDeleted)
+                    .Where(r => r.FechaInicio >= fechaInicio && r.FechaFin <= fechaFin && !r.is_deleted)
                     .Include(r => r.Habitacion)
                     .Include(r => r.Cliente)
                     .ToListAsync();

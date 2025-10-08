@@ -50,9 +50,9 @@ namespace SGHR.Persistence.Repositories.EF.Users
             }
 
             if (result.Success)
-                _logger.LogInformation("Usuario actualizado correctamente: {Id} - {Correo}", entity.Id, entity.Correo);
+                _logger.LogInformation("Usuario actualizado correctamente: {Id} - {Correo}", entity.ID, entity.Correo);
             else
-                _logger.LogError("Error al actualizar Usuario {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al actualizar Usuario {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -66,9 +66,9 @@ namespace SGHR.Persistence.Repositories.EF.Users
             }
 
             if (result.Success)
-                _logger.LogInformation("Usuario eliminado correctamente: {Id} - {Correo}", entity.Id, entity.Correo);
+                _logger.LogInformation("Usuario eliminado correctamente: {Id} - {Correo}", entity.ID, entity.Correo);
             else
-                _logger.LogError("Error al eliminar Usuario {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al eliminar Usuario {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -89,7 +89,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
             try
             {
                 var usuario = await _context.Usuarios
-                    .FirstOrDefaultAsync(u => u.Correo == correo && !u.IsDeleted);
+                    .FirstOrDefaultAsync(u => u.Correo == correo && !u.is_deleted);
 
                 if (usuario == null)
                     return OperationResult<Usuario>.Fail("Usuario no encontrado");
@@ -101,6 +101,10 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 _logger.LogError(ex, "Error obteniendo usuario por correo");
                 return OperationResult<Usuario>.Fail($"Error: {ex.Message}");
             }
+        }
+        public override Task<OperationResult<List<Usuario>>> GetAll()
+        {
+            return base.GetAll();
         }
     }
 }

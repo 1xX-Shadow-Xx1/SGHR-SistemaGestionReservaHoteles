@@ -34,7 +34,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
             }
 
             if (result.Success)
-                _logger.LogInformation("Cliente creado correctamente: {Id} - {Nombre}", entity.Id, entity.Nombre);
+                _logger.LogInformation("Cliente creado correctamente: {Id} - {Nombre}", entity.ID, entity.Nombre);
             else
                 _logger.LogError("Error al crear Cliente {Nombre}: {Message}", entity.Nombre, result.Message);
 
@@ -50,9 +50,9 @@ namespace SGHR.Persistence.Repositories.EF.Users
             }
 
             if (result.Success)
-                _logger.LogInformation("Cliente actualizado correctamente: {Id} - {Nombre}", entity.Id, entity.Nombre);
+                _logger.LogInformation("Cliente actualizado correctamente: {Id} - {Nombre}", entity.ID, entity.Nombre);
             else
-                _logger.LogError("Error al actualizar Cliente {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al actualizar Cliente {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -66,9 +66,9 @@ namespace SGHR.Persistence.Repositories.EF.Users
             }
 
             if (result.Success)
-                _logger.LogInformation("Cliente eliminado (soft delete): {Id} - {Nombre}", entity.Id, entity.Nombre);
+                _logger.LogInformation("Cliente eliminado (soft delete): {Id} - {Nombre}", entity.ID, entity.Nombre);
             else
-                _logger.LogError("Error al eliminar Cliente {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al eliminar Cliente {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -97,7 +97,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
         {
             try
             {
-                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Cedula == cedula && !c.IsDeleted);
+                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Cedula == cedula && !c.is_deleted);
 
                 if (cliente == null)
                     return OperationResult<Cliente>.Fail("Cliente no encontrado");

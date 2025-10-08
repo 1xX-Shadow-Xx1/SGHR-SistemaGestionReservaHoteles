@@ -40,7 +40,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Pago registrado: {Id} - Monto {Monto}", entity.Id, entity.Monto);
+                _logger.LogInformation("Pago registrado: {Id} - Monto {Monto}", entity.ID, entity.Monto);
             else
                 _logger.LogError("Error al registrar Pago: {Message}", result.Message);
 
@@ -56,9 +56,9 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Pago actualizado: {Id}", entity.Id);
+                _logger.LogInformation("Pago actualizado: {Id}", entity.ID);
             else
-                _logger.LogError("Error al actualizar Pago {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al actualizar Pago {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -72,9 +72,9 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             }
 
             if (result.Success)
-                _logger.LogInformation("Pago eliminado correctamente: {Id}", entity.Id);
+                _logger.LogInformation("Pago eliminado correctamente: {Id}", entity.ID);
             else
-                _logger.LogError("Error al eliminar Pago {Id}: {Message}", entity.Id, result.Message);
+                _logger.LogError("Error al eliminar Pago {Id}: {Message}", entity.ID, result.Message);
 
             return result;
         }
@@ -85,7 +85,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 var entity = await _context.Pagos
                     .Include(p => p.Reserva) // relación con Reserva
-                    .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+                    .FirstOrDefaultAsync(p => p.ID == id && !p.is_deleted);
 
                 if (entity == null)
                     return OperationResult<Pago>.Fail("Pago no encontrado");
@@ -105,7 +105,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var pagos = await _context.Pagos
-                    .Where(p => p.IdReserva == reservaId && !p.IsDeleted)
+                    .Where(p => p.IdReserva == reservaId && !p.is_deleted)
                     .ToListAsync();
 
                 if (!pagos.Any())
@@ -125,7 +125,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var pagos = await _context.Pagos
-                    .Where(p => p.FechaPago >= fechaInicio && p.FechaPago <= fechaFin && !p.IsDeleted)
+                    .Where(p => p.FechaPago >= fechaInicio && p.FechaPago <= fechaFin && !p.is_deleted)
                     .ToListAsync();
 
                 if (!pagos.Any())
@@ -145,7 +145,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var pagos = await _context.Pagos
-                    .Where(p => p.MetodoPago == metodo && !p.IsDeleted)
+                    .Where(p => p.MetodoPago == metodo && !p.is_deleted)
                     .ToListAsync();
 
                 if (!pagos.Any())

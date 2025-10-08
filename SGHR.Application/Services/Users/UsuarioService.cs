@@ -32,7 +32,7 @@ namespace SGHR.Application.Services.Users
                 {
                     result.Success = true;
                     result.Data = opResult.Result.Data;
-                    result.Message = opResult.Result.Message;
+                    result.Message = "Se obtuvieron los usuarios exitosamente";
                 }
                 else
                 {
@@ -135,7 +135,7 @@ namespace SGHR.Application.Services.Users
                 {
                     result.Success = true;
                     result.Data = opResult.Result.Data;
-                    result.Message = opResult.Result.Message;
+                    result.Message = $"El Usuario {opResult.Result.Data.Nombre} se creo correctamente";
                 }
                 else
                 {
