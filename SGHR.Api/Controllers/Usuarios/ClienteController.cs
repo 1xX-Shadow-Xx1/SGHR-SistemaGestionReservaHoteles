@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SGHR.Application.Base;
+using SGHR.Application.Dtos.Configuration.Users.Cliente;
+using SGHR.Application.Interfaces.Users;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,36 +11,70 @@ namespace SGHR.Api.Controllers.Usuarios
     [ApiController]
     public class ClienteController : ControllerBase
     {
+        public readonly IClienteService _clienteService;
+        public ClienteController(IClienteService clienteService)
+        {
+            _clienteService = clienteService;
+        }
+
         // GET: api/<ClienteController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IActionResult> Get()
         {
-            return new string[] { "value1", "value2" };
+            ServiceResult result = await _clienteService.GetAll();
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         // GET api/<ClienteController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            return "value";
+            ServiceResult result = await _clienteService.GetById(id);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         // POST api/<ClienteController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> Post([FromBody] CreateClienteDto createClienteDto)
         {
+            ServiceResult result = await _clienteService.Save(createClienteDto);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         // PUT api/<ClienteController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("")]
+        public async Task<IActionResult> Put([FromBody] UpdateClienteDto updateClienteDto)
         {
+            ServiceResult result = await _clienteService.Update(updateClienteDto);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         // DELETE api/<ClienteController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("")]
+        public async Task<IActionResult> Delete([FromBody] DeleteClienteDto deleteClienteDto)
         {
+            ServiceResult result = await _clienteService.Remove(deleteClienteDto);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result.Data);
         }
     }
 }

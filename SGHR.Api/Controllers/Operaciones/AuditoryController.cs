@@ -1,27 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Habitaciones.Amenity;
-using SGHR.Application.Interfaces.Habitaciones;
+using SGHR.Application.Dtos.Configuration.Operaciones.Auditory;
+using SGHR.Application.Interfaces.Operaciones;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace SGHR.Api.Controllers.Habitaciones
+namespace SGHR.Api.Controllers.Operaciones
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AmenityController : ControllerBase
+    public class AuditoryController : ControllerBase
     {
-        public readonly IAmenityService _amenityService;
-        public AmenityController(IAmenityService amenityService)
+        public readonly IAuditoryService _auditoryService;
+        public AuditoryController(IAuditoryService auditoryService)
         {
-            _amenityService = amenityService;
+            _auditoryService = auditoryService;
         }
 
-        // GET: api/<AmenityController>
+        // GET: api/<AuditoryController>
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            ServiceResult result = await _amenityService.GetAll();
+            ServiceResult result = await _auditoryService.GetAll();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -29,11 +29,11 @@ namespace SGHR.Api.Controllers.Habitaciones
             return Ok(result);
         }
 
-        // GET api/<AmenityController>/5
+        // GET api/<AuditoryController>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            ServiceResult result = await _amenityService.GetById(id);
+            ServiceResult result = await _auditoryService.GetById(id);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -41,11 +41,11 @@ namespace SGHR.Api.Controllers.Habitaciones
             return Ok(result);
         }
 
-        // POST api/<AmenityController>
+        // POST api/<AuditoryController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreateAmenityDto createDto)
+        public async Task<IActionResult> Post([FromBody] CreateAuditoryDto createDto)
         {
-            ServiceResult result = await _amenityService.Save(createDto);
+            ServiceResult result = await _auditoryService.Save(createDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -53,11 +53,11 @@ namespace SGHR.Api.Controllers.Habitaciones
             return Ok(result);
         }
 
-        // PUT api/<AmenityController>/5
+        // PUT api/<AuditoryController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put([FromBody] UpdateAmenityDto updateDto)
+        public async Task<IActionResult> Put([FromBody] UpdateAuditoryDto updateDto)
         {
-            ServiceResult result = await _amenityService.Update(updateDto);
+            ServiceResult result = await _auditoryService.Update(updateDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -65,11 +65,11 @@ namespace SGHR.Api.Controllers.Habitaciones
             return Ok(result);
         }
 
-        // DELETE api/<AmenityController>/5
+        // DELETE api/<AuditoryController>/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromBody] DeleteAmenityDto deleteDto)
+        public async Task<IActionResult> Delete([FromBody] DeleteAuditoryDto deleteAuditoryDto)
         {
-            ServiceResult result = await _amenityService.Remove(deleteDto);
+            ServiceResult result = await _auditoryService.Remove(deleteAuditoryDto);
             if (!result.Success)
             {
                 return BadRequest(result);

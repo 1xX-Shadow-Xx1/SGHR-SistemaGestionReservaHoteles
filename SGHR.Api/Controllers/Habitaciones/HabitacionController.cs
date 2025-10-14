@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SGHR.Application.Base;
+using SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion;
+using SGHR.Application.Interfaces.Habitaciones;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,36 +11,70 @@ namespace SGHR.Api.Controllers.Habitaciones
     [ApiController]
     public class HabitacionController : ControllerBase
     {
+        public readonly IHabitacionService _habitacionService;
+        public HabitacionController(IHabitacionService habitacionService)
+        {
+            _habitacionService = habitacionService;
+        }
+
         // GET: api/<HabitacionController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IActionResult> Get()
         {
-            return new string[] { "value1", "value2" };
+            ServiceResult result = await _habitacionService.GetAll();
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }            
+            return Ok(result);
         }
 
         // GET api/<HabitacionController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            return "value";
+            ServiceResult result = await _habitacionService.GetById(id);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }            
+            return Ok(result);
         }
 
         // POST api/<HabitacionController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> Post([FromBody] CreateHabitacionDto createDto)
         {
+            ServiceResult result = await _habitacionService.Save(createDto);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }            
+            return Ok(result);
         }
 
         // PUT api/<HabitacionController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> Put([FromBody] UpdateHabitacionDto updateDto)
         {
+            ServiceResult result = await _habitacionService.Update(updateDto);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }            
+            return Ok(result);
         }
 
         // DELETE api/<HabitacionController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> Delete([FromBody] DeleteHabitacionDto deleteDto)
         {
+            ServiceResult result = await _habitacionService.Remove(deleteDto);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
     }
 }

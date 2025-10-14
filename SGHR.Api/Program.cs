@@ -1,13 +1,8 @@
 
+using Microsoft.EntityFrameworkCore;
 using SGHR.Api.Builders;
-using SGHR.Application.Interfaces.Operaciones;
-using SGHR.Application.Interfaces.Users;
-using SGHR.Application.Services.Operaciones;
-using SGHR.Application.Services.Users;
-using SGHR.Domain.Repository;
-using SGHR.Persistence.Interfaces.Reportes;
-using SGHR.Persistence.Repositories.ADO;
-using SGHR.Persistence.Repositories.EF.Users;
+using SGHR.Persistence.Contex;
+
 
 namespace SGHR.Api
 {
@@ -17,8 +12,12 @@ namespace SGHR.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Configuraccion de SGHRContex
+            builder.Services.AddDbContext<SGHRContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("SghrConnString")));
+
             // Add services to the container.
-            builder.Services.AddPersistenceServices(builder.Configuration);
+            builder.Services.AddPersistenceServices();
             builder.Services.AddApplicationService();
 
             builder.Services.AddControllers();

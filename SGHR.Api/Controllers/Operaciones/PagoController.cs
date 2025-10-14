@@ -1,51 +1,53 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Habitaciones.Piso;
-using SGHR.Application.Interfaces.Habitaciones;
+using SGHR.Application.Dtos.Configuration.Operaciones.Pago;
+using SGHR.Application.Interfaces.Operaciones;
+using System.Security.Cryptography.Pkcs;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace SGHR.Api.Controllers.Habitaciones
+namespace SGHR.Api.Controllers.Operaciones
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PisoController : ControllerBase
+    public class PagoController : ControllerBase
     {
-        public readonly IPisoService _pisoService;
-        public PisoController(IPisoService pisoService)
+        public readonly IPagoService _pagoService;
+        public PagoController(IPagoService pagoService)
         {
-            _pisoService = pisoService;
+            _pagoService = pagoService;
         }
 
-        // GET: api/<PisoController>
+
+        // GET: api/<PagoController>
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            ServiceResult result = await _pisoService.GetAll();
+            ServiceResult result = await _pagoService.GetAll();
             if (!result.Success)
             {
                 return BadRequest(result);
-            }            
+            }
             return Ok(result);
         }
 
-        // GET api/<PisoController>/5
+        // GET api/<PagoController>/5
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            ServiceResult result = await _pisoService.GetById(id);
+            ServiceResult result = await _pagoService.GetById(id);
             if (!result.Success)
             {
                 return BadRequest(result);
-            }            
+            }
             return Ok(result);
         }
 
-        // POST api/<PisoController>
+        // POST api/<PagoController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreatePisoDto createDto)
+        public async Task<IActionResult> Post([FromBody] CreatePagoDto createDto)
         {
-            ServiceResult result = await _pisoService.Save(createDto);
+            ServiceResult result = await _pagoService.Save(createDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -53,11 +55,11 @@ namespace SGHR.Api.Controllers.Habitaciones
             return Ok(result);
         }
 
-        // PUT api/<PisoController>/5
+        // PUT api/<PagoController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put([FromBody] UpdatePisoDto updateDto)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdatePagoDto updateDto)
         {
-            ServiceResult result = await _pisoService.Update(updateDto);
+            ServiceResult result = await _pagoService.Update(updateDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -65,11 +67,11 @@ namespace SGHR.Api.Controllers.Habitaciones
             return Ok(result);
         }
 
-        // DELETE api/<PisoController>/5
+        // DELETE api/<PagoController>/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete([FromBody] DeletePisoDto deletePisoDto)
+        public async Task<IActionResult> Delete([FromBody] DeletePagoDto deletePagoDto)
         {
-            ServiceResult result = await _pisoService.Remove(deletePisoDto);
+            ServiceResult result = await _pagoService.Remove(deletePagoDto);
             if (!result.Success)
             {
                 return BadRequest(result);

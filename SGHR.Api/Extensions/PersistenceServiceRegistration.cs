@@ -16,12 +16,9 @@ namespace SGHR.Api.Builders
 {
     public static class PersistenceServiceRegistration
     {
-        public static IServiceCollection AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddPersistenceServices(this IServiceCollection services)
         {
-            // Configuraccion de SGHRContex
-            services.AddDbContext<SGHRContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("SghrConnString")));
-
+            
             // Registrar Repositorios
 
             //Usuarios

@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SGHR.Application.Base;
+using SGHR.Application.Dtos.Configuration.Reservas.Reserva;
+using SGHR.Application.Interfaces.Reservas;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,36 +11,70 @@ namespace SGHR.Api.Controllers.Reservas
     [ApiController]
     public class ReservaController : ControllerBase
     {
+        public readonly IReservaService _reservaService;
+        public ReservaController(IReservaService reservaService)
+        {
+            _reservaService = reservaService;
+        }
+
         // GET: api/<ReservaController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<IActionResult> Get()
         {
-            return new string[] { "value1", "value2" };
+            ServiceResult result = await _reservaService.GetAll();
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         // GET api/<ReservaController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
-            return "value";
+            ServiceResult result = await _reservaService.GetById(id);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }            
+            return Ok(result);
         }
 
         // POST api/<ReservaController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> Post([FromBody] CreateReservaDto createDto)
         {
+            ServiceResult result = await _reservaService.Save(createDto);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
         // PUT api/<ReservaController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<IActionResult> Put([FromBody] UpdateReservaDto updateDto)
         {
+            ServiceResult result = await _reservaService.Update(updateDto);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }            
+            return Ok(result);
         }
 
         // DELETE api/<ReservaController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("")]
+        public async Task<IActionResult> Delete([FromBody] DeleteReservaDto deleteReservaDto)
         {
+            ServiceResult result = await _reservaService.Remove(deleteReservaDto);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }            
+            return Ok(result);
         }
     }
 }
