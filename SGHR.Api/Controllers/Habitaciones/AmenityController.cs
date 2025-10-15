@@ -18,7 +18,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // GET: api/<AmenityController>
-        [HttpGet]
+        [HttpGet("Get-Amenities")]
         public async Task<IActionResult> Get()
         {
             ServiceResult result = await _amenityService.GetAll();
@@ -30,8 +30,8 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // GET api/<AmenityController>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("Get-Amenity-ByID")]
+        public async Task<IActionResult> GetByID(int id)
         {
             ServiceResult result = await _amenityService.GetById(id);
             if (!result.Success)
@@ -42,7 +42,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // POST api/<AmenityController>
-        [HttpPost]
+        [HttpPost("Create-Amenity")]
         public async Task<IActionResult> Post([FromBody] CreateAmenityDto createDto)
         {
             ServiceResult result = await _amenityService.Save(createDto);
@@ -54,7 +54,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // PUT api/<AmenityController>/5
-        [HttpPut("{id}")]
+        [HttpPut("Update-Amenity")]
         public async Task<IActionResult> Put([FromBody] UpdateAmenityDto updateDto)
         {
             ServiceResult result = await _amenityService.Update(updateDto);
@@ -66,7 +66,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // DELETE api/<AmenityController>/5
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete-Amenity")]
         public async Task<IActionResult> Delete([FromBody] DeleteAmenityDto deleteDto)
         {
             ServiceResult result = await _amenityService.Remove(deleteDto);

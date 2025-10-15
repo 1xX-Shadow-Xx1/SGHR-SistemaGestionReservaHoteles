@@ -18,7 +18,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // GET: api/<PisoController>
-        [HttpGet]
+        [HttpGet("Get-Pisos")]
         public async Task<IActionResult> Get()
         {
             ServiceResult result = await _pisoService.GetAll();
@@ -30,8 +30,8 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // GET api/<PisoController>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("Get-Piso-ByID")]
+        public async Task<IActionResult> GetByID(int id)
         {
             ServiceResult result = await _pisoService.GetById(id);
             if (!result.Success)
@@ -42,7 +42,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // POST api/<PisoController>
-        [HttpPost]
+        [HttpPost("Create-Piso")]
         public async Task<IActionResult> Post([FromBody] CreatePisoDto createDto)
         {
             ServiceResult result = await _pisoService.Save(createDto);
@@ -54,7 +54,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // PUT api/<PisoController>/5
-        [HttpPut("{id}")]
+        [HttpPut("Update-Piso")]
         public async Task<IActionResult> Put([FromBody] UpdatePisoDto updateDto)
         {
             ServiceResult result = await _pisoService.Update(updateDto);
@@ -66,7 +66,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // DELETE api/<PisoController>/5
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete-Piso")]
         public async Task<IActionResult> Delete([FromBody] DeletePisoDto deletePisoDto)
         {
             ServiceResult result = await _pisoService.Remove(deletePisoDto);

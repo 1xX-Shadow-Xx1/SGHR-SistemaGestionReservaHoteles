@@ -20,7 +20,7 @@ namespace SGHR.Api.Controllers.Operaciones
 
 
         // GET: api/<PagoController>
-        [HttpGet]
+        [HttpGet("Get-Pagos")]
         public async Task<IActionResult> Get()
         {
             ServiceResult result = await _pagoService.GetAll();
@@ -32,8 +32,8 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // GET api/<PagoController>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("Get-Pago-ByID")]
+        public async Task<IActionResult> GetByID(int id)
         {
             ServiceResult result = await _pagoService.GetById(id);
             if (!result.Success)
@@ -44,7 +44,7 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // POST api/<PagoController>
-        [HttpPost]
+        [HttpPost("Create-Pago")]
         public async Task<IActionResult> Post([FromBody] CreatePagoDto createDto)
         {
             ServiceResult result = await _pagoService.Save(createDto);
@@ -56,7 +56,7 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // PUT api/<PagoController>/5
-        [HttpPut("{id}")]
+        [HttpPut("Update-Pago")]
         public async Task<IActionResult> Put(int id, [FromBody] UpdatePagoDto updateDto)
         {
             ServiceResult result = await _pagoService.Update(updateDto);
@@ -68,7 +68,7 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // DELETE api/<PagoController>/5
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete-Pago")]
         public async Task<IActionResult> Delete([FromBody] DeletePagoDto deletePagoDto)
         {
             ServiceResult result = await _pagoService.Remove(deletePagoDto);

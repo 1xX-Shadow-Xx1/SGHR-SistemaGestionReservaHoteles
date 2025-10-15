@@ -19,7 +19,7 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // GET: api/<ServicioAdicionalController>
-        [HttpGet]
+        [HttpGet("Get-ServiciosAdicionales")]
         public async Task<IActionResult> Get()
         {
             ServiceResult result = await _servicioAdicionalService.GetAll();
@@ -31,8 +31,8 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // GET api/<ServicioAdicionalController>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("Get-ServicioAdicional-ByID")]
+        public async Task<IActionResult> GetByID(int id)
         {
             ServiceResult result = await _servicioAdicionalService.GetById(id);
             if (result.Success)
@@ -43,7 +43,7 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // POST api/<ServicioAdicionalController>
-        [HttpPost]
+        [HttpPost("Create-ServicioAdicional")]
         public async Task<IActionResult> Post([FromBody] CreateServicioAdicionalDto createServicioAdicionalDto)
         {
             ServiceResult result = await _servicioAdicionalService.Save(createServicioAdicionalDto);
@@ -55,7 +55,7 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // PUT api/<ServicioAdicionalController>/5
-        [HttpPut("")]
+        [HttpPut("Update-ServicioAdicional")]
         public async Task<IActionResult> Put([FromBody] UpdateServicioAdicionalDto updateServicioAdicionalDto)
         {
             ServiceResult result = await _servicioAdicionalService.Update(updateServicioAdicionalDto);
@@ -67,7 +67,7 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // DELETE api/<ServicioAdicionalController>/5
-        [HttpDelete("")]
+        [HttpDelete("Delete-ServicioAdicional")]
         public async Task<IActionResult> Delete([FromBody] DeleteServicioAdicionalDto deleteServicioAdicionalDto)
         {
             ServiceResult result = await _servicioAdicionalService.Remove(deleteServicioAdicionalDto);

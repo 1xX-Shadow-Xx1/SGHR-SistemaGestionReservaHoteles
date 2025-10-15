@@ -21,7 +21,7 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // GET: api/<ReporteController>
-        [HttpGet("getReportes")]
+        [HttpGet("get-Reportes")]
         public async Task<IActionResult> Get()
         {
             ServiceResult result = await _reporteService.GetAll();
@@ -33,8 +33,8 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // GET api/<ReporteController>/5
-        [HttpGet("getReporteById")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("get-Reporte-ById")]
+        public async Task<IActionResult> GetByID(int id)
         {
             ServiceResult result = await _reporteService.GetById(id);
             if(!result.Success)

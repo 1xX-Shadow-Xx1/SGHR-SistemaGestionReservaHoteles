@@ -18,7 +18,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // GET: api/<HabitacionController>
-        [HttpGet]
+        [HttpGet("Get-Habitaciones")]
         public async Task<IActionResult> Get()
         {
             ServiceResult result = await _habitacionService.GetAll();
@@ -30,8 +30,8 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // GET api/<HabitacionController>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("Get-Habitacion-ByID")]
+        public async Task<IActionResult> GetByID(int id)
         {
             ServiceResult result = await _habitacionService.GetById(id);
             if (!result.Success)
@@ -42,7 +42,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // POST api/<HabitacionController>
-        [HttpPost]
+        [HttpPost("Create-Habitacion")]
         public async Task<IActionResult> Post([FromBody] CreateHabitacionDto createDto)
         {
             ServiceResult result = await _habitacionService.Save(createDto);
@@ -54,7 +54,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // PUT api/<HabitacionController>/5
-        [HttpPut("{id}")]
+        [HttpPut("Update-Habitacion")]
         public async Task<IActionResult> Put([FromBody] UpdateHabitacionDto updateDto)
         {
             ServiceResult result = await _habitacionService.Update(updateDto);
@@ -66,7 +66,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // DELETE api/<HabitacionController>/5
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete-Habitacion")]
         public async Task<IActionResult> Delete([FromBody] DeleteHabitacionDto deleteDto)
         {
             ServiceResult result = await _habitacionService.Remove(deleteDto);

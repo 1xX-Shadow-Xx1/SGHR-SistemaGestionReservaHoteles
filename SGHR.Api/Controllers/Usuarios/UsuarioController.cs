@@ -19,7 +19,7 @@ namespace SGHR.Api.Controllers.Usuarios
         }
 
         // GET: api/<UsuarioController>
-        [HttpGet("GetUsuarios")]
+        [HttpGet("Get-Usuarios")]
         public async Task<IActionResult> Get()
         {
             ServiceResult result = await _usuarioService.GetAll();
@@ -31,8 +31,8 @@ namespace SGHR.Api.Controllers.Usuarios
         }
 
         // GET api/<UsuarioController>/5
-        [HttpGet("GetUsuarioById")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("Get-Usuario-ById")]
+        public async Task<IActionResult> GetByID(int id)
         {
             ServiceResult result = await _usuarioService.GetById(id);
             if (!result.Success)

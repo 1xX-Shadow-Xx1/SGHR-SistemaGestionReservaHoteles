@@ -18,7 +18,7 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // GET: api/<ReservaController>
-        [HttpGet]
+        [HttpGet("Get-Reservas")]
         public async Task<IActionResult> Get()
         {
             ServiceResult result = await _reservaService.GetAll();
@@ -30,8 +30,8 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // GET api/<ReservaController>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("Get-Reserva-ByID")]
+        public async Task<IActionResult> GetByID(int id)
         {
             ServiceResult result = await _reservaService.GetById(id);
             if (!result.Success)
@@ -42,7 +42,7 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // POST api/<ReservaController>
-        [HttpPost]
+        [HttpPost("Create-Reserva")]
         public async Task<IActionResult> Post([FromBody] CreateReservaDto createDto)
         {
             ServiceResult result = await _reservaService.Save(createDto);
@@ -54,7 +54,7 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // PUT api/<ReservaController>/5
-        [HttpPut("{id}")]
+        [HttpPut("Update-Reserva")]
         public async Task<IActionResult> Put([FromBody] UpdateReservaDto updateDto)
         {
             ServiceResult result = await _reservaService.Update(updateDto);
@@ -66,7 +66,7 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // DELETE api/<ReservaController>/5
-        [HttpDelete("")]
+        [HttpDelete("Delete-Reserva")]
         public async Task<IActionResult> Delete([FromBody] DeleteReservaDto deleteReservaDto)
         {
             ServiceResult result = await _reservaService.Remove(deleteReservaDto);

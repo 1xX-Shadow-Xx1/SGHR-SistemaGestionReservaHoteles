@@ -18,7 +18,7 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // GET: api/<TarifaController>
-        [HttpGet]
+        [HttpGet("Get-Tarifas")]
         public async Task<IActionResult> Get()
         {
             ServiceResult result = await _tarifaService.GetAll();
@@ -31,8 +31,8 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // GET api/<TarifaController>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("Get-Tarifa-ByID")]
+        public async Task<IActionResult> GetByID(int id)
         {
             ServiceResult result = await _tarifaService.GetById(id);
 
@@ -44,7 +44,7 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // POST api/<TarifaController>
-        [HttpPost]
+        [HttpPost("Create-Tarifa")]
         public async Task<IActionResult> Post([FromBody] CreateTarifaDto createTarifaDto)
         {
             ServiceResult result = await _tarifaService.Save(createTarifaDto);
@@ -56,7 +56,7 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // PUT api/<TarifaController>/5
-        [HttpPut("")]
+        [HttpPut("Update-Tarifa")]
         public async Task<IActionResult> Put([FromBody] UpdateTarifaDto updateTarifaDto)
         {
             ServiceResult result = await _tarifaService.Update(updateTarifaDto);
@@ -68,7 +68,7 @@ namespace SGHR.Api.Controllers.Reservas
         }
 
         // DELETE api/<TarifaController>/5
-        [HttpDelete("")]
+        [HttpDelete("Delete-Tarifa")]
         public async Task<IActionResult> Delete([FromBody] DeleteTarifaDto deleteTarifaDto)
         {
             ServiceResult result = await _tarifaService.Remove(deleteTarifaDto);

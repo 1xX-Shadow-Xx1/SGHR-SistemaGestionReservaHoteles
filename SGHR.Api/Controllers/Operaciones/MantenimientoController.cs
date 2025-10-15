@@ -18,7 +18,7 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // GET: api/<MantenimientoController>
-        [HttpGet]
+        [HttpGet("Get-Mantenimientos")]
         public async Task<IActionResult> Get()
         {
             ServiceResult result = await _mantenimientoService.GetAll();
@@ -30,8 +30,8 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // GET api/<MantenimientoController>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("Get-Mantenimiento-ByID")]
+        public async Task<IActionResult> GetByID(int id)
         {
             ServiceResult result = await _mantenimientoService.GetById(id);
             if (!result.Success)
@@ -42,7 +42,7 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // POST api/<MantenimientoController>
-        [HttpPost]
+        [HttpPost("Create-Mantenimiento")]
         public async Task<IActionResult> Post([FromBody] CreateMantenimientoDto createDto)
         {
             ServiceResult result = await _mantenimientoService.Save(createDto);
@@ -54,7 +54,7 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // PUT api/<MantenimientoController>/5
-        [HttpPut("")]
+        [HttpPut("Update-Mantenimiento")]
         public async Task<IActionResult> Put([FromBody] UpdateMantenimientoDto updateDto)
         {
             ServiceResult result = await _mantenimientoService.Update(updateDto);
@@ -66,7 +66,7 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // DELETE api/<MantenimientoController>/5
-        [HttpDelete("")]
+        [HttpDelete("Delete-Mantenimiento")]
         public async Task<IActionResult> Delete([FromBody] DeleteMantenimientoDto deleteDto)
         {
             ServiceResult result = await _mantenimientoService.Remove(deleteDto);

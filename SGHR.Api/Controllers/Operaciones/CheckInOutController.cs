@@ -18,7 +18,7 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // GET: api/<CheckInOutController>
-        [HttpGet]
+        [HttpGet("Get-CheckInOuts")]
         public async Task<IActionResult> Get()
         {
             ServiceResult result = await _checkInOutService.GetAll();
@@ -30,8 +30,8 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // GET api/<CheckInOutController>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("Get-CheckInOut-ByID")]
+        public async Task<IActionResult> GetByID(int id)
         {
             ServiceResult result = await _checkInOutService.GetById(id);
             if (!result.Success)
@@ -42,7 +42,7 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // POST api/<CheckInOutController>
-        [HttpPost]
+        [HttpPost("Create-CheckInOut")]
         public async Task<IActionResult> Post([FromBody] CreateCheckInOutDto createDto)
         {
             ServiceResult result = await _checkInOutService.Save(createDto);
@@ -54,7 +54,7 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // PUT api/<CheckInOutController>/5
-        [HttpPut("")]
+        [HttpPut("Update-CheckInOut")]
         public async Task<IActionResult> Put([FromBody] UpdateCheckInOutDto updateDto)
         {
             ServiceResult result = await _checkInOutService.Update(updateDto);
@@ -66,7 +66,7 @@ namespace SGHR.Api.Controllers.Operaciones
         }
 
         // DELETE api/<CheckInOutController>/5
-        [HttpDelete("")]
+        [HttpDelete("Delete-CheckInOut")]
         public async Task<IActionResult> Delete([FromBody] DeleteCheckInOutDto deleteDto)
         {
             ServiceResult result = await _checkInOutService.Remove(deleteDto);

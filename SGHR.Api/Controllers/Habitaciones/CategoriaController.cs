@@ -18,7 +18,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // GET: api/<CategoriaController>
-        [HttpGet]
+        [HttpGet("Get-Categorias")]
         public async Task<IActionResult> Get()
         {
             ServiceResult result = await _categoriaService.GetAll();
@@ -30,8 +30,8 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // GET api/<CategoriaController>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("Get-Categoria-ByID")]
+        public async Task<IActionResult> GetByID(int id)
         {
             ServiceResult result = await _categoriaService.GetById(id);
             if (!result.Success)
@@ -42,7 +42,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // POST api/<CategoriaController>
-        [HttpPost]
+        [HttpPost("Create-Categoria")]
         public async Task<IActionResult> Post([FromBody] CreateCategoriaDto categoriaDto)
         {
             ServiceResult result = await _categoriaService.Save(categoriaDto);
@@ -54,7 +54,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // PUT api/<CategoriaController>/5
-        [HttpPut("{id}")]
+        [HttpPut("Update-Categoria")]
         public async Task<IActionResult> Put([FromBody] UpdateCategoriaDto categoriaDto)
         {
             ServiceResult result = await _categoriaService.Update(categoriaDto);
@@ -66,7 +66,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // DELETE api/<CategoriaController>/5
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete-Categoria")]
         public async Task<IActionResult> Delete([FromBody] DeleteCategoriaDto deleteDto)
         {
             ServiceResult result = await _categoriaService.Remove(deleteDto);

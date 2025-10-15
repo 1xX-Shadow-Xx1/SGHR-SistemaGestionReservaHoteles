@@ -18,7 +18,7 @@ namespace SGHR.Api.Controllers.Usuarios
         }
 
         // GET: api/<ClienteController>
-        [HttpGet]
+        [HttpGet("Get-Clientes")]
         public async Task<IActionResult> Get()
         {
             ServiceResult result = await _clienteService.GetAll();
@@ -30,8 +30,8 @@ namespace SGHR.Api.Controllers.Usuarios
         }
 
         // GET api/<ClienteController>/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        [HttpGet("Get-Cliente-ByID")]
+        public async Task<IActionResult> GetByID(int id)
         {
             ServiceResult result = await _clienteService.GetById(id);
             if (!result.Success)
@@ -42,7 +42,7 @@ namespace SGHR.Api.Controllers.Usuarios
         }
 
         // POST api/<ClienteController>
-        [HttpPost]
+        [HttpPost("Create-Cliente")]
         public async Task<IActionResult> Post([FromBody] CreateClienteDto createClienteDto)
         {
             ServiceResult result = await _clienteService.Save(createClienteDto);
@@ -54,7 +54,7 @@ namespace SGHR.Api.Controllers.Usuarios
         }
 
         // PUT api/<ClienteController>/5
-        [HttpPut("")]
+        [HttpPut("Update-Cliente")]
         public async Task<IActionResult> Put([FromBody] UpdateClienteDto updateClienteDto)
         {
             ServiceResult result = await _clienteService.Update(updateClienteDto);
@@ -66,7 +66,7 @@ namespace SGHR.Api.Controllers.Usuarios
         }
 
         // DELETE api/<ClienteController>/5
-        [HttpDelete("")]
+        [HttpDelete("Delete-Cliente")]
         public async Task<IActionResult> Delete([FromBody] DeleteClienteDto deleteClienteDto)
         {
             ServiceResult result = await _clienteService.Remove(deleteClienteDto);
