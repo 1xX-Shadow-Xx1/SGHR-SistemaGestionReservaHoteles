@@ -36,7 +36,7 @@ namespace SGHR.Application.Services.Users
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener los clientes.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)

@@ -47,7 +47,6 @@ namespace SGHR.Persistence.Repositories.ADO
                     CommandType = CommandType.StoredProcedure
                 };
 
-                cmd.Parameters.AddWithValue("@id_pago", entity.ID);
                 cmd.Parameters.AddWithValue("@id_reserva", entity.IdReserva);
                 cmd.Parameters.AddWithValue("@monto", entity.Monto);
                 cmd.Parameters.AddWithValue("@metodo_pago", entity.MetodoPago);
@@ -247,7 +246,7 @@ namespace SGHR.Persistence.Repositories.ADO
             return result;
         }
 
-        public async Task<OperationResult<List<Pago>>> GetAll(Expression<Func<Pago, bool>> filter)
+        public async Task<OperationResult<List<Pago>>> GetAllBY(Expression<Func<Pago, bool>> filter)
         {
             var result = new OperationResult<List<Pago>>();
 

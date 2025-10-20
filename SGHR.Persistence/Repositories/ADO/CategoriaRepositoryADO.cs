@@ -40,7 +40,6 @@ namespace SGHR.Persistence.Repositories.ADO
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.AddWithValue("@id_categoria", entity.ID);
                     cmd.Parameters.AddWithValue("@nombre", entity.Nombre);
                     cmd.Parameters.AddWithValue("@descripcion", entity.Descripcion);
 
@@ -236,7 +235,7 @@ namespace SGHR.Persistence.Repositories.ADO
             return result;
         }
 
-        public async Task<OperationResult<List<Categoria>>> GetAll(Expression<Func<Categoria, bool>> filter)
+        public async Task<OperationResult<List<Categoria>>> GetAllBY(Expression<Func<Categoria, bool>> filter)
         {
             var result = new OperationResult<List<Categoria>>();
 

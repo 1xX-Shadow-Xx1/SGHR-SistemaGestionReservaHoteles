@@ -124,12 +124,6 @@ namespace SGHR.Application.Services.Reservas
 
             try
             {
-                if (!result.Success)
-                {
-                    result.Success = false;
-                    result.Message = "Error: la reserva no puede ser nula";
-                    return result;
-                }
                 Reserva reserva = new Reserva
                 {
                     FechaInicio = createReservaDto.FechaInicio,
@@ -140,6 +134,18 @@ namespace SGHR.Application.Services.Reservas
                     Estado = "Pendiente"
                 };
                 var opResult = await _reservaRepository.Save(reserva);
+
+                if (opResult.Success)
+                {
+                    result.Success = true;
+                    result.Data = opResult.Data;
+                    result.Message = opResult.Message;
+                }
+                else
+                {
+                    result.Success = false;
+                    result.Message = opResult.Message;
+                }
             }
             catch (Exception ex)
             {

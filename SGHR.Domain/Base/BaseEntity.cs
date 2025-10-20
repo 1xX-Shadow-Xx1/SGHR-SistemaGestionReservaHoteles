@@ -1,10 +1,12 @@
 ﻿
 using SGHR.Domain.Entities.Configuration;
+using System.ComponentModel.DataAnnotations;
 
 namespace SGHR.Domain.Base
 {
     public abstract class BaseEntity
     {
+        
         public int ID{ get; set; }
         public bool is_deleted { get; set; }
     }

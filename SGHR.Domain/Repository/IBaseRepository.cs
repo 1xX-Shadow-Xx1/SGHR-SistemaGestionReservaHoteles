@@ -14,7 +14,7 @@ namespace SGHR.Domain.Repository
         Task<OperationResult<TEntity>> Update(TEntity entity);
         Task<OperationResult<TEntity>> Delete(TEntity entity);
         Task<OperationResult<List<TEntity>>> GetAll();
-        Task<OperationResult<List<TEntity>>> GetAll(Expression<Func<TEntity, bool>> filter);
+        Task<OperationResult<List<TEntity>>> GetAllBY(Expression<Func<TEntity, bool>> filter);
         Task<OperationResult<TEntity>> GetById(int id);
         Task<OperationResult<bool>> ExistsAsync(Expression<Func<TEntity, bool>> filter);
     }

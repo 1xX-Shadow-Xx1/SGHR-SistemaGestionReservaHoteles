@@ -240,7 +240,7 @@ namespace SGHR.Persistence.Repositories.ADO
             return result;
         }
 
-        public async Task<OperationResult<List<Reporte>>> GetAll(Expression<Func<Reporte, bool>> filter)
+        public async Task<OperationResult<List<Reporte>>> GetAllBY(Expression<Func<Reporte, bool>> filter)
         {
             var result = new OperationResult<List<Reporte>>();
 

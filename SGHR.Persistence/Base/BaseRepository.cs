@@ -75,7 +75,7 @@ namespace SchoolPoliApp.Persistence.Base
             }
         }
 
-        public virtual async Task<OperationResult<List<TEntity>>> GetAll(Expression<Func<TEntity, bool>> filter)
+        public virtual async Task<OperationResult<List<TEntity>>> GetAllBY(Expression<Func<TEntity, bool>> filter)
         {
             try
             {
