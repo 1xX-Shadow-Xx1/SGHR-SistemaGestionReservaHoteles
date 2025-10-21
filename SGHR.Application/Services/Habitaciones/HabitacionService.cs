@@ -64,7 +64,7 @@ namespace SGHR.Application.Services.Categorias
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener la habitación.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -76,22 +76,29 @@ namespace SGHR.Application.Services.Categorias
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeleteHabitacionDto deleteHabitacionDto)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de habitación con ID: {Id}", deleteHabitacionDto.Id);
+            _logger.LogInformation("Iniciando eliminación de habitación con ID: {Id}", id);
 
             try
             {
-                var habitacion = await _habitacionRepository.GetById(deleteHabitacionDto.Id);
-                if (!habitacion.Success)
+                if(id <= 0)
                 {
                     result.Success = false;
-                    result.Message = "Habitación no encontrada.";
+                    result.Message = "ID de habitación inválido.";
                     return result;
                 }
 
-                var opResult = await _habitacionRepository.Delete(habitacion.Data);
+                var HabitacionExist = await _habitacionRepository.GetById(id);
+                if (!HabitacionExist.Success)
+                {
+                    result.Success = false;
+                    result.Message = HabitacionExist.Message;
+                    return result;
+                }
+
+                var opResult = await _habitacionRepository.Delete(HabitacionExist.Data);
                 if (opResult.Success)
                 {
                     result.Success = true;
@@ -122,6 +129,7 @@ namespace SGHR.Application.Services.Categorias
                 Habitacion habitacion = new Habitacion
                 {
                     IdPiso = createHabitacionDto.IdPiso,
+                    IdCategoria = createHabitacionDto.IdCategoria,
                     Numero = createHabitacionDto.Numero,
                     Capacidad = createHabitacionDto.Capacidad
                 };
@@ -136,7 +144,7 @@ namespace SGHR.Application.Services.Categorias
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al crear la habitación.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -159,7 +167,7 @@ namespace SGHR.Application.Services.Categorias
                 if (!existingHabitacionResult.Success)
                 {
                     result.Success = false;
-                    result.Message = "Habitación no encontrada.";
+                    result.Message = existingHabitacionResult.Message;
                     return result;
                 }
 

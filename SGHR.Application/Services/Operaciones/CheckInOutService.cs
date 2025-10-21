@@ -66,7 +66,7 @@ namespace SGHR.Application.Services.Operaciones
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener el CheckInOut.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -78,14 +78,27 @@ namespace SGHR.Application.Services.Operaciones
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeleteCheckInOutDto deleteCheckInOutDto)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de CheckInOut con ID: {Id}", deleteCheckInOutDto.Id);
+            _logger.LogInformation("Iniciando eliminación de CheckInOut con ID: {Id}", id);
 
             try
             {
-                var checkInOutExists = await _checkInOutRepository.GetById(deleteCheckInOutDto.Id);
+                if (id <= 0)
+                {
+                    result.Success = false;
+                    result.Message = "El ID del CheckInOut no es válido.";
+                    return result;
+                }
+
+                var checkInOutExists = await _checkInOutRepository.GetById(id);
+                if (!checkInOutExists.Success)
+                {
+                    result.Success = false;
+                    result.Message = checkInOutExists.Message;
+                    return result;
+                }
 
                 var opResult = await _checkInOutRepository.Delete(checkInOutExists.Data);
                 if (opResult.Success)
@@ -133,7 +146,7 @@ namespace SGHR.Application.Services.Operaciones
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al crear el CheckInOut.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -156,7 +169,7 @@ namespace SGHR.Application.Services.Operaciones
                 if (!checkInOutExists.Success)
                 {
                     result.Success = false;
-                    result.Message = "Error: el CheckInOut no existe";
+                    result.Message = checkInOutExists.Message;
                     return result;
                 }
 

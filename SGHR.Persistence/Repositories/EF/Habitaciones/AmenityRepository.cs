@@ -36,13 +36,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Amenity registrado: {Id} - {Nombre}", entity.ID, entity.Nombre);
-            else
-                _logger.LogError("Error al registrar Amenity: {Message}", result.Message);
-
-            return result;
+            return await base.Save(entity);
         }
 
         public override async Task<OperationResult<Amenity>> Update(Amenity entity)
@@ -52,13 +46,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Amenity actualizado: {Id}", entity.ID);
-            else
-                _logger.LogError("Error al actualizar Amenity {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Update(entity);
         }
 
         public override async Task<OperationResult<Amenity>> Delete(Amenity entity)
@@ -68,13 +56,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Amenity eliminado correctamente: {Id}", entity.ID);
-            else
-                _logger.LogError("Error al eliminar Amenity {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Delete(entity);
         }
 
         public override async Task<OperationResult<Amenity>> GetById(int id)
@@ -82,7 +64,6 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             try
             {
                 var entity = await _context.Amenity
-                    .Include(a => a.Categorias) 
                     .FirstOrDefaultAsync(a => a.ID == id && !a.is_deleted);
 
                 if (entity == null)

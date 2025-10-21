@@ -24,10 +24,5 @@ namespace SGHR.Domain.Entities.Configuration.Reservas
         [Column("estado")]
         public string Estado { get; set; }
 
-        public Cliente Cliente { get; set; }
-        public Habitacion Habitacion { get; set; }
-        public Usuario Usuario { get; set; }
-        public ICollection<Pago> Pagos { get; set; }
-
     }
 }

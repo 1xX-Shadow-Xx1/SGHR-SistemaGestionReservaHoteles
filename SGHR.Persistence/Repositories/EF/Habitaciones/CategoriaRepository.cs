@@ -67,9 +67,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             try
             {
                 var entity = await _context.Categoria
-                    .Include(c => c.Habitaciones)
-                    .Include(c => c.Amenities)
-                    .FirstOrDefaultAsync(c => c.ID == id && !c.is_deleted);
+                    .FirstOrDefaultAsync(C => C.ID == id && !C.is_deleted);
 
                 if (entity == null)
                     return OperationResult<Categoria>.Fail("Categoria no encontrada");

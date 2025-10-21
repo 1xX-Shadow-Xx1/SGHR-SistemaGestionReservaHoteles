@@ -69,9 +69,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // DELETE api/<PagoController>/5
         [HttpDelete("Delete-Pago")]
-        public async Task<IActionResult> Delete([FromBody] DeletePagoDto deletePagoDto)
+        public async Task<IActionResult> Delete(int id)
         {
-            ServiceResult result = await _pagoService.Remove(deletePagoDto);
+            ServiceResult result = await _pagoService.Remove(id);
             if (!result.Success)
             {
                 return BadRequest(result);

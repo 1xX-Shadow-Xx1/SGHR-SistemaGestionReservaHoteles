@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SGHR.Application.Interfaces.Users
 {
-    public interface IClienteService : IBaseServices<CreateClienteDto, UpdateClienteDto, DeleteClienteDto>
+    public interface IClienteService : IBaseServices<CreateClienteDto, UpdateClienteDto>
     {
     }
 }

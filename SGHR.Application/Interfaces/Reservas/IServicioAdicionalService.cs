@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SGHR.Application.Interfaces.Reservas
 {
-    public interface IServicioAdicionalService : IBaseServices<CreateServicioAdicionalDto, UpdateServicioAdicionalDto, DeleteServicioAdicionalDto>
+    public interface IServicioAdicionalService : IBaseServices<CreateServicioAdicionalDto, UpdateServicioAdicionalDto>
     {
     }
 }

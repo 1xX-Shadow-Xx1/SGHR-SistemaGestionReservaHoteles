@@ -66,7 +66,7 @@ namespace SGHR.Application.Services.Operaciones
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener el mantenimiento.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -78,22 +78,29 @@ namespace SGHR.Application.Services.Operaciones
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeleteMantenimientoDto deleteMantenimientoDto)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de mantenimiento con ID: {Id}", deleteMantenimientoDto.Id);
+            _logger.LogInformation("Iniciando eliminación de mantenimiento con ID: {Id}", id);
 
             try
             {
-                var mantenimiento = await  _mantenimientoRepository.GetById(deleteMantenimientoDto.Id);
-                if (mantenimiento == null)
+                if (id <= 0)
                 {
                     result.Success = false;
-                    result.Message = "Mantenimiento no encontrado.";
+                    result.Message = "El ID de mantenimiento no es válido.";
                     return result;
                 }
 
-                var opResult =  _mantenimientoRepository.Delete(mantenimiento.Data);
+                var MantenimientoExist = await  _mantenimientoRepository.GetById(id);
+                if (!MantenimientoExist.Success)
+                {
+                    result.Success = false;
+                    result.Message = MantenimientoExist.Message;
+                    return result;
+                }
+
+                var opResult =  _mantenimientoRepository.Delete(MantenimientoExist.Data);
                 if (opResult.Result.Success)
                 {
                     result.Success = true;
@@ -127,6 +134,7 @@ namespace SGHR.Application.Services.Operaciones
                     IdHabitacion = createMantenimientoDto.IdHabitacion,
                     Descripcion = createMantenimientoDto.Descripcion,
                     RealizadoPor = createMantenimientoDto.RealizadoPor,
+                    FechaInicio = createMantenimientoDto.FechaInicio
                 };
 
                 var opResult = await _mantenimientoRepository.Save(mantenimiento);
@@ -139,7 +147,7 @@ namespace SGHR.Application.Services.Operaciones
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al crear el mantenimiento.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -162,7 +170,7 @@ namespace SGHR.Application.Services.Operaciones
                 if (existingMantenimientoResult == null || !existingMantenimientoResult.Success)
                 {
                     result.Success = false;
-                    result.Message = "Mantenimiento no encontrado.";
+                    result.Message = existingMantenimientoResult.Message;
                     return result;
                 }
 

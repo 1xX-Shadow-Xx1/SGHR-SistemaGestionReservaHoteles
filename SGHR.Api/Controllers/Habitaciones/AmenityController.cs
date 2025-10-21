@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // DELETE api/<AmenityController>/5
         [HttpDelete("Delete-Amenity")]
-        public async Task<IActionResult> Delete([FromBody] DeleteAmenityDto deleteDto)
+        public async Task<IActionResult> Delete(int id)
         {
-            ServiceResult result = await _amenityService.Remove(deleteDto);
+            ServiceResult result = await _amenityService.Remove(id);
             if (!result.Success)
             {
                 return BadRequest(result);

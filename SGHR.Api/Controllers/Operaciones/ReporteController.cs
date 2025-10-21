@@ -58,7 +58,7 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // PUT api/<ReporteController>/5
         [HttpPut("update-Reporte")]
-        public async Task<IActionResult> Put(int id, [FromBody] UpdateReporteDto updateReporteDto)
+        public async Task<IActionResult> Put([FromBody] UpdateReporteDto updateReporteDto)
         {
             ServiceResult result = await _reporteService.Update(updateReporteDto);
             if (!result.Success)
@@ -70,9 +70,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // DELETE api/<ReporteController>/5
         [HttpDelete("delete-Reporte")]
-        public async Task<IActionResult> Remove([FromBody]DeleteReporteDto deleteReporteDto)
+        public async Task<IActionResult> Remove(int id)
         {
-            ServiceResult result = await _reporteService.Remove(deleteReporteDto);
+            ServiceResult result = await _reporteService.Remove(id);
             if (!result.Success)
             {
                 return BadRequest(result);

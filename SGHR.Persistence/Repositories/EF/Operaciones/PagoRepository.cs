@@ -38,13 +38,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Pago registrado: {Id} - Monto {Monto}", entity.ID, entity.Monto);
-            else
-                _logger.LogError("Error al registrar Pago: {Message}", result.Message);
-
-            return result;
+            return await base.Save(entity);
         }
 
         public override async Task<OperationResult<Pago>> Update(Pago entity)
@@ -54,13 +48,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Pago actualizado: {Id}", entity.ID);
-            else
-                _logger.LogError("Error al actualizar Pago {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Update(entity);
         }
 
         public override async Task<OperationResult<Pago>> Delete(Pago entity)
@@ -70,13 +58,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Pago eliminado correctamente: {Id}", entity.ID);
-            else
-                _logger.LogError("Error al eliminar Pago {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Delete(entity);
         }
 
         public override async Task<OperationResult<Pago>> GetById(int id)
@@ -84,7 +66,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var entity = await _context.Pagos
-                    .Include(p => p.Reserva) // relación con Reserva
                     .FirstOrDefaultAsync(p => p.ID == id && !p.is_deleted);
 
                 if (entity == null)

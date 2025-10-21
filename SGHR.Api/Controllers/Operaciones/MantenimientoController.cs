@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // DELETE api/<MantenimientoController>/5
         [HttpDelete("Delete-Mantenimiento")]
-        public async Task<IActionResult> Delete([FromBody] DeleteMantenimientoDto deleteDto)
+        public async Task<IActionResult> Delete(int id)
         {
-            ServiceResult result = await _mantenimientoService.Remove(deleteDto);
+            ServiceResult result = await _mantenimientoService.Remove(id);
             if (!result.Success)
             {
                 return BadRequest(result);

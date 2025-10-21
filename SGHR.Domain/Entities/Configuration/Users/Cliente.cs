@@ -6,8 +6,7 @@ namespace SGHR.Domain.Entities.Configuration.Usuers
     [Table("Clientes")]
     public sealed class Cliente : Base.BaseEntity
     {
-        [Column("id_usuario")]
-        [ForeignKey(nameof(Usuario))]
+        [Column("id_usuario")]        
         public int IdUsuario { get; set; }
         [Column("nombre")]
         public string Nombre { get; set; }
@@ -19,9 +18,6 @@ namespace SGHR.Domain.Entities.Configuration.Usuers
         public string Telefono { get; set; }
         [Column("direccion")]
         public string Direccion { get; set; }
-
-        public Usuario Usuario { get; set; }
-        public ICollection<Reserva> Reservas { get; set; }
 
     }
 }

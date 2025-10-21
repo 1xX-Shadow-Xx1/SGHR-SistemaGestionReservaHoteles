@@ -63,7 +63,7 @@ namespace SGHR.Application.Services.Operaciones
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener el reporte.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -75,18 +75,25 @@ namespace SGHR.Application.Services.Operaciones
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeleteReporteDto deleteReporteDto)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de reporte con ID: {Id}", deleteReporteDto.Id);
+            _logger.LogInformation("Iniciando eliminación de reporte con ID: {Id}", id);
 
             try
             {
-                var reportExists = await _reporteRepository.GetById(deleteReporteDto.Id);
-                if (!reportExists.Success || reportExists.Data == null)
+                if (id <= 0)
                 {
                     result.Success = false;
-                    result.Message = "El reporte no existe.";
+                    result.Message = "El ID del reporte no es válido.";
+                    return result;
+                }
+
+                var reportExists = await _reporteRepository.GetById(id);
+                if (!reportExists.Success)
+                {
+                    result.Success = false;
+                    result.Message = reportExists.Message;
                     return result;
                 }
 
@@ -135,7 +142,7 @@ namespace SGHR.Application.Services.Operaciones
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al crear el reporte.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -158,7 +165,7 @@ namespace SGHR.Application.Services.Operaciones
                 if (!reportExists.Success || reportExists.Data == null)
                 {
                     result.Success = false;
-                    result.Message = "El reporte no existe.";
+                    result.Message = reportExists.Message;
                     return result;
                 }
 

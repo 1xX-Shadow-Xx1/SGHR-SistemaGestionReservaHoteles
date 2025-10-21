@@ -1,20 +1,19 @@
 ﻿using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
+
 
 namespace SGHR.Domain.Entities.Configuration.Reservas
 {
+    [Table("Tarifas")]
     public sealed class Tarifa : BaseEntity
     {
+        [Column("id_categoria")]
         public int IdCategoria { get; set; }
+        [Column("temporada")]
         public string Temporada { get; set; }
+        [Column("precio")]
         public decimal Precio { get; set; }
-
-        public Categoria Categoria { get; set; }
 
     }
 }

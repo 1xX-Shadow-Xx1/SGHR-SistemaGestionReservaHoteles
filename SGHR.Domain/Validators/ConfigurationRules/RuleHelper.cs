@@ -28,7 +28,7 @@ namespace SGHR.Domain.Validators.Configuration
         {
             return entity =>
             (
-                selector(entity) == null,
+                selector(entity) != null,
                 $"{fieldName} es obligatorio"
             );
         }
@@ -39,7 +39,7 @@ namespace SGHR.Domain.Validators.Configuration
         {
             return entity =>
             (
-                selector(entity) == null,
+                selector(entity) != null,
                 $"{fieldName} es obligatorio"
             );
         }
@@ -131,7 +131,7 @@ namespace SGHR.Domain.Validators.Configuration
         {
             return entity =>
             (
-                selector(entity) == DateTime.Now,
+                selector(entity) != default(DateTime),
                 $"{fieldName} debe ser valida"
             );
         }

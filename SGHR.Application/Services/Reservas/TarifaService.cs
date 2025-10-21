@@ -31,7 +31,7 @@ namespace SGHR.Application.Services.Reservas
                 {
                     result.Success = true;
                     result.Data = opResult.Data;
-                    result.Message = "Tarifas obtenidas correctamente.";
+                    result.Message = "Tarifas obtenidas exitosamente.";
                 }
                 else
                 {
@@ -65,7 +65,7 @@ namespace SGHR.Application.Services.Reservas
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener la tarifa.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -77,41 +77,39 @@ namespace SGHR.Application.Services.Reservas
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeleteTarifaDto dto)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de tarifa ID: {Id}", dto.Id);
+            _logger.LogInformation("Iniciando eliminación de tarifa ID: {Id}", id);
 
             try
             {
-                var opResult = await _tarifaRepository.GetById(dto.Id);
-                if (!opResult.Success)
+                if (id <= 0)
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener la tarifa.";
+                    result.Message = "El ID de la tarifa no es válido.";
+                    return result;
+                }
+                var TarifaExist = await _tarifaRepository.GetById(id);
+                if (!TarifaExist.Success)
+                {
+                    result.Success = false;
+                    result.Message = TarifaExist.Message;
                     return result;
                 }
 
-                var entity = opResult.Data;
-                if (entity == null)
-                {
-                    result.Success = false;
-                    result.Message = "La tarifa no existe.";
-                    return result;
-                }
-
-                var deleteResult = await _tarifaRepository.Delete(entity);
+                var deleteResult = await _tarifaRepository.Delete(TarifaExist.Data);
                 if (deleteResult.Success)
                 {
                     result.Success = true;
                     result.Message = "Tarifa eliminada correctamente.";
-                    _logger.LogInformation("Tarifa eliminada correctamente: {Id}", dto.Id);
+                    _logger.LogInformation("Tarifa eliminada correctamente: {Id}", id);
                 }
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al eliminar la tarifa.";
-                    _logger.LogError("Error al eliminar la tarifa {Id}: {Message}", dto.Id, deleteResult.Message);
+                    result.Message = ($"Error al eliminar la tarifa: {deleteResult.Message}");
+                    _logger.LogError("Error al eliminar la tarifa {Id}: {Message}", id, deleteResult.Message);
                 }
             }
             catch (Exception ex)
@@ -149,7 +147,7 @@ namespace SGHR.Application.Services.Reservas
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al crear la tarifa.";
+                    result.Message = opResult.Message;
                     _logger.LogError("Error al crear la tarifa: {Message}", opResult.Message);
                 }
             }
@@ -173,18 +171,11 @@ namespace SGHR.Application.Services.Reservas
                 if (!existingTarifaResult.Success)
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener la tarifa.";
+                    result.Message = existingTarifaResult.Message;
                     return result;
                 }
+
                 var existingTarifa = existingTarifaResult.Data;
-                if (existingTarifa == null)
-                {
-                    result.Success = false;
-                    result.Message = "La tarifa no existe.";
-                    return result;
-                }
-
-
                 existingTarifa.IdCategoria = dto.IdCategoria;
                 existingTarifa.Temporada = dto.Temporada;
                 existingTarifa.Precio = dto.Precio;

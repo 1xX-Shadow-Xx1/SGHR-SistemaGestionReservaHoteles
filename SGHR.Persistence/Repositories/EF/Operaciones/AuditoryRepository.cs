@@ -32,38 +32,17 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
         public override async Task<OperationResult<Auditory>> Save(Auditory entity)
         {
-            var result = await base.Save(entity);
-
-            if (result.Success)
-                _logger.LogInformation("Auditoría registrada: {Id} - Acción {Accion}", entity.ID, entity.Detalle);
-            else
-                _logger.LogError("Error al registrar auditoría: {Message}", result.Message);
-
-            return result;
+            return await base.Save(entity);
         }
 
         public override async Task<OperationResult<Auditory>> Update(Auditory entity)
         {
-            var result = await base.Update(entity);
-
-            if (result.Success)
-                _logger.LogInformation("Auditoría actualizada: {Id}", entity.ID);
-            else
-                _logger.LogError("Error al actualizar auditoría {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Update(entity);
         }
 
         public override async Task<OperationResult<Auditory>> Delete(Auditory entity)
         {
-            var result = await base.Delete(entity);
-
-            if (result.Success)
-                _logger.LogInformation("Auditoría eliminada correctamente: {Id}", entity.ID);
-            else
-                _logger.LogError("Error al eliminar auditoría {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Delete(entity);
         }
 
         public override async Task<OperationResult<Auditory>> GetById(int id)

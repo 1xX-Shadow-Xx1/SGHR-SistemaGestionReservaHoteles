@@ -65,7 +65,7 @@ namespace SGHR.Application.Services.Operaciones
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener el pago.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -77,22 +77,28 @@ namespace SGHR.Application.Services.Operaciones
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeletePagoDto deletePagoDto)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de pago con ID: {Id}", deletePagoDto.Id);
+            _logger.LogInformation("Iniciando eliminación de pago con ID: {Id}", id);
 
             try
             {
-                var existingPagoResult = await _pagoRepository.GetById(deletePagoDto.Id);
-                if (existingPagoResult == null || !existingPagoResult.Success)
+                if (id <= 0)
                 {
                     result.Success = false;
-                    result.Message = "Pago no encontrado.";
+                    result.Message = "El pago debe tener un ID válido.";
+                    return result;
+                }
+                var PagoExist = await _pagoRepository.GetById(id);
+                if (!PagoExist.Success)
+                {
+                    result.Success = false;
+                    result.Message = PagoExist.Message;
                     return result;
                 }
 
-                var opResult = await _pagoRepository.Delete(existingPagoResult.Data);
+                var opResult = await _pagoRepository.Delete(PagoExist.Data);
                 if (opResult.Success)
                 {
                     result.Success = true;
@@ -137,7 +143,7 @@ namespace SGHR.Application.Services.Operaciones
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al crear el pago.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -160,7 +166,7 @@ namespace SGHR.Application.Services.Operaciones
                 if (existingPagoResult == null || !existingPagoResult.Success)
                 {
                     result.Success = false;
-                    result.Message = "Pago no encontrado.";
+                    result.Message = existingPagoResult.Message;
                     return result;
                 }
 

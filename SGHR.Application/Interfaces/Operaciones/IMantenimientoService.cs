@@ -4,7 +4,7 @@ using SGHR.Application.Dtos.Configuration.Operaciones.Mantenimiento;
 
 namespace SGHR.Application.Interfaces.Operaciones
 {
-    public interface IMantenimientoService : IBaseServices<CreateMantenimientoDto, UpdateMantenimientoDto, DeleteMantenimientoDto>
+    public interface IMantenimientoService : IBaseServices<CreateMantenimientoDto, UpdateMantenimientoDto>
     {
     }
 }

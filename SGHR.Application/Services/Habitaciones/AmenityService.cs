@@ -65,7 +65,7 @@ namespace SGHR.Application.Services.Categorias
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener el amenity.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -84,18 +84,12 @@ namespace SGHR.Application.Services.Categorias
 
             try
             {
-                if (updateAmenityDto == null || updateAmenityDto.Id <= 0)
-                {
-                    result.Success = false;
-                    result.Message = "Error: el amenity no puede ser nulo y debe tener un ID válido.";
-                    return result;
-                }
 
                 var existingAmenityResult = await _amenityRepository.GetById(updateAmenityDto.Id);
                 if (!existingAmenityResult.Success || existingAmenityResult.Data == null)
                 {
                     result.Success = false;
-                    result.Message = "Error: el amenity a actualizar no existe.";
+                    result.Message = existingAmenityResult.Message;
                     return result;
                 }
 
@@ -124,28 +118,28 @@ namespace SGHR.Application.Services.Categorias
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeleteAmenityDto deleteAmenity)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de amenity: {Dto}", deleteAmenity);
+            _logger.LogInformation("Iniciando eliminación de amenity: {id}", id);
 
             try
             {
-                if (deleteAmenity == null || deleteAmenity.Id <= 0)
+                if (id <= 0)
                 {
                     result.Success = false;
-                    result.Message = "Error: el amenity no puede ser nulo y debe tener un ID válido.";
+                    result.Message = "El amenity debe tener un ID válido.";
                     return result;
                 }
 
-                var existingAmenityResult = await _amenityRepository.GetById(deleteAmenity.Id);
-                if (!existingAmenityResult.Success || existingAmenityResult.Data == null)
+                var AmenityExist = await _amenityRepository.GetById(id);
+                if (!AmenityExist.Success)
                 {
                     result.Success = false;
-                    result.Message = "Error: el amenity a eliminar no existe.";
+                    result.Message = AmenityExist.Message;
                     return result;
                 }
-                var opResult = await _amenityRepository.Delete(existingAmenityResult.Data);
+                var opResult = await _amenityRepository.Delete(AmenityExist.Data);
                 if (opResult.Success)
                 {
                     result.Success = true;
@@ -197,7 +191,7 @@ namespace SGHR.Application.Services.Categorias
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al crear el amenity.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)

@@ -37,13 +37,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Mantenimiento registrado: {Id} - Habitación {HabitacionId}", entity.ID, entity.IdHabitacion);
-            else
-                _logger.LogError("Error al registrar mantenimiento: {Message}", result.Message);
-
-            return result;
+            return await base.Save(entity);
         }
 
         public override async Task<OperationResult<Mantenimiento>> Update(Mantenimiento entity)
@@ -53,13 +47,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Mantenimiento actualizado: {Id}", entity.ID);
-            else
-                _logger.LogError("Error al actualizar mantenimiento {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Update(entity);
         }
 
         public override async Task<OperationResult<Mantenimiento>> Delete(Mantenimiento entity)
@@ -69,13 +57,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Mantenimiento eliminado correctamente: {Id}", entity.ID);
-            else
-                _logger.LogError("Error al eliminar mantenimiento {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Delete(entity);
         }
 
         public override async Task<OperationResult<Mantenimiento>> GetById(int id)
@@ -83,7 +65,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var entity = await _context.Mantenimiento
-                    .Include(m => m.Habitacion) // relación con habitación
                     .FirstOrDefaultAsync(m => m.ID == id && !m.is_deleted);
 
                 if (entity == null)

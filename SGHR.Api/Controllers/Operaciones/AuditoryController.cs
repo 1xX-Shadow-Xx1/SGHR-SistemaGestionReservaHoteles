@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // DELETE api/<AuditoryController>/5
         [HttpDelete("Delete-Auditoria")]
-        public async Task<IActionResult> Delete([FromBody] DeleteAuditoryDto deleteAuditoryDto)
+        public async Task<IActionResult> Delete(int id)
         {
-            ServiceResult result = await _auditoryService.Remove(deleteAuditoryDto);
+            ServiceResult result = await _auditoryService.Remove(id);
             if (!result.Success)
             {
                 return BadRequest(result);

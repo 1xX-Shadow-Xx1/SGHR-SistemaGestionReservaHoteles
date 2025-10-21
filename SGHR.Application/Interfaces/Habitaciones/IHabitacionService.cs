@@ -4,7 +4,7 @@ using SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion;
 
 namespace SGHR.Application.Interfaces.Habitaciones
 {
-    public interface IHabitacionService : IBaseServices<CreateHabitacionDto, UpdateHabitacionDto, DeleteHabitacionDto>
+    public interface IHabitacionService : IBaseServices<CreateHabitacionDto, UpdateHabitacionDto>
     {
     }
 }

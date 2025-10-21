@@ -31,39 +31,18 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
         }
 
         public override async Task<OperationResult<Reporte>> Save(Reporte entity)
-        {
-            var result = await base.Save(entity);
-
-            if (result.Success)
-                _logger.LogInformation("Reporte creado: {Id} - Tipo {Tipo}", entity.ID, entity.TipoReporte);
-            else
-                _logger.LogError("Error al crear Reporte: {Message}", result.Message);
-
-            return result;
+        {   
+            return await base.Save(entity);
         }
 
         public override async Task<OperationResult<Reporte>> Update(Reporte entity)
         {
-            var result = await base.Update(entity);
-
-            if (result.Success)
-                _logger.LogInformation("Reporte actualizado: {Id}", entity.ID);
-            else
-                _logger.LogError("Error al actualizar Reporte {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Update(entity);
         }
 
         public override async Task<OperationResult<Reporte>> Delete(Reporte entity)
         {
-            var result = await base.Delete(entity);
-
-            if (result.Success)
-                _logger.LogInformation("Reporte eliminado correctamente): {Id}", entity.ID);
-            else
-                _logger.LogError("Error al eliminar Reporte {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Delete(entity);
         }
 
         public override async Task<OperationResult<Reporte>> GetById(int id)
@@ -71,7 +50,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var entity = await _context.Reportes
-                    .Include(r => r.Usuario) 
                     .FirstOrDefaultAsync(r => r.ID == id && !r.is_deleted);
 
                 if (entity == null)
@@ -93,7 +71,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 var reportes = await _context.Reportes
                     .Where(r => r.TipoReporte == tipo && !r.is_deleted)
-                    .Include(r => r.Usuario)
                     .ToListAsync();
 
                 if (!reportes.Any())
@@ -114,7 +91,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 var reportes = await _context.Reportes
                     .Where(r => r.FechaGeneracion >= fechaInicio && r.FechaGeneracion <= fechaFin && !r.is_deleted)
-                    .Include(r => r.Usuario)
                     .ToListAsync();
 
                 if (!reportes.Any())

@@ -38,13 +38,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Piso registrado: {Id} - Número {Numero}", entity.ID, entity.NumeroPiso);
-            else
-                _logger.LogError("Error al registrar Piso: {Message}", result.Message);
-
-            return result;
+            return await base.Save(entity);
         }
 
         public override async Task<OperationResult<Piso>> Update(Piso entity)
@@ -54,13 +48,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Piso actualizado: {Id}", entity.ID);
-            else
-                _logger.LogError("Error al actualizar Piso {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Update(entity);
         }
 
         public override async Task<OperationResult<Piso>> Delete(Piso entity)
@@ -70,13 +58,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Piso eliminado correctamente: {Id}", entity.ID);
-            else
-                _logger.LogError("Error al eliminar Piso {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Delete(entity);
         }
 
         public override async Task<OperationResult<Piso>> GetById(int id)
@@ -84,7 +66,6 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             try
             {
                 var entity = await _context.Piso
-                    .Include(p => p.Habitaciones) 
                     .FirstOrDefaultAsync(p => p.ID == id && !p.is_deleted);
 
                 if (entity == null)

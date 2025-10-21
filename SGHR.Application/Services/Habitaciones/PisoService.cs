@@ -64,7 +64,7 @@ namespace SGHR.Application.Services.Categorias
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener el piso.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -76,22 +76,29 @@ namespace SGHR.Application.Services.Categorias
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeletePisoDto deletePisoDto)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de piso con ID: {Id}", deletePisoDto.Id);
+            _logger.LogInformation("Iniciando eliminación de piso con ID: {Id}", id);
 
             try
             {
-                var piso = await _pisoRepository.GetById(deletePisoDto.Id);
-                if (piso.Data == null)
+                if (id <= 0)
                 {
                     result.Success = false;
-                    result.Message = "El piso no existe.";
+                    result.Message = "El ID del piso no es válido.";
                     return result;
                 }
 
-                var opResult = await _pisoRepository.Delete(piso.Data);
+                var PisoExist = await _pisoRepository.GetById(id);
+                if (!PisoExist.Success)
+                {
+                    result.Success = false;
+                    result.Message = PisoExist.Message;
+                    return result;
+                }
+
+                var opResult = await _pisoRepository.Delete(PisoExist.Data);
                 if (opResult.Success)
                 {
                     result.Success = true;
@@ -137,7 +144,7 @@ namespace SGHR.Application.Services.Categorias
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al crear el piso.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -160,7 +167,7 @@ namespace SGHR.Application.Services.Categorias
                 if (existingPisoResult.Data == null)
                 {
                     result.Success = false;
-                    result.Message = "El piso no existe.";
+                    result.Message = existingPisoResult.Message;
                     return result;
                 }
 

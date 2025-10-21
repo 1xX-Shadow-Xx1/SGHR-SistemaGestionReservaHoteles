@@ -5,7 +5,7 @@ using SGHR.Application.Dtos.Configuration.Operaciones.Pago;
 
 namespace SGHR.Application.Interfaces.Operaciones
 {
-    public interface IPagoService : IBaseServices<CreatePagoDto, UpdatePagoDto, DeletePagoDto>
+    public interface IPagoService : IBaseServices<CreatePagoDto, UpdatePagoDto>
     {
     }
 }

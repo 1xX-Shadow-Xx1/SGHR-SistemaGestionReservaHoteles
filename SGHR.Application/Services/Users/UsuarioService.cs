@@ -78,22 +78,29 @@ namespace SGHR.Application.Services.Users
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeleteUsuarioDto deleteUsuarioDto)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de usuario con ID: {Id}", deleteUsuarioDto.Id);
+            _logger.LogInformation("Iniciando eliminación de usuario con ID: {Id}", id);
 
             try
             {
-                var usuarioExists = await _usuarioRepository.GetById(deleteUsuarioDto.Id);
-                if (!usuarioExists.Success || usuarioExists.Data == null)
+                if (id <= 0)
                 {
                     result.Success = false;
-                    result.Message = usuarioExists.Message;
+                    result.Message = "El ID del usuario no es válido.";
                     return result;
                 }
 
-                var opResult =  _usuarioRepository.Delete(usuarioExists.Data);
+                var usuarioExist = await _usuarioRepository.GetById(id);
+                if (!usuarioExist.Success)
+                {
+                    result.Success = false;
+                    result.Message = usuarioExist.Message;
+                    return result;
+                }
+
+                var opResult =  _usuarioRepository.Delete(usuarioExist.Data);
                 if (opResult.Result.Success)
                 {
                     result.Success = true;

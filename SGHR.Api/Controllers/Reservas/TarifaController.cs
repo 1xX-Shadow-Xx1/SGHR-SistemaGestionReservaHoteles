@@ -27,7 +27,7 @@ namespace SGHR.Api.Controllers.Reservas
             {
                 return BadRequest(result);
             }
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         // GET api/<TarifaController>/5
@@ -40,7 +40,7 @@ namespace SGHR.Api.Controllers.Reservas
             {
                 return BadRequest(result);
             }
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         // POST api/<TarifaController>
@@ -52,7 +52,7 @@ namespace SGHR.Api.Controllers.Reservas
             {
                 return BadRequest(result);
             }
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         // PUT api/<TarifaController>/5
@@ -64,19 +64,19 @@ namespace SGHR.Api.Controllers.Reservas
             {
                 return BadRequest(result);
             }
-            return Ok(result.Data);
+            return Ok(result);
         }
 
         // DELETE api/<TarifaController>/5
         [HttpDelete("Delete-Tarifa")]
-        public async Task<IActionResult> Delete([FromBody] DeleteTarifaDto deleteTarifaDto)
+        public async Task<IActionResult> Delete(int id)
         {
-            ServiceResult result = await _tarifaService.Remove(deleteTarifaDto);
+            ServiceResult result = await _tarifaService.Remove(id);
             if (!result.Success)
             {
                 return BadRequest(result);
             }
-            return Ok(result.Data);
+            return Ok(result);
         }
     }
 }

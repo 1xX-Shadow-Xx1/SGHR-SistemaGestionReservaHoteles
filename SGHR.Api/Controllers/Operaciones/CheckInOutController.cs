@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // DELETE api/<CheckInOutController>/5
         [HttpDelete("Delete-CheckInOut")]
-        public async Task<IActionResult> Delete([FromBody] DeleteCheckInOutDto deleteDto)
+        public async Task<IActionResult> Delete(int id)
         {
-            ServiceResult result = await _checkInOutService.Remove(deleteDto);
+            ServiceResult result = await _checkInOutService.Remove(id);
             if (!result.Success)
             {
                 return BadRequest(result);

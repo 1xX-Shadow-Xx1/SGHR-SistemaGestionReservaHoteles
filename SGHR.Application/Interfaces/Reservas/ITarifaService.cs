@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SGHR.Application.Interfaces.Reservas
 {
-    public interface ITarifaService : IBaseServices<CreateTarifaDto, UpdateTarifaDto, DeleteTarifaDto>
+    public interface ITarifaService : IBaseServices<CreateTarifaDto, UpdateTarifaDto>
     {
     }
 }

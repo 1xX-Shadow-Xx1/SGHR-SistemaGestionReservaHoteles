@@ -4,6 +4,7 @@ using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Repository;
 using SGHR.Persistence.Contex;
+using System.ClientModel.Primitives;
 using System.Linq.Expressions;
 
 namespace SchoolPoliApp.Persistence.Base
@@ -29,7 +30,7 @@ namespace SchoolPoliApp.Persistence.Base
             }
             catch (Exception ex)
             {
-                return OperationResult<TEntity>.Fail($"Error al crear: {ex.Message}");
+                return OperationResult<TEntity>.Fail($"Error al crear: {ex.InnerException?.Message}");
             }
         }
 

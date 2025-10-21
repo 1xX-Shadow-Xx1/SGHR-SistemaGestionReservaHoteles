@@ -12,5 +12,6 @@ namespace SGHR.Application.Dtos.Configuration.Operaciones.Mantenimiento
         public int IdHabitacion { get; set; }
         public string Descripcion { get; set; }
         public int RealizadoPor { get; set; }
+        public DateTime FechaInicio { get; set; }
     }
 }

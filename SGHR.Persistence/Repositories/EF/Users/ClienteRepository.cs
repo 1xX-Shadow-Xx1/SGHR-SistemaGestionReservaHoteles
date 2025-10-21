@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
+using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Validators.Users;
 using SGHR.Persistence.Contex;
@@ -32,13 +33,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Cliente creado correctamente: {Id} - {Nombre}", entity.ID, entity.Nombre);
-            else
-                _logger.LogError("Error al crear Cliente {Nombre}: {Message}", entity.Nombre, result.Message);
-
-            return result;
+            return await base.Save(entity);
         }
 
         public override async Task<OperationResult<Cliente>> Update(Cliente entity)
@@ -48,13 +43,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Cliente actualizado correctamente: {Id} - {Nombre}", entity.ID, entity.Nombre);
-            else
-                _logger.LogError("Error al actualizar Cliente {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Update(entity);
         }
 
         public override async Task<OperationResult<Cliente>> Delete(Cliente entity)
@@ -64,25 +53,26 @@ namespace SGHR.Persistence.Repositories.EF.Users
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Cliente eliminado (soft delete): {Id} - {Nombre}", entity.ID, entity.Nombre);
-            else
-                _logger.LogError("Error al eliminar Cliente {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Delete(entity);
         }
 
         public override async Task<OperationResult<Cliente>> GetById(int id)
         {
-            var result = await base.GetById(id);
+            try
+            {
+                var entity = await _context.Clientes
+                .FirstOrDefaultAsync(c => c.ID == id && !c.is_deleted);
 
-            if (result.Success)
-                _logger.LogInformation("Cliente encontrado: {Id}", id);
-            else
+                if (entity == null)
+                    return OperationResult<Cliente>.Fail("Cliente no encontrado");
+
+                return OperationResult<Cliente>.Ok(entity);
+            }
+            catch(Exception ex)
+            {
                 _logger.LogWarning("No se encontró el Cliente con Id {Id}", id);
-
-            return result;
+                return OperationResult<Cliente>.Fail($"Error: {ex.Message}");
+            }                            
         }
         public override async Task<OperationResult<List<Cliente>>> GetAll()
         {

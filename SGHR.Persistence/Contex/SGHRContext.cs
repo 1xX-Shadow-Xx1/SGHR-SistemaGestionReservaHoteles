@@ -34,24 +34,5 @@ namespace SGHR.Persistence.Contex
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
 
-        // Configuración personalizada
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            // Configura la relación Cliente -> Usuario
-            modelBuilder.Entity<Cliente>(entity =>
-            {
-                entity.HasOne(c => c.Usuario)
-                      .WithMany() // Si Usuario tiene ICollection<Cliente>, usa .WithMany(u => u.Clientes)
-                      .HasForeignKey(c => c.IdUsuario)
-                      .HasConstraintName("FK_Clientes_Usuarios")
-                      .OnDelete(DeleteBehavior.Restrict);
-
-                // Asegura que use el nombre correcto de columna
-                entity.Property(c => c.IdUsuario)
-                      .HasColumnName("id_usuario");
-            });
-        }
     }
 }

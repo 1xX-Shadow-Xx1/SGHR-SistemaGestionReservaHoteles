@@ -32,13 +32,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Usuario creado correctamente con correo {Correo}", entity.Correo);
-            else
-                _logger.LogError("Error al crear Usuario con correo {Correo}: {Message}", entity.Correo, result.Message);
-
-            return result;
+            return await base.Save(entity);
         }
 
         public override async Task<OperationResult<Usuario>> Update(Usuario entity)
@@ -48,13 +42,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Usuario actualizado correctamente: {Id} - {Correo}", entity.ID, entity.Correo);
-            else
-                _logger.LogError("Error al actualizar Usuario {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Update(entity);
         }
 
         public override async Task<OperationResult<Usuario>> Delete(Usuario entity)
@@ -65,12 +53,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return result;
             }
 
-            if (result.Success)
-                _logger.LogInformation("Usuario eliminado correctamente: {Id} - {Correo}", entity.ID, entity.Correo);
-            else
-                _logger.LogError("Error al eliminar Usuario {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Delete(entity);
         }
 
         public override async Task<OperationResult<Usuario>> GetById(int id)

@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // DELETE api/<ReservaController>/5
         [HttpDelete("Delete-Reserva")]
-        public async Task<IActionResult> Delete([FromBody] DeleteReservaDto deleteReservaDto)
+        public async Task<IActionResult> Delete(int id)
         {
-            ServiceResult result = await _reservaService.Remove(deleteReservaDto);
+            ServiceResult result = await _reservaService.Remove(id);
             if (!result.Success)
             {
                 return BadRequest(result);

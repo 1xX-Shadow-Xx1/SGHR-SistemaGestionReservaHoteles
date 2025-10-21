@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SGHR.Application.Interfaces.Reservas
 {
-    public interface IReservaService : IBaseServices<CreateReservaDto, UpdateReservaDto, DeleteReservaDto>
+    public interface IReservaService : IBaseServices<CreateReservaDto, UpdateReservaDto>
     {
     }
 }

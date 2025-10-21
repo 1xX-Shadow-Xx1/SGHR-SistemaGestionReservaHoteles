@@ -38,13 +38,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Tarifa creada: {Id} - {Temporada} - Precio {Precio}", entity.ID, entity.Temporada, entity.Precio);
-            else
-                _logger.LogError("Error al crear Tarifa: {Message}", result.Message);
-
-            return result;
+            return await base.Save(entity);
         }
 
         public override async Task<OperationResult<Tarifa>> Update(Tarifa entity)
@@ -54,13 +48,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Tarifa actualizada: {Id} - {Temporada} - Precio {Precio}", entity.ID, entity.Temporada, entity.Precio);
-            else
-                _logger.LogError("Error al actualizar Tarifa {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Update(entity);
         }
 
         public override async Task<OperationResult<Tarifa>> Delete(Tarifa entity)
@@ -70,13 +58,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Tarifa eliminada (soft delete): {Id} - {Temporada}", entity.ID, entity.Temporada);
-            else
-                _logger.LogError("Error al eliminar Tarifa {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Delete(entity);
         }
 
         public override async Task<OperationResult<Tarifa>> GetById(int id)
@@ -88,6 +70,15 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             else
                 _logger.LogWarning("No se encontró Tarifa con Id {Id}", id);
 
+            return result;
+        }
+        public async Task<OperationResult<List<Tarifa>>> GetAll()
+        {
+            var result = await base.GetAll();
+            if (result.Success)
+                _logger.LogInformation("Tarifas obtenidas correctamente.");
+            else
+                _logger.LogError("Error al obtener las Tarifas: {Message}", result.Message);
             return result;
         }
         public async Task<OperationResult<List<Tarifa>>> GetByTemporadaAsync(string temporada)

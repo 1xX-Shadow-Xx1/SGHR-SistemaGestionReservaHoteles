@@ -68,9 +68,9 @@ namespace SGHR.Api.Controllers.Usuarios
 
         // DELETE api/<UsuarioController>/5
         [HttpDelete("delete-Usuario")]
-        public async Task<IActionResult> Delete([FromBody] DeleteUsuarioDto deleteUsuarioDto)
+        public async Task<IActionResult> Delete(int id)
         {
-            ServiceResult result = await _usuarioService.Remove(deleteUsuarioDto);
+            ServiceResult result = await _usuarioService.Remove(id);
             if (!result.Success)
             {
                 return BadRequest(result);

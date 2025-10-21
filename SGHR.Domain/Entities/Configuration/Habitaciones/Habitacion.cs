@@ -15,11 +15,7 @@ namespace SGHR.Domain.Entities.Configuration.Habitaciones
         [Column("capacidad")]
         public int Capacidad { get; set; }
         [Column("estado")]
-        public string Estado { get; set; } 
-
-        public Categoria Categoria { get; set; }
-        public Piso Piso { get; set; }
-        public ICollection<Reserva> Reservas { get; set; }
+        public string Estado { get; set; } = "Activa";
 
     }
 }

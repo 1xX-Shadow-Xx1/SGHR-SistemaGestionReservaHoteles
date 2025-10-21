@@ -36,13 +36,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Servicio adicional creado: {Id} - {Nombre} - Costo {Costo}", entity.ID, entity.Nombre, entity.Precio);
-            else
-                _logger.LogError("Error al crear Servicio adicional: {Message}", result.Message);
-
-            return result;
+            return await base.Save(entity);
         }
 
         public override async Task<OperationResult<ServicioAdicional>> Update(ServicioAdicional entity)
@@ -52,13 +46,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Servicio adicional actualizado: {Id} - {Nombre}", entity.ID, entity.Nombre);
-            else
-                _logger.LogError("Error al actualizar Servicio adicional {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Update(entity);
         }
 
         public override async Task<OperationResult<ServicioAdicional>> Delete(ServicioAdicional entity)
@@ -68,13 +56,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             {
                 return result;
             }
-
-            if (result.Success)
-                _logger.LogInformation("Servicio adicional eliminado correctamente: {Id} - {Nombre}", entity.ID, entity.Nombre);
-            else
-                _logger.LogError("Error al eliminar Servicio adicional {Id}: {Message}", entity.ID, result.Message);
-
-            return result;
+            return await base.Delete(entity);
         }
 
         public override async Task<OperationResult<ServicioAdicional>> GetById(int id)

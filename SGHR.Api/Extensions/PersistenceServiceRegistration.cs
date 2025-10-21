@@ -34,13 +34,13 @@ namespace SGHR.Api.Builders
             services.AddScoped<IAuditoryRepository, AuditoryRepository>();
             services.AddScoped<ICheckInOutRepository, CheckInOutRepository>();
             services.AddScoped<IMantenimientoRepository, MantenimientoRepository>();
-            services.AddScoped<IPagoRepository, PagoRepositoryADO>();
-            services.AddScoped<IReporteRepository, ReporteRepositoryADO>();
+            services.AddScoped<IPagoRepository, PagoRepository>();
+            services.AddScoped<IReporteRepository, ReporteRepository>();
 
 
             //Habitaciones
             services.AddScoped<IAmenityRepository, AmenityRepository>();
-            services.AddScoped<ICategoriaRepository, CategoriaRepositoryADO>();
+            services.AddScoped<ICategoriaRepository, CategoriaRepository>();
             services.AddScoped<IHabitacionRepository, HabitacionRepository>();
             services.AddScoped<IPisoRepository, PisoRepository>();
 

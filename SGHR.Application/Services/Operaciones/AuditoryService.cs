@@ -65,7 +65,7 @@ namespace SGHR.Application.Services.Operaciones
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener la auditoría.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -77,16 +77,29 @@ namespace SGHR.Application.Services.Operaciones
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeleteAuditoryDto deleteAuditoryDto)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de auditoría con ID: {Id}", deleteAuditoryDto.Id);
+            _logger.LogInformation("Iniciando eliminación de auditoría con ID: {Id}", id);
 
             try
             {
-                var auditory = await _auditoryRepository.GetById(deleteAuditoryDto.Id);
+                if (id <= 0)
+                {
+                    result.Success = false;
+                    result.Message = "El ID de la auditoría no es válido.";
+                    return result;
+                }
 
-                var opResult = await _auditoryRepository.Delete(auditory.Data);
+                var AuditoryExist = await _auditoryRepository.GetById(id);
+                if (!AuditoryExist.Success)
+                {
+                    result.Success = false;
+                    result.Message = AuditoryExist.Message;
+                    return result;
+                }
+
+                var opResult = await _auditoryRepository.Delete(AuditoryExist.Data);
                 if (opResult.Success)
                 {
                     result.Success = true;
@@ -132,7 +145,7 @@ namespace SGHR.Application.Services.Operaciones
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al crear la auditoría.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -155,7 +168,7 @@ namespace SGHR.Application.Services.Operaciones
                 if (!existingAuditoryResult.Success || existingAuditoryResult.Data == null)
                 {
                     result.Success = false;
-                    result.Message = "Error: la auditoría no existe";
+                    result.Message = existingAuditoryResult.Message;
                     return result;
                 }
 

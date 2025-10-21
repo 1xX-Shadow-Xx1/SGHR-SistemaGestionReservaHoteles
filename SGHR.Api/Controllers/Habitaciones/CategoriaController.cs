@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // DELETE api/<CategoriaController>/5
         [HttpDelete("Delete-Categoria")]
-        public async Task<IActionResult> Delete([FromBody] DeleteCategoriaDto deleteDto)
+        public async Task<IActionResult> Delete(int id)
         {
-            ServiceResult result = await _categoriaService.Remove(deleteDto);
+            ServiceResult result = await _categoriaService.Remove(id);
             if (!result.Success)
             {
                 return BadRequest(result);

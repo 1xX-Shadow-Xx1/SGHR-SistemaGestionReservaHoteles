@@ -66,7 +66,7 @@ namespace SGHR.Application.Services.Reservas
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener la reserva.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -78,22 +78,28 @@ namespace SGHR.Application.Services.Reservas
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeleteReservaDto deleteReservaDto)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de reserva.", deleteReservaDto);
+            _logger.LogInformation("Iniciando eliminación de reserva con ID: {Id}", id);
 
             try
             {
-                var reserva = await _reservaRepository.GetById(deleteReservaDto.Id);
-                if (!reserva.Success)
+                if(id <= 0)
                 {
                     result.Success = false;
-                    result.Message = "Error: la reserva no existe.";
+                    result.Message = "El ID de la reserva no es válido.";
+                    return result;
+                }
+                var reservaExist = await _reservaRepository.GetById(id);
+                if (!reservaExist.Success)
+                {
+                    result.Success = false;
+                    result.Message = reservaExist.Message;
                     return result;
                 }
 
-                var opResult = await _reservaRepository.Delete(reserva.Data);
+                var opResult = await _reservaRepository.Delete(reservaExist.Data);
 
                 if (opResult.Success)
                 {
@@ -163,18 +169,11 @@ namespace SGHR.Application.Services.Reservas
 
             try
             {
-                if (!result.Success)
-                {
-                    result.Success = false;
-                    result.Message = "Error: la reserva no puede ser nula";
-                    return result;
-                }
-
                 var existingReservaResult = await _reservaRepository.GetById(updateReservaDto.Id);
                 if (!existingReservaResult.Success)
                 {
                     result.Success = false;
-                    result.Message = "Error: la reserva no existe.";
+                    result.Message = existingReservaResult.Message;
                     return result;
                 }
 

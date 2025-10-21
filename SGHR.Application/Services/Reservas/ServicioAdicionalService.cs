@@ -66,7 +66,7 @@ namespace SGHR.Application.Services.Reservas
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener el servicio adicional.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -78,29 +78,29 @@ namespace SGHR.Application.Services.Reservas
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeleteServicioAdicionalDto deleteServicioAdicionalDto)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de servicio adicional.", deleteServicioAdicionalDto);
+            _logger.LogInformation("Iniciando eliminación de servicio adicional con ID: {Id}", id);
 
             try
             {
-                if (!result.Success)
+                if (id <= 0)
                 {
                     result.Success = false;
-                    result.Message = "Error: el servicio adicional no es válido.";
+                    result.Message = "El ID del servicio adicional no es válido.";
                     return result;
                 }
 
-                var existingServicioAdicional = await _servicioAdicionalRepository.GetById(deleteServicioAdicionalDto.Id);
-                if (!existingServicioAdicional.Success || existingServicioAdicional.Data == null)
+                var ServicioAdicionalExist = await _servicioAdicionalRepository.GetById(id);
+                if (!ServicioAdicionalExist.Success)
                 {
                     result.Success = false;
-                    result.Message = "Error: el servicio adicional no existe.";
+                    result.Message = ServicioAdicionalExist.Message;
                     return result;
                 }
 
-                var opResult = await _servicioAdicionalRepository.Delete(existingServicioAdicional.Data);
+                var opResult = await _servicioAdicionalRepository.Delete(ServicioAdicionalExist.Data);
                 if (opResult.Success)
                 {
                     result.Success = true;
@@ -129,12 +129,6 @@ namespace SGHR.Application.Services.Reservas
 
             try
             {
-                if(!result.Success)
-                {
-                    result.Success = false;
-                    result.Message = "Error: el servicio adicional no es válido.";
-                    return result;
-                }
                 ServicioAdicional servicioAdicional = new ServicioAdicional
                 {
                     Nombre = createServicioAdicionalDto.Nombre,
@@ -151,7 +145,7 @@ namespace SGHR.Application.Services.Reservas
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al crear el servicio adicional.";
+                    result.Message = opResult.Message;
                 }
 
             }
@@ -171,18 +165,11 @@ namespace SGHR.Application.Services.Reservas
 
             try
             {
-                if (!result.Success)
-                {
-                    result.Success = false;
-                    result.Message = "Error: el servicio adicional no es válido.";
-                    return result;
-                }
-
                 var existingServicioAdicional = await _servicioAdicionalRepository.GetById(updateServicioAdicionalDto.Id);
                 if (!existingServicioAdicional.Success || existingServicioAdicional.Data == null)
                 {
                     result.Success = false;
-                    result.Message = "Error: el servicio adicional no existe.";
+                    result.Message = existingServicioAdicional.Message;
                     return result;
                 }
 

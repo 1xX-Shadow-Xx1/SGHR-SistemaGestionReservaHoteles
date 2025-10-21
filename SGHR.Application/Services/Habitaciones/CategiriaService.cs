@@ -67,7 +67,7 @@ namespace SGHR.Application.Services.Categorias
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener la categoria.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -86,17 +86,11 @@ namespace SGHR.Application.Services.Categorias
 
             try
             {
-                if (updateCategoriaDto == null)
-                {
-                    result.Success = false;
-                    result.Message = "Error: la categoria no puede ser nula";
-                    return result;
-                }
                 var existingCategoriaResult = await _categoriaRepository.GetById(updateCategoriaDto.Id);
                 if (!existingCategoriaResult.Success || existingCategoriaResult.Data == null)
                 {
                     result.Success = false;
-                    result.Message = "Error: la categoria no existe";
+                    result.Message = existingCategoriaResult.Message;
                     return result;
                 }
 
@@ -126,28 +120,28 @@ namespace SGHR.Application.Services.Categorias
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeleteCategoriaDto deleteCategoriaDto)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de categoria: {Dto}", deleteCategoriaDto);
+            _logger.LogInformation("Iniciando eliminación de categoria: {Id}", id);
 
             try
             {
-                if (deleteCategoriaDto == null || deleteCategoriaDto.Id <= 0)
+                if (id <= 0)
                 {
                     result.Success = false;
-                    result.Message = "Error: la categoria no puede ser nula y debe tener un ID válido.";
+                    result.Message = "La categoria debe tener un ID válido.";
                     return result;
                 }
-                var existingCategoriaResult = await _categoriaRepository.GetById(deleteCategoriaDto.Id);
-                if (!existingCategoriaResult.Success || existingCategoriaResult.Data == null)
+                var CatagoriaExist = await _categoriaRepository.GetById(id);
+                if (!CatagoriaExist.Success)
                 {
                     result.Success = false;
-                    result.Message = "Error: la categoria a eliminar no existe.";
+                    result.Message = CatagoriaExist.Message;
                     return result;
                 }
 
-                var opResult = await _categoriaRepository.Delete(existingCategoriaResult.Data);
+                var opResult = await _categoriaRepository.Delete(CatagoriaExist.Data);
                 if (opResult.Success)
                 {
                     result.Success = true;
@@ -201,7 +195,7 @@ namespace SGHR.Application.Services.Categorias
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al crear la categoria.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)

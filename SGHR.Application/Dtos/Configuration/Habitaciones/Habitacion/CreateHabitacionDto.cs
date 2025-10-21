@@ -11,5 +11,6 @@ namespace SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion
         public int IdPiso { get; set; }
         public string Numero { get; set; }
         public int Capacidad { get; set; }
+        public int IdCategoria { get; set; }
     }
 }

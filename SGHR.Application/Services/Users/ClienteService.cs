@@ -65,7 +65,7 @@ namespace SGHR.Application.Services.Users
                 else
                 {
                     result.Success = false;
-                    result.Message = "Error al obtener el cliente.";
+                    result.Message = opResult.Message;
                 }
             }
             catch (Exception ex)
@@ -77,19 +77,25 @@ namespace SGHR.Application.Services.Users
             return result;
         }
 
-        public async Task<ServiceResult> Remove(DeleteClienteDto deleteClienteDto)
+        public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de cliente con ID: {Id}", deleteClienteDto.Id);
+            _logger.LogInformation("Iniciando eliminación de cliente con ID: {Id}", id);
 
             try
             {
-                var clienteExists = await _clienteRepository.GetById(deleteClienteDto.Id);
-
-                if (!clienteExists.Success || clienteExists.Data == null)
+                if (id <= 0)
                 {
                     result.Success = false;
-                    result.Message = "El cliente no existe.";
+                    result.Message = "El ID del cliente no es válido.";
+                    return result;
+                }
+
+                var clienteExists = await _clienteRepository.GetById(id);
+                if (!clienteExists.Success)
+                {
+                    result.Success = false;
+                    result.Message = clienteExists.Message;
                     return result;
                 }
 
@@ -164,7 +170,7 @@ namespace SGHR.Application.Services.Users
                 if (!existingClienteResult.Success || existingClienteResult.Data == null)
                 {
                     result.Success = false;
-                    result.Message = "El cliente no existe.";
+                    result.Message = existingClienteResult.Message;
                     return result;
                 }
 
