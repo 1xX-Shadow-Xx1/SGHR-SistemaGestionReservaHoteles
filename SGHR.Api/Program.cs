@@ -17,8 +17,7 @@ namespace SGHR.Api
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SghrConnString")));
 
             // Add services to the container.
-            builder.Services.AddPersistenceServices();
-            builder.Services.AddApplicationService();
+            builder.Services.AddDependeces();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

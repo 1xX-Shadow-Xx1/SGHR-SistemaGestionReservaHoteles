@@ -30,8 +30,10 @@ namespace SGHR.Persistence.Repositories.EF.Users
             var result = UsuarioValidator.Validate(entity);
             if (!result.Success)
             {
+                _logger.LogWarning("Error al crear usuario: {Message}", result.Message);
                 return result;
             }
+            _logger.LogInformation("Usuario creado con ID: {Id}", entity.ID);
             return await base.Save(entity);
         }
 
@@ -40,8 +42,10 @@ namespace SGHR.Persistence.Repositories.EF.Users
             var result = UsuarioValidator.Validate(entity);
             if (!result.Success)
             {
+                _logger.LogWarning("Error al actualizar usuario: {Message}", result.Message);
                 return result;
             }
+            _logger.LogInformation("Usuario actualizado con ID: {Id}", entity.ID);
             return await base.Update(entity);
         }
 
@@ -82,6 +86,24 @@ namespace SGHR.Persistence.Repositories.EF.Users
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error obteniendo usuario por correo");
+                return OperationResult<Usuario>.Fail($"Error: {ex.Message}");
+            }
+        }
+        public async Task<OperationResult<Usuario>> GetByEmailAndPassword(string correo, string password)
+        {
+            try
+            {
+                var usuario = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.Correo == correo && u.Contraseña == password && !u.is_deleted);
+
+                if (usuario == null)
+                    return OperationResult<Usuario>.Fail("Usuario no encontrado");
+
+                return OperationResult<Usuario>.Ok(usuario);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo usuario por correo y contraseña");
                 return OperationResult<Usuario>.Fail($"Error: {ex.Message}");
             }
         }

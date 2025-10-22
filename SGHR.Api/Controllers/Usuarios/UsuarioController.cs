@@ -30,6 +30,18 @@ namespace SGHR.Api.Controllers.Usuarios
             return Ok(result);
         }
 
+        // GET api/<UsuarioController>
+        [HttpGet("Get-Usuario-Sesion")]
+        public async Task<IActionResult> GetLogin(string email, string password)
+        {
+            ServiceResult result = await _usuarioService.LoginAsync(email, password);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
         // GET api/<UsuarioController>/5
         [HttpGet("Get-Usuario-ById")]
         public async Task<IActionResult> GetByID(int id)

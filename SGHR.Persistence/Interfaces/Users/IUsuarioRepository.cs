@@ -11,5 +11,6 @@ namespace SGHR.Domain.Repository
     public interface IUsuarioRepository : IBaseRepository<Usuario>
     {
         Task<OperationResult<Usuario>> GetByCorreoAsync(string correo);
+        Task<OperationResult<Usuario>> GetByEmailAndPassword(string correo, string password);
     }
 }

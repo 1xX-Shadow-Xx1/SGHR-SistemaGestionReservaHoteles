@@ -1,7 +1,9 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
+using SGHR.Domain.Entities.Configuration.Operaciones;
 using SGHR.Domain.Repository;
 using SGHR.Persistence.Contex;
 using System.ClientModel.Primitives;
@@ -26,6 +28,17 @@ namespace SchoolPoliApp.Persistence.Base
             {
                 await _dbSet.AddAsync(entity);
                 await _context.SaveChangesAsync();
+
+                var auditory = new Auditory
+                {
+                    IdUsuario = entity.ID,
+                    TablaAfectada = typeof(TEntity).Name,
+                    Operacion = "CREATE",
+                    Detalle = $"Se creó un nuevo registro con ID {entity.ID}"
+                };
+                await _context.Set<Auditory>().AddAsync(auditory);
+                await _context.SaveChangesAsync();
+
                 return OperationResult<TEntity>.Ok(entity, "Registro creado correctamente");
             }
             catch (Exception ex)
@@ -40,6 +53,17 @@ namespace SchoolPoliApp.Persistence.Base
             {
                 _dbSet.Update(entity);
                 await _context.SaveChangesAsync();
+
+                var auditory = new Auditory
+                {
+                    IdUsuario = entity.ID,
+                    TablaAfectada = typeof(TEntity).Name,
+                    Operacion = "UPDATE",
+                    Detalle = $"Se actualizó el registro con ID {entity.ID}"
+                };
+                await _context.Set<Auditory>().AddAsync(auditory);
+                await _context.SaveChangesAsync();
+
                 return OperationResult<TEntity>.Ok(entity, "Registro actualizado correctamente");
             }
             catch (Exception ex)
@@ -55,6 +79,17 @@ namespace SchoolPoliApp.Persistence.Base
                 entity.is_deleted = true; 
                 _dbSet.Update(entity);
                 await _context.SaveChangesAsync();
+
+                var auditory = new Auditory
+                {
+                    IdUsuario = entity.ID,
+                    TablaAfectada = typeof(TEntity).Name,
+                    Operacion = "DELETE",
+                    Detalle = $"Se elimino el registro con ID {entity.ID}"
+                };
+                await _context.Set<Auditory>().AddAsync(auditory);
+                await _context.SaveChangesAsync();
+                                
                 return OperationResult<TEntity>.Ok(entity, "Registro eliminado correctamente");
             }
             catch (Exception ex)
@@ -68,6 +103,17 @@ namespace SchoolPoliApp.Persistence.Base
             try
             {
                 var list = await _dbSet.Where(e => !e.is_deleted).ToListAsync();
+
+                /*var auditory = new Auditory
+                {
+                    IdUsuario = 1, 
+                    TablaAfectada = typeof(TEntity).Name,
+                    Operacion = "READ_ALL",
+                    Detalle = $"Se obtuvieron todos los registros de {typeof(TEntity).Name}"
+                };
+                await _context.Set<Auditory>().AddAsync(auditory);
+                await _context.SaveChangesAsync();*/
+
                 return OperationResult<List<TEntity>>.Ok(list);
             }
             catch (Exception ex)
@@ -114,6 +160,7 @@ namespace SchoolPoliApp.Persistence.Base
             try
             {
                 var exists = await _dbSet.AnyAsync(filter);
+                
                 return OperationResult<bool>.Ok(exists);
             }
             catch (Exception ex)

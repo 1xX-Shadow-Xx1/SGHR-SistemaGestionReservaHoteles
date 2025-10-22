@@ -78,6 +78,31 @@ namespace SGHR.Application.Services.Users
             return result;
         }
 
+        public async Task<ServiceResult> GetUsuarioByIdAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<ServiceResult> LoginAsync(string email, string password)
+        {
+            var opResult = await _usuarioRepository.GetByEmailAndPassword(email, password);
+            ServiceResult result = new ServiceResult();
+
+            if (opResult != null)
+            {
+                result.Success = true;
+                result.Data = opResult;
+                result.Message = "Login exitoso.";
+            }
+            else
+            {
+                result.Success = false;
+                result.Message = opResult.Message;
+            }
+
+            return result;
+        }
+
         public async Task<ServiceResult> Remove(int id)
         {
             ServiceResult result = new ServiceResult();
