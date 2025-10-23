@@ -1,11 +1,4 @@
-﻿using SGHR.Domain.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SGHR.Domain.Validators.Configuration
+﻿namespace SGHR.Domain.Validators.Configuration
 {
     public static class RuleHelper
     {

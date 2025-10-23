@@ -41,7 +41,7 @@ namespace SGHR.Application.Services.Sesiones
                 _logger.LogInformation("Creando la sesion");
                 Sesion sesion  = new Sesion
                 {
-                    UsuarioID = id,
+                    IdUsuario = id,
                     FechaInicio = DateTime.Now,
                     Estado = true
                 };
@@ -55,7 +55,7 @@ namespace SGHR.Application.Services.Sesiones
                     result.Message = OpResult.Message;
                     result.Data = OpResult.Data;
                     SesionDto.SesionID = OpResult.Data.ID;
-                    SesionDto.UsuarioID = OpResult.Data.UsuarioID;
+                    SesionDto.UsuarioID = OpResult.Data.IdUsuario;
                     return result;
                 }
                 _logger.LogWarning($"No se pudo guardar la sesion correctamente: {OpResult.Message}");
@@ -176,7 +176,7 @@ namespace SGHR.Application.Services.Sesiones
                 }
 
                 _logger.LogInformation($"Iniciando obtencion de las sesiones por el id {OpResult.Data.ID} del usuario");
-                var Sesions = await _sesionRepository.GetAllBY(s => s.UsuarioID == OpResult.Data.ID);
+                var Sesions = await _sesionRepository.GetAllBY(s => s.IdUsuario == OpResult.Data.ID);
                 if (!Sesions.Success)
                 {
                     _logger.LogWarning($"No se pudo obtener las sesiones: {Sesions.Message}");

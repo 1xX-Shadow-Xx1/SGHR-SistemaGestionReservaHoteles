@@ -1,12 +1,6 @@
 ﻿using SGHR.Domain.Base;
-using SGHR.Domain.Entities.Configuration.Reservas;
-using SGHR.Domain.Entities.Configuration.Usuers;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace SGHR.Domain.Entities.Configuration.Operaciones
 {

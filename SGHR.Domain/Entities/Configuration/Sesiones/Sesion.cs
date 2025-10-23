@@ -7,7 +7,7 @@ namespace SGHR.Domain.Entities.Configuration.Sesiones
     public class Sesion : BaseEntity 
     {
         [Column("UsuarioID")]
-        public int UsuarioID { get; set; }
+        public int IdUsuario { get; set; }
         [Column("estado")]
         public bool Estado { get; set; }
         [Column("fecha_inicio")]

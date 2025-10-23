@@ -1,11 +1,6 @@
 ﻿using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Validators.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SGHR.Domain.Validators.Users
 {

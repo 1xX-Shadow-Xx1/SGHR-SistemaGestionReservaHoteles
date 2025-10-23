@@ -1,6 +1,4 @@
 ﻿using SGHR.Domain.Base;
-using SGHR.Domain.Entities.Configuration.Habitaciones;
-using SGHR.Domain.Entities.Configuration.Usuers;
 using System.ComponentModel.DataAnnotations.Schema;
 
 

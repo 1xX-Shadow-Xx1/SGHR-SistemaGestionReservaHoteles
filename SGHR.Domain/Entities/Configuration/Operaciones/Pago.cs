@@ -1,5 +1,4 @@
-﻿using SGHR.Domain.Entities.Configuration.Reservas;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SGHR.Domain.Entities.Configuration.Operaciones
 {
