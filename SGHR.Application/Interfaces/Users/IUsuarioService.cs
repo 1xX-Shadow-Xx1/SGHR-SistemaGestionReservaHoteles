@@ -8,6 +8,6 @@ namespace SGHR.Application.Interfaces.Users
     public interface IUsuarioService : IBaseServices<CreateUsuarioDto, UpdateUsuarioDto>
     {
         Task<ServiceResult> LoginAsync(string email, string password);
-        Task<ServiceResult> GetUsuarioByIdAsync(int id);
+        Task<ServiceResult> CloseAsync();
     }
 }

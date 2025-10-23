@@ -2,6 +2,7 @@
 using SGHR.Api.Dependencia.Users;
 using SGHR.Api.Dependencia.Operaciones;
 using SGHR.Api.Dependencia.Habitaciones;
+using SGHR.Api.Dependencia.Sesion;
 
 namespace SGHR.Api.Builders
 {
@@ -32,6 +33,10 @@ namespace SGHR.Api.Builders
             services = services.AddCategoriaDependences();
             services = services.AddHabitacionDependences();
             services = services.AddPisoDependences();
+
+            //Sesion
+            services = services.AddSesionDependences();
+
 
             return services;
         }

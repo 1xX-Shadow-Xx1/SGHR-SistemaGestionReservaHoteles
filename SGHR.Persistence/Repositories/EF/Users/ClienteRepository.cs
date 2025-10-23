@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
-using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Validators.Users;
 using SGHR.Persistence.Contex;
@@ -28,36 +27,68 @@ namespace SGHR.Persistence.Repositories.EF.Users
         }
         public override async Task<OperationResult<Cliente>> Save(Cliente entity)
         {
+            _logger.LogInformation("Iniciando con el registro del cliente.");
+
+            _logger.LogInformation("Iniciando con la validacion de datos.");
             var result = ClienteValidator.Validate(entity);
             if (!result.Success)
             {
+                _logger.LogWarning("Problema con la validacion de los datos: {Message}", result.Message);
                 return result;
             }
-            return await base.Save(entity);
+            _logger.LogInformation("Datos validados, iniciando con el registro del cliente.");
+            var opResult = await base.Save(entity);
+            if (!opResult.Success)
+            {
+                _logger.LogError("Error al guardar al cliente: {ERROR}", opResult.Message);
+                return opResult;
+            }
+            _logger.LogInformation("Cliente registrado correctamente.");
+            return opResult;
         }
-
         public override async Task<OperationResult<Cliente>> Update(Cliente entity)
         {
+            _logger.LogInformation("Iniciando con la actualizacion de los datos de cliente.");
+            _logger.LogInformation("Iniciando la validacion de los datos que se actualizaran.");
             var result = ClienteValidator.Validate(entity);
             if (!result.Success)
             {
+                _logger.LogWarning("Problema con la vaalidacion de los datos: {Message}", result.Message);
                 return result;
             }
-            return await base.Update(entity);
+            var opResult = await base.Update(entity);
+            if(!opResult.Success)
+            {
+                _logger.LogError("Error al actualizar los datos del cliente: {ERROR}", opResult.Message);
+                return opResult;
+            }
+            _logger.LogInformation("Cliente actualizado correctamente.");
+            return opResult;
         }
-
         public override async Task<OperationResult<Cliente>> Delete(Cliente entity)
         {
+            _logger.LogInformation("Iniciando eliminacion logica del cliente.");
+            _logger.LogInformation("Validando datos antes de eliminar.");
             var result = ClienteValidator.Validate(entity);
             if (!result.Success)
             {
+                _logger.LogWarning("Problema de validacion del cliente: {message}", result.Message);
                 return result;
             }
-            return await base.Delete(entity);
-        }
 
+            _logger.LogInformation("Datos validados, iniciando con la eliminacion logica.");
+            var opResult = await base.Delete(entity);
+            if (!opResult.Success)
+            {
+                _logger.LogWarning("Error al elimar al cliente: {ERROR}", opResult.Message);
+                return opResult;
+            }
+            _logger.LogInformation("Cliente eliminado correctamente");
+            return opResult;
+        }
         public override async Task<OperationResult<Cliente>> GetById(int id)
         {
+            _logger.LogInformation("Iniciando la obtencion del cliente con el ID {id}", id);
             try
             {
                 var entity = await _context.Clientes
@@ -85,14 +116,19 @@ namespace SGHR.Persistence.Repositories.EF.Users
         }
         public async Task<OperationResult<Cliente>> GetByCedulaAsync(string cedula)
         {
+            _logger.LogInformation("Iniciando obtencion de Clientes por cedula.");
             try
             {
                 var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Cedula == cedula && !c.is_deleted);
 
                 if (cliente == null)
-                    return OperationResult<Cliente>.Fail("Cliente no encontrado");
+                {
+                    _logger.LogWarning("Cliente no encontrado.");
+                    return OperationResult<Cliente>.Fail("Cliente no encontrado"); 
+                }
 
-                return OperationResult<Cliente>.Ok(cliente);
+                _logger.LogInformation("Cliente encontrado con correctamente.");
+                return OperationResult<Cliente>.Ok(cliente,"Se obtuvo al cliente correctamente.");
             }
             catch (Exception ex)
             {

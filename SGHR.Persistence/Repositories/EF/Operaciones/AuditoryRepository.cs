@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
@@ -7,11 +6,6 @@ using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Operaciones;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SGHR.Persistence.Repositories.EF.Operaciones
 {
@@ -50,7 +44,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var entity = await _context.Auditory
-                    .Include(a => a.Usuario)
                     .FirstOrDefaultAsync(a => a.ID == id && !a.is_deleted);
 
                 if (entity == null)

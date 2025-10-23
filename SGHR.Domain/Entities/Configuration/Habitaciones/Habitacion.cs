@@ -10,6 +10,8 @@ namespace SGHR.Domain.Entities.Configuration.Habitaciones
         public int IdCategoria { get; set; }
         [Column("id_piso")]
         public int IdPiso { get; set; }
+        [Column("id_amenity")]
+        public int? IdAmenity { get; set; }
         [Column("numero")]
         public string Numero { get; set; }
         [Column("capacidad")]

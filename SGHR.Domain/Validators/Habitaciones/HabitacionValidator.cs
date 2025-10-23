@@ -17,8 +17,9 @@ namespace SGHR.Domain.Validators.Habitaciones
 
             var rules = new List<Func<Habitacion, (bool, string)>>
             {
-                RuleHelper.RequeredNumInt<Habitacion>(u => u.IdPiso,"El numero del piso"),
+                RuleHelper.RequeredNumInt<Habitacion>(u => u.IdPiso,"El ID del piso"),
                 RuleHelper.RequeredNumInt<Habitacion>(u => u.Capacidad, "La capacidad de la habitacion"),
+                RuleHelper.RequeredNumInt<Habitacion>(u => u.IdAmenity, "El ID del Amenity"),
                 RuleHelper.Required<Habitacion>(u => u.Numero, "El numero de la habitacion"),
                 RuleHelper.Required<Habitacion>(u => u.Estado, "El estado de la habitacion"),
                 RuleHelper.GreaterThanZero<Habitacion>(u => u.Capacidad,"La capacidad de la habitacion"),

@@ -3,6 +3,7 @@ using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Entities.Configuration.Operaciones;
 using SGHR.Domain.Entities.Configuration.Reportes;
 using SGHR.Domain.Entities.Configuration.Reservas;
+using SGHR.Domain.Entities.Configuration.Sesiones;
 using SGHR.Domain.Entities.Configuration.Usuers;
 
 
@@ -33,6 +34,10 @@ namespace SGHR.Persistence.Contex
         //Users
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
+
+        //Sesiones
+        public DbSet<Sesion> Sesiones { get; set; }
+
 
     }
 }

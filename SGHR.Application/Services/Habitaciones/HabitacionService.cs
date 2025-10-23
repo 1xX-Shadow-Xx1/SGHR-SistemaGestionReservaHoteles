@@ -130,6 +130,7 @@ namespace SGHR.Application.Services.Categorias
                 {
                     IdPiso = createHabitacionDto.IdPiso,
                     IdCategoria = createHabitacionDto.IdCategoria,
+                    IdAmenity = createHabitacionDto.IdAmenity,
                     Numero = createHabitacionDto.Numero,
                     Capacidad = createHabitacionDto.Capacidad
                 };
@@ -174,6 +175,8 @@ namespace SGHR.Application.Services.Categorias
                 var habitacion = existingHabitacionResult.Data;
                 habitacion.IdPiso = updateHabitacionDto.IdPiso;
                 habitacion.Numero = updateHabitacionDto.Numero;
+                habitacion.IdAmenity = updateHabitacionDto.IdAmenity;
+                habitacion.IdCategoria = updateHabitacionDto.IdCategoria;
                 habitacion.Capacidad = updateHabitacionDto.Capacidad;
                 habitacion.Estado = updateHabitacionDto.Estado;
 

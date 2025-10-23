@@ -41,6 +41,18 @@ namespace SGHR.Api.Controllers.Usuarios
             return Ok(result);
         }
 
+        // GET api/<ClienteController>
+        [HttpGet("Get-Cliente-ByCedula")]
+        public async Task<IActionResult> GetClientByCedula(string cedula)
+        {
+            ServiceResult result = await _clienteService.GetByCedulaAsync(cedula);
+            if(!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
         // POST api/<ClienteController>
         [HttpPost("Create-Cliente")]
         public async Task<IActionResult> Post([FromBody] CreateClienteDto createClienteDto)

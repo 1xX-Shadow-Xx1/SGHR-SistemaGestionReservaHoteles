@@ -1,10 +1,10 @@
-﻿using SGHR.Domain.Entities.Configuration.Reservas;
+﻿using SGHR.Domain.Base;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SGHR.Domain.Entities.Configuration.Usuers
 {
     [Table("Clientes")]
-    public sealed class Cliente : Base.BaseEntity
+    public sealed class Cliente : BaseEntity
     {
         [Column("id_usuario")]        
         public int IdUsuario { get; set; }

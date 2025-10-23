@@ -14,17 +14,12 @@ namespace SGHR.Domain.Entities.Configuration.Operaciones
     {
         [Column("id_usuario")]
         public int IdUsuario { get; set; }
-        [Column("tabla_afectada")]
-        public string TablaAfectada { get; set; }
         [Column("operacion")]
         public string Operacion { get; set; } 
         [Column("fecha")]
         public DateTime Fecha { get; set; } = DateTime.Now;
         [Column("detalle")]
         public string Detalle { get; set; }
-
-        [ForeignKey(nameof(IdUsuario))]
-        public Usuario Usuario { get; set; }
 
     }
 }

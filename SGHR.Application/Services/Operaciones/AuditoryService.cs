@@ -130,7 +130,6 @@ namespace SGHR.Application.Services.Operaciones
                 Auditory auditory = new Auditory
                 {
                     IdUsuario = createAuditoryDto.IdUsuario,
-                    TablaAfectada = createAuditoryDto.TablaAfectada,
                     Operacion = createAuditoryDto.Operacion,
                     Detalle = createAuditoryDto.Detalle
                 };
@@ -174,7 +173,6 @@ namespace SGHR.Application.Services.Operaciones
 
                 var auditory = existingAuditoryResult.Data;
                 auditory.IdUsuario = updateAuditoryDto.IdUsuario;
-                auditory.TablaAfectada = updateAuditoryDto.TablaAfectada;
                 auditory.Operacion = updateAuditoryDto.Operacion;
                 auditory.Fecha = updateAuditoryDto.Fecha;
                 auditory.Detalle = updateAuditoryDto.Detalle;

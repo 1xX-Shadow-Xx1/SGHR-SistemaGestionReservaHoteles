@@ -3,10 +3,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
+using SGHR.Domain.Entities.Configuration.Operaciones;
 using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Repository;
 using SGHR.Domain.Validators.Users;
 using SGHR.Persistence.Contex;
+using SGHR.Persistence.Interfaces.Operaciones;
+using System.ClientModel.Primitives;
 
 
 namespace SGHR.Persistence.Repositories.EF.Users
@@ -16,14 +19,18 @@ namespace SGHR.Persistence.Repositories.EF.Users
         private readonly SGHRContext _context;
         private readonly ILogger<UsuarioRepository> _logger;
         private readonly IConfiguration _configuration;
+        private readonly IAuditoryRepository _auditoryRepository;
 
         public UsuarioRepository(SGHRContext context,
                                  ILogger<UsuarioRepository> logger,
+                                 IAuditoryRepository auditoryRepository,
                                  IConfiguration configuration) : base(context)
         {
             _context = context;
             _logger = logger;
             _configuration = configuration;
+            _auditoryRepository = auditoryRepository;
+
         }
         public override async Task<OperationResult<Usuario>> Save(Usuario entity)
         {
@@ -36,7 +43,6 @@ namespace SGHR.Persistence.Repositories.EF.Users
             _logger.LogInformation("Usuario creado con ID: {Id}", entity.ID);
             return await base.Save(entity);
         }
-
         public override async Task<OperationResult<Usuario>> Update(Usuario entity)
         {
             var result = UsuarioValidator.Validate(entity);
@@ -48,26 +54,23 @@ namespace SGHR.Persistence.Repositories.EF.Users
             _logger.LogInformation("Usuario actualizado con ID: {Id}", entity.ID);
             return await base.Update(entity);
         }
-
         public override async Task<OperationResult<Usuario>> Delete(Usuario entity)
         {
             var result = UsuarioValidator.Validate(entity);
             if (!result.Success)
             {
+                _logger.LogWarning("Hubo un problema con la eliminacion logica: " + result.Message);
                 return result;
             }
-
             return await base.Delete(entity);
         }
-
         public override async Task<OperationResult<Usuario>> GetById(int id)
         {
+            _logger.LogInformation($"Obteniendo al usuario con id {id}");
             var result = await base.GetById(id);
 
-            if (result.Success)
-                _logger.LogInformation("Usuario encontrado: {Id}", id);
-            else
-                _logger.LogWarning("No se encontró el Usuario con Id {Id}", id);
+            if (!result.Success)
+                _logger.LogWarning($"Hubo problema al obtener el usuario: {result.Message}");
 
             return result;
         }
@@ -107,9 +110,15 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<Usuario>.Fail($"Error: {ex.Message}");
             }
         }
-        public override Task<OperationResult<List<Usuario>>> GetAll()
+        public override async Task<OperationResult<List<Usuario>>> GetAll()
         {
-            return base.GetAll();
+            _logger.LogInformation("Iniciando obtencion de todos los usuarios.");
+            var result = await base.GetAll();
+
+            if (!result.Success)
+                _logger.LogWarning($"Hubo un problema con la obtecion de los usuarios: {result.Message}");
+
+            return result;
         }
     }
 }

@@ -1,6 +1,8 @@
-﻿namespace SGHR.Domain.Entities.Configuration.Usuers
+﻿using SGHR.Domain.Base;
+
+namespace SGHR.Domain.Entities.Configuration.Usuers
 {
-    public sealed class Usuario : Base.BaseEntity
+    public sealed class Usuario : BaseEntity
     {
         public string Nombre { get; set; }
         public string Correo { get; set; }

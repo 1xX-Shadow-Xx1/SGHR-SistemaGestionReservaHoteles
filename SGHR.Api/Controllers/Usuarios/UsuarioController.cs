@@ -31,10 +31,21 @@ namespace SGHR.Api.Controllers.Usuarios
         }
 
         // GET api/<UsuarioController>
-        [HttpGet("Get-Usuario-Sesion")]
+        [HttpGet("Get-Usuario-Start-Sesion")]
         public async Task<IActionResult> GetLogin(string email, string password)
         {
             ServiceResult result = await _usuarioService.LoginAsync(email, password);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+        // GET api/<UsuarioController>
+        [HttpGet("Get-Usuario-Close-Sesion")]
+        public async Task<IActionResult> CloseSesion()
+        {
+            ServiceResult result = await _usuarioService.CloseAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
