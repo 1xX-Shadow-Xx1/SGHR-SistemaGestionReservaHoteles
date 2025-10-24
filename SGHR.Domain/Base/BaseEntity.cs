@@ -1,12 +1,9 @@
-﻿
-
-
-namespace SGHR.Domain.Base
+﻿namespace SGHR.Domain.Base
 {
-    public abstract class BaseEntity
+    public abstract class BaseEntity : BaseAuditory
     {
-        
-        public int ID { get; set; }
-        public bool is_deleted { get; set; }
+        public int Id { get; set; }
+        public bool Eliminado { get; set; } = false;
+
     }
 }

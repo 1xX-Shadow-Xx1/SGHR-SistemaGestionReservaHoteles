@@ -1,46 +1,50 @@
 ﻿using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Operaciones.Auditory;
-using SGHR.Application.Dtos.Configuration.Sesiones.Sesion;
 using SGHR.Application.Dtos.Configuration.Users.Usuario;
-using SGHR.Application.Interfaces.Operaciones;
-using SGHR.Application.Interfaces.Sesiones;
 using SGHR.Application.Interfaces.Users;
 using SGHR.Domain.Entities.Configuration.Usuers;
+using SGHR.Domain.Enum.Usuario;
 using SGHR.Domain.Repository;
-using SGHR.Persistence.Interfaces.Sesiones;
+using System.Linq.Expressions;
 
 namespace SGHR.Application.Services.Users
 {
+
+
     public class UsuarioService : IUsuarioService
     {
-        public readonly ILogger<UsuarioService> _logger;
-        public readonly IUsuarioRepository _usuarioRepository;
-        public readonly IAuditoryService _auditoryService;
-        public readonly ISesionRepository _sesionRepository;
-        public readonly ISesionServices _sesionServices;
+        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly ILogger<UsuarioService> _logger;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository,
-                             ILogger<UsuarioService> logger,
-                             ISesionRepository sesionRepository,
-                             ISesionServices sesionServices,
-                             IAuditoryService auditoryService)
+        public UsuarioService(IUsuarioRepository usuarioRepository, ILogger<UsuarioService> logger)
         {
             _usuarioRepository = usuarioRepository;
             _logger = logger;
-            _auditoryService = auditoryService;
-            _sesionRepository = sesionRepository;
-            _sesionServices = sesionServices;
         }
 
-        public async Task<ServiceResult> GetAll()
+        public async Task<ServiceResult> CreateAsync(UsuarioCreateDto usuarioCreateDto, int? sesionId = null)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando obtención de todos los usuarios.");
+
             try
             {
+                var exist = await _usuarioRepository.GetByCorreoAsync(usuarioCreateDto.Correo);
+                if (exist.Success)
+                {
+                    result.Success = false;
+                    result.Message = "Ya existe un usuario registrado con ese correo.";
+                    return result;
+                }
 
-                var opResult = await _usuarioRepository.GetAll();
+                var usuario = new Usuario()
+                {
+                    Nombre = usuarioCreateDto.Nombre,
+                    Correo = usuarioCreateDto.Correo,
+                    Contraseña = usuarioCreateDto.Contraseña,
+                    Rol = usuarioCreateDto.Rol
+                };
+
+                var opResult = await _usuarioRepository.SaveAsync(usuario,sesionId);
                 if (!opResult.Success)
                 {
                     result.Success = false;
@@ -48,305 +52,483 @@ namespace SGHR.Application.Services.Users
                     return result;
                 }
 
-                result.Success = true;
-                result.Data = opResult.Data;
-                result.Message = "Se obtuvieron los usuarios exitosamente";
-                _logger.LogInformation(result.Message);
-
-                var auditory = new CreateAuditoryDto
+                var usauriodto = new UsuarioDto()
                 {
-                    IdUsuario = SesionDto.UsuarioID,
-                    Operacion = "GetAll-Userios",
-                    Detalle = ($"El usuario {SesionDto.UsuarioName} obtuvo una lista de todos los usuarios .")
+                    Nombre = opResult.Data.Nombre,
+                    Correo = opResult.Data.Correo,
+                    Estado = opResult.Data.Estado.ToString(),
+                    Rol = opResult.Data.Rol
                 };
 
-                var AudiResult = await _auditoryService.Save(auditory);
-                if (!AudiResult.Success)
-                {
-                    return AudiResult;
-                }
-            }
-            catch (Exception ex)
+                result.Success = true;
+                result.Message = "Usuario registrado correctamente.";
+                result.Data = usauriodto;
+
+            }catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener los usuarios.");
                 result.Success = false;
-                result.Message = "Error al obtener los usuarios.";
+                result.Message = ($"Error al registrar un nuevo usuario: {ex.Message}");
             }
             return result;
         }
-        public async Task<ServiceResult> GetById(int id)
+        public async Task<ServiceResult> DeleteAsync(int id, int? sesionId = null)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando obtención de usuario por ID: {Id}", id);
 
             try
             {
-                var opResult = await _usuarioRepository.GetById(id);
+                var existUser = await _usuarioRepository.GetByIdAsync(id);
+                if (!existUser.Success)
+                {
+                    result.Success = false;
+                    result.Message = existUser.Message;
+                    return result;
+                }
+
+                var opResult = await _usuarioRepository.DeleteAsync(existUser.Data);
                 if (!opResult.Success)
                 {
                     result.Success = false;
                     result.Message = opResult.Message;
                     return result;
                 }
-                result.Success = true;
-                result.Data = opResult.Data;
-                result.Message = opResult.Message;
-                _logger.LogInformation("Usuario obtenido correctamente.");
 
-                var auditory = new CreateAuditoryDto
+                var usuarioDto = new UsuarioDto()
                 {
-                    IdUsuario = SesionDto.UsuarioID,
-                    Operacion = "GetById-Usuario",
-                    Detalle = ($"El usuario {SesionDto.UsuarioName} solicito obtener al usurio con ID: {id}.")
+                    Id = opResult.Data.Id,
+                    Nombre = opResult.Data.Nombre,
+                    Correo = opResult.Data.Correo,
+                    Estado = opResult.Data.Estado.ToString(),
+                    Rol =opResult.Data.Rol
                 };
-                var AudiResult = await _auditoryService.Save(auditory);
-                if (!AudiResult.Success)
-                {
-                    return AudiResult;
-                }
-            }
-            catch (Exception ex)
+
+                result.Success = true;
+                result.Data = usuarioDto;
+                result.Message = "El usuario eliminado correctamente.";
+
+            }catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener el usuario.");
                 result.Success = false;
-                result.Message = "Error al obtener el usuario.";
+                result.Message = ($"Error al eliminar el usuario: {ex.Message}");
             }
             return result;
         }
-        public async Task<ServiceResult> LoginAsync(string email, string password)
+        public async Task<ServiceResult> ExistsAsync(Expression<Func<UsuarioDto, bool>> filter)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation($"Iniciando proceso de Login al usuario {email}");
+            _logger.LogInformation("Iniciando comprobación de existencia de usuario (DTO)");
 
-            _logger.LogInformation($"Obteniendo credenciales Usuario {email}");
-            var opResult = await _usuarioRepository.GetByEmailAndPassword(email, password);
-            if (opResult.Success)
+            try
             {
+                Expression<Func<Usuario, bool>> entityFilter = u =>
+                    filter.Compile()(new UsuarioDto
+                    {
+                        Id = u.Id,
+                        Nombre = u.Nombre,
+                        Correo = u.Correo,
+                        Estado = u.Estado.ToString(),
+                        Rol = u.Rol
+                    });
+
+                var repoResult = await _usuarioRepository.ExistsAsync(entityFilter);
+                if (!repoResult.Success)
+                {
+                    _logger.LogError("Error verificando existencia de usuario en repositorio: {Message}", repoResult.Message);
+                    result.Success = false;
+                    result.Message = repoResult.Message;
+                    return result;
+                }
+
                 result.Success = true;
-                result.Data = opResult.Data;
+                result.Message = "Existencia comprobada.";
+                result.Data = repoResult.Data;
+                _logger.LogInformation("Comprobación de existencia completada, resultado: {Exists}", repoResult.Data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error verificando existencia de usuario (DTO)");
+                result.Success = false;
+                result.Message = ($"Ocurrió un error al comprobar la existencia del usuario: {ex.Message}");
+            }
+            return result;
+        }
+        public async Task<ServiceResult> GetActivosAsync()
+        {
+            ServiceResult result = new ServiceResult();
+            _logger.LogInformation("Iniciando obtención de usuarios activos");
+
+            try
+            {
+                var repoResult = await _usuarioRepository.GetActivosAsync();
+
+                if (!repoResult.Success)
+                {
+                    result.Success = false;
+                    result.Message = repoResult.Message;
+                    _logger.LogError("Error obteniendo usuarios activos: {Message}", repoResult.Message);
+                    return result;
+                }
+
+                var usuariosDto = repoResult.Data!.Select(u => new UsuarioDto
+                {
+                    Id = u.Id,
+                    Nombre = u.Nombre,
+                    Correo = u.Correo,
+                    Estado = u.Estado.ToString(),
+                    Rol = u.Rol
+                }).ToList();
+                result.Success = true;
+                result.Message = "Usuarios obtenidos correctamente.";
+                result.Data = usuariosDto;
+                _logger.LogInformation("Usuarios activos obtenidos correctamente, total: {Count}", usuariosDto.Count);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Excepción al obtener usuarios activos");
+                result.Success = false;
+                result.Message = ($"Ocurrió un error al obtener los usuarios activos: {ex.Message}");
+            }
+            return result;
+        }
+        public async Task<ServiceResult> GetAllAsync()
+        {
+            ServiceResult result = new ServiceResult();
+            _logger.LogInformation("Iniciando obtención de todos los usuarios");
+
+            try
+            {
+                var repoResult = await _usuarioRepository.GetAllAsync();
+
+                if (!repoResult.Success)
+                {
+                    _logger.LogError("Error obteniendo todos los usuarios: {Message}", repoResult.Message);
+                    result.Success = false;
+                    result.Message = repoResult.Message;
+                    return result;
+                }
+
+                var usuariosDto = repoResult.Data!.Select(u => new UsuarioDto
+                {
+                    Id = u.Id,
+                    Nombre = u.Nombre,
+                    Correo = u.Correo,
+                    Estado = u.Estado.ToString(),
+                    Rol = u.Rol
+                }).ToList();
+
+                result.Success = true;
+                result.Message = "Usuarios obtenidos correctamente.";
+                result.Data = usuariosDto;
+                _logger.LogInformation("Todos los usuarios obtenidos correctamente, total: {Count}", usuariosDto.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Excepción al obtener todos los usuarios");
+                result.Success = false;
+                result.Message = ($"Ocurrió un error al obtener los usuarios: {ex.Message}");
+            }
+            return result;
+        }
+        public async Task<ServiceResult> GetAllByAsync(Expression<Func<UsuarioDto, bool>> filter)
+        {
+            ServiceResult result = new ServiceResult();
+            _logger.LogInformation("Iniciando obtención de usuarios con filtro");
+
+            try
+            {
+                Expression<Func<Usuario, bool>> repoFilter = u =>
+                filter.Compile().Invoke(new UsuarioDto
+                {
+                    Id = u.Id,
+                    Nombre = u.Nombre,
+                    Correo = u.Correo,
+                    Estado = u.Estado.ToString(),
+                    Rol = u.Rol
+                });
+
+                var repoResult = await _usuarioRepository.GetAllByAsync(repoFilter);
+
+                if (!repoResult.Success)
+                {
+                    result.Success = false;
+                    result.Message = repoResult.Message;
+                    _logger.LogError("Error obteniendo usuarios del repositorio: {Message}", repoResult.Message);
+                    return result;
+                }
+
+                var usuariosDto = repoResult.Data!
+                    .Select(u => new UsuarioDto
+                    {
+                        Id = u.Id,
+                        Nombre = u.Nombre,
+                        Correo = u.Correo,
+                        Estado = u.Estado.ToString(),
+                        Rol = u.Rol
+                    })
+                    .AsQueryable()
+                    .Where(filter) 
+                    .ToList();
+
+                result.Success = true;
+                result.Message = repoResult.Message;
+                result.Data = usuariosDto;
+
+                _logger.LogInformation("Usuarios filtrados obtenidos correctamente, total: {Count}", usuariosDto.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Excepción al obtener usuarios filtrados");
+                result.Success = false;
+                result.Message = ($"Ocurrió un error al obtener los usuarios filtrados: {ex.Message}");
+            }
+            return result;
+        }
+        public async Task<ServiceResult> GetByCorreoAsync(string correo)
+        {
+            ServiceResult result = new ServiceResult();
+            _logger.LogInformation("Iniciando obtención de usuario por correo: {Correo}", correo);
+
+            try
+            {
+                var repoResult = await _usuarioRepository.GetByCorreoAsync(correo);
+
+                if (!repoResult.Success || repoResult.Data == null)
+                {
+                    result.Success = false;
+                    result.Message = repoResult.Message ?? $"Usuario con correo {correo} no encontrado";
+                    _logger.LogWarning("Usuario con correo {Correo} no encontrado", correo);
+                    return result;
+                }
+
+                var usuarioDto = new UsuarioDto
+                {
+                    Id = repoResult.Data.Id,
+                    Nombre = repoResult.Data.Nombre,
+                    Correo = repoResult.Data.Correo,
+                    Estado = repoResult.Data.Estado.ToString(),
+                    Rol = repoResult.Data.Rol
+                };
+
+                result.Success = true;
+                result.Data = usuarioDto;
+                result.Message = "Usuario obtenido correctamente";
+                _logger.LogInformation("Usuario con correo {Correo} obtenido correctamente", correo);
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = $"Ocurrió un error al obtener el usuario: {ex.Message}";
+                _logger.LogError(ex, "Error obteniendo usuario por correo: {Correo}", correo);
+            }
+
+            return result;
+        }
+        public async Task<ServiceResult> GetByIdAsync(int id)
+        {
+            ServiceResult result = new ServiceResult();
+            _logger.LogInformation("Iniciando obtención de usuario por Id: {Id}", id);
+
+            try
+            {
+                var repoResult = await _usuarioRepository.GetByIdAsync(id);
+
+                if (!repoResult.Success || repoResult.Data == null)
+                {
+                    result.Success = false;
+                    result.Message = repoResult.Message ?? $"Usuario con Id {id} no encontrado";
+                    _logger.LogWarning("Usuario con Id {Id} no encontrado", id);
+                    return result;
+                }
+
+                var usuarioDto = new UsuarioDto
+                {
+                    Id = repoResult.Data.Id,
+                    Nombre = repoResult.Data.Nombre,
+                    Correo = repoResult.Data.Correo,
+                    Estado = repoResult.Data.Estado.ToString(),
+                    Rol = repoResult.Data.Rol
+                };
+
+                result.Success = true;
+                result.Data = usuarioDto;
+                result.Message = "Usuario obtenido correctamente";
+                _logger.LogInformation("Usuario con Id {Id} obtenido correctamente", id);
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = $"Ocurrió un error al obtener el usuario: {ex.Message}";
+                _logger.LogError(ex, "Error obteniendo usuario por Id: {Id}", id);
+            }
+
+            return result;
+        }
+        public async Task<ServiceResult> GetByRolAsync(string rol)
+        {
+            ServiceResult result = new ServiceResult();
+            _logger.LogInformation("Iniciando obtención de usuarios por rol: {Rol}", rol);
+
+            try
+            {
+                var repoResult = await _usuarioRepository.GetByRolAsync(rol);
+
+                if (!repoResult.Success || repoResult.Data == null || !repoResult.Data.Any())
+                {
+                    result.Success = false;
+                    result.Message = repoResult.Message ?? $"No se encontraron usuarios con el rol '{rol}'";
+                    _logger.LogWarning("No se encontraron usuarios con rol: {Rol}", rol);
+                    return result;
+                }
+
+                var usuariosDto = repoResult.Data
+                    .Select(u => new UsuarioDto
+                    {
+                        Id = u.Id,
+                        Nombre = u.Nombre,
+                        Correo = u.Correo,
+                        Estado = u.Estado.ToString(),
+                        Rol = u.Rol
+                    })
+                    .ToList();
+
+                result.Success = true;
+                result.Data = usuariosDto;
+                result.Message = "Usuarios obtenidos correctamente";
+                _logger.LogInformation("{Count} usuarios con rol {Rol} obtenidos correctamente", usuariosDto.Count, rol);
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Message = $"Ocurrió un error al obtener los usuarios por rol: {ex.Message}";
+                _logger.LogError(ex, "Error obteniendo usuarios con rol: {Rol}", rol);
+            }
+
+            return result;
+        }
+        public async Task<ServiceResult> LoginAsync(UsuarioLoginDto usuarioLoginDto)
+        {
+            ServiceResult result = new ServiceResult();
+            _logger.LogInformation("Iniciando login para el usuario con correo: {Correo}", usuarioLoginDto.Correo);
+
+            try
+            {
+                // Obtener el usuario por correo
+                var repoResult = await _usuarioRepository.GetByCorreoAsync(usuarioLoginDto.Correo);
+
+                if (!repoResult.Success || repoResult.Data == null)
+                {
+                    result.Success = false;
+                    result.Message = "Usuario no encontrado.";
+                    _logger.LogWarning("Intento de login fallido: usuario no encontrado para correo {Correo}", usuarioLoginDto.Correo);
+                    return result;
+                }
+
+                var usuario = repoResult.Data;
+
+                // Validar contraseña (en un escenario real, usar hash y salt)
+                if (usuario.Contraseña != usuarioLoginDto.Contraseña)
+                {
+                    result.Success = false;
+                    result.Message = "Contraseña incorrecta.";
+                    _logger.LogWarning("Intento de login fallido: contraseña incorrecta para correo {Correo}", usuarioLoginDto.Correo);
+                    return result;
+                }
+
+                // Mapeo a DTO para devolver datos
+                var usuarioDto = new UsuarioDto
+                {
+                    Id = usuario.Id,
+                    Nombre = usuario.Nombre,
+                    Correo = usuario.Correo,
+                    Rol = usuario.Rol,
+                    Estado = usuario.Estado.ToString()
+                };
+
+                result.Success = true;
+                result.Data = usuarioDto;
                 result.Message = "Login exitoso.";
-                _logger.LogInformation($"El Usuario {email} se a logeado correctamente, iniciando Sesion.");
-
-                var Sesion = await _sesionServices.OpenSesion(opResult.Data.ID);
-                if(!Sesion.Success)
-                {
-                    return result = Sesion;
-                }
-                SesionDto.SesionID = Sesion.Data.ID;
-                SesionDto.UsuarioID = opResult.Data.ID;
-                SesionDto.UsuarioName = opResult.Data.Correo;
-                _logger.LogInformation("Sesion actual establecida correctamente.");
-
-                var auditory = new CreateAuditoryDto
-                {
-                    IdUsuario = SesionDto.UsuarioID,
-                    Operacion = "Login",
-                    Detalle = ($"El Usuario {opResult.Data.Nombre}, a iniciado Sesion.")
-                };
-
-                var AudiResult = await _auditoryService.Save(auditory);
-                if (!AudiResult.Success)
-                {
-                    return AudiResult;
-                }
-            }
-            else
-            {
-                _logger.LogWarning($"No se pudo obtener las credenciales correctamente: {result.Message}");
-                result.Success = false;
-                result.Message = opResult.Message;
-            }
-            return result;
-        }
-        public async Task<ServiceResult> CloseAsync()
-        {
-            ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando Cierre de Sesion");
-
-            var SesionExist = await _sesionServices.CloseSesion();
-            if (!SesionExist.Success)
-            {
-                return SesionExist;
-            }
-            result = SesionExist;
-
-            var auditory = new CreateAuditoryDto
-            {
-                IdUsuario = SesionDto.UsuarioID,
-                Operacion = "Close-Sesion",
-                Detalle = ($"El Usuario {SesionDto.UsuarioName} cerro sesion.")
-            };
-            var AudiResult = await _auditoryService.Save(auditory);
-            if (!AudiResult.Success)
-            {
-                return AudiResult;
-            }
-
-            return result;
-        }
-        public async Task<ServiceResult> Remove(int id)
-        {
-            ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando eliminación de usuario con ID: {Id}", id);
-
-            try
-            {
-                _logger.LogInformation("Verificando de que se ingreso un ID valido.");
-                if (id <= 0)
-                {
-                    _logger.LogWarning("El id ingresado no es valido.");
-                    result.Success = false;
-                    result.Message = "El ID del usuario no es válido.";
-                    return result;
-                }
-                _logger.LogInformation("El id es valido, iniciando el proceso de obtener usuario por id.");
-
-                var usuarioExist = await _usuarioRepository.GetById(id);
-                if (!usuarioExist.Success)
-                {
-                    _logger.LogWarning("No se pudo obtener el usuario: " + usuarioExist.Message);
-                    result.Success = false;
-                    result.Message = usuarioExist.Message;
-                    return result;
-                }
-
-                _logger.LogInformation($"Iniciando borrado logico del usuario {usuarioExist.Message}");
-                var opResult = await _usuarioRepository.Delete(usuarioExist.Data);
-                if (!opResult.Success)
-                {
-                    result.Success = false;
-                    result.Message = opResult.Message;
-                    return result;
-                }
-
-                _logger.LogInformation($"Usuario {opResult.Data.Correo} eliminado correctamente.");
-                result.Success = true;
-                result.Data = opResult.Data;
-                result.Message = opResult.Message;
-
-                var auditory = new CreateAuditoryDto
-                {
-                    IdUsuario = SesionDto.UsuarioID,
-                    Operacion = "Remove-UserbyID",
-                    Detalle = ($"El Usuario {SesionDto.UsuarioName} elimino a {opResult.Data.Correo}.")
-                };
-
-                var AudiResult = await _auditoryService.Save(auditory);
-                if (!AudiResult.Success)
-                {
-                    return AudiResult;
-                }
+                _logger.LogInformation("Usuario con correo {Correo} ha iniciado sesión correctamente", usuarioLoginDto.Correo);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error al eliminar el usuario: " + ex.Message);
                 result.Success = false;
-                result.Message = "Error al eliminar el usuario.";
+                result.Message = $"Ocurrió un error durante el login: {ex.Message}";
+                _logger.LogError(ex, "Error durante el login para el usuario con correo {Correo}", usuarioLoginDto.Correo);
             }
+
             return result;
         }
-        public async Task<ServiceResult> Save(CreateUsuarioDto createUsuarioDto)
+        public async Task<ServiceResult> UpdateAsync(UsuarioUpdateDto usuarioUpdateDto, int? sesionId = null)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando creación de nuevo usuario.", createUsuarioDto);
+            _logger.LogInformation("Iniciando actualización del usuario con Id: {Id}", usuarioUpdateDto.Id);
 
             try
             {
-                Usuario usuario = new Usuario
-                {
-                    Nombre = createUsuarioDto.Nombre,
-                    Correo = createUsuarioDto.Correo,
-                    Contraseña = createUsuarioDto.Contraseña,
-                    Rol = createUsuarioDto.Rol
-                };
-
-                var opResult = await  _usuarioRepository.Save(usuario);
-                if (!opResult.Success)
+                // Obtener el usuario existente
+                var repoResult = await _usuarioRepository.GetByIdAsync(usuarioUpdateDto.Id);
+                if (!repoResult.Success || repoResult.Data == null)
                 {
                     result.Success = false;
-                    result.Message = opResult.Message;
-                }
-                result.Success = true;
-                result.Data = opResult.Data;
-                result.Message = $"El Usuario {opResult.Data.Nombre} se creo correctamente";
-                _logger.LogInformation($"Se creo el usuario correctamente.");
-
-                var auditory = new CreateAuditoryDto
-                {
-                    IdUsuario = opResult.Data.ID,
-                    Operacion = "Registrar",
-                    Detalle = ($"Se creo un nuevo usuario.")
-                };
-
-                var AudiResult = await _auditoryService.Save(auditory);
-                if (!AudiResult.Success)
-                {
-                    return AudiResult;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al crear el usuario.");
-                result.Success = false;
-                result.Message = "Error al crear el usuario.";
-            }
-            return result;
-        }
-        public async Task<ServiceResult> Update(UpdateUsuarioDto updateUsuarioDto)
-        {
-            ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando actualización de usuario con ID: {Id}", updateUsuarioDto.Id);
-
-            try
-            {
-                _logger.LogInformation("Verificando que exista el usuario con el id ingresado.");
-                var usuarioExists = await _usuarioRepository.GetById(updateUsuarioDto.Id);
-                if (!usuarioExists.Success || usuarioExists.Data == null)
-                {
-                    _logger.LogWarning("No se encontro ningun usuario con ese ID {id}", updateUsuarioDto.Id);
-                    result.Success = false;
-                    result.Message = usuarioExists.Message;
+                    result.Message = "Usuario no encontrado.";
+                    _logger.LogWarning("Actualización fallida: usuario no encontrado con Id {Id}", usuarioUpdateDto.Id);
                     return result;
                 }
 
-                _logger.LogInformation("Se inicio la actualizacion de los datos del Usuario.");
-                usuarioExists.Data.Nombre = updateUsuarioDto.Nombre;
-                usuarioExists.Data.Correo = updateUsuarioDto.Correo;
-                usuarioExists.Data.Contraseña = updateUsuarioDto.Contraseña;
-                usuarioExists.Data.Rol = updateUsuarioDto.Rol;
-                usuarioExists.Data.Estado = updateUsuarioDto.Estado;
+                var usuario = repoResult.Data;
 
-                var opResult = await  _usuarioRepository.Update(usuarioExists.Data);
-                if (!opResult.Success)
+                // Actualizar los campos permitidos
+                usuario.Nombre = usuarioUpdateDto.Nombre;
+                usuario.Correo = usuarioUpdateDto.Correo;
+                if (!string.IsNullOrWhiteSpace(usuarioUpdateDto.Contraseña))
+                {
+                    usuario.Contraseña = usuarioUpdateDto.Contraseña; 
+                }
+                usuario.Rol = usuarioUpdateDto.Rol;
+                // Si el estado se permite actualizar desde DTO
+                if (!string.IsNullOrWhiteSpace(usuarioUpdateDto.Estado))
+                {
+                    if (Enum.TryParse(usuarioUpdateDto.Estado, out EstadoUsuario estado))
+                    {
+                        usuario.Estado = estado;
+                    }
+                }
+
+                // Guardar cambios usando el repositorio
+                var updateResult = await _usuarioRepository.UpdateAsync(usuario, sesionId);
+                if (!updateResult.Success)
                 {
                     result.Success = false;
-                    result.Message = opResult.Message;
+                    result.Message = updateResult.Message;
+                    _logger.LogError("Error actualizando usuario con Id {Id}: {Message}", usuario.Id, updateResult.Message);
+                    return result;
                 }
-                result.Success = true;
-                result.Data = opResult.Data;
-                result.Message = opResult.Message;
-                _logger.LogInformation("Usuario actualizado correctamente.");
 
-                var auditory = new CreateAuditoryDto
+                // Mapear a DTO
+                var usuarioDto = new UsuarioDto
                 {
-                    IdUsuario = opResult.Data.ID,
-                    Operacion = "Registrar",
-                    Detalle = ($"Se creo un nuevo usuario.")
+                    Id = usuario.Id,
+                    Nombre = usuario.Nombre,
+                    Correo = usuario.Correo,
+                    Rol = usuario.Rol,
+                    Estado = usuario.Estado.ToString()
                 };
 
-                var AudiResult = await _auditoryService.Save(auditory);
-                if (!AudiResult.Success)
-                {
-                    return AudiResult;
-                }
+                result.Success = true;
+                result.Data = usuarioDto;
+                result.Message = "Usuario actualizado correctamente.";
+                _logger.LogInformation("Usuario con Id {Id} actualizado correctamente", usuario.Id);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al actualizar el usuario.");
                 result.Success = false;
-                result.Message = "Error al actualizar el usuario.";
+                result.Message = $"Ocurrió un error al actualizar el usuario: {ex.Message}";
+                _logger.LogError(ex, "Excepción al actualizar usuario con Id {Id}", usuarioUpdateDto.Id);
             }
+
             return result;
         }
+
     }
 }

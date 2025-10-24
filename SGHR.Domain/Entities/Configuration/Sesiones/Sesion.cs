@@ -11,7 +11,7 @@ namespace SGHR.Domain.Entities.Configuration.Sesiones
         [Column("estado")]
         public bool Estado { get; set; }
         [Column("fecha_inicio")]
-        public DateTime FechaInicio { get; set; }
+        public DateTime FechaInicio { get; set; } = DateTime.Now;
         [Column("fecha_fin")]
         public DateTime? FechaFin { get; set; }
     }

@@ -1,6 +1,4 @@
-﻿
-
-namespace SGHR.Application.Base
+﻿namespace SGHR.Application.Base
 {
     public class ServiceResult
     {
@@ -8,4 +6,5 @@ namespace SGHR.Application.Base
         public string? Message { get; set; }
         public dynamic? Data { get; set; }
     }
+
 }

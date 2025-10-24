@@ -1,6 +1,8 @@
 ﻿using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
+using SGHR.Domain.Enum.Habitaciones;
 using SGHR.Domain.Validators.Configuration;
+using SGHR.Domain.Validators.ConfigurationRules;
 
 
 namespace SGHR.Domain.Validators.Habitaciones
@@ -14,7 +16,8 @@ namespace SGHR.Domain.Validators.Habitaciones
             var rules = new List<Func<Piso, (bool, string)>>
             {
                 RuleHelper.Range<Piso>(u => u.NumeroPiso, 0,5, numeropiso),
-                RuleHelper.MaxLength<Piso>(u => u.Descripcion,200,"La descripcion del piso")
+                RuleHelper.MaxLength<Piso>(u => u.Descripcion,200,"La descripcion del piso"),
+                EnumRuleHelper.ValidEnum<Piso, EstadoPiso>(u => u.Estado,"El estado del piso")
             };
 
             return ValidatorHelper.Validate(piso, rules, "El piso");

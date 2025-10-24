@@ -4,12 +4,14 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Reservas;
+using SGHR.Domain.Enum.Reservas;
 using SGHR.Domain.Repository;
 using SGHR.Domain.Validators.Reservas;
 using SGHR.Persistence.Contex;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,124 +21,113 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
     {
         private readonly SGHRContext _context;
         private readonly ILogger<ReservaRepository> _logger;
-        private readonly IConfiguration _configuration;
 
         public ReservaRepository(SGHRContext context,
                                  ILogger<ReservaRepository> logger,
-                                 IConfiguration configuration) : base(context)
+                                 ILogger<BaseRepository<Reserva>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
-            _configuration = configuration;
         }
 
-        public override async Task<OperationResult<Reserva>> Save(Reserva entity)
-        {
-            var result = ReservaValidator.Validate(entity);
-            if (!result.Success)
-            {
-                return result;
-            }
-            return await base.Save(entity);
-        }
-
-        public override async Task<OperationResult<Reserva>> Update(Reserva entity)
-        {
-            var result = ReservaValidator.Validate(entity);
-            if (!result.Success)
-            {
-                return result;
-            }
-            return await base.Update(entity);
-        }
-
-        public override async Task<OperationResult<Reserva>> Delete(Reserva entity)
-        {
-            var result = ReservaValidator.Validate(entity);
-            if (!result.Success)
-            {
-                return result;
-            }
-            return await base.Delete(entity);
-        }
-
-        public override async Task<OperationResult<Reserva>> GetById(int id)
+        public override async Task<OperationResult<Reserva>> SaveAsync(Reserva entity, int? sesionId = null)
         {
             try
             {
-                var entity = await _context.Reservas
-                    .FirstOrDefaultAsync(r => r.ID == id && !r.is_deleted);
-
-                if (entity == null)
-                    return OperationResult<Reserva>.Fail("Reserva no encontrada");
-
-                _logger.LogInformation("Reserva encontrada: {Id}", id);
-                return OperationResult<Reserva>.Ok(entity);
+                var result = await base.SaveAsync(entity, sesionId);
+                _logger.LogInformation("Reserva del cliente {ClienteId} guardada exitosamente", entity.IdCliente);
+                return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener reserva por Id {Id}", id);
-                return OperationResult<Reserva>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error guardando la reserva del cliente {ClienteId}", entity.IdCliente);
+                return OperationResult<Reserva>.Fail("Error guardando la reserva");
             }
         }
 
-        public async Task<OperationResult<List<Reserva>>> GetByClienteAsync(int clienteId)
+
+        public override async Task<OperationResult<Reserva>> UpdateAsync(Reserva entity, int? sesionId = null)
+        {
+            try
+            {
+                var result = await base.UpdateAsync(entity, sesionId);
+                _logger.LogInformation("Reserva del cliente {ClienteId} actualizada exitosamente", entity.IdCliente);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error actualizando la reserva del cliente {ClienteId}", entity.IdCliente);
+                return OperationResult<Reserva>.Fail("Error actualizando la reserva");
+            }
+        }
+
+        public override async Task<OperationResult<Reserva>> DeleteAsync(Reserva entity, int? sesionId = null)
+        {
+            try
+            {
+                var result = await base.DeleteAsync(entity, sesionId);
+                _logger.LogInformation("Reserva del cliente {ClienteId} eliminada exitosamente", entity.IdCliente);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error eliminando la reserva del cliente {ClienteId}", entity.IdCliente);
+                return OperationResult<Reserva>.Fail("Error eliminando la reserva");
+            }
+        }
+
+
+        public async Task<OperationResult<List<Reserva>>> GetActiveReservationsAsync()
         {
             try
             {
                 var reservas = await _context.Reservas
-                    .Where(r => r.IdCliente == clienteId && !r.is_deleted)
+                    .Where(r => r.Estado == EstadoReserva.Activa && !r.Eliminado)
                     .ToListAsync();
 
-                if (!reservas.Any())
-                    return OperationResult<List<Reserva>>.Fail("No se encontraron reservas para este cliente");
-
+                _logger.LogInformation("Se obtuvieron {Cantidad} reservas activas", reservas.Count);
                 return OperationResult<List<Reserva>>.Ok(reservas);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener reservas del cliente {ClienteId}", clienteId);
-                return OperationResult<List<Reserva>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo reservas activas");
+                return OperationResult<List<Reserva>>.Fail("Error obteniendo reservas activas");
             }
         }
 
-        public async Task<OperationResult<List<Reserva>>> GetByEstadoAsync(string estado)
+        public async Task<OperationResult<List<Reserva>>> GetByClienteAsync(int idCliente)
         {
             try
             {
                 var reservas = await _context.Reservas
-                    .Where(r => r.Estado == estado && !r.is_deleted)
+                    .Where(r => r.IdCliente == idCliente && !r.Eliminado)
                     .ToListAsync();
 
-                if (!reservas.Any())
-                    return OperationResult<List<Reserva>>.Fail("No se encontraron reservas con ese estado");
-
+                _logger.LogInformation("Se obtuvieron {Cantidad} reservas del cliente {ClienteId}", reservas.Count, idCliente);
                 return OperationResult<List<Reserva>>.Ok(reservas);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener reservas por estado {Estado}", estado);
-                return OperationResult<List<Reserva>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo reservas del cliente {ClienteId}", idCliente);
+                return OperationResult<List<Reserva>>.Fail("Error obteniendo reservas del cliente");
             }
         }
 
-        public async Task<OperationResult<List<Reserva>>> GetByFechasAsync(DateTime fechaInicio, DateTime fechaFin)
+        public async Task<OperationResult<List<Reserva>>> GetByHabitacionAsync(int idHabitacion)
         {
             try
             {
                 var reservas = await _context.Reservas
-                    .Where(r => r.FechaInicio >= fechaInicio && r.FechaFin <= fechaFin && !r.is_deleted)
+                    .Where(r => r.IdHabitacion == idHabitacion && !r.Eliminado)
                     .ToListAsync();
 
-                if (!reservas.Any())
-                    return OperationResult<List<Reserva>>.Fail("No se encontraron reservas en ese rango de fechas");
-
+                _logger.LogInformation("Se obtuvieron {Cantidad} reservas para la habitacion {HabitacionId}", reservas.Count, idHabitacion);
                 return OperationResult<List<Reserva>>.Ok(reservas);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener reservas entre {FechaInicio} y {FechaFin}", fechaInicio, fechaFin);
-                return OperationResult<List<Reserva>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo reservas para la habitacion {HabitacionId}", idHabitacion);
+                return OperationResult<List<Reserva>>.Fail("Error obteniendo reservas de la habitacion");
             }
         }
     }

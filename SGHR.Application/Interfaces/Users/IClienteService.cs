@@ -1,13 +1,5 @@
 ﻿using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Reservas.Reserva;
 using SGHR.Application.Dtos.Configuration.Users.Cliente;
-using SGHR.Domain.Base;
-using SGHR.Domain.Entities.Configuration.Usuers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SGHR.Application.Interfaces.Users
 {

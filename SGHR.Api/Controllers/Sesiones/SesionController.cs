@@ -22,7 +22,7 @@ namespace SGHR.Api.Controllers.Sesiones
         public async Task<IActionResult> Get()
         {
             ServiceResult result = new ServiceResult();
-            result = await _sesionservices.GetSesion();
+            result = await _sesionservices.GetSesionAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -35,7 +35,7 @@ namespace SGHR.Api.Controllers.Sesiones
         public async Task<IActionResult> GetSesionByUser(string correo)
         {
             ServiceResult result = new ServiceResult();
-            result = await _sesionservices.GetSesionByUsers(correo);
+            result = await _sesionservices.GetSesionByUsersAsync(correo);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -48,7 +48,7 @@ namespace SGHR.Api.Controllers.Sesiones
         public async Task<IActionResult> GetOpenSesions()
         {
             ServiceResult result = new ServiceResult();
-            result = await _sesionservices.GetOpenSesion();
+            result = await _sesionservices.GetOpenSesionAsync();
             if (!result.Success)
             {
                 return BadRequest(result);

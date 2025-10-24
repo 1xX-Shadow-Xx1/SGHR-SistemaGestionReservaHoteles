@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using SGHR.Domain.Enum.Reservas;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SGHR.Domain.Entities.Configuration.Reservas
 {
@@ -18,7 +19,7 @@ namespace SGHR.Domain.Entities.Configuration.Reservas
         [Column("costo_total")]
         public decimal CostoTotal { get; set; }
         [Column("estado")]
-        public string Estado { get; set; }
+        public EstadoReserva Estado { get; set; } = EstadoReserva.Pendiente;
 
     }
 }

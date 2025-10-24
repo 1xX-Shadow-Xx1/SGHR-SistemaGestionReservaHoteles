@@ -1,15 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
-using SGHR.Domain.Entities.Configuration.Operaciones;
 using SGHR.Domain.Entities.Configuration.Usuers;
+using SGHR.Domain.Enum.Usuario;
 using SGHR.Domain.Repository;
-using SGHR.Domain.Validators.Users;
 using SGHR.Persistence.Contex;
-using SGHR.Persistence.Interfaces.Operaciones;
-using System.ClientModel.Primitives;
+using System.Linq.Expressions;
 
 
 namespace SGHR.Persistence.Repositories.EF.Users
@@ -18,107 +15,193 @@ namespace SGHR.Persistence.Repositories.EF.Users
     {
         private readonly SGHRContext _context;
         private readonly ILogger<UsuarioRepository> _logger;
-        private readonly IConfiguration _configuration;
-        private readonly IAuditoryRepository _auditoryRepository;
 
         public UsuarioRepository(SGHRContext context,
-                                 ILogger<UsuarioRepository> logger,
-                                 IAuditoryRepository auditoryRepository,
-                                 IConfiguration configuration) : base(context)
+                                 ILogger<UsuarioRepository>logger,
+                                 ILogger<BaseRepository<Usuario>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
-            _configuration = configuration;
-            _auditoryRepository = auditoryRepository;
 
         }
-        public override async Task<OperationResult<Usuario>> Save(Usuario entity)
-        {
-            var result = UsuarioValidator.Validate(entity);
-            if (!result.Success)
-            {
-                _logger.LogWarning("Error al crear usuario: {Message}", result.Message);
-                return result;
-            }
-            _logger.LogInformation("Usuario creado con ID: {Id}", entity.ID);
-            return await base.Save(entity);
-        }
-        public override async Task<OperationResult<Usuario>> Update(Usuario entity)
-        {
-            var result = UsuarioValidator.Validate(entity);
-            if (!result.Success)
-            {
-                _logger.LogWarning("Error al actualizar usuario: {Message}", result.Message);
-                return result;
-            }
-            _logger.LogInformation("Usuario actualizado con ID: {Id}", entity.ID);
-            return await base.Update(entity);
-        }
-        public override async Task<OperationResult<Usuario>> Delete(Usuario entity)
-        {
-            var result = UsuarioValidator.Validate(entity);
-            if (!result.Success)
-            {
-                _logger.LogWarning("Hubo un problema con la eliminacion logica: " + result.Message);
-                return result;
-            }
-            return await base.Delete(entity);
-        }
-        public override async Task<OperationResult<Usuario>> GetById(int id)
-        {
-            _logger.LogInformation($"Obteniendo al usuario con id {id}");
-            var result = await base.GetById(id);
 
-            if (!result.Success)
-                _logger.LogWarning($"Hubo problema al obtener el usuario: {result.Message}");
+        public override async Task<OperationResult<Usuario>> SaveAsync(Usuario entity, int? sesionId = null)
+        {
+            try
+            {
+                var result = await base.SaveAsync(entity, sesionId);
+                if (result.Success)
+                    _logger.LogInformation("Usuario {Nombre} creado correctamente.", entity.Nombre);
 
-            return result;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creando el usuario {Nombre}", entity.Nombre);
+                return OperationResult<Usuario>.Fail("Ocurrió un error al guardar el usuario.");
+            }
         }
+
+        public override async Task<OperationResult<Usuario>> UpdateAsync(Usuario entity, int? sesionId = null)
+        {
+            try
+            {
+                var result = await base.UpdateAsync(entity, sesionId);
+                if (result.Success)
+                    _logger.LogInformation("Usuario {Nombre} actualizado correctamente.", entity.Nombre);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error actualizando el usuario {Nombre}", entity.Nombre);
+                return OperationResult<Usuario>.Fail("Ocurrió un error al actualizar el usuario.");
+            }
+        }
+
+        public override async Task<OperationResult<Usuario>> DeleteAsync(Usuario entity, int? sesionId = null)
+        {
+            try
+            {
+                var result = await base.DeleteAsync(entity, sesionId);
+                if (result.Success)
+                    _logger.LogInformation("Usuario {Nombre} eliminado correctamente.", entity.Nombre);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error eliminando el usuario {Nombre}", entity.Nombre);
+                return OperationResult<Usuario>.Fail("Ocurrió un error al eliminar el usuario.");
+            }
+        }
+
+        public override async Task<OperationResult<Usuario>> GetByIdAsync(int id, bool includeDeleted = false)
+        {
+            try
+            {
+                var result = await base.GetByIdAsync(id, includeDeleted);
+                if (result.Success)
+                    _logger.LogInformation("Usuario con ID {Id} obtenido correctamente.", id);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo el usuario con ID {Id}", id);
+                return OperationResult<Usuario>.Fail("Ocurrió un error al obtener el usuario.");
+            }
+        }
+
+        public override async Task<OperationResult<List<Usuario>>> GetAllAsync(bool includeDeleted = false)
+        {
+            try
+            {
+                var result = await base.GetAllAsync(includeDeleted);
+                if (result.Success)
+                    _logger.LogInformation("Usuarios obtenidos correctamente, total: {Count}", result.Data.Count);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo todos los usuarios");
+                return OperationResult<List<Usuario>>.Fail("Ocurrió un error al obtener los usuarios.");
+            }
+        }
+
+        public override async Task<OperationResult<List<Usuario>>> GetAllByAsync(
+            Expression<Func<Usuario, bool>> filter, bool includeDeleted = false)
+        {
+            try
+            {
+                var result = await base.GetAllByAsync(filter, includeDeleted);
+                if (result.Success)
+                    _logger.LogInformation("Usuarios filtrados obtenidos correctamente, total: {Count}", result.Data.Count);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo usuarios filtrados");
+                return OperationResult<List<Usuario>>.Fail("Ocurrió un error al obtener los usuarios filtrados.");
+            }
+        }
+
+        public override async Task<OperationResult<bool>> ExistsAsync(
+            Expression<Func<Usuario, bool>> filter, bool includeDeleted = false)
+        {
+            try
+            {
+                var result = await base.ExistsAsync(filter, includeDeleted);
+                _logger.LogInformation("Comprobación de existencia realizada, resultado: {Exists}", result.Data);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error comprobando existencia de usuario");
+                return OperationResult<bool>.Fail("Ocurrió un error al comprobar la existencia del usuario.");
+            }
+        }
+
         public async Task<OperationResult<Usuario>> GetByCorreoAsync(string correo)
         {
             try
             {
                 var usuario = await _context.Usuarios
-                    .FirstOrDefaultAsync(u => u.Correo == correo && !u.is_deleted);
+                    .FirstOrDefaultAsync(u => u.Correo == correo && !u.Eliminado);
 
                 if (usuario == null)
+                {
+                    _logger.LogWarning("Usuario con correo {Correo} no encontrado", correo);
                     return OperationResult<Usuario>.Fail("Usuario no encontrado");
+                }
 
+                _logger.LogInformation("Usuario con correo {Correo} obtenido correctamente", correo);
                 return OperationResult<Usuario>.Ok(usuario);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error obteniendo usuario por correo");
-                return OperationResult<Usuario>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo usuario por correo {Correo}", correo);
+                return OperationResult<Usuario>.Fail("Ocurrió un error al obtener el usuario");
             }
         }
-        public async Task<OperationResult<Usuario>> GetByEmailAndPassword(string correo, string password)
+
+        public async Task<OperationResult<List<Usuario>>> GetByRolAsync(string rol)
         {
             try
             {
-                var usuario = await _context.Usuarios
-                    .FirstOrDefaultAsync(u => u.Correo == correo && u.Contraseña == password && !u.is_deleted);
+                var usuarios = await _context.Usuarios
+                    .Where(u => u.Rol == rol && !u.Eliminado)
+                    .ToListAsync();
 
-                if (usuario == null)
-                    return OperationResult<Usuario>.Fail("Usuario no encontrado");
-
-                return OperationResult<Usuario>.Ok(usuario);
+                _logger.LogInformation("{Count} usuarios obtenidos correctamente con rol {Rol}", usuarios.Count, rol);
+                return OperationResult<List<Usuario>>.Ok(usuarios);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error obteniendo usuario por correo y contraseña");
-                return OperationResult<Usuario>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo usuarios por rol {Rol}", rol);
+                return OperationResult<List<Usuario>>.Fail("Ocurrió un error al obtener los usuarios");
             }
         }
-        public override async Task<OperationResult<List<Usuario>>> GetAll()
+
+        public async Task<OperationResult<List<Usuario>>> GetActivosAsync()
         {
-            _logger.LogInformation("Iniciando obtencion de todos los usuarios.");
-            var result = await base.GetAll();
+            try
+            {
+                var usuarios = await _context.Usuarios
+                    .Where(u => u.Estado == EstadoUsuario.Activo && !u.Eliminado)
+                    .ToListAsync();
 
-            if (!result.Success)
-                _logger.LogWarning($"Hubo un problema con la obtecion de los usuarios: {result.Message}");
-
-            return result;
+                _logger.LogInformation("{Count} usuarios activos obtenidos correctamente", usuarios.Count);
+                return OperationResult<List<Usuario>>.Ok(usuarios);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo usuarios activos");
+                return OperationResult<List<Usuario>>.Fail("Ocurrió un error al obtener los usuarios activos");
+            }
         }
+
     }
 }

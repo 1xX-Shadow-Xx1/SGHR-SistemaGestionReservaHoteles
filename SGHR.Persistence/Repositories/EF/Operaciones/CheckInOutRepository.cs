@@ -4,13 +4,9 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
+using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Operaciones;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SGHR.Persistence.Repositories.EF.Operaciones
 {
@@ -18,91 +14,140 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
     {
         private readonly SGHRContext _context;
         private readonly ILogger<CheckInOutRepository> _logger;
-        private readonly IConfiguration _configuration;
 
         public CheckInOutRepository(SGHRContext context,
                                     ILogger<CheckInOutRepository> logger,
-                                    IConfiguration configuration) : base(context)
+                                    ILogger<BaseRepository<CheckInOut>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
-            _configuration = configuration;
         }
 
-        public override async Task<OperationResult<CheckInOut>> Save(CheckInOut entity)
-        {
-            return await base.Save(entity);
-        }
-
-        public override async Task<OperationResult<CheckInOut>> Update(CheckInOut entity)
-        {
-            return await base.Update(entity);
-        }
-
-        public override async Task<OperationResult<CheckInOut>> Delete(CheckInOut entity)
-        {
-            return await base.Delete(entity);
-        }
-
-        public override async Task<OperationResult<CheckInOut>> GetById(int id)
+        public override async Task<OperationResult<CheckInOut>> SaveAsync(CheckInOut entity, int? sesionId = null)
         {
             try
             {
-                var entity = await _context.CheckInOut
-                    .FirstOrDefaultAsync(c => c.ID == id && !c.is_deleted);
+                entity.SesionCreacionId = sesionId;
+                var result = await base.SaveAsync(entity, sesionId);
+                _logger.LogInformation("CheckInOut creado con Id {Id}", entity.Id);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creando CheckInOut");
+                return OperationResult<CheckInOut>.Fail("Ocurrió un error al crear el registro");
+            }
+        }
 
-                if (entity == null)
+        public override async Task<OperationResult<CheckInOut>> UpdateAsync(CheckInOut entity, int? sesionId = null)
+        {
+            try
+            {
+                entity.SesionActualizacionId = sesionId;
+                var result = await base.UpdateAsync(entity, sesionId);
+                _logger.LogInformation("CheckInOut actualizado con Id {Id}", entity.Id);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error actualizando CheckInOut");
+                return OperationResult<CheckInOut>.Fail("Ocurrió un error al actualizar el registro");
+            }
+        }
+
+        public override async Task<OperationResult<CheckInOut>> DeleteAsync(CheckInOut entity, int? sesionId = null)
+        {
+            try
+            {
+                entity.SesionActualizacionId = sesionId;
+                var result = await base.DeleteAsync(entity, sesionId);
+                _logger.LogInformation("CheckInOut eliminado con Id {Id}", entity.Id);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error eliminando CheckInOut");
+                return OperationResult<CheckInOut>.Fail("Ocurrió un error al eliminar el registro");
+            }
+        }
+
+        public async Task<OperationResult<CheckInOut>> GetByReservaAsync(int idReserva)
+        {
+            try
+            {
+                var check = await _context.CheckInOut
+                    .FirstOrDefaultAsync(c => c.IdReserva == idReserva && !c.Eliminado);
+
+                if (check == null)
+                {
+                    _logger.LogWarning("CheckInOut con reserva {IdReserva} no encontrado", idReserva);
                     return OperationResult<CheckInOut>.Fail("CheckInOut no encontrado");
+                }
 
-                _logger.LogInformation("CheckInOut encontrado: {Id}", id);
-                return OperationResult<CheckInOut>.Ok(entity);
+                _logger.LogInformation("CheckInOut con reserva {IdReserva} encontrado", idReserva);
+                return OperationResult<CheckInOut>.Ok(check);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener CheckInOut por Id {Id}", id);
-                return OperationResult<CheckInOut>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo CheckInOut por reserva {IdReserva}", idReserva);
+                return OperationResult<CheckInOut>.Fail("Ocurrió un error al obtener CheckInOut");
             }
         }
 
-        public async Task<OperationResult<List<CheckInOut>>> GetCheckInsActivosAsync()
+        public async Task<OperationResult<List<CheckInOut>>> GetByFechaAsync(DateTime fecha)
         {
             try
             {
-                var lista = await _context.CheckInOut
-                    .Where(c => c.FechaCheckOut == null && !c.is_deleted)
+                var checks = await _context.CheckInOut
+                    .Where(c => c.FechaCheckIn.HasValue && c.FechaCheckIn.Value.Date == fecha.Date && !c.Eliminado)
                     .ToListAsync();
 
-                if (!lista.Any())
-                    return OperationResult<List<CheckInOut>>.Fail("No hay CheckIns activos");
-
-                return OperationResult<List<CheckInOut>>.Ok(lista);
+                _logger.LogInformation("Se obtuvieron {count} CheckInOut con fecha {Fecha}.", checks.Count, fecha);
+                return OperationResult<List<CheckInOut>>.Ok(checks);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener CheckIns activos");
-                return OperationResult<List<CheckInOut>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo CheckInOut por fecha {Fecha}", fecha);
+                return OperationResult<List<CheckInOut>>.Fail("Ocurrió un error al obtener CheckInOut");
             }
         }
 
-        // Obtener CheckOuts en un rango de fechas
-        public async Task<OperationResult<List<CheckInOut>>> GetCheckOutsByFechaAsync(DateTime inicio, DateTime fin)
+        public async Task<OperationResult<List<CheckInOut>>> GetCheckInsPendientesAsync()
         {
             try
             {
-                var lista = await _context.CheckInOut
-                    .Where(c => c.FechaCheckOut >= inicio && c.FechaCheckOut <= fin && !c.is_deleted)
+                var checks = await _context.CheckInOut
+                    .Where(c => !c.FechaCheckIn.HasValue && !c.Eliminado)
                     .ToListAsync();
 
-                if (!lista.Any())
-                    return OperationResult<List<CheckInOut>>.Fail("No se encontraron CheckOuts en este rango de fechas");
-
-                return OperationResult<List<CheckInOut>>.Ok(lista);
+                _logger.LogInformation("Se obtuvieron {count} CheckInOut pendientes.", checks.Count);
+                return OperationResult<List<CheckInOut>>.Ok(checks);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener CheckOuts entre {Inicio} y {Fin}", inicio, fin);
-                return OperationResult<List<CheckInOut>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo CheckIns pendientes");
+                return OperationResult<List<CheckInOut>>.Fail("Ocurrió un error al obtener CheckIns pendientes");
             }
         }
+
+        public async Task<OperationResult<List<CheckInOut>>> GetByDateRangeAsync(DateTime inicio, DateTime fin)
+        {
+            try
+            {
+                var checks = await _context.CheckInOut
+                    .Where(c => c.FechaCheckIn.HasValue && c.FechaCheckIn.Value.Date >= inicio.Date
+                                && c.FechaCheckIn.Value.Date <= fin.Date && !c.Eliminado)
+                    .ToListAsync();
+
+                _logger.LogInformation("Se obtuvieron {count} CheckInOut desde el {fechainicio} hasta {fechafin}.", inicio, fin);
+                return OperationResult<List<CheckInOut>>.Ok(checks);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo CheckInOut entre {Inicio} y {Fin}", inicio, fin);
+                return OperationResult<List<CheckInOut>>.Fail("Ocurrió un error al obtener CheckInOut");
+            }
+        }
+
     }
 }

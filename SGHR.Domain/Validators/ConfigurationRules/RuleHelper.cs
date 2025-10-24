@@ -152,5 +152,16 @@
                 $"{fieldName} debe ser una fecha pasada"
             );
         }
+
+        //Validación de fecha que permite que sea hoy o cualquier fecha futura
+        public static Func<T, (bool, string)> FutureOrTodayDate<T>(
+            Func<T, DateTime> selector,
+            string fieldName)
+        {
+            return entity => (
+                selector(entity).Date >= DateTime.Today,
+                $"{fieldName} debe ser hoy o una fecha futura"
+            );
+        }
     }
 }

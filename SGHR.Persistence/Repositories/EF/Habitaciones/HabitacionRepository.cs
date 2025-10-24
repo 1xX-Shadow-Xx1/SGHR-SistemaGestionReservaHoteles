@@ -1,17 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
+using SGHR.Domain.Enum.Habitacion;
 using SGHR.Domain.Repository;
-using SGHR.Domain.Validators.Habitaciones;
 using SGHR.Persistence.Contex;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SGHR.Persistence.Repositories.EF.Habitaciones
 {
@@ -19,103 +13,150 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
     {
         private readonly SGHRContext _context;
         private readonly ILogger<HabitacionRepository> _logger;
-        private readonly IConfiguration _configuration;
 
         public HabitacionRepository(SGHRContext context,
                                     ILogger<HabitacionRepository> logger,
-                                    IConfiguration configuration) : base(context)
+                                    ILogger<BaseRepository<Habitacion>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
-            _configuration = configuration;
         }
 
-        public override async Task<OperationResult<Habitacion>> Save(Habitacion entity)
+        public override async Task<OperationResult<Habitacion>> SaveAsync(Habitacion entity, int? sesionId = null)
         {
-            var result = HabitacionValidator.Validate(entity);
-            if (!result.Success)
-            {
-                return result;
-            }
-            return await base.Save(entity);
+            _logger.LogInformation("Guardando nueva habitación...");
+            var result = await base.SaveAsync(entity, sesionId);
+
+            if (result.Success)
+                _logger.LogInformation("Habitación guardada correctamente con Id {Id}", entity.Id);
+            else
+                _logger.LogWarning("Error al guardar habitación: {Message}", result.Message);
+
+            return result;
         }
 
-        public override async Task<OperationResult<Habitacion>> Update(Habitacion entity)
+        public override async Task<OperationResult<Habitacion>> UpdateAsync(Habitacion entity, int? sesionId = null)
         {
-            var result = HabitacionValidator.Validate(entity);
-            if (!result.Success)
-            {
-                return result;
-            }
-            return await base.Update(entity);
+            _logger.LogInformation("Actualizando habitación con Id {Id}", entity.Id);
+            var result = await base.UpdateAsync(entity, sesionId);
+
+            if (result.Success)
+                _logger.LogInformation("Habitación actualizada correctamente con Id {Id}", entity.Id);
+            else
+                _logger.LogWarning("Error al actualizar habitación: {Message}", result.Message);
+
+            return result;
         }
 
-        public override async Task<OperationResult<Habitacion>> Delete(Habitacion entity)
+        public override async Task<OperationResult<Habitacion>> DeleteAsync(Habitacion entity, int? sesionId = null)
         {
-            var result = HabitacionValidator.Validate(entity);
-            if (!result.Success)
-            {
-                return result;
-            }
-            return await base.Delete(entity);
+            _logger.LogInformation("Eliminando habitación con Id {Id}", entity.Id);
+            var result = await base.DeleteAsync(entity, sesionId);
+
+            if (result.Success)
+                _logger.LogInformation("Habitación eliminada correctamente con Id {Id}", entity.Id);
+            else
+                _logger.LogWarning("Error al eliminar habitación: {Message}", result.Message);
+
+            return result;
         }
 
-        public override async Task<OperationResult<Habitacion>> GetById(int id)
+        public override async Task<OperationResult<Habitacion>> GetByIdAsync(int id, bool includeDeleted = false)
+        {
+            _logger.LogInformation("Obteniendo habitación por Id {Id}", id);
+            return await base.GetByIdAsync(id, includeDeleted);
+        }
+
+        public override async Task<OperationResult<List<Habitacion>>> GetAllAsync(bool includeDeleted = false)
+        {
+            _logger.LogInformation("Obteniendo todas las habitaciones (includeDeleted = {IncludeDeleted})", includeDeleted);
+            return await base.GetAllAsync(includeDeleted);
+        }
+
+        public override async Task<OperationResult<List<Habitacion>>> GetAllByAsync(
+            System.Linq.Expressions.Expression<Func<Habitacion, bool>> filter,
+            bool includeDeleted = false)
+        {
+            _logger.LogInformation("Obteniendo habitaciones por filtro (includeDeleted = {IncludeDeleted})", includeDeleted);
+            return await base.GetAllByAsync(filter, includeDeleted);
+        }
+
+        public override async Task<OperationResult<bool>> ExistsAsync(
+            System.Linq.Expressions.Expression<Func<Habitacion, bool>> filter,
+            bool includeDeleted = false)
+        {
+            _logger.LogInformation("Verificando existencia de habitación con filtro (includeDeleted = {IncludeDeleted})", includeDeleted);
+            return await base.ExistsAsync(filter, includeDeleted);
+        }
+
+        public async Task<OperationResult<List<Habitacion>>> GetAvailableAsync(DateTime fechaInicio, DateTime fechaFin)
         {
             try
             {
-                var entity = await _context.Habitaciones
-                    .FirstOrDefaultAsync(h => h.ID == id && !h.is_deleted);
+                _logger.LogInformation("Obteniendo habitaciones disponibles entre {Inicio} y {Fin}", fechaInicio, fechaFin);
 
-                if (entity == null)
-                    return OperationResult<Habitacion>.Fail("Habitación no encontrada");
-
-                return OperationResult<Habitacion>.Ok(entity);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al obtener Habitación por Id {Id}", id);
-                return OperationResult<Habitacion>.Fail($"Error: {ex.Message}");
-            }
-        }
-
-        public async Task<OperationResult<List<Habitacion>>> GetByCategoriaAsync(int categoriaId)
-        {
-            try
-            {
-                var lista = await _context.Habitaciones
-                    .Where(h => h.IdCategoria == categoriaId && !h.is_deleted)
+                var disponibles = await _context.Habitaciones
+                    .Where(h => !h.Eliminado &&
+                                h.Estado == EstadoHabitacion.Activa &&
+                                !_context.Reservas.Any(r =>
+                                    r.IdHabitacion == h.Id &&
+                                    ((fechaInicio >= r.FechaInicio && fechaInicio <= r.FechaFin) ||
+                                     (fechaFin >= r.FechaInicio && fechaFin <= r.FechaFin) ||
+                                     (fechaInicio <= r.FechaInicio && fechaFin >= r.FechaFin))))
                     .ToListAsync();
 
-                if (!lista.Any())
-                    return OperationResult<List<Habitacion>>.Fail("No se encontraron habitaciones para esta categoría");
+                _logger.LogInformation("Se encontraron {Cantidad} habitaciones disponibles", disponibles.Count);
 
-                return OperationResult<List<Habitacion>>.Ok(lista);
+                return OperationResult<List<Habitacion>>.Ok(disponibles);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener habitaciones por categoría {CategoriaId}", categoriaId);
-                return OperationResult<List<Habitacion>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo habitaciones disponibles");
+                return OperationResult<List<Habitacion>>.Fail("Ocurrió un error al obtener las habitaciones disponibles");
             }
         }
 
-        public async Task<OperationResult<List<Habitacion>>> GetDisponiblesAsync()
+
+        public async Task<OperationResult<List<Habitacion>>> GetByCategoriaAsync(int idCategoria, bool includeDeleted = false)
         {
             try
             {
-                var lista = await _context.Habitaciones
-                    .Where(h => h.Estado == "Disponible" && !h.is_deleted)
+                _logger.LogInformation("Obteniendo habitaciones por categoría {CategoriaId}", idCategoria);
+
+                var habitaciones = await _context.Habitaciones
+                    .Where(h => h.IdCategoria == idCategoria && (includeDeleted || !h.Eliminado))
                     .ToListAsync();
 
-                if (!lista.Any())
-                    return OperationResult<List<Habitacion>>.Fail("No hay habitaciones disponibles");
+                _logger.LogInformation("Se encontraron {Cantidad} habitaciones en la categoría {CategoriaId}", habitaciones.Count, idCategoria);
 
-                return OperationResult<List<Habitacion>>.Ok(lista);
+                return OperationResult<List<Habitacion>>.Ok(habitaciones);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener habitaciones disponibles");
-                return OperationResult<List<Habitacion>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo habitaciones por categoría {CategoriaId}", idCategoria);
+                return OperationResult<List<Habitacion>>.Fail("Ocurrió un error al obtener las habitaciones por categoría");
+            }
+        }
+
+
+        public async Task<OperationResult<List<Habitacion>>> GetByPisoAsync(int idPiso, bool includeDeleted = false)
+        {
+            try
+            {
+                _logger.LogInformation("Obteniendo habitaciones del piso {PisoId}", idPiso);
+
+                var habitaciones = await _context.Habitaciones
+                    .Where(h => h.IdPiso == idPiso && (includeDeleted || !h.Eliminado))
+                    .ToListAsync();
+
+                _logger.LogInformation("Se encontraron {Cantidad} habitaciones en el piso {PisoId}", habitaciones.Count, idPiso);
+
+                return OperationResult<List<Habitacion>>.Ok(habitaciones);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo habitaciones del piso {PisoId}", idPiso);
+                return OperationResult<List<Habitacion>>.Fail("Ocurrió un error al obtener las habitaciones del piso");
             }
         }
     }

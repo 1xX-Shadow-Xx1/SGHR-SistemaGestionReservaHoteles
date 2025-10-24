@@ -1,6 +1,8 @@
 ﻿using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
+using SGHR.Domain.Enum.Habitacion;
 using SGHR.Domain.Validators.Configuration;
+using SGHR.Domain.Validators.ConfigurationRules;
 
 
 namespace SGHR.Domain.Validators.Habitaciones
@@ -16,9 +18,9 @@ namespace SGHR.Domain.Validators.Habitaciones
                 RuleHelper.RequeredNumInt<Habitacion>(u => u.Capacidad, "La capacidad de la habitacion"),
                 RuleHelper.RequeredNumInt<Habitacion>(u => u.IdAmenity, "El ID del Amenity"),
                 RuleHelper.Required<Habitacion>(u => u.Numero, "El numero de la habitacion"),
-                RuleHelper.Required<Habitacion>(u => u.Estado, "El estado de la habitacion"),
                 RuleHelper.GreaterThanZero<Habitacion>(u => u.Capacidad,"La capacidad de la habitacion"),
-                RuleHelper.Range<Habitacion>(u => u.IdPiso,0,5,"El numero del piso")
+                RuleHelper.Range<Habitacion>(u => u.IdPiso,0,5,"El numero del piso"),
+                EnumRuleHelper.ValidEnum<Habitacion, EstadoHabitacion>(u => u.Estado,"El estado de la habitacion")
 
             };
 

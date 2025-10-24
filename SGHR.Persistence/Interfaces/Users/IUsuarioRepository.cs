@@ -1,17 +1,12 @@
 ﻿using SGHR.Domain.Base;
-using SGHR.Domain.Entities.Configuration.Operaciones;
 using SGHR.Domain.Entities.Configuration.Usuers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SGHR.Domain.Repository
 {
     public interface IUsuarioRepository : IBaseRepository<Usuario>
     {
         Task<OperationResult<Usuario>> GetByCorreoAsync(string correo);
-        Task<OperationResult<Usuario>> GetByEmailAndPassword(string correo, string password);
+        Task<OperationResult<List<Usuario>>> GetByRolAsync(string rol);
+        Task<OperationResult<List<Usuario>>> GetActivosAsync();
     }
 }

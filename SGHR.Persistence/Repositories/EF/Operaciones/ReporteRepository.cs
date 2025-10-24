@@ -6,11 +6,6 @@ using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Reportes;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Reportes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SGHR.Persistence.Repositories.EF.Operaciones
 {
@@ -19,110 +14,113 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
         private readonly SGHRContext _context;
         private readonly ILogger<ReporteRepository> _logger;
-        private readonly IConfiguration _configuration;
+
 
         public ReporteRepository(SGHRContext context,
                                  ILogger<ReporteRepository> logger,
-                                 IConfiguration configuration) : base(context)
+                                 ILogger<BaseRepository<Reporte>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
-            _configuration = configuration;
+
         }
 
-        public override async Task<OperationResult<Reporte>> Save(Reporte entity)
-        {   
-            return await base.Save(entity);
-        }
-
-        public override async Task<OperationResult<Reporte>> Update(Reporte entity)
-        {
-            return await base.Update(entity);
-        }
-
-        public override async Task<OperationResult<Reporte>> Delete(Reporte entity)
-        {
-            return await base.Delete(entity);
-        }
-
-        public override async Task<OperationResult<Reporte>> GetById(int id)
+        public override async Task<OperationResult<Reporte>> SaveAsync(Reporte entity, int? sesionId = null)
         {
             try
             {
-                var entity = await _context.Reportes
-                    .FirstOrDefaultAsync(r => r.ID == id && !r.is_deleted);
-
-                if (entity == null)
-                    return OperationResult<Reporte>.Fail("Reporte no encontrado");
-
-                _logger.LogInformation("Reporte encontrado: {Id}", id);
-                return OperationResult<Reporte>.Ok(entity);
+                var result = await base.SaveAsync(entity, sesionId);
+                _logger.LogInformation("Reporte {ReporteId} guardado exitosamente", entity.Id);
+                return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener reporte por Id {Id}", id);
-                return OperationResult<Reporte>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error guardando el reporte {ReporteId}", entity.Id);
+                return OperationResult<Reporte>.Fail("Error guardando el reporte");
             }
         }
 
-        public async Task<OperationResult<List<Reporte>>> GetByTipoAsync(string tipo)
+        public override async Task<OperationResult<Reporte>> UpdateAsync(Reporte entity, int? sesionId = null)
         {
             try
             {
-                var reportes = await _context.Reportes
-                    .Where(r => r.TipoReporte == tipo && !r.is_deleted)
-                    .ToListAsync();
-
-                if (!reportes.Any())
-                    return OperationResult<List<Reporte>>.Fail("No se encontraron reportes de este tipo");
-
-                return OperationResult<List<Reporte>>.Ok(reportes);
+                var result = await base.UpdateAsync(entity, sesionId);
+                _logger.LogInformation("Reporte {ReporteId} actualizado exitosamente", entity.Id);
+                return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener reportes por tipo {Tipo}", tipo);
-                return OperationResult<List<Reporte>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error actualizando el reporte {ReporteId}", entity.Id);
+                return OperationResult<Reporte>.Fail("Error actualizando el reporte");
             }
         }
 
-        public async Task<OperationResult<List<Reporte>>> GetByFechasAsync(DateTime fechaInicio, DateTime fechaFin)
+        public override async Task<OperationResult<Reporte>> DeleteAsync(Reporte entity, int? sesionId = null)
+        {
+            try
+            {
+                var result = await base.DeleteAsync(entity, sesionId);
+                _logger.LogInformation("Reporte {ReporteId} eliminado exitosamente", entity.Id);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error eliminando el reporte {ReporteId}", entity.Id);
+                return OperationResult<Reporte>.Fail("Error eliminando el reporte");
+            }
+        }
+
+        public async Task<OperationResult<List<Reporte>>> GetByFechaAsync(DateTime fechaInicio, DateTime fechaFin)
         {
             try
             {
                 var reportes = await _context.Reportes
-                    .Where(r => r.FechaGeneracion >= fechaInicio && r.FechaGeneracion <= fechaFin && !r.is_deleted)
+                    .Where(r => r.FechaGeneracion >= fechaInicio && r.FechaGeneracion <= fechaFin && !r.Eliminado)
                     .ToListAsync();
 
-                if (!reportes.Any())
-                    return OperationResult<List<Reporte>>.Fail("No se encontraron reportes en este rango de fechas");
-
+                _logger.LogInformation("Se obtuvieron {Cantidad} reportes entre {FechaInicio} y {FechaFin}", reportes.Count, fechaInicio, fechaFin);
                 return OperationResult<List<Reporte>>.Ok(reportes);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener reportes entre {FechaInicio} y {FechaFin}", fechaInicio, fechaFin);
-                return OperationResult<List<Reporte>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo reportes entre {FechaInicio} y {FechaFin}", fechaInicio, fechaFin);
+                return OperationResult<List<Reporte>>.Fail("Error obteniendo reportes");
             }
         }
 
-        // Obtener reportes generados por un usuario específico
+        public async Task<OperationResult<List<Reporte>>> GetByTipoAsync(string tipoReporte)
+        {
+            try
+            {
+                var reportes = await _context.Reportes
+                    .Where(r => r.TipoReporte == tipoReporte && !r.Eliminado)
+                    .ToListAsync();
+
+                _logger.LogInformation("Se obtuvieron {Cantidad} reportes del tipo {TipoReporte}", reportes.Count, tipoReporte);
+                return OperationResult<List<Reporte>>.Ok(reportes);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo reportes del tipo {TipoReporte}", tipoReporte);
+                return OperationResult<List<Reporte>>.Fail("Error obteniendo reportes del tipo especificado");
+            }
+        }
+
         public async Task<OperationResult<List<Reporte>>> GetByUsuarioAsync(int usuarioId)
         {
             try
             {
                 var reportes = await _context.Reportes
-                    .Where(r => r.GeneradoPor == usuarioId && !r.is_deleted)
+                    .Where(r => r.GeneradoPor == usuarioId && !r.Eliminado)
                     .ToListAsync();
 
-                if (!reportes.Any())
-                    return OperationResult<List<Reporte>>.Fail("No se encontraron reportes de este usuario");
-
+                _logger.LogInformation("Se obtuvieron {Cantidad} reportes para el usuario {UsuarioId}", reportes.Count, usuarioId);
                 return OperationResult<List<Reporte>>.Ok(reportes);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener reportes del usuario {UsuarioId}", usuarioId);
-                return OperationResult<List<Reporte>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo reportes para el usuario {UsuarioId}", usuarioId);
+                return OperationResult<List<Reporte>>.Fail("Error obteniendo reportes del usuario");
             }
         }
     }

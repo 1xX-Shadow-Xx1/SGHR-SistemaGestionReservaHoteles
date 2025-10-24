@@ -1,17 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
-using SGHR.Domain.Validators.Operaciones;
+using SGHR.Domain.Enum.Operaciones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Operaciones;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SGHR.Persistence.Repositories.EF.Operaciones
 {
@@ -19,124 +13,110 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
     {
         private readonly SGHRContext _context;
         private readonly ILogger<MantenimientoRepository> _logger;
-        private readonly IConfiguration _configuration;
 
         public MantenimientoRepository(SGHRContext context,
                                        ILogger<MantenimientoRepository> logger,
-                                       IConfiguration configuration) : base(context)
+                                       ILogger<BaseRepository<Mantenimiento>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
-            _configuration = configuration;
         }
 
-        public override async Task<OperationResult<Mantenimiento>> Save(Mantenimiento entity)
+        public override async Task<OperationResult<Mantenimiento>> SaveAsync(Mantenimiento entity, int? sesionId = null)
         {
-            var result = MantenimientoValidator.Validate(entity);
-            if (!result.Success)
-            {
-                return result;
-            }
-            return await base.Save(entity);
+            entity.SesionCreacionId = sesionId;
+            var result = await base.SaveAsync(entity, sesionId);
+
+            if (result.Success)
+                _logger.LogInformation("Mantenimiento {Id} creado correctamente", result.Data.Id);
+            else
+                _logger.LogWarning("Error creando el mantenimiento");
+
+            return result;
         }
 
-        public override async Task<OperationResult<Mantenimiento>> Update(Mantenimiento entity)
+
+        public override async Task<OperationResult<Mantenimiento>> UpdateAsync(Mantenimiento entity, int? sesionId = null)
         {
-            var result = MantenimientoValidator.Validate(entity);
-            if (!result.Success)
-            {
-                return result;
-            }
-            return await base.Update(entity);
+            entity.SesionActualizacionId = sesionId;
+            var result = await base.UpdateAsync(entity, sesionId);
+
+            if (result.Success)
+                _logger.LogInformation("Mantenimiento {Id} actualizado correctamente", result.Data.Id);
+            else
+                _logger.LogWarning("Error actualizando el mantenimiento {Id}", entity.Id);
+
+            return result;
         }
 
-        public override async Task<OperationResult<Mantenimiento>> Delete(Mantenimiento entity)
+
+        public override async Task<OperationResult<Mantenimiento>> DeleteAsync(Mantenimiento entity, int? sesionId = null)
         {
-            var result = MantenimientoValidator.Validate(entity);
-            if (!result.Success)
-            {
-                return result;
-            }
-            return await base.Delete(entity);
+            var result = await base.DeleteAsync(entity, sesionId);
+
+            if (result.Success)
+                _logger.LogInformation("Mantenimiento {Id} eliminado correctamente", entity.Id);
+            else
+                _logger.LogWarning("Error eliminando el mantenimiento {Id}", entity.Id);
+
+            return result;
         }
 
-        public override async Task<OperationResult<Mantenimiento>> GetById(int id)
-        {
-            try
-            {
-                var entity = await _context.Mantenimiento
-                    .FirstOrDefaultAsync(m => m.ID == id && !m.is_deleted);
-
-                if (entity == null)
-                    return OperationResult<Mantenimiento>.Fail("Mantenimiento no encontrado");
-
-                _logger.LogInformation("Mantenimiento encontrado: {Id}", id);
-                return OperationResult<Mantenimiento>.Ok(entity);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al obtener mantenimiento por Id {Id}", id);
-                return OperationResult<Mantenimiento>.Fail($"Error: {ex.Message}");
-            }
-        }
-
-        public async Task<OperationResult<List<Mantenimiento>>> GetByHabitacionAsync(int habitacionId)
+        public async Task<OperationResult<List<Mantenimiento>>> GetActiveMaintenancesAsync()
         {
             try
             {
                 var mantenimientos = await _context.Mantenimiento
-                    .Where(m => m.IdHabitacion == habitacionId && !m.is_deleted)
+                    .Where(m => m.Estado == EstadoMantenimiento.EnProceso && !m.Eliminado)
                     .ToListAsync();
 
-                if (!mantenimientos.Any())
-                    return OperationResult<List<Mantenimiento>>.Fail("No se encontraron mantenimientos para esta habitación");
+                _logger.LogInformation("Mantenimientos activos obtenidos, cantidad: {Count}", mantenimientos.Count);
 
                 return OperationResult<List<Mantenimiento>>.Ok(mantenimientos);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener mantenimientos de habitación {HabitacionId}", habitacionId);
-                return OperationResult<List<Mantenimiento>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo mantenimientos activos");
+                return OperationResult<List<Mantenimiento>>.Fail("Ocurrió un error al obtener los mantenimientos activos");
             }
         }
 
-        public async Task<OperationResult<List<Mantenimiento>>> GetByFechasAsync(DateTime fechaInicio, DateTime fechaFin)
+
+        public async Task<OperationResult<List<Mantenimiento>>> GetByHabitacionAsync(int idHabitacion)
         {
             try
             {
                 var mantenimientos = await _context.Mantenimiento
-                    .Where(m => m.FechaInicio >= fechaInicio && m.FechaFin <= fechaFin && !m.is_deleted)
+                    .Where(m => m.IdHabitacion == idHabitacion && !m.Eliminado)
                     .ToListAsync();
 
-                if (!mantenimientos.Any())
-                    return OperationResult<List<Mantenimiento>>.Fail("No se encontraron mantenimientos en este rango de fechas");
+                _logger.LogInformation("Mantenimientos obtenidos por habitación {HabitacionId}, cantidad: {Count}", idHabitacion, mantenimientos.Count);
 
                 return OperationResult<List<Mantenimiento>>.Ok(mantenimientos);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener mantenimientos entre {FechaInicio} y {FechaFin}", fechaInicio, fechaFin);
-                return OperationResult<List<Mantenimiento>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo mantenimientos por habitación {HabitacionId}", idHabitacion);
+                return OperationResult<List<Mantenimiento>>.Fail("Ocurrió un error al obtener los mantenimientos");
             }
         }
 
-        public async Task<OperationResult<List<Mantenimiento>>> GetByEstadoAsync(string estado)
+        public async Task<OperationResult<List<Mantenimiento>>> GetByPisoAsync(int idPiso)
         {
             try
             {
                 var mantenimientos = await _context.Mantenimiento
-                    .Where(m => m.Estado == estado && !m.is_deleted)
+                    .Where(m => m.IdPiso == idPiso && !m.Eliminado)
                     .ToListAsync();
 
-                if (!mantenimientos.Any())
-                    return OperationResult<List<Mantenimiento>>.Fail("No se encontraron mantenimientos con este estado");
+                _logger.LogInformation("Mantenimientos obtenidos por piso {PisoId}, cantidad: {Count}", idPiso, mantenimientos.Count);
 
                 return OperationResult<List<Mantenimiento>>.Ok(mantenimientos);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener mantenimientos con estado {Estado}", estado);
-                return OperationResult<List<Mantenimiento>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo mantenimientos por piso {PisoId}", idPiso);
+                return OperationResult<List<Mantenimiento>>.Fail("Ocurrió un error al obtener los mantenimientos");
             }
         }
     }

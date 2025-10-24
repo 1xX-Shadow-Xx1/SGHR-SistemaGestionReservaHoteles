@@ -2,8 +2,13 @@
 using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Reservas.Reserva;
+using SGHR.Application.Dtos.Configuration.Users.Usuario;
 using SGHR.Application.Interfaces.Reservas;
 using SGHR.Domain.Entities.Configuration.Reservas;
+using SGHR.Domain.Entities.Configuration.Usuers;
+using SGHR.Domain.Enum.Habitacion;
+using SGHR.Domain.Enum.Reservas;
+using SGHR.Domain.Enum.Usuario;
 using SGHR.Domain.Repository;
 
 namespace SGHR.Application.Services.Reservas
@@ -12,24 +17,28 @@ namespace SGHR.Application.Services.Reservas
     {
         private readonly IReservaRepository _reservaRepository;
         private readonly ILogger<ReservaService> _logger;
+        private readonly IHabitacionRepository _habitacionRepository;
 
         public ReservaService(IReservaRepository reservaRepository, 
-                              ILogger<ReservaService> logger)
+                              ILogger<ReservaService> logger,
+                              IHabitacionRepository habitacionRepository)
         {
             _reservaRepository = reservaRepository;
             _logger = logger;
+            _habitacionRepository = habitacionRepository;
         }
 
-        public async Task<ServiceResult> GetAll()
+        public async Task<ServiceResult> GetAllAsync()
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de todas las reservas.");
 
             try
             {
-                var opResult = await _reservaRepository.GetAll();
+                var opResult = await _reservaRepository.GetAllAsync();
                 if (opResult.Success)
                 {
+                    _logger.LogInformation($"Se obtuvieron {opResult.Data.Count} reservas.");
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Reservas obtenidas correctamente.";
@@ -48,17 +57,17 @@ namespace SGHR.Application.Services.Reservas
             }
             return result;
         }
-
-        public async Task<ServiceResult> GetById(int id)
+        public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de reserva por ID: {Id}", id);
 
             try
             {
-                var opResult = await _reservaRepository.GetById(id);
+                var opResult = await _reservaRepository.GetByIdAsync(id);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Reserva obtenida correctamente.");
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Reserva obtenida correctamente.";
@@ -77,32 +86,38 @@ namespace SGHR.Application.Services.Reservas
             }
             return result;
         }
-
-        public async Task<ServiceResult> Remove(int id)
+        public async Task<ServiceResult> DeleteAsync(int id, int? idsesion)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando eliminación de reserva con ID: {Id}", id);
 
             try
             {
-                if(id <= 0)
+                if(id < 0)
                 {
                     result.Success = false;
                     result.Message = "El ID de la reserva no es válido.";
                     return result;
                 }
-                var reservaExist = await _reservaRepository.GetById(id);
+                var reservaExist = await _reservaRepository.GetByIdAsync(id);
                 if (!reservaExist.Success)
                 {
                     result.Success = false;
                     result.Message = reservaExist.Message;
                     return result;
                 }
+                if(reservaExist.Data.Estado == EstadoReserva.Activa || reservaExist.Data.Estado == EstadoReserva.Confirmada)
+                {
+                    result.Success =false;
+                    result.Message = "No se puede borrar una reserva que ya este confirmada o activa.";
+                    return result;
+                }
 
-                var opResult = await _reservaRepository.Delete(reservaExist.Data);
+                var opResult = await _reservaRepository.DeleteAsync(reservaExist.Data);
 
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se elimino una reserva correctamente.");
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Reserva eliminada correctamente.";
@@ -122,27 +137,62 @@ namespace SGHR.Application.Services.Reservas
 
             return result;
         }
-
-        public async Task<ServiceResult> Save(CreateReservaDto createReservaDto)
+        public async Task<ServiceResult> CreateAsync(CreateReservaDto createReservaDto, int? idsesion)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando creación de reserva.", createReservaDto);
+            result.Success = false;
 
             try
             {
+                var existReserva = await _reservaRepository.ExistsAsync(r => r.FechaInicio >= createReservaDto.FechaInicio &&
+                                                                   r.FechaFin <= createReservaDto.FechaFin &&
+                                                                   r.IdHabitacion == createReservaDto.IdHabitacion);
+                if (existReserva.Success)
+                {
+                    result.Message = "Ya existe una reserva para esa fecha.";
+                    return result;
+                }
+
+                var HabitacionReservada = await _habitacionRepository.GetByIdAsync(createReservaDto.IdHabitacion);
+                
+                switch (HabitacionReservada.Data.Estado)
+                {
+                    case EstadoHabitacion.EnMantenimiento:
+                        result.Message = "La habitacion no se puede reservar por que esta en manteniminto.";
+                        return result;
+                        
+                    case EstadoHabitacion.Ocupada:
+                        result.Message = "La habitacion no se puede reservar por que esta ocupada.";
+                        return result;
+                        
+                    case EstadoHabitacion.Reservada:
+                        result.Message = "La habitacion no se puede reservar por que esta reservada.";
+                        return result;
+
+                    case EstadoHabitacion.Limpieza:
+                        result.Message = "La habitacion no se puede reservar por que esta en limpieza";
+                        return result;
+
+                    default:
+                        break;
+                }
+
+                
+
                 Reserva reserva = new Reserva
                 {
                     FechaInicio = createReservaDto.FechaInicio,
                     FechaFin = createReservaDto.FechaFin,
                     IdHabitacion = createReservaDto.IdHabitacion,
                     IdUsuario = createReservaDto.IdUsuario,
-                    CostoTotal = createReservaDto.CostoTotal,
-                    Estado = "Pendiente"
+                    CostoTotal = createReservaDto.CostoTotal
                 };
-                var opResult = await _reservaRepository.Save(reserva);
+                var opResult = await _reservaRepository.SaveAsync(reserva);
 
                 if (opResult.Success)
                 {
+                    _logger.LogInformation($"Se creo una reservacion para la habitacion {reserva.IdHabitacion} para el dia {reserva.FechaInicio} hasta {reserva.FechaFin}.");
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = opResult.Message;
@@ -161,15 +211,14 @@ namespace SGHR.Application.Services.Reservas
             }
             return result;
         }
-
-        public async Task<ServiceResult> Update(UpdateReservaDto updateReservaDto)
+        public async Task<ServiceResult> UpdateAsync(UpdateReservaDto updateReservaDto, int? idsesion)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando actualización de reserva.", updateReservaDto);
 
             try
             {
-                var existingReservaResult = await _reservaRepository.GetById(updateReservaDto.Id);
+                var existingReservaResult = await _reservaRepository.GetByIdAsync(updateReservaDto.Id);
                 if (!existingReservaResult.Success)
                 {
                     result.Success = false;
@@ -183,11 +232,18 @@ namespace SGHR.Application.Services.Reservas
                 existingReserva.FechaFin = updateReservaDto.FechaFin;
                 existingReserva.IdHabitacion = updateReservaDto.IdHabitacion;
                 existingReserva.CostoTotal = updateReservaDto.CostoTotal;
-                existingReserva.Estado = updateReservaDto.Estado;
+                if (!string.IsNullOrWhiteSpace(updateReservaDto.Estado))
+                {
+                    if (Enum.TryParse(updateReservaDto.Estado, out EstadoReserva estado))
+                    {
+                        existingReserva.Estado = estado;
+                    }
+                }
 
-                var opResult = await _reservaRepository.Update(existingReserva);
+                var opResult = await _reservaRepository.UpdateAsync(existingReserva);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("La reserva fue actualizada correctamente.");
                     result.Success = true;
                     result.Message = "Reserva actualizada correctamente.";
                 }

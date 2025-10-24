@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using SGHR.Domain.Enum.Operaciones;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SGHR.Domain.Entities.Configuration.Operaciones
 {
@@ -13,6 +14,8 @@ namespace SGHR.Domain.Entities.Configuration.Operaciones
         public string MetodoPago { get; set; }
         [Column("fecha_pago")]
         public DateTime FechaPago { get; set; } = DateTime.Now;
+        [Column("estado")]
+        public EstadoPago Estado { get; set; } = EstadoPago.Pendiente;
 
     }
 }

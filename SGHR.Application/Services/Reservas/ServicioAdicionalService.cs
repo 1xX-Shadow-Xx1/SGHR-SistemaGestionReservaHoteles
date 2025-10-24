@@ -20,16 +20,17 @@ namespace SGHR.Application.Services.Reservas
             _logger = logger;
         }
 
-        public async Task<ServiceResult> GetAll()
+        public async Task<ServiceResult> GetAllAsync()
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de todos los servicios adicionales.");
 
             try
             {
-                var opResult = await _servicioAdicionalRepository.GetAll();
+                var opResult = await _servicioAdicionalRepository.GetAllAsync();
                 if (opResult.Success)
                 {
+                    _logger.LogInformation($"Se obtubieron {opResult.Data.Count} Servicios adicionales correctamente.");
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Servicios adicionales obtenidos correctamente.";
@@ -48,17 +49,17 @@ namespace SGHR.Application.Services.Reservas
             }
             return result;
         }
-
-        public async Task<ServiceResult> GetById(int id)
+        public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de servicio adicional por ID: {Id}", id);
 
             try
             {
-                var opResult = await _servicioAdicionalRepository.GetById(id);
+                var opResult = await _servicioAdicionalRepository.GetByIdAsync(id);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Servicio adicional obtenido correctamente.");
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Servicio adicional obtenido correctamente.";
@@ -77,22 +78,21 @@ namespace SGHR.Application.Services.Reservas
             }
             return result;
         }
-
-        public async Task<ServiceResult> Remove(int id)
+        public async Task<ServiceResult> DeleteAsync(int id, int? idsesion)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando eliminación de servicio adicional con ID: {Id}", id);
 
             try
             {
-                if (id <= 0)
+                if (id < 0)
                 {
                     result.Success = false;
                     result.Message = "El ID del servicio adicional no es válido.";
                     return result;
                 }
 
-                var ServicioAdicionalExist = await _servicioAdicionalRepository.GetById(id);
+                var ServicioAdicionalExist = await _servicioAdicionalRepository.GetByIdAsync(id);
                 if (!ServicioAdicionalExist.Success)
                 {
                     result.Success = false;
@@ -100,7 +100,7 @@ namespace SGHR.Application.Services.Reservas
                     return result;
                 }
 
-                var opResult = await _servicioAdicionalRepository.Delete(ServicioAdicionalExist.Data);
+                var opResult = await _servicioAdicionalRepository.DeleteAsync(ServicioAdicionalExist.Data, idsesion);
                 if (opResult.Success)
                 {
                     result.Success = true;
@@ -121,8 +121,7 @@ namespace SGHR.Application.Services.Reservas
             }
             return result;
         }
-
-        public async Task<ServiceResult> Save(CreateServicioAdicionalDto createServicioAdicionalDto)
+        public async Task<ServiceResult> CreateAsync(CreateServicioAdicionalDto createServicioAdicionalDto, int? idsesion)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando creación de servicio adicional.", createServicioAdicionalDto);
@@ -135,9 +134,10 @@ namespace SGHR.Application.Services.Reservas
                     Descripcion = createServicioAdicionalDto.Descripcion,
                     Precio = createServicioAdicionalDto.Precio
                 };
-                var opResult = await _servicioAdicionalRepository.Save(servicioAdicional);
+                var opResult = await _servicioAdicionalRepository.SaveAsync(servicioAdicional, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Servicio adicional registrado correctamente.");
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Servicio adicional creado correctamente.";
@@ -157,15 +157,14 @@ namespace SGHR.Application.Services.Reservas
             }
             return result;
         }
-
-        public async Task<ServiceResult> Update(UpdateServicioAdicionalDto updateServicioAdicionalDto)
+        public async Task<ServiceResult> UpdateAsync(UpdateServicioAdicionalDto updateServicioAdicionalDto, int? idsesion)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando actualización de servicio adicional.", updateServicioAdicionalDto);
 
             try
             {
-                var existingServicioAdicional = await _servicioAdicionalRepository.GetById(updateServicioAdicionalDto.Id);
+                var existingServicioAdicional = await _servicioAdicionalRepository.GetByIdAsync(updateServicioAdicionalDto.Id);
                 if (!existingServicioAdicional.Success || existingServicioAdicional.Data == null)
                 {
                     result.Success = false;
@@ -179,9 +178,10 @@ namespace SGHR.Application.Services.Reservas
                 servicioAdicional.Descripcion = updateServicioAdicionalDto.Descripcion;
                 servicioAdicional.Precio = updateServicioAdicionalDto.Precio;
 
-                var opResult = await _servicioAdicionalRepository.Update(servicioAdicional);
+                var opResult = await _servicioAdicionalRepository.UpdateAsync(servicioAdicional, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Servicio adicional actualizado correctamente.");
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Servicio adicional actualizado correctamente.";

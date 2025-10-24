@@ -1,13 +1,17 @@
 ﻿using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Users.Usuario;
-using SGHR.Domain.Entities.Configuration.Usuers;
+using System.Linq.Expressions;
 
 
 namespace SGHR.Application.Interfaces.Users
 {
-    public interface IUsuarioService : IBaseServices<CreateUsuarioDto, UpdateUsuarioDto>
+    public interface IUsuarioService : IBaseServices<UsuarioCreateDto, UsuarioUpdateDto>
     {
-        Task<ServiceResult> LoginAsync(string email, string password);
-        Task<ServiceResult> CloseAsync();
+        Task<ServiceResult> GetAllByAsync(Expression<Func<UsuarioDto, bool>> filter);
+        Task<ServiceResult> ExistsAsync(Expression<Func<UsuarioDto, bool>> filter);
+        Task<ServiceResult> GetByCorreoAsync(string correo);
+        Task<ServiceResult> GetByRolAsync(string rol);
+        Task<ServiceResult> GetActivosAsync();
+        Task<ServiceResult> LoginAsync(UsuarioLoginDto usuarioLoginDto);
     }
 }

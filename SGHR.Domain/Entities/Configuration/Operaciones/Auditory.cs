@@ -9,6 +9,8 @@ namespace SGHR.Domain.Entities.Configuration.Operaciones
     {
         [Column("id_usuario")]
         public int IdUsuario { get; set; }
+        [Column("id_sesion")]
+        public int? IdSesion { get; set; }
         [Column("operacion")]
         public string Operacion { get; set; } 
         [Column("fecha")]

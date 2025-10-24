@@ -7,6 +7,7 @@ using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Validators.Users;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Users;
+using System.Linq.Expressions;
 
 
 namespace SGHR.Persistence.Repositories.EF.Users
@@ -15,126 +16,174 @@ namespace SGHR.Persistence.Repositories.EF.Users
     {
         private readonly SGHRContext _context;
         private readonly ILogger<ClienteRepository> _logger;
-        private readonly IConfiguration _configuration;
 
         public ClienteRepository(SGHRContext context,
                                  ILogger<ClienteRepository> logger,
-                                 IConfiguration configuration) : base(context)
+                                 ILogger<BaseRepository<Cliente>> loggercliente) : base(context,loggercliente)
         {
             _context = context;
             _logger = logger;
-            _configuration = configuration;
         }
-        public override async Task<OperationResult<Cliente>> Save(Cliente entity)
-        {
-            _logger.LogInformation("Iniciando con el registro del cliente.");
 
-            _logger.LogInformation("Iniciando con la validacion de datos.");
-            var result = ClienteValidator.Validate(entity);
-            if (!result.Success)
-            {
-                _logger.LogWarning("Problema con la validacion de los datos: {Message}", result.Message);
-                return result;
-            }
-            _logger.LogInformation("Datos validados, iniciando con el registro del cliente.");
-            var opResult = await base.Save(entity);
-            if (!opResult.Success)
-            {
-                _logger.LogError("Error al guardar al cliente: {ERROR}", opResult.Message);
-                return opResult;
-            }
-            _logger.LogInformation("Cliente registrado correctamente.");
-            return opResult;
-        }
-        public override async Task<OperationResult<Cliente>> Update(Cliente entity)
+        public override async Task<OperationResult<Cliente>> SaveAsync(Cliente entity, int? sesionId = null)
         {
-            _logger.LogInformation("Iniciando con la actualizacion de los datos de cliente.");
-            _logger.LogInformation("Iniciando la validacion de los datos que se actualizaran.");
-            var result = ClienteValidator.Validate(entity);
-            if (!result.Success)
-            {
-                _logger.LogWarning("Problema con la vaalidacion de los datos: {Message}", result.Message);
-                return result;
-            }
-            var opResult = await base.Update(entity);
-            if(!opResult.Success)
-            {
-                _logger.LogError("Error al actualizar los datos del cliente: {ERROR}", opResult.Message);
-                return opResult;
-            }
-            _logger.LogInformation("Cliente actualizado correctamente.");
-            return opResult;
-        }
-        public override async Task<OperationResult<Cliente>> Delete(Cliente entity)
-        {
-            _logger.LogInformation("Iniciando eliminacion logica del cliente.");
-            _logger.LogInformation("Validando datos antes de eliminar.");
-            var result = ClienteValidator.Validate(entity);
-            if (!result.Success)
-            {
-                _logger.LogWarning("Problema de validacion del cliente: {message}", result.Message);
-                return result;
-            }
-
-            _logger.LogInformation("Datos validados, iniciando con la eliminacion logica.");
-            var opResult = await base.Delete(entity);
-            if (!opResult.Success)
-            {
-                _logger.LogWarning("Error al elimar al cliente: {ERROR}", opResult.Message);
-                return opResult;
-            }
-            _logger.LogInformation("Cliente eliminado correctamente");
-            return opResult;
-        }
-        public override async Task<OperationResult<Cliente>> GetById(int id)
-        {
-            _logger.LogInformation("Iniciando la obtencion del cliente con el ID {id}", id);
             try
             {
-                var entity = await _context.Clientes
-                .FirstOrDefaultAsync(c => c.ID == id && !c.is_deleted);
+                var result = await base.SaveAsync(entity, sesionId);
+                if (result.Success)
+                    _logger.LogInformation("Cliente {Nombre} creado correctamente.", entity.Nombre);
 
-                if (entity == null)
-                    return OperationResult<Cliente>.Fail("Cliente no encontrado");
-
-                return OperationResult<Cliente>.Ok(entity);
-            }
-            catch(Exception ex)
-            {
-                _logger.LogWarning("No se encontró el Cliente con Id {Id}", id);
-                return OperationResult<Cliente>.Fail($"Error: {ex.Message}");
-            }                            
-        }
-        public override async Task<OperationResult<List<Cliente>>> GetAll()
-        {
-            var result = await base.GetAll();
-            if (result.Success)
-                _logger.LogInformation("Clientes obtenidos correctamente. Total: {Count}", result.Data.Count);
-            else
-                _logger.LogError("Error al obtener los Clientes: {Message}", result.Message);
-            return result;
-        }
-        public async Task<OperationResult<Cliente>> GetByCedulaAsync(string cedula)
-        {
-            _logger.LogInformation("Iniciando obtencion de Clientes por cedula.");
-            try
-            {
-                var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Cedula == cedula && !c.is_deleted);
-
-                if (cliente == null)
-                {
-                    _logger.LogWarning("Cliente no encontrado.");
-                    return OperationResult<Cliente>.Fail("Cliente no encontrado"); 
-                }
-
-                _logger.LogInformation("Cliente encontrado con correctamente.");
-                return OperationResult<Cliente>.Ok(cliente,"Se obtuvo al cliente correctamente.");
+                return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error obteniendo cliente por cedula");
-                return OperationResult<Cliente>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error creando el cliente {Nombre}", entity.Nombre);
+                return OperationResult<Cliente>.Fail("Ocurrió un error al guardar el cliente.");
             }
         }
+
+        public override async Task<OperationResult<Cliente>> UpdateAsync(Cliente entity, int? sesionId = null)
+        {
+            try
+            {
+                var result = await base.UpdateAsync(entity, sesionId);
+                if (result.Success)
+                    _logger.LogInformation("Cliente {Nombre} actualizado correctamente.", entity.Nombre);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error actualizando el cliente {Nombre}", entity.Nombre);
+                return OperationResult<Cliente>.Fail("Ocurrió un error al actualizar el cliente.");
+            }
+        }
+
+        public override async Task<OperationResult<Cliente>> DeleteAsync(Cliente entity, int? sesionId = null)
+        {
+            try
+            {
+                var result = await base.DeleteAsync(entity, sesionId);
+                if (result.Success)
+                    _logger.LogInformation("Cliente {Nombre} eliminado correctamente.", entity.Nombre);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error eliminando el cliente {Nombre}", entity.Nombre);
+                return OperationResult<Cliente>.Fail("Ocurrió un error al eliminar el cliente.");
+            }
+        }
+
+        public override async Task<OperationResult<Cliente>> GetByIdAsync(int id, bool includeDeleted = false)
+        {
+            try
+            {
+                var result = await base.GetByIdAsync(id, includeDeleted);
+                if (result.Success)
+                    _logger.LogInformation("Cliente con ID {Id} obtenido correctamente.", id);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo el cliente con ID {Id}", id);
+                return OperationResult<Cliente>.Fail("Ocurrió un error al obtener el cliente.");
+            }
+        }
+
+        public override async Task<OperationResult<List<Cliente>>> GetAllAsync(bool includeDeleted = false)
+        {
+            try
+            {
+                var result = await base.GetAllAsync(includeDeleted);
+                if (result.Success)
+                    _logger.LogInformation("Clientes obtenidos correctamente, total: {Count}", result.Data.Count);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo todos los clientes");
+                return OperationResult<List<Cliente>>.Fail("Ocurrió un error al obtener los clientes.");
+            }
+        }
+
+        public override async Task<OperationResult<List<Cliente>>> GetAllByAsync(
+            Expression<Func<Cliente, bool>> filter, bool includeDeleted = false)
+        {
+            try
+            {
+                var result = await base.GetAllByAsync(filter, includeDeleted);
+                if (result.Success)
+                    _logger.LogInformation("Clientes filtrados obtenidos correctamente, total: {Count}", result.Data.Count);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo clientes filtrados");
+                return OperationResult<List<Cliente>>.Fail("Ocurrió un error al obtener los clientes filtrados.");
+            }
+        }
+
+        public override async Task<OperationResult<bool>> ExistsAsync(
+            Expression<Func<Cliente, bool>> filter, bool includeDeleted = false)
+        {
+            try
+            {
+                var result = await base.ExistsAsync(filter, includeDeleted);
+                _logger.LogInformation("Comprobación de existencia de cliente realizada, resultado: {Exists}", result.Data);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error comprobando existencia de cliente");
+                return OperationResult<bool>.Fail("Ocurrió un error al comprobar la existencia del cliente.");
+            }
+        }
+
+        public async Task<OperationResult<Cliente>> GetByCedulaAsync(string cedula)
+        {
+            try
+            {
+                var cliente = await _context.Clientes
+                    .FirstOrDefaultAsync(c => c.Cedula == cedula && !c.Eliminado);
+
+                if (cliente == null)
+                {
+                    _logger.LogWarning("Cliente con cédula {Cedula} no encontrado", cedula);
+                    return OperationResult<Cliente>.Fail("Cliente no encontrado");
+                }
+
+                _logger.LogInformation("Cliente con cédula {Cedula} obtenido correctamente", cedula);
+                return OperationResult<Cliente>.Ok(cliente);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo cliente por cédula {Cedula}", cedula);
+                return OperationResult<Cliente>.Fail("Ocurrió un error al obtener el cliente");
+            }
+        }
+
+        public async Task<OperationResult<List<Cliente>>> GetByNombreAsync(string nombre)
+        {
+            try
+            {
+                var clientes = await _context.Clientes
+                    .Where(c => c.Nombre.Contains(nombre) && !c.Eliminado)
+                    .ToListAsync();
+
+                _logger.LogInformation("Clientes filtrados por nombre '{Nombre}' obtenidos correctamente, total: {Count}", nombre, clientes.Count);
+                return OperationResult<List<Cliente>>.Ok(clientes);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo clientes por nombre {Nombre}", nombre);
+                return OperationResult<List<Cliente>>.Fail("Ocurrió un error al obtener los clientes por nombre");
+            }
+        }
+
     }
 }

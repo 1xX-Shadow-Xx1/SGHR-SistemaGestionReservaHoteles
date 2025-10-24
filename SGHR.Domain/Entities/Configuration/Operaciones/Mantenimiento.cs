@@ -1,4 +1,5 @@
 ﻿using SGHR.Domain.Base;
+using SGHR.Domain.Enum.Operaciones;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
@@ -20,7 +21,7 @@ namespace SGHR.Domain.Entities.Configuration.Operaciones
         [Column("realizado_por")]
         public int RealizadoPor { get; set; }
         [Column("estado")]
-        public string Estado { get; set; } = "Iniciado";
+        public EstadoMantenimiento Estado { get; set; } = EstadoMantenimiento.Pendiente;
 
     }
 }

@@ -1,18 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
-using SGHR.Domain.Validators.Operaciones;
-using SGHR.Domain.Validators.Reservas;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Reportes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace SGHR.Persistence.Repositories.EF.Operaciones
 {
@@ -20,124 +13,131 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
     {
         private readonly SGHRContext _context;
         private readonly ILogger<PagoRepository> _logger;
-        private readonly IConfiguration _configuration;
 
         public PagoRepository(SGHRContext context,
                               ILogger<PagoRepository> logger,
-                              IConfiguration configuration) : base(context)
+                              ILogger<BaseRepository<Pago>> LoggerBase) : base(context, LoggerBase)
         {
             _context = context;
             _logger = logger;
-            _configuration = configuration;
         }
 
-        public override async Task<OperationResult<Pago>> Save(Pago entity)
+        public override async Task<OperationResult<Pago>> SaveAsync(Pago entity, int? sesionId = null)
         {
-            var result = PagoValidator.Validate(entity);
-            if (!result.Success)
-            {
-                return result;
-            }
-            return await base.Save(entity);
+            entity.SesionCreacionId = sesionId;
+            var result = await base.SaveAsync(entity, sesionId);
+
+            if (result.Success)
+                _logger.LogInformation("Pago {Id} creado correctamente", result.Data.Id);
+            else
+                _logger.LogWarning("Error creando el pago");
+
+            return result;
         }
 
-        public override async Task<OperationResult<Pago>> Update(Pago entity)
+        public override async Task<OperationResult<Pago>> UpdateAsync(Pago entity, int? sesionId = null)
         {
-            var result = PagoValidator.Validate(entity);
-            if (!result.Success)
-            {
-                return result;
-            }
-            return await base.Update(entity);
+            entity.SesionActualizacionId = sesionId;
+            var result = await base.UpdateAsync(entity, sesionId);
+
+            if (result.Success)
+                _logger.LogInformation("Pago {Id} actualizado correctamente", result.Data.Id);
+            else
+                _logger.LogWarning("Error actualizando el pago {Id}", entity.Id);
+
+            return result;
         }
 
-        public override async Task<OperationResult<Pago>> Delete(Pago entity)
+  
+        public override async Task<OperationResult<Pago>> DeleteAsync(Pago entity, int? sesionId = null)
         {
-            var result = PagoValidator.Validate(entity);
-            if (!result.Success)
-            {
-                return result;
-            }
-            return await base.Delete(entity);
+            var result = await base.DeleteAsync(entity, sesionId);
+
+            if (result.Success)
+                _logger.LogInformation("Pago {Id} eliminado correctamente", entity.Id);
+            else
+                _logger.LogWarning("Error eliminando el pago {Id}", entity.Id);
+
+            return result;
         }
 
-        public override async Task<OperationResult<Pago>> GetById(int id)
+        public override async Task<OperationResult<Pago>> GetByIdAsync(int id, bool includeDeleted = false)
         {
-            try
-            {
-                var entity = await _context.Pagos
-                    .FirstOrDefaultAsync(p => p.ID == id && !p.is_deleted);
+            var result = await base.GetByIdAsync(id, includeDeleted);
 
-                if (entity == null)
-                    return OperationResult<Pago>.Fail("Pago no encontrado");
+            if (result.Success)
+                _logger.LogInformation("Pago {Id} obtenido correctamente", id);
+            else
+                _logger.LogWarning("Pago {Id} no encontrado", id);
 
-                _logger.LogInformation("Pago encontrado: {Id}", id);
-                return OperationResult<Pago>.Ok(entity);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al obtener pago por Id {Id}", id);
-                return OperationResult<Pago>.Fail($"Error: {ex.Message}");
-            }
+            return result;
         }
 
-        public async Task<OperationResult<List<Pago>>> GetByReservaAsync(int reservaId)
+        public override async Task<OperationResult<List<Pago>>> GetAllAsync(bool includeDeleted = false)
         {
-            try
-            {
-                var pagos = await _context.Pagos
-                    .Where(p => p.IdReserva == reservaId && !p.is_deleted)
-                    .ToListAsync();
+            var result = await base.GetAllAsync(includeDeleted);
 
-                if (!pagos.Any())
-                    return OperationResult<List<Pago>>.Fail("No se encontraron pagos para esta reserva");
+            if (result.Success)
+                _logger.LogInformation("Todos los pagos obtenidos correctamente, cantidad: {Count}", result.Data.Count);
+            else
+                _logger.LogWarning("Error obteniendo los pagos");
 
-                return OperationResult<List<Pago>>.Ok(pagos);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al obtener pagos para la reserva {ReservaId}", reservaId);
-                return OperationResult<List<Pago>>.Fail($"Error: {ex.Message}");
-            }
+            return result;
         }
 
-        public async Task<OperationResult<List<Pago>>> GetByFechasAsync(DateTime fechaInicio, DateTime fechaFin)
+        public override async Task<OperationResult<List<Pago>>> GetAllByAsync(Expression<Func<Pago, bool>> filter, bool includeDeleted = false)
         {
-            try
-            {
-                var pagos = await _context.Pagos
-                    .Where(p => p.FechaPago >= fechaInicio && p.FechaPago <= fechaFin && !p.is_deleted)
-                    .ToListAsync();
+            var result = await base.GetAllByAsync(filter, includeDeleted);
 
-                if (!pagos.Any())
-                    return OperationResult<List<Pago>>.Fail("No se encontraron pagos en este rango de fechas");
+            if (result.Success)
+                _logger.LogInformation("Pagos filtrados obtenidos correctamente, cantidad: {Count}", result.Data.Count);
+            else
+                _logger.LogWarning("Error obteniendo pagos filtrados");
 
-                return OperationResult<List<Pago>>.Ok(pagos);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al obtener pagos entre {FechaInicio} y {FechaFin}", fechaInicio, fechaFin);
-                return OperationResult<List<Pago>>.Fail($"Error: {ex.Message}");
-            }
+            return result;
         }
 
-        public async Task<OperationResult<List<Pago>>> GetByMetodoAsync(string metodo)
+        public override async Task<OperationResult<bool>> ExistsAsync(Expression<Func<Pago, bool>> filter, bool includeDeleted = false)
+        {
+            var result = await base.ExistsAsync(filter, includeDeleted);
+
+            _logger.LogInformation("Chequeo existencia de pago: {Exists}", result.Data);
+            return result;
+        }
+
+        public async Task<OperationResult<List<Pago>>> GetByReservaAsync(int idReserva)
         {
             try
             {
                 var pagos = await _context.Pagos
-                    .Where(p => p.MetodoPago == metodo && !p.is_deleted)
+                    .Where(p => p.IdReserva == idReserva && !p.Eliminado)
                     .ToListAsync();
 
-                if (!pagos.Any())
-                    return OperationResult<List<Pago>>.Fail("No se encontraron pagos con este método");
-
+                _logger.LogInformation("Se obtuvieron {Cantidad} pagos de la reserva {IdReserva}", pagos.Count, idReserva);
                 return OperationResult<List<Pago>>.Ok(pagos);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener pagos por método {Metodo}", metodo);
-                return OperationResult<List<Pago>>.Fail($"Error: {ex.Message}");
+                _logger.LogError(ex, "Error obteniendo pagos de la reserva {IdReserva}", idReserva);
+                return OperationResult<List<Pago>>.Fail("Error obteniendo los pagos de la reserva");
+            }
+        }
+
+        public async Task<OperationResult<List<Pago>>> GetByFechaAsync(DateTime fecha)
+        {
+            try
+            {
+                var pagos = await _context.Pagos
+                    .Where(p => p.FechaPago.Date == fecha.Date && !p.Eliminado)
+                    .ToListAsync();
+
+                _logger.LogInformation("Se obtuvieron {Cantidad} pagos realizados en {Fecha}", pagos.Count, fecha.ToShortDateString());
+                return OperationResult<List<Pago>>.Ok(pagos);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo pagos de la fecha {Fecha}", fecha.ToShortDateString());
+                return OperationResult<List<Pago>>.Fail("Error obteniendo pagos de la fecha especificada");
             }
         }
     }

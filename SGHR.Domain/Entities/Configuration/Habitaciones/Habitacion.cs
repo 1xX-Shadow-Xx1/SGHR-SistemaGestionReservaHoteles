@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using SGHR.Domain.Enum.Habitacion;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SGHR.Domain.Entities.Configuration.Habitaciones
 {
@@ -16,7 +17,7 @@ namespace SGHR.Domain.Entities.Configuration.Habitaciones
         [Column("capacidad")]
         public int Capacidad { get; set; }
         [Column("estado")]
-        public string Estado { get; set; } = "Activa";
+        public EstadoHabitacion Estado { get; set; } = EstadoHabitacion.Activa;
 
     }
 }

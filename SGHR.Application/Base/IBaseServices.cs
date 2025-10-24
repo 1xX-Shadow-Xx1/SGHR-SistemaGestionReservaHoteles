@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SGHR.Application.Dtos.Configuration.Users.Usuario;
 
 namespace SGHR.Application.Base
 {
-    public interface IBaseServices<TDtoCreate, TDtoUpdate>
+    public interface IBaseServices<Tdtocreate, Tdtoupdate>
     {
-        Task<ServiceResult> GetAll();
-        Task<ServiceResult> GetById(int id);
-        Task<ServiceResult> Update(TDtoUpdate dto);
-        Task<ServiceResult> Remove(int id);
-        Task<ServiceResult> Save(TDtoCreate dto);
+        Task<ServiceResult> CreateAsync(Tdtocreate CreateDto, int? sesionId = null);
+        Task<ServiceResult> UpdateAsync(Tdtoupdate UpdateDto, int? sesionId = null);
+        Task<ServiceResult> DeleteAsync(int id, int? sesionId = null);
+        Task<ServiceResult> GetByIdAsync(int id);
+        Task<ServiceResult> GetAllAsync();
     }
 }

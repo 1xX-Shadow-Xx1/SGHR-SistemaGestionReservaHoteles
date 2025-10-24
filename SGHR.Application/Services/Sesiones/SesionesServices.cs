@@ -1,13 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Operaciones.Auditory;
 using SGHR.Application.Dtos.Configuration.Sesiones.Sesion;
-using SGHR.Application.Interfaces.Operaciones;
 using SGHR.Application.Interfaces.Sesiones;
-using SGHR.Domain.Entities.Configuration.Operaciones;
 using SGHR.Domain.Entities.Configuration.Sesiones;
 using SGHR.Domain.Repository;
-using SGHR.Persistence.Interfaces.Operaciones;
 using SGHR.Persistence.Interfaces.Sesiones;
 
 
@@ -18,44 +14,38 @@ namespace SGHR.Application.Services.Sesiones
         public readonly ILogger<SesionesServices> _logger;
         public readonly ISesionRepository _sesionRepository;
         public readonly IUsuarioRepository _usuarioRepository;
-        public readonly IAuditoryService _auditoryService;
 
         public SesionesServices(ILogger<SesionesServices> logger,
                                 ISesionRepository sesionRepository,
-                                IUsuarioRepository usuarioRepository,
-                                IAuditoryService auditoryService
-                                )
+                                IUsuarioRepository usuarioRepository)
         {            
             _logger = logger;
             _sesionRepository = sesionRepository;
-            _auditoryService = auditoryService;
+            _usuarioRepository = usuarioRepository;
         }
 
-        public async Task<ServiceResult> OpenSesion(int id)
+        public async Task<ServiceResult> OpenSesionAsync(StartSesionDto startSesionDto)
         {
             ServiceResult result = new ServiceResult();
-            _logger.LogInformation($"Iniciando con el proceso de abrir sesion del usuario con ID: {id}.");
+            _logger.LogInformation($"Iniciando con el proceso de abrir sesion del usuario con ID: {startSesionDto.IdUsuario}.");
 
             try
             {
                 _logger.LogInformation("Creando la sesion");
                 Sesion sesion  = new Sesion
                 {
-                    IdUsuario = id,
-                    FechaInicio = DateTime.Now,
+                    IdUsuario = startSesionDto.IdUsuario,
                     Estado = true
                 };
 
                 _logger.LogInformation("Guardando la sesion en la Base de datos");
-                var OpResult = await _sesionRepository.Save(sesion);
+                var OpResult = await _sesionRepository.SaveAsync(sesion);
                 if (OpResult.Success)
                 {
                     _logger.LogInformation("Sesion guardad correctamente en la base de datos.");
                     result.Success = true;
                     result.Message = OpResult.Message;
                     result.Data = OpResult.Data;
-                    SesionDto.SesionID = OpResult.Data.ID;
-                    SesionDto.UsuarioID = OpResult.Data.IdUsuario;
                     return result;
                 }
                 _logger.LogWarning($"No se pudo guardar la sesion correctamente: {OpResult.Message}");
@@ -71,18 +61,18 @@ namespace SGHR.Application.Services.Sesiones
             }
             return result;            
         }
-        public async Task<ServiceResult> CloseSesion()
+        public async Task<ServiceResult> CloseSesionAsync(CloseSesionDto closeSesionDto, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando con el Cierre de la Sesion.");
 
             try
             {
-                _logger.LogInformation($"Iniciando con la obtencion de la Sesion con ID {SesionDto.SesionID} activa para cerrar.");
-                var SesionExist = await _sesionRepository.GetById(SesionDto.SesionID);
+                _logger.LogInformation($"Iniciando con la obtencion de la Sesion con ID {closeSesionDto.Id} activa para cerrar.");
+                var SesionExist = await _sesionRepository.GetByIdAsync(closeSesionDto.Id);
                 if (!SesionExist.Success)
                 {
-                    _logger.LogWarning($"No se pudo obtener la sesion mediante el ID {SesionDto.SesionID}: {SesionExist.Message}");
+                    _logger.LogWarning($"No se pudo obtener la sesion mediante el ID {closeSesionDto.Id}: {SesionExist.Message}");
                     result.Success = false;
                     result.Message = SesionExist.Message;
                     return result;
@@ -92,7 +82,7 @@ namespace SGHR.Application.Services.Sesiones
                 SesionExist.Data.FechaFin = DateTime.Now;
                 SesionExist.Data.Estado = false;
 
-                var OpResult = await _sesionRepository.Update(SesionExist.Data);
+                var OpResult = await _sesionRepository.UpdateAsync(SesionExist.Data, idsesion);
                 if (!OpResult.Success)
                 {
                     _logger.LogWarning($"No se pudo actualizar la sesion correctamente: {OpResult.Message}");
@@ -114,7 +104,7 @@ namespace SGHR.Application.Services.Sesiones
             }
             return result;
         }
-        public async Task<ServiceResult> GetSesion()
+        public async Task<ServiceResult> GetSesionAsync()
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation($"Iniciando con la Obtencion de todas las Sesiones.");
@@ -122,7 +112,7 @@ namespace SGHR.Application.Services.Sesiones
             try
             {
                 _logger.LogInformation("Iniciando el metodo de obtencion.");
-                var OpResult = await _sesionRepository.GetAll();
+                var OpResult = await _sesionRepository.GetAllAsync();
                 if (!OpResult.Success)
                 {
                     _logger.LogWarning($"No se pudo obetener las sesiones: {OpResult.Message}");
@@ -136,19 +126,6 @@ namespace SGHR.Application.Services.Sesiones
                 result.Data = OpResult.Data;
                 result.Message = "Sesiones obtenidas correctamente";
 
-                var auditory = new CreateAuditoryDto
-                {
-                    IdUsuario = SesionDto.UsuarioID,
-                    Operacion = "GetAll-Sesion",
-                    Detalle = ($"El usuario {SesionDto.UsuarioName} obtuvo una lista de todas las sesiones.")
-                };
-
-                var AudiResult = await _auditoryService.Save(auditory);
-                if (!AudiResult.Success)
-                {
-                    return AudiResult;
-                }
-
             }
             catch (Exception ex)
             {
@@ -158,7 +135,7 @@ namespace SGHR.Application.Services.Sesiones
             }
             return result;
         }
-        public async Task<ServiceResult> GetSesionByUsers(string correo)
+        public async Task<ServiceResult> GetSesionByUsersAsync(string correo)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation($"Iniciando la obtencion de sesiones del usuario: {correo}");           
@@ -175,8 +152,8 @@ namespace SGHR.Application.Services.Sesiones
                     return result;
                 }
 
-                _logger.LogInformation($"Iniciando obtencion de las sesiones por el id {OpResult.Data.ID} del usuario");
-                var Sesions = await _sesionRepository.GetAllBY(s => s.IdUsuario == OpResult.Data.ID);
+                _logger.LogInformation($"Iniciando obtencion de las sesiones por el id {OpResult.Data.Id} del usuario");
+                var Sesions = await _sesionRepository.GetAllByAsync(s => s.IdUsuario == OpResult.Data.Id);
                 if (!Sesions.Success)
                 {
                     _logger.LogWarning($"No se pudo obtener las sesiones: {Sesions.Message}");
@@ -190,18 +167,6 @@ namespace SGHR.Application.Services.Sesiones
                 result.Data = Sesions.Data;
                 result.Message= ($"Lista de sesiones del usuario {OpResult.Data.Correo} obtenida correctamente.");
 
-                var auditory = new CreateAuditoryDto
-                {
-                    IdUsuario = SesionDto.UsuarioID,
-                    Operacion = "GetAll-SesionByUsers",
-                    Detalle = ($"El usuario {SesionDto.UsuarioName} obtuvo una lista de las sesiones del usuario {correo}.")
-                };
-                var AudiResult = await _auditoryService.Save(auditory);
-                if (!AudiResult.Success)
-                {
-                    return AudiResult;
-                }
-
             }
             catch (Exception ex) 
             {
@@ -211,7 +176,7 @@ namespace SGHR.Application.Services.Sesiones
             }
             return result;
         }
-        public async Task<ServiceResult> GetOpenSesion()
+        public async Task<ServiceResult> GetOpenSesionAsync()
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation($"Iniciando con la obtencion del la Lista de sesiones activas.");
@@ -219,7 +184,7 @@ namespace SGHR.Application.Services.Sesiones
             try
             {
                 _logger.LogInformation("Obteniendo Lista de sesiones activas.");
-                var OpResult = await _sesionRepository.GetAllBY(s => s.Estado == true);
+                var OpResult = await _sesionRepository.GetAllByAsync(s => s.Estado == true);
                 if (!OpResult.Success)
                 {
                     _logger.LogWarning($"No se lograron obtener las sesiones activas: {OpResult.Message}");
@@ -232,24 +197,69 @@ namespace SGHR.Application.Services.Sesiones
                 result.Success = true;
                 result.Message = "Lista de Sesiones activas obtenidas correctamente.";
                 result.Data = OpResult.Data;
-
-                var auditory = new CreateAuditoryDto
-                {
-                    IdUsuario = SesionDto.UsuarioID,
-                    Operacion = "GetAll-OpenSesion",
-                    Detalle = ($"El usuario {SesionDto.UsuarioName} obtuvo una lista de las sesiones que estan activas en el momento.")
-                };
-                var AudiResult = await _auditoryService.Save(auditory);
-                if (!AudiResult.Success)
-                {
-                    return AudiResult;
-                }
             }
             catch(Exception ex)
             {
                 _logger.LogError($"Error al Obtener las sesiones activas: {ex.Message}");
                 result.Success = false;
                 result.Message = ($"Error al obetener las sesiones activas: {ex.Message}");
+            }
+            return result;
+        }
+
+        public async Task<ServiceResult> DeleteAsync(int id, int? idsesion = null)
+        {
+            ServiceResult result = new ServiceResult();
+            try
+            {
+                var SesionResult = await _sesionRepository.GetByIdAsync(id);
+                if (!SesionResult.Success)
+                {
+                    result.Success = false;
+                    result.Message = SesionResult.Message;
+                    return result;
+                }
+
+                var opResult = await _sesionRepository.DeleteAsync(SesionResult.Data, idsesion);
+                if(!opResult.Success)
+                {
+                    result.Success = false;
+                    result.Message = opResult.Message;
+                    return result;
+                }
+
+                result.Success = true;
+                result.Message = "Sesion eliminada correctamente.";
+                
+            }catch(Exception ex)
+            {
+                result.Success = false;
+                result.Message = ($"Error al tratar de eliminal la sesion: {ex.Message}");
+            }
+            return result;
+        }
+
+        public async Task<ServiceResult> GetByIdAsync(int id)
+        {
+            ServiceResult result = new ServiceResult();
+            try
+            {
+                var SesionResult = await _sesionRepository.GetByIdAsync(id);
+                if (!SesionResult.Success)
+                {
+                    result.Success = false;
+                    result.Message= SesionResult.Message;
+                    return result;
+                }
+
+                result.Success = true;
+                result.Message = ($"Sesion con ID {id} obtenida correcntamente.");
+                result.Data = SesionResult.Data;
+
+            }catch(Exception ex)
+            {
+                result.Success = false;
+                result.Message = ($"Error al tratar de obtener la sesion por id: {ex.Message}");
             }
             return result;
         }

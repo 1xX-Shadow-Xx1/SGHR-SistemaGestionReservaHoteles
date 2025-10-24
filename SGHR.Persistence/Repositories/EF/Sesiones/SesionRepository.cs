@@ -1,130 +1,121 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Sesiones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Sesiones;
-using System.ClientModel.Primitives;
-using System.Linq.Expressions;
 
 namespace SGHR.Persistence.Repositories.EF.Sesiones
 {
     public class SesionRepository : BaseRepository<Sesion>, ISesionRepository
     {
         private readonly ILogger<SesionRepository> _logger;
-        private readonly IConfiguration _configuration;
         private readonly SGHRContext _context;
 
         public SesionRepository(SGHRContext context,
                                 ILogger<SesionRepository> logger,
-                                IConfiguration configuration) : base(context)
+                                ILogger<BaseRepository<Sesion>> loggerBase) : base(context,loggerBase)
         {
             _context = context;
             _logger = logger;
-            _configuration = configuration;
         }
 
-        public override async Task<OperationResult<Sesion>> Save(Sesion entity)
+        public override async Task<OperationResult<Sesion>> SaveAsync(Sesion entity, int? sesionId = null)
         {
-            OperationResult<Sesion> result = new OperationResult<Sesion>();
-            _logger.LogInformation("Iniciando el guardado de la Sesion");
-
             try
             {
-                var OpResult = await base.Save(entity);
-                if(!OpResult.Success)
-                {
-                    _logger.LogInformation("Error al Guardar la Sesion: " + OpResult.Message);
-                    result.Success = false;
-                    result.Message = OpResult.Message;
-                    return result;
-                }
-                _logger.LogInformation($"Sesion Guardad Correctamente.");
-                result = OpResult;
+                if (sesionId.HasValue)
+                    entity.SesionCreacionId = sesionId;
 
-            }catch (Exception ex)
-            {
-                _logger.LogInformation($"Error al guardar: {ex.Message}");
-                result.Success = false;
-                result.Message = ex.Message;
+                var result = await base.SaveAsync(entity, sesionId);
+
+                if (result.Success)
+                    _logger.LogInformation("Sesion creada correctamente con Id {Id}", result.Data.Id);
+
+                return result;
             }
-            return result;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al crear la sesión");
+                return OperationResult<Sesion>.Fail("Ocurrió un error al crear la sesión");
+            }
         }
 
-        public override async Task<OperationResult<Sesion>> Update(Sesion entity)
+        public override async Task<OperationResult<Sesion>> UpdateAsync(Sesion entity, int? sesionId = null)
         {
-            OperationResult<Sesion> result = new OperationResult<Sesion>();
-            _logger.LogInformation("Iniciando con la actualizacion de la Sesion.");
-
             try
             {
-                var OpResult = await base.Update(entity);
-                if(!OpResult.Success)
-                {
-                    _logger.LogInformation($"Error al actualizar: {OpResult.Message}");
-                    result.Success = false;
-                    result.Message = OpResult.Message;
-                    return result;
-                }
-                _logger.LogInformation($"Sesion actualizadad correctamente.");
-                result = OpResult;
+                if (sesionId.HasValue)
+                    entity.SesionActualizacionId = sesionId;
 
-            }catch (Exception ex)
-            {
-                _logger.LogInformation($"Error al actualizar: {ex.Message}");
-                result.Success = false;
-                result.Message = ($"Error al actualizar: {ex.Message}");
+                var result = await base.UpdateAsync(entity, sesionId);
+
+                if (result.Success)
+                    _logger.LogInformation("Sesion actualizada correctamente con Id {Id}", result.Data.Id);
+
+                return result;
             }
-            return result;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al actualizar la sesión");
+                return OperationResult<Sesion>.Fail("Ocurrió un error al actualizar la sesión");
+            }
         }
 
-        public async Task<OperationResult<Sesion>> Delete(Sesion entity)
+        public override async Task<OperationResult<Sesion>> DeleteAsync(Sesion entity, int? sesionId = null)
         {
-            throw new NotImplementedException();
-        }
-
-        public override async Task<OperationResult<Sesion>> GetById(int id)
-        {
-            OperationResult<Sesion> result = new OperationResult<Sesion>();
-            _logger.LogInformation($"Iniciando Optencion de la Sesion con el ID: {id}");
-
             try
             {
-                var OResult = await base.GetById(id);
-                if(!OResult.Success)
-                {
-                    _logger.LogInformation($"Error con la obtencion del ID: {OResult.Message}");
-                    result.Success = false;
-                    result.Message = OResult.Message;
-                    return result;
-                }
-                _logger.LogInformation($"Sesion con ID {id}, obtenida exitosamente ");
-                result = OResult;
+                var result = await base.DeleteAsync(entity, sesionId);
 
-            }catch (Exception ex)
-            {
-                _logger.LogInformation($"Error de Excepcion: {ex.Message}");
-                result.Success = false;
-                result.Message = ex.Message;
+                if (result.Success)
+                    _logger.LogInformation("Sesion eliminada correctamente con Id {Id}", entity.Id);
+
+                return result;
             }
-            return result;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al eliminar la sesión");
+                return OperationResult<Sesion>.Fail("Ocurrió un error al eliminar la sesión");
+            }
         }
 
-        public async Task<OperationResult<bool>> ExistsAsync(Expression<Func<Sesion, bool>> filter)
+        public async Task<OperationResult<List<Sesion>>> GetByUsuarioAsync(int usuarioId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var sesiones = await _context.Sesiones
+                    .Where(s => s.IdUsuario == usuarioId && !s.Eliminado)
+                    .ToListAsync();
+
+                _logger.LogInformation("Se obtuvieron {Count} sesiones para el usuario {UsuarioId}", sesiones.Count, usuarioId);
+                return OperationResult<List<Sesion>>.Ok(sesiones);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo sesiones para el usuario {UsuarioId}", usuarioId);
+                return OperationResult<List<Sesion>>.Fail("Ocurrió un error al obtener las sesiones del usuario");
+            }
         }
 
-        public override async Task<OperationResult<List<Sesion>>> GetAll()
+        public async Task<OperationResult<List<Sesion>>> GetActiveSessionsAsync()
         {
-            var result = await base.GetAll();
-            return result;
+            try
+            {
+                var sesiones = await _context.Sesiones
+                    .Where(s => s.Estado && !s.Eliminado) 
+                    .ToListAsync();
+
+                _logger.LogInformation("Se obtuvieron {Count} sesiones activas", sesiones.Count);
+                return OperationResult<List<Sesion>>.Ok(sesiones);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo sesiones activas");
+                return OperationResult<List<Sesion>>.Fail("Ocurrió un error al obtener las sesiones activas");
+            }
         }
 
-        public async Task<OperationResult<List<Sesion>>> GetAllBY(Expression<Func<Sesion, bool>> filter)
-        {
-            return await base.GetAllBY(filter);
-        }        
     }
 }

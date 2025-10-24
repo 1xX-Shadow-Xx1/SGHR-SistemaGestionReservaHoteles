@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using SGHR.Domain.Enum.Reservas;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SGHR.Domain.Entities.Configuration.Reservas
 {
@@ -11,6 +12,8 @@ namespace SGHR.Domain.Entities.Configuration.Reservas
         public string Descripcion { get; set; }
         [Column("precio")]
         public decimal Precio { get; set; }
+        [Column("estado")]
+        public EstadoServicioAdicional Estado { get; set; } = EstadoServicioAdicional.Activo;
 
     }
 }
