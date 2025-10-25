@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Usuers;
+using SGHR.Domain.Validators.ConfigurationRules.Users;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Users;
-using System.Linq.Expressions;
 
 
 namespace SGHR.Persistence.Repositories.EF.Users
@@ -15,20 +14,29 @@ namespace SGHR.Persistence.Repositories.EF.Users
     {
         private readonly SGHRContext _context;
         private readonly ILogger<ClienteRepository> _logger;
+        private readonly ClienteValidator _clienteValidator;
 
         public ClienteRepository(SGHRContext context,
+                                 ClienteValidator clienteValidator,
                                  ILogger<ClienteRepository> logger,
                                  ILogger<BaseRepository<Cliente>> loggercliente) : base(context,loggercliente)
         {
             _context = context;
             _logger = logger;
+            _clienteValidator = clienteValidator;
         }
 
-        public override async Task<OperationResult<Cliente>> SaveAsync(Cliente entity, int? sesionId = null)
+        public override async Task<OperationResult<Cliente>> SaveAsync(Cliente entity)
         {
+            if (!_clienteValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al guardar Cliente: {fail}", errorMessage);
+                return OperationResult<Cliente>.Fail(errorMessage);
+            }
+
             try
             {
-                var result = await base.SaveAsync(entity, sesionId);
+                var result = await base.SaveAsync(entity);
                 if (result.Success)
                     _logger.LogInformation("Cliente {Nombre} creado correctamente.", entity.Nombre);
 
@@ -40,12 +48,16 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<Cliente>.Fail("Ocurrió un error al guardar el cliente.");
             }
         }
-
-        public override async Task<OperationResult<Cliente>> UpdateAsync(Cliente entity, int? sesionId = null)
+        public override async Task<OperationResult<Cliente>> UpdateAsync(Cliente entity)
         {
+            if (!_clienteValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al actualizar el Cliente: {fail}", errorMessage);
+                return OperationResult<Cliente>.Fail(errorMessage);
+            }
             try
             {
-                var result = await base.UpdateAsync(entity, sesionId);
+                var result = await base.UpdateAsync(entity);
                 if (result.Success)
                     _logger.LogInformation("Cliente {Nombre} actualizado correctamente.", entity.Nombre);
 
@@ -57,12 +69,11 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<Cliente>.Fail("Ocurrió un error al actualizar el cliente.");
             }
         }
-
-        public override async Task<OperationResult<Cliente>> DeleteAsync(Cliente entity, int? sesionId = null)
+        public override async Task<OperationResult<Cliente>> DeleteAsync(Cliente entity)
         {
             try
             {
-                var result = await base.DeleteAsync(entity, sesionId);
+                var result = await base.DeleteAsync(entity);
                 if (result.Success)
                     _logger.LogInformation("Cliente {Nombre} eliminado correctamente.", entity.Nombre);
 
@@ -74,7 +85,6 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<Cliente>.Fail("Ocurrió un error al eliminar el cliente.");
             }
         }
-
         public override async Task<OperationResult<Cliente>> GetByIdAsync(int id, bool includeDeleted = false)
         {
             try
@@ -91,7 +101,6 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<Cliente>.Fail("Ocurrió un error al obtener el cliente.");
             }
         }
-
         public override async Task<OperationResult<List<Cliente>>> GetAllAsync(bool includeDeleted = false)
         {
             try
@@ -108,41 +117,6 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<List<Cliente>>.Fail("Ocurrió un error al obtener los clientes.");
             }
         }
-
-        public override async Task<OperationResult<List<Cliente>>> GetAllByAsync(
-            Expression<Func<Cliente, bool>> filter, bool includeDeleted = false)
-        {
-            try
-            {
-                var result = await base.GetAllByAsync(filter, includeDeleted);
-                if (result.Success)
-                    _logger.LogInformation("Clientes filtrados obtenidos correctamente, total: {Count}", result.Data.Count);
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error obteniendo clientes filtrados");
-                return OperationResult<List<Cliente>>.Fail("Ocurrió un error al obtener los clientes filtrados.");
-            }
-        }
-
-        public override async Task<OperationResult<bool>> ExistsAsync(
-            Expression<Func<Cliente, bool>> filter, bool includeDeleted = false)
-        {
-            try
-            {
-                var result = await base.ExistsAsync(filter, includeDeleted);
-                _logger.LogInformation("Comprobación de existencia de cliente realizada, resultado: {Exists}", result.Data);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error comprobando existencia de cliente");
-                return OperationResult<bool>.Fail("Ocurrió un error al comprobar la existencia del cliente.");
-            }
-        }
-
         public async Task<OperationResult<Cliente>> GetByCedulaAsync(string cedula)
         {
             try
@@ -165,7 +139,6 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<Cliente>.Fail("Ocurrió un error al obtener el cliente");
             }
         }
-
         public async Task<OperationResult<List<Cliente>>> GetByNombreAsync(string nombre)
         {
             try

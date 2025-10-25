@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using SGHR.Domain.Base;
 using SGHR.Domain.Repository;
 using SGHR.Persistence.Contex;
-using System.Linq.Expressions;
 
 namespace SchoolPoliApp.Persistence.Base
 {
@@ -21,17 +20,15 @@ namespace SchoolPoliApp.Persistence.Base
             _logger = logger;
         }
 
-        public virtual async Task<OperationResult<TEntity>> SaveAsync(TEntity entity, int? sesionId = null)
+        public virtual async Task<OperationResult<TEntity>> SaveAsync(TEntity entity)
         {
             try
             {
-                entity.SesionCreacionId = sesionId;
-
                 await _dbSet.AddAsync(entity);
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation("Entidad {EntityType} creada correctamente con Id {Id}", typeof(TEntity).Name, entity.Id);
-                return OperationResult<TEntity>.Ok(entity, "Entidad creada exitosamente");
+                return OperationResult<TEntity>.Ok(entity, $"{typeof(TEntity).Name} creada exitosamente");
             }
             catch (Exception ex)
             {
@@ -39,19 +36,17 @@ namespace SchoolPoliApp.Persistence.Base
                 return OperationResult<TEntity>.Fail($"Error al guardar: {ex.Message.ToString()}");
             }
         }
-
-        public virtual async Task<OperationResult<TEntity>> UpdateAsync(TEntity entity, int? sesionId = null)
+        public virtual async Task<OperationResult<TEntity>> UpdateAsync(TEntity entity)
         {
             try
             {
                 entity.FechaActualizacion = DateTime.Now;
-                entity.SesionActualizacionId = sesionId;
 
                 _dbSet.Update(entity);
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation("Entidad {EntityType} actualizada correctamente con Id {Id}", typeof(TEntity).Name, entity.Id);
-                return OperationResult<TEntity>.Ok(entity, "Entidad actualizada exitosamente");
+                return OperationResult<TEntity>.Ok(entity, $"{typeof(TEntity).Name} actualizada exitosamente");
             }
             catch (Exception ex)
             {
@@ -59,20 +54,18 @@ namespace SchoolPoliApp.Persistence.Base
                 return OperationResult<TEntity>.Fail($"Error al actualizar: {ex.Message}");
             }
         }
-
-        public virtual async Task<OperationResult<TEntity>> DeleteAsync(TEntity entity, int? sesionId = null)
+        public virtual async Task<OperationResult<TEntity>> DeleteAsync(TEntity entity)
         {
             try
             {
                 entity.IsDeleted = true;
                 entity.FechaActualizacion = DateTime.Now;
-                entity.SesionActualizacionId = sesionId;
 
                 _dbSet.Update(entity);
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation("Entidad {EntityType} eliminada correctamente con Id {Id}", typeof(TEntity).Name, entity.Id);
-                return OperationResult<TEntity>.Ok(entity, "Entidad eliminada exitosamente");
+                return OperationResult<TEntity>.Ok(entity, $"{typeof(TEntity).Name} eliminada exitosamente");
             }
             catch (Exception ex)
             {
@@ -80,7 +73,6 @@ namespace SchoolPoliApp.Persistence.Base
                 return OperationResult<TEntity>.Fail($"Error al eliminar: {ex.Message}");
             }
         }
-
         public virtual async Task<OperationResult<TEntity>> GetByIdAsync(int id, bool includeDeleted = false)
         {
             try
@@ -98,7 +90,7 @@ namespace SchoolPoliApp.Persistence.Base
                 }
 
                 _logger.LogInformation("Entidad {EntityType} con Id {Id} obtenida correctamente", typeof(TEntity).Name, id);
-                return OperationResult<TEntity>.Ok(entity);
+                return OperationResult<TEntity>.Ok(entity,$"{typeof(TEntity).Name} con Id {id} obtenida correctamente.");
             }
             catch (Exception ex)
             {
@@ -106,7 +98,6 @@ namespace SchoolPoliApp.Persistence.Base
                 return OperationResult<TEntity>.Fail($"Error al obtener: {ex.Message}");
             }
         }
-
         public virtual async Task<OperationResult<List<TEntity>>> GetAllAsync(bool includeDeleted = false)
         {
             try
@@ -116,50 +107,12 @@ namespace SchoolPoliApp.Persistence.Base
                     .ToListAsync();
 
                 _logger.LogInformation("{Count} entidades {EntityType} obtenidas correctamente", entities.Count, typeof(TEntity).Name);
-                return OperationResult<List<TEntity>>.Ok(entities);
+                return OperationResult<List<TEntity>>.Ok(entities,$"{entities.Count} {typeof(TEntity).Name} obtenidas correctamente.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error obteniendo entidades {EntityType}", typeof(TEntity).Name);
                 return OperationResult<List<TEntity>>.Fail($"Error al obtener la lista: {ex.Message}");
-            }
-        }
-
-        public virtual async Task<OperationResult<List<TEntity>>> GetAllByAsync(Expression<Func<TEntity, bool>> filter, bool includeDeleted = false)
-        {
-            try
-            {
-                var entities = await _dbSet
-                    .Where(e => includeDeleted || !e.IsDeleted)
-                    .Where(filter)
-                    .ToListAsync();
-
-                _logger.LogInformation("{Count} entidades {EntityType} obtenidas correctamente con filtro", entities.Count, typeof(TEntity).Name);
-                return OperationResult<List<TEntity>>.Ok(entities);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error obteniendo entidades {EntityType} con filtro", typeof(TEntity).Name);
-                return OperationResult<List<TEntity>>.Fail($"Error obteniendo entidades {typeof(TEntity).Name}");
-            }
-        }
-
-        public virtual async Task<OperationResult<bool>> ExistsAsync(Expression<Func<TEntity, bool>> filter, bool includeDeleted = false)
-        {
-            try
-            {
-                var exists = await _dbSet
-                    .Where(e => includeDeleted || !e.IsDeleted)
-                    .Where(filter)
-                    .AnyAsync(filter);
-
-                _logger.LogInformation("Existencia de entidad {EntityType} verificada: {Exists}", typeof(TEntity).Name, exists);
-                return OperationResult<bool>.Ok(exists);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error verificando existencia de entidad {EntityType}", typeof(TEntity).Name);
-                return OperationResult<bool>.Fail($"Error verificando existencia de entidad {typeof(TEntity).Name}");
             }
         }
     }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Reservas;
+using SGHR.Domain.Validators.ConfigurationRules.Reservas;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Reservas;
 using System.Linq.Expressions;
@@ -13,20 +14,28 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
     {
         private readonly SGHRContext _context;
         private readonly ILogger<TarifaRepository> _logger;
+        private readonly TarifaValidator _tarifaValidator;
 
         public TarifaRepository(SGHRContext context,
+                                TarifaValidator tarifaValidator,
                                 ILogger<TarifaRepository> logger,
                                 ILogger<BaseRepository<Tarifa>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
+            _tarifaValidator = tarifaValidator;
         }
 
-        public override async Task<OperationResult<Tarifa>> SaveAsync(Tarifa entity, int? sesionId = null)
+        public override async Task<OperationResult<Tarifa>> SaveAsync(Tarifa entity)
         {
+            if (!_tarifaValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al guardar la Tarifa: {fail}", errorMessage);
+                return OperationResult<Tarifa>.Fail(errorMessage);
+            }
             try
             {
-                var result = await base.SaveAsync(entity, sesionId);
+                var result = await base.SaveAsync(entity);
                 _logger.LogInformation("Se guardó la tarifa con ID {Id}", result.Data?.Id);
                 return result;
             }
@@ -36,12 +45,16 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
                 return OperationResult<Tarifa>.Fail("Ocurrió un error al guardar la tarifa");
             }
         }
-
-        public override async Task<OperationResult<Tarifa>> UpdateAsync(Tarifa entity, int? sesionId = null)
+        public override async Task<OperationResult<Tarifa>> UpdateAsync(Tarifa entity)
         {
+            if (!_tarifaValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al actualizar la Tarifa: {fail}", errorMessage);
+                return OperationResult<Tarifa>.Fail(errorMessage);
+            }
             try
             {
-                var result = await base.UpdateAsync(entity, sesionId);
+                var result = await base.UpdateAsync(entity);
                 _logger.LogInformation("Se actualizó la tarifa con ID {Id}", result.Data?.Id);
                 return result;
             }
@@ -51,12 +64,11 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
                 return OperationResult<Tarifa>.Fail("Ocurrió un error al actualizar la tarifa");
             }
         }
-
-        public override async Task<OperationResult<Tarifa>> DeleteAsync(Tarifa entity, int? sesionId = null)
+        public override async Task<OperationResult<Tarifa>> DeleteAsync(Tarifa entity)
         {
             try
             {
-                var result = await base.DeleteAsync(entity, sesionId);
+                var result = await base.DeleteAsync(entity);
                 _logger.LogInformation("Se eliminó la tarifa con ID {Id}", entity.Id);
                 return result;
             }
@@ -66,8 +78,6 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
                 return OperationResult<Tarifa>.Fail("Ocurrió un error al eliminar la tarifa");
             }
         }
-
-
         public async Task<OperationResult<List<Tarifa>>> GetByCategoriaAsync(int idCategoria)
         {
             try
@@ -85,7 +95,6 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
                 return OperationResult<List<Tarifa>>.Fail("Ocurrió un error al obtener las tarifas");
             }
         }
-
         public async Task<OperationResult<Tarifa>> GetByCategoriaAndTemporadaAsync(int idCategoria, string temporada)
         {
             try
@@ -108,7 +117,6 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
                 return OperationResult<Tarifa>.Fail("Ocurrió un error al obtener la tarifa");
             }
         }
-
         public async Task<OperationResult<List<Tarifa>>> GetByTemporadaAsync(string temporada)
         {
             try
@@ -127,26 +135,5 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             }
         }
 
-        public override async Task<OperationResult<bool>> ExistsAsync(Expression<Func<Tarifa, bool>> filter, bool includeDeleted = false)
-        {
-            try
-            {
-                var result = await base.ExistsAsync(filter, includeDeleted);
-                if (!result.Success)
-                {
-                    _logger.LogWarning("No se pudo confirmar la existencia de la tarifa.");
-                    return result;
-                }
-
-                _logger.LogInformation("Se verifico que la tarifa exite correctamente.");
-                return result;
-
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex,"Error al verificar existencia de la tarifa.");
-                return OperationResult<bool>.Fail("Ocurrio un error al verificar la existencia de la tarifa.");
-            }
-        }
     }
 }

@@ -5,8 +5,8 @@ using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Enum.Usuario;
 using SGHR.Domain.Repository;
+using SGHR.Domain.Validators.ConfigurationRules.Users;
 using SGHR.Persistence.Contex;
-using System.Linq.Expressions;
 
 
 namespace SGHR.Persistence.Repositories.EF.Users
@@ -15,21 +15,30 @@ namespace SGHR.Persistence.Repositories.EF.Users
     {
         private readonly SGHRContext _context;
         private readonly ILogger<UsuarioRepository> _logger;
+        private readonly UsuarioValidator _usuarioValidator;
 
         public UsuarioRepository(SGHRContext context,
+                                 UsuarioValidator usuarioValidator,
                                  ILogger<UsuarioRepository>logger,
                                  ILogger<BaseRepository<Usuario>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
+            _usuarioValidator = usuarioValidator;
 
         }
 
-        public override async Task<OperationResult<Usuario>> SaveAsync(Usuario entity, int? sesionId = null)
+        public override async Task<OperationResult<Usuario>> SaveAsync(Usuario entity)
         {
+            if (!_usuarioValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al guardar Usuario: {fail}", errorMessage);
+                return OperationResult<Usuario>.Fail(errorMessage);
+            }
+
             try
             {
-                var result = await base.SaveAsync(entity, sesionId);
+                var result = await base.SaveAsync(entity);
                 if (result.Success)
                     _logger.LogInformation("Usuario {Nombre} creado correctamente.", entity.Nombre);
 
@@ -41,12 +50,17 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<Usuario>.Fail("Ocurrió un error al guardar el usuario.");
             }
         }
-
-        public override async Task<OperationResult<Usuario>> UpdateAsync(Usuario entity, int? sesionId = null)
+        public override async Task<OperationResult<Usuario>> UpdateAsync(Usuario entity)
         {
+            if (!_usuarioValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al acualizar Usuario: {fail}", errorMessage);
+                return OperationResult<Usuario>.Fail(errorMessage);
+            }
+
             try
             {
-                var result = await base.UpdateAsync(entity, sesionId);
+                var result = await base.UpdateAsync(entity);
                 if (result.Success)
                     _logger.LogInformation("Usuario {Nombre} actualizado correctamente.", entity.Nombre);
 
@@ -58,12 +72,11 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<Usuario>.Fail("Ocurrió un error al actualizar el usuario.");
             }
         }
-
-        public override async Task<OperationResult<Usuario>> DeleteAsync(Usuario entity, int? sesionId = null)
+        public override async Task<OperationResult<Usuario>> DeleteAsync(Usuario entity)
         {
             try
             {
-                var result = await base.DeleteAsync(entity, sesionId);
+                var result = await base.DeleteAsync(entity);
                 if (result.Success)
                     _logger.LogInformation("Usuario {Nombre} eliminado correctamente.", entity.Nombre);
 
@@ -75,7 +88,6 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<Usuario>.Fail("Ocurrió un error al eliminar el usuario.");
             }
         }
-
         public override async Task<OperationResult<Usuario>> GetByIdAsync(int id, bool includeDeleted = false)
         {
             try
@@ -92,7 +104,6 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<Usuario>.Fail("Ocurrió un error al obtener el usuario.");
             }
         }
-
         public override async Task<OperationResult<List<Usuario>>> GetAllAsync(bool includeDeleted = false)
         {
             try
@@ -109,41 +120,6 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<List<Usuario>>.Fail("Ocurrió un error al obtener los usuarios.");
             }
         }
-
-        public override async Task<OperationResult<List<Usuario>>> GetAllByAsync(
-            Expression<Func<Usuario, bool>> filter, bool includeDeleted = false)
-        {
-            try
-            {
-                var result = await base.GetAllByAsync(filter);
-                if (result.Success)
-                    _logger.LogInformation("Usuarios filtrados obtenidos correctamente, total: {Count}", result.Data.Count);
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error obteniendo usuarios filtrados");
-                return OperationResult<List<Usuario>>.Fail("Ocurrió un error al obtener los usuarios filtrados.");
-            }
-        }
-
-        public override async Task<OperationResult<bool>> ExistsAsync(
-            Expression<Func<Usuario, bool>> filter, bool includeDeleted = false)
-        {
-            try
-            {
-                var result = await base.ExistsAsync(filter, includeDeleted);
-                _logger.LogInformation("Comprobación de existencia realizada, resultado: {Exists}", result.Data);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error comprobando existencia de usuario");
-                return OperationResult<bool>.Fail("Ocurrió un error al comprobar la existencia del usuario.");
-            }
-        }
-
         public async Task<OperationResult<Usuario>> GetByCorreoAsync(string correo)
         {
             try
@@ -166,7 +142,6 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<Usuario>.Fail("Ocurrió un error al obtener el usuario");
             }
         }
-
         public async Task<OperationResult<List<Usuario>>> GetByRolAsync(string rol)
         {
             try
@@ -184,7 +159,6 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<List<Usuario>>.Fail("Ocurrió un error al obtener los usuarios");
             }
         }
-
         public async Task<OperationResult<List<Usuario>>> GetActivosAsync()
         {
             try

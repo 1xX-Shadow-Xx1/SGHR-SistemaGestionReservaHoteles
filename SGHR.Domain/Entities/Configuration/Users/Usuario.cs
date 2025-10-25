@@ -1,5 +1,6 @@
 ﻿using SGHR.Domain.Base;
 using SGHR.Domain.Enum.Usuario;
+using SGHR.Domain.Enum.Usuarios;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SGHR.Domain.Entities.Configuration.Usuers
@@ -14,9 +15,9 @@ namespace SGHR.Domain.Entities.Configuration.Usuers
         [Column("contraseña")]
         public string Contraseña { get; set; }
         [Column("rol")]
-        public string Rol { get; set; }
+        public RolUsuarios Rol { get; set; } = RolUsuarios.Cliente;
         [Column("estado")]
-        public EstadoUsuario Estado { get; set; } = EstadoUsuario.Activo;
+        public EstadoUsuario Estado { get; set; } = EstadoUsuario.Inactivo;
 
     }
 }

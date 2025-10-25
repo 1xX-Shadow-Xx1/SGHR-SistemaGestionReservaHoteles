@@ -104,7 +104,7 @@ namespace SGHR.Api.Controllers.Usuarios
 
         // POST api/<UsuarioController>
         [HttpPost("create-Usuario")]
-        public async Task<IActionResult> Post([FromBody] UsuarioCreateDto createUsuarioDto, int? idsesion = null)
+        public async Task<IActionResult> Post([FromBody] CreateUsuarioDto createUsuarioDto, int? idsesion = null)
         {
             ServiceResult result = await _usuarioService.CreateAsync(createUsuarioDto, idsesion);
             if (!result.Success)
@@ -116,7 +116,7 @@ namespace SGHR.Api.Controllers.Usuarios
 
         // PUT api/<UsuarioController>/5
         [HttpPut("update-Usuario")]
-        public async Task<IActionResult> Put([FromBody] UsuarioUpdateDto updateUsuarioDto, int? idsesion = null)
+        public async Task<IActionResult> Put([FromBody] UpdateUsuarioDto updateUsuarioDto, int? idsesion = null)
         {
             ServiceResult result = await _usuarioService.UpdateAsync(updateUsuarioDto, idsesion);
             if (!result.Success)

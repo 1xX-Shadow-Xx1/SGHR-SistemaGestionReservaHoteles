@@ -15,4 +15,11 @@
 		<ProjectReference Include="..\SGHR.Persistence\SGHR.Persistence.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Services\Habitaciones\" />
+	  <Folder Include="Services\Operaciones\" />
+	  <Folder Include="Services\Reservas\" />
+	  <Folder Include="Services\Usuarios\" />
+	</ItemGroup>
+
 </Project>

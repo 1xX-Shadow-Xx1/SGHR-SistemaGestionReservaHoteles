@@ -4,6 +4,7 @@ using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
 using SGHR.Domain.Enum.Operaciones;
+using SGHR.Domain.Validators.ConfigurationRules.Operaciones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Operaciones;
 
@@ -13,19 +14,28 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
     {
         private readonly SGHRContext _context;
         private readonly ILogger<MantenimientoRepository> _logger;
+        private readonly MantenimientoValidator _mantenimientoValidator;
 
         public MantenimientoRepository(SGHRContext context,
+                                       MantenimientoValidator validation,
                                        ILogger<MantenimientoRepository> logger,
                                        ILogger<BaseRepository<Mantenimiento>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
+            _mantenimientoValidator = validation;
+
         }
 
-        public override async Task<OperationResult<Mantenimiento>> SaveAsync(Mantenimiento entity, int? sesionId = null)
+        public override async Task<OperationResult<Mantenimiento>> SaveAsync(Mantenimiento entity)
         {
-            entity.SesionCreacionId = sesionId;
-            var result = await base.SaveAsync(entity, sesionId);
+            if (!_mantenimientoValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al guardar el Mantenimiento: {fail}", errorMessage);
+                return OperationResult<Mantenimiento>.Fail(errorMessage);
+            }
+
+            var result = await base.SaveAsync(entity);
 
             if (result.Success)
                 _logger.LogInformation("Mantenimiento {Id} creado correctamente", result.Data.Id);
@@ -34,12 +44,15 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
             return result;
         }
-
-
-        public override async Task<OperationResult<Mantenimiento>> UpdateAsync(Mantenimiento entity, int? sesionId = null)
+        public override async Task<OperationResult<Mantenimiento>> UpdateAsync(Mantenimiento entity)
         {
-            entity.SesionActualizacionId = sesionId;
-            var result = await base.UpdateAsync(entity, sesionId);
+            if (!_mantenimientoValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al actualizar el Mantenimiento: {fail}", errorMessage);
+                return OperationResult<Mantenimiento>.Fail(errorMessage);
+            }
+
+            var result = await base.UpdateAsync(entity);
 
             if (result.Success)
                 _logger.LogInformation("Mantenimiento {Id} actualizado correctamente", result.Data.Id);
@@ -48,11 +61,9 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
             return result;
         }
-
-
-        public override async Task<OperationResult<Mantenimiento>> DeleteAsync(Mantenimiento entity, int? sesionId = null)
+        public override async Task<OperationResult<Mantenimiento>> DeleteAsync(Mantenimiento entity)
         {
-            var result = await base.DeleteAsync(entity, sesionId);
+            var result = await base.DeleteAsync(entity);
 
             if (result.Success)
                 _logger.LogInformation("Mantenimiento {Id} eliminado correctamente", entity.Id);
@@ -61,7 +72,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
             return result;
         }
-
         public async Task<OperationResult<List<Mantenimiento>>> GetActiveMaintenancesAsync()
         {
             try
@@ -80,8 +90,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
                 return OperationResult<List<Mantenimiento>>.Fail("Ocurrió un error al obtener los mantenimientos activos");
             }
         }
-
-
         public async Task<OperationResult<List<Mantenimiento>>> GetByHabitacionAsync(int idHabitacion)
         {
             try
@@ -100,7 +108,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
                 return OperationResult<List<Mantenimiento>>.Fail("Ocurrió un error al obtener los mantenimientos");
             }
         }
-
         public async Task<OperationResult<List<Mantenimiento>>> GetByPisoAsync(int idPiso)
         {
             try

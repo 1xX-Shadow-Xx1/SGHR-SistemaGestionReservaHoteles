@@ -2,9 +2,11 @@
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
+using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Enum.Reservas;
 using SGHR.Domain.Repository;
+using SGHR.Domain.Validators.ConfigurationRules.Reservas;
 using SGHR.Persistence.Contex;
 
 
@@ -14,20 +16,29 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
     {
         private readonly SGHRContext _context;
         private readonly ILogger<ReservaRepository> _logger;
+        private readonly ReservaValidator _validator;
 
         public ReservaRepository(SGHRContext context,
+                                 ReservaValidator validator,
                                  ILogger<ReservaRepository> logger,
                                  ILogger<BaseRepository<Reserva>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
+            _validator = validator;
         }
 
-        public override async Task<OperationResult<Reserva>> SaveAsync(Reserva entity, int? sesionId = null)
+        public override async Task<OperationResult<Reserva>> SaveAsync(Reserva entity)
         {
+            if (!_validator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al guardar la Reserva: {fail}", errorMessage);
+                return OperationResult<Reserva>.Fail(errorMessage);
+            }
+
             try
             {
-                var result = await base.SaveAsync(entity, sesionId);
+                var result = await base.SaveAsync(entity);
                 _logger.LogInformation("Reserva del cliente {ClienteId} guardada exitosamente", entity.IdCliente);
                 return result;
             }
@@ -37,13 +48,17 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
                 return OperationResult<Reserva>.Fail("Error guardando la reserva");
             }
         }
-
-
-        public override async Task<OperationResult<Reserva>> UpdateAsync(Reserva entity, int? sesionId = null)
+        public override async Task<OperationResult<Reserva>> UpdateAsync(Reserva entity)
         {
+            if (!_validator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al actualizar la Reserva: {fail}", errorMessage);
+                return OperationResult<Reserva>.Fail(errorMessage);
+            }
+
             try
             {
-                var result = await base.UpdateAsync(entity, sesionId);
+                var result = await base.UpdateAsync(entity);
                 _logger.LogInformation("Reserva del cliente {ClienteId} actualizada exitosamente", entity.IdCliente);
                 return result;
             }
@@ -53,12 +68,11 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
                 return OperationResult<Reserva>.Fail("Error actualizando la reserva");
             }
         }
-
-        public override async Task<OperationResult<Reserva>> DeleteAsync(Reserva entity, int? sesionId = null)
+        public override async Task<OperationResult<Reserva>> DeleteAsync(Reserva entity)
         {
             try
             {
-                var result = await base.DeleteAsync(entity, sesionId);
+                var result = await base.DeleteAsync(entity);
                 _logger.LogInformation("Reserva del cliente {ClienteId} eliminada exitosamente", entity.IdCliente);
                 return result;
             }
@@ -68,8 +82,6 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
                 return OperationResult<Reserva>.Fail("Error eliminando la reserva");
             }
         }
-
-
         public async Task<OperationResult<List<Reserva>>> GetActiveReservationsAsync()
         {
             try
@@ -87,7 +99,6 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
                 return OperationResult<List<Reserva>>.Fail("Error obteniendo reservas activas");
             }
         }
-
         public async Task<OperationResult<List<Reserva>>> GetByClienteAsync(int idCliente)
         {
             try
@@ -105,7 +116,6 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
                 return OperationResult<List<Reserva>>.Fail("Error obteniendo reservas del cliente");
             }
         }
-
         public async Task<OperationResult<List<Reserva>>> GetByHabitacionAsync(int idHabitacion)
         {
             try

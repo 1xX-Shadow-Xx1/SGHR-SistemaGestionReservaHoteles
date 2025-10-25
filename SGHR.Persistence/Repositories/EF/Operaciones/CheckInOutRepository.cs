@@ -4,7 +4,8 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
-using SGHR.Domain.Entities.Configuration.Reservas;
+using SGHR.Domain.Entities.Configuration.Reportes;
+using SGHR.Domain.Validators.ConfigurationRules.Operaciones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Operaciones;
 
@@ -14,21 +15,29 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
     {
         private readonly SGHRContext _context;
         private readonly ILogger<CheckInOutRepository> _logger;
+        private readonly CheckInOutValidator _checkInOutValidator;
 
         public CheckInOutRepository(SGHRContext context,
+                                    CheckInOutValidator checkInOutValidator,
                                     ILogger<CheckInOutRepository> logger,
                                     ILogger<BaseRepository<CheckInOut>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
+            _checkInOutValidator = checkInOutValidator;
         }
 
-        public override async Task<OperationResult<CheckInOut>> SaveAsync(CheckInOut entity, int? sesionId = null)
+        public override async Task<OperationResult<CheckInOut>> SaveAsync(CheckInOut entity)
         {
+            if (!_checkInOutValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al guardar el CheckInOut: {fail}", errorMessage);
+                return OperationResult<CheckInOut>.Fail(errorMessage);
+            }
+
             try
             {
-                entity.SesionCreacionId = sesionId;
-                var result = await base.SaveAsync(entity, sesionId);
+                var result = await base.SaveAsync(entity);
                 _logger.LogInformation("CheckInOut creado con Id {Id}", entity.Id);
                 return result;
             }
@@ -38,13 +47,17 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
                 return OperationResult<CheckInOut>.Fail("Ocurrió un error al crear el registro");
             }
         }
-
-        public override async Task<OperationResult<CheckInOut>> UpdateAsync(CheckInOut entity, int? sesionId = null)
+        public override async Task<OperationResult<CheckInOut>> UpdateAsync(CheckInOut entity)
         {
+            if (!_checkInOutValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al actualizar el CheckInOut: {fail}", errorMessage);
+                return OperationResult<CheckInOut>.Fail(errorMessage);
+            }
+
             try
             {
-                entity.SesionActualizacionId = sesionId;
-                var result = await base.UpdateAsync(entity, sesionId);
+                var result = await base.UpdateAsync(entity);
                 _logger.LogInformation("CheckInOut actualizado con Id {Id}", entity.Id);
                 return result;
             }
@@ -54,13 +67,11 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
                 return OperationResult<CheckInOut>.Fail("Ocurrió un error al actualizar el registro");
             }
         }
-
-        public override async Task<OperationResult<CheckInOut>> DeleteAsync(CheckInOut entity, int? sesionId = null)
+        public override async Task<OperationResult<CheckInOut>> DeleteAsync(CheckInOut entity)
         {
             try
             {
-                entity.SesionActualizacionId = sesionId;
-                var result = await base.DeleteAsync(entity, sesionId);
+                var result = await base.DeleteAsync(entity);
                 _logger.LogInformation("CheckInOut eliminado con Id {Id}", entity.Id);
                 return result;
             }
@@ -70,7 +81,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
                 return OperationResult<CheckInOut>.Fail("Ocurrió un error al eliminar el registro");
             }
         }
-
         public async Task<OperationResult<CheckInOut>> GetByReservaAsync(int idReserva)
         {
             try
@@ -93,7 +103,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
                 return OperationResult<CheckInOut>.Fail("Ocurrió un error al obtener CheckInOut");
             }
         }
-
         public async Task<OperationResult<List<CheckInOut>>> GetByFechaAsync(DateTime fecha)
         {
             try
@@ -111,7 +120,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
                 return OperationResult<List<CheckInOut>>.Fail("Ocurrió un error al obtener CheckInOut");
             }
         }
-
         public async Task<OperationResult<List<CheckInOut>>> GetCheckInsPendientesAsync()
         {
             try
@@ -129,7 +137,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
                 return OperationResult<List<CheckInOut>>.Fail("Ocurrió un error al obtener CheckIns pendientes");
             }
         }
-
         public async Task<OperationResult<List<CheckInOut>>> GetByDateRangeAsync(DateTime inicio, DateTime fin)
         {
             try

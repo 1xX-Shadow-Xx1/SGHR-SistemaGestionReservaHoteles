@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
+using SGHR.Domain.Validators.ConfigurationRules.Operaciones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Operaciones;
 using System.Linq.Expressions;
@@ -13,19 +14,28 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
     {
         private readonly SGHRContext _context;
         private readonly ILogger<AuditoryRepository> _logger;
+        private readonly AuditoryValidator _auditoryValidator;
 
         public AuditoryRepository(SGHRContext context,
+                                  AuditoryValidator auditoryValidator,
                                   ILogger<AuditoryRepository> logger,
                                   ILogger<BaseRepository<Auditory>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
+            _auditoryValidator = auditoryValidator;
 
         }
 
-        public override async Task<OperationResult<Auditory>> SaveAsync(Auditory entity, int? sesionId = null)
+        public override async Task<OperationResult<Auditory>> SaveAsync(Auditory entity)
         {
-            var result = await base.SaveAsync(entity, sesionId);
+            if (!_auditoryValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al guardar el Auditorio: {fail}", errorMessage);
+                return OperationResult<Auditory>.Fail(errorMessage);
+            }
+
+            var result = await base.SaveAsync(entity);
 
             if (result.Success)
                 _logger.LogInformation("Auditoría creada correctamente (ID {Id}, Operación {Operacion})", result.Data?.Id, entity.Operacion);
@@ -34,10 +44,15 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
             return result;
         }
-
-        public override async Task<OperationResult<Auditory>> UpdateAsync(Auditory entity, int? sesionId = null)
+        public override async Task<OperationResult<Auditory>> UpdateAsync(Auditory entity)
         {
-            var result = await base.UpdateAsync(entity, sesionId);
+            if (!_auditoryValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al actualizar el Auditorio: {fail}", errorMessage);
+                return OperationResult<Auditory>.Fail(errorMessage);
+            }
+
+            var result = await base.UpdateAsync(entity);
 
             if (result.Success)
                 _logger.LogInformation("Auditoría actualizada correctamente (ID {Id})", result.Data?.Id);
@@ -46,10 +61,9 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
             return result;
         }
-
-        public override async Task<OperationResult<Auditory>> DeleteAsync(Auditory entity, int? sesionId = null)
+        public override async Task<OperationResult<Auditory>> DeleteAsync(Auditory entity)
         {
-            var result = await base.DeleteAsync(entity, sesionId);
+            var result = await base.DeleteAsync(entity);
 
             if (result.Success)
                 _logger.LogInformation("Auditoría marcada como eliminada (ID {Id})", result.Data?.Id);
@@ -58,7 +72,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
             return result;
         }
-
         public override async Task<OperationResult<Auditory>> GetByIdAsync(int id, bool includeDeleted = false)
         {
             var result = await base.GetByIdAsync(id, includeDeleted);
@@ -70,7 +83,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
             return result;
         }
-
         public override async Task<OperationResult<List<Auditory>>> GetAllAsync(bool includeDeleted = false)
         {
             var result = await base.GetAllAsync(includeDeleted);
@@ -82,33 +94,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
             return result;
         }
-
-        public override async Task<OperationResult<List<Auditory>>> GetAllByAsync(
-            Expression<Func<Auditory, bool>> filter, bool includeDeleted = false)
-        {
-            var result = await base.GetAllByAsync(filter, includeDeleted);
-
-            if (result.Success)
-                _logger.LogInformation("Auditorías filtradas obtenidas. Count={Count}", result.Data?.Count ?? 0);
-            else
-                _logger.LogWarning("Error obteniendo auditorías filtradas.");
-
-            return result;
-        }
-
-        public override async Task<OperationResult<bool>> ExistsAsync(
-            Expression<Func<Auditory, bool>> filter, bool includeDeleted = false)
-        {
-            var result = await base.ExistsAsync(filter, includeDeleted);
-
-            if (result.Success)
-                _logger.LogInformation("Verificación existencia auditoría: {Exists}", result.Data);
-            else
-                _logger.LogWarning("Error verificando existencia de auditoría.");
-
-            return result;
-        }
-
         public async Task<OperationResult<List<Auditory>>> GetByFechaAsync(DateTime fechaInicio, DateTime fechaFin)
         {
             try
@@ -132,7 +117,6 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
                 return OperationResult<List<Auditory>>.Fail("Ocurrió un error al obtener las auditorías por rango de fechas");
             }
         }
-
         public async Task<OperationResult<List<Auditory>>> GetBySesionAsync(int sesionId)
         {
             try

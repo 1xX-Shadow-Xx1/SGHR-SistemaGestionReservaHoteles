@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
+using SGHR.Domain.Validators.ConfigurationRules.Habitaciones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Habitaciones;
 
@@ -12,21 +13,30 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
     {
         private readonly SGHRContext _context;
         private readonly ILogger<PisoRepository> _logger;
+        private readonly PisoValidator _validator;
 
 
         public PisoRepository(SGHRContext context,
+                              PisoValidator pisoValidator,
                               ILogger<PisoRepository> logger,
                               ILogger<BaseRepository<Piso>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
+            _validator = pisoValidator;
 
         }
 
-        public override async Task<OperationResult<Piso>> SaveAsync(Piso entity, int? sesionId = null)
+        public override async Task<OperationResult<Piso>> SaveAsync(Piso entity)
         {
+            if (!_validator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al guardar el Piso: {fail}", errorMessage);
+                return OperationResult<Piso>.Fail(errorMessage);
+            }
+
             _logger.LogInformation("Guardando un nuevo piso: {@Piso}", entity);
-            var result = await base.SaveAsync(entity, sesionId);
+            var result = await base.SaveAsync(entity);
 
             if (result.Success)
                 _logger.LogInformation("Piso guardado exitosamente con ID {Id}", result.Data.Id);
@@ -35,11 +45,16 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
             return result;
         }
-
-        public override async Task<OperationResult<Piso>> UpdateAsync(Piso entity, int? sesionId = null)
+        public override async Task<OperationResult<Piso>> UpdateAsync(Piso entity)
         {
+            if (!_validator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al actualizar el Piso: {fail}", errorMessage);
+                return OperationResult<Piso>.Fail(errorMessage);
+            }
+
             _logger.LogInformation("Actualizando piso con ID {Id}", entity.Id);
-            var result = await base.UpdateAsync(entity, sesionId);
+            var result = await base.UpdateAsync(entity);
 
             if (result.Success)
                 _logger.LogInformation("Piso actualizado correctamente con ID {Id}", result.Data.Id);
@@ -48,11 +63,10 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
             return result;
         }
-
-        public override async Task<OperationResult<Piso>> DeleteAsync(Piso entity, int? sesionId = null)
+        public override async Task<OperationResult<Piso>> DeleteAsync(Piso entity)
         {
             _logger.LogInformation("Eliminando piso con ID {Id}", entity.Id);
-            var result = await base.DeleteAsync(entity, sesionId);
+            var result = await base.DeleteAsync(entity);
 
             if (result.Success)
                 _logger.LogInformation("Piso eliminado exitosamente con ID {Id}", result.Data.Id);
@@ -61,7 +75,6 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
             return result;
         }
-
         public override async Task<OperationResult<Piso>> GetByIdAsync(int id, bool includeDeleted = false)
         {
             _logger.LogInformation("Obteniendo piso por ID {Id}", id);
@@ -74,7 +87,6 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
             return result;
         }
-
         public override async Task<OperationResult<List<Piso>>> GetAllAsync(bool includeDeleted = false)
         {
             _logger.LogInformation("Obteniendo todos los pisos (includeDeleted={Include})", includeDeleted);
@@ -83,25 +95,6 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             _logger.LogInformation("Se obtuvieron {Count} pisos", result.Data?.Count ?? 0);
             return result;
         }
-
-        public override async Task<OperationResult<List<Piso>>> GetAllByAsync(System.Linq.Expressions.Expression<Func<Piso, bool>> filter, bool includeDeleted = false)
-        {
-            _logger.LogInformation("Obteniendo pisos con un filtro aplicado (includeDeleted={Include})", includeDeleted);
-            var result = await base.GetAllByAsync(filter, includeDeleted);
-
-            _logger.LogInformation("Se obtuvieron {Count} pisos filtrados", result.Data?.Count ?? 0);
-            return result;
-        }
-
-        public override async Task<OperationResult<bool>> ExistsAsync(System.Linq.Expressions.Expression<Func<Piso, bool>> filter, bool includeDeleted = false)
-        {
-            _logger.LogInformation("Verificando existencia de pisos con un filtro aplicado");
-            var result = await base.ExistsAsync(filter, includeDeleted);
-
-            _logger.LogInformation("Resultado de existencia: {Exists}", result.Data);
-            return result;
-        }
-
         public async Task<OperationResult<Piso>> GetByNumeroPisoAsync(int numeroPiso)
         {
             try

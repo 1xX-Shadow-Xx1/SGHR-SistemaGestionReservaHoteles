@@ -5,6 +5,7 @@ using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Enum.Habitacion;
 using SGHR.Domain.Repository;
+using SGHR.Domain.Validators.ConfigurationRules.Habitaciones;
 using SGHR.Persistence.Contex;
 
 namespace SGHR.Persistence.Repositories.EF.Habitaciones
@@ -13,19 +14,28 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
     {
         private readonly SGHRContext _context;
         private readonly ILogger<HabitacionRepository> _logger;
+        private readonly HabitacionValidator _habitacionValidator;
 
         public HabitacionRepository(SGHRContext context,
+                                    HabitacionValidator habitacionValidator,
                                     ILogger<HabitacionRepository> logger,
                                     ILogger<BaseRepository<Habitacion>> loggerBase) : base(context, loggerBase)
         {
             _context = context;
             _logger = logger;
+            _habitacionValidator = habitacionValidator;
+
         }
 
-        public override async Task<OperationResult<Habitacion>> SaveAsync(Habitacion entity, int? sesionId = null)
+        public override async Task<OperationResult<Habitacion>> SaveAsync(Habitacion entity)
         {
+            if (!_habitacionValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al guardar la Habitacion: {fail}", errorMessage);
+                return OperationResult<Habitacion>.Fail(errorMessage);
+            }
             _logger.LogInformation("Guardando nueva habitación...");
-            var result = await base.SaveAsync(entity, sesionId);
+            var result = await base.SaveAsync(entity);
 
             if (result.Success)
                 _logger.LogInformation("Habitación guardada correctamente con Id {Id}", entity.Id);
@@ -34,11 +44,16 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
             return result;
         }
-
-        public override async Task<OperationResult<Habitacion>> UpdateAsync(Habitacion entity, int? sesionId = null)
+        public override async Task<OperationResult<Habitacion>> UpdateAsync(Habitacion entity)
         {
+            if (!_habitacionValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al actualizar la Habitacion: {fail}", errorMessage);
+                return OperationResult<Habitacion>.Fail(errorMessage);
+            }
+
             _logger.LogInformation("Actualizando habitación con Id {Id}", entity.Id);
-            var result = await base.UpdateAsync(entity, sesionId);
+            var result = await base.UpdateAsync(entity);
 
             if (result.Success)
                 _logger.LogInformation("Habitación actualizada correctamente con Id {Id}", entity.Id);
@@ -47,11 +62,10 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
             return result;
         }
-
-        public override async Task<OperationResult<Habitacion>> DeleteAsync(Habitacion entity, int? sesionId = null)
+        public override async Task<OperationResult<Habitacion>> DeleteAsync(Habitacion entity)
         {
             _logger.LogInformation("Eliminando habitación con Id {Id}", entity.Id);
-            var result = await base.DeleteAsync(entity, sesionId);
+            var result = await base.DeleteAsync(entity);
 
             if (result.Success)
                 _logger.LogInformation("Habitación eliminada correctamente con Id {Id}", entity.Id);
@@ -60,35 +74,16 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
             return result;
         }
-
         public override async Task<OperationResult<Habitacion>> GetByIdAsync(int id, bool includeDeleted = false)
         {
             _logger.LogInformation("Obteniendo habitación por Id {Id}", id);
             return await base.GetByIdAsync(id, includeDeleted);
         }
-
         public override async Task<OperationResult<List<Habitacion>>> GetAllAsync(bool includeDeleted = false)
         {
             _logger.LogInformation("Obteniendo todas las habitaciones (includeDeleted = {IncludeDeleted})", includeDeleted);
             return await base.GetAllAsync(includeDeleted);
         }
-
-        public override async Task<OperationResult<List<Habitacion>>> GetAllByAsync(
-            System.Linq.Expressions.Expression<Func<Habitacion, bool>> filter,
-            bool includeDeleted = false)
-        {
-            _logger.LogInformation("Obteniendo habitaciones por filtro (includeDeleted = {IncludeDeleted})", includeDeleted);
-            return await base.GetAllByAsync(filter, includeDeleted);
-        }
-
-        public override async Task<OperationResult<bool>> ExistsAsync(
-            System.Linq.Expressions.Expression<Func<Habitacion, bool>> filter,
-            bool includeDeleted = false)
-        {
-            _logger.LogInformation("Verificando existencia de habitación con filtro (includeDeleted = {IncludeDeleted})", includeDeleted);
-            return await base.ExistsAsync(filter, includeDeleted);
-        }
-
         public async Task<OperationResult<List<Habitacion>>> GetAvailableAsync(DateTime fechaInicio, DateTime fechaFin)
         {
             try
@@ -115,8 +110,6 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
                 return OperationResult<List<Habitacion>>.Fail("Ocurrió un error al obtener las habitaciones disponibles");
             }
         }
-
-
         public async Task<OperationResult<List<Habitacion>>> GetByCategoriaAsync(int idCategoria, bool includeDeleted = false)
         {
             try
@@ -137,8 +130,6 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
                 return OperationResult<List<Habitacion>>.Fail("Ocurrió un error al obtener las habitaciones por categoría");
             }
         }
-
-
         public async Task<OperationResult<List<Habitacion>>> GetByPisoAsync(int idPiso, bool includeDeleted = false)
         {
             try
