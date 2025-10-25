@@ -31,7 +31,8 @@ namespace SGHR.Application.Services
                 var existUser = await _usuarioRepository.GetByCorreoAsync(createUsuarioDto.Correo);
                 if (existUser.Success)
                 {
-                    throw new InvalidDataException("Ya existe un usuario con ese correo.");
+                    result.Message = ("No se a encontrado el usuario.");
+                    return result;
                 }
                 if (!existUser.Success)
                 {
@@ -79,7 +80,8 @@ namespace SGHR.Application.Services
                 var existUser = await _usuarioRepository.GetByCorreoAsync(correo);
                 if (!existUser.Success)
                 {
-                    throw new InvalidDataException("No se a registrado el usuario.");
+                    result.Message = ("No se a encontrado el usuario.");
+                    return result;
                 }
 
                 if (existUser.Success)
@@ -138,7 +140,8 @@ namespace SGHR.Application.Services
                 var existUser = await _usuarioRepository.GetByIdAsync(idusuario);
                 if (!existUser.Success)
                 {
-                    throw new InvalidDataException("No se a registrado el usuario.");
+                    result.Message = ("No se a encontrado el usuario.");
+                    return result;
                 }
 
                 if (existUser.Success)
