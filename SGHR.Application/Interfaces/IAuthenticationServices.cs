@@ -7,6 +7,6 @@ namespace SGHR.Application.Interfaces
     {
         Task<ServiceResult> LoginSesionAsync(string correo, string password);
         Task<ServiceResult> CloseSerionAsync(int idusuario);
-        Task<ServiceResult> RegistrarUsuario(CreateUsuarioDto createUsuarioDto);
+        Task<ServiceResult> RegistrarUsuarioAsync(CreateUsuarioDto createUsuarioDto);
     }
 }

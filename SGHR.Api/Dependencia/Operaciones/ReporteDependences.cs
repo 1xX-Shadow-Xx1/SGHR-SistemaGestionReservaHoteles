@@ -9,7 +9,7 @@ namespace SGHR.Api.Dependencia.Operaciones
     {
         public static IServiceCollection AddReporteDependences(this IServiceCollection services)
         {
-            services.AddScoped<IReporteService, ReporteService>();
+            services.AddScoped<IReporteServices, ReporteServices>();
             services.AddScoped<IReporteRepository, ReporteRepository>();
 
             return services;

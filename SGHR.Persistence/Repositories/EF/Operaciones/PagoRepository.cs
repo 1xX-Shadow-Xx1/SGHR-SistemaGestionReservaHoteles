@@ -3,12 +3,9 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
-using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Validators.ConfigurationRules.Operaciones;
-using SGHR.Domain.Validators.Reservas;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Reportes;
-using System.Linq.Expressions;
 
 namespace SGHR.Persistence.Repositories.EF.Operaciones
 {

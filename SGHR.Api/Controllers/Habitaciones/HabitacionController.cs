@@ -11,8 +11,8 @@ namespace SGHR.Api.Controllers.Habitaciones
     [ApiController]
     public class HabitacionController : ControllerBase
     {
-        public readonly IHabitacionService _habitacionService;
-        public HabitacionController(IHabitacionService habitacionService)
+        public readonly IHabitacionServices _habitacionService;
+        public HabitacionController(IHabitacionServices habitacionService)
         {
             _habitacionService = habitacionService;
         }
@@ -43,9 +43,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // POST api/<HabitacionController>
         [HttpPost("Create-Habitacion")]
-        public async Task<IActionResult> PostAsync([FromBody] CreateHabitacionDto createDto, int? idsesion = null)
+        public async Task<IActionResult> PostAsync([FromBody] CreateHabitacionDto createDto)
         {
-            ServiceResult result = await _habitacionService.CreateAsync(createDto, idsesion);
+            ServiceResult result = await _habitacionService.CreateAsync(createDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -55,9 +55,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // PUT api/<HabitacionController>/5
         [HttpPut("Update-Habitacion")]
-        public async Task<IActionResult> PutAsync([FromBody] UpdateHabitacionDto updateDto, int? idsesion = null)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateHabitacionDto updateDto)
         {
-            ServiceResult result = await _habitacionService.UpdateAsync(updateDto, idsesion);
+            ServiceResult result = await _habitacionService.UpdateAsync(updateDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // DELETE api/<HabitacionController>/5
         [HttpDelete("Delete-Habitacion")]
-        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
-            ServiceResult result = await _habitacionService.DeleteAsync(id, idsesion);
+            ServiceResult result = await _habitacionService.DeleteAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);

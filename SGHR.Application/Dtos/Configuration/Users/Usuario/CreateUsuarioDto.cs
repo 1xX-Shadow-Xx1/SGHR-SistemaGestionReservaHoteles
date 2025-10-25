@@ -8,7 +8,7 @@ namespace SGHR.Application.Dtos.Configuration.Users.Usuario
     {
 
         [Required(ErrorMessage = "El nombre es obligatorio.")]
-        [StringLength(50, MinimumLength = 5, ErrorMessage = "El nombre debe tener entre 5 y 50 caracteres.")]
+        [StringLength(20, MinimumLength = 5, ErrorMessage = "El nombre debe tener entre 5 y 20 caracteres.")]
         [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "El nombre solo puede contener letras y espacios.")]
         public string Nombre { get; set; }
 
@@ -21,9 +21,6 @@ namespace SGHR.Application.Dtos.Configuration.Users.Usuario
 
         [Required(ErrorMessage = "La contraseña es obligatoria.")]
         [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
-        [DataType(DataType.Password)]
-        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]).{8,}$",
-        ErrorMessage = "La contraseña debe contener al menos una letra, un número y un carácter especial.")]
         [PasswordPropertyText]
         public string Contraseña { get; set; }
 

@@ -11,8 +11,8 @@ namespace SGHR.Api.Controllers.Habitaciones
     [ApiController]
     public class CategoriaController : ControllerBase
     {
-        private readonly ICategoriaService _categoriaService;
-        public CategoriaController(ICategoriaService categoriaService)
+        private readonly ICategoriaServices _categoriaService;
+        public CategoriaController(ICategoriaServices categoriaService)
         {
             _categoriaService = categoriaService;
         }
@@ -43,9 +43,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // POST api/<CategoriaController>
         [HttpPost("Create-Categoria")]
-        public async Task<IActionResult> PostAsync([FromBody] CreateCategoriaDto categoriaDto, int? idsesion = null)
+        public async Task<IActionResult> PostAsync([FromBody] CreateCategoriaDto categoriaDto)
         {
-            ServiceResult result = await _categoriaService.CreateAsync(categoriaDto, idsesion);
+            ServiceResult result = await _categoriaService.CreateAsync(categoriaDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -55,9 +55,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // PUT api/<CategoriaController>/5
         [HttpPut("Update-Categoria")]
-        public async Task<IActionResult> PutAsync([FromBody] UpdateCategoriaDto categoriaDto, int? idsesion = null)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateCategoriaDto categoriaDto)
         {
-            ServiceResult result = await _categoriaService.UpdateAsync(categoriaDto, idsesion);
+            ServiceResult result = await _categoriaService.UpdateAsync(categoriaDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // DELETE api/<CategoriaController>/5
         [HttpDelete("Delete-Categoria")]
-        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
-            ServiceResult result = await _categoriaService.DeleteAsync(id, idsesion);
+            ServiceResult result = await _categoriaService.DeleteAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);

@@ -1,8 +1,8 @@
-﻿using SGHR.Api.Dependencia.Reservas;
-using SGHR.Api.Dependencia.Users;
+﻿using SGHR.Api.Dependencia.Habitaciones;
 using SGHR.Api.Dependencia.Operaciones;
-using SGHR.Api.Dependencia.Habitaciones;
+using SGHR.Api.Dependencia.Reservas;
 using SGHR.Api.Dependencia.Sesion;
+using SGHR.Api.Dependencia.Users;
 
 namespace SGHR.Api.Builders
 {
@@ -36,6 +36,7 @@ namespace SGHR.Api.Builders
 
             //Sesion
             services = services.AddSesionDependences();
+            services = services.AddAuthenticationDependences();
 
 
             return services;

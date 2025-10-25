@@ -2,9 +2,7 @@
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
-using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Validators.ConfigurationRules.Habitaciones;
-using SGHR.Domain.Validators.Users;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Habitaciones;
 

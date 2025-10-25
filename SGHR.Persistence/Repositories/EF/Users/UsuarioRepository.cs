@@ -142,23 +142,6 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 return OperationResult<Usuario>.Fail("Ocurrió un error al obtener el usuario");
             }
         }
-        public async Task<OperationResult<List<Usuario>>> GetByRolAsync(string rol)
-        {
-            try
-            {
-                var usuarios = await _context.Usuarios
-                    .Where(u => u.Rol == rol && !u.IsDeleted)
-                    .ToListAsync();
-
-                _logger.LogInformation("{Count} usuarios obtenidos correctamente con rol {Rol}", usuarios.Count, rol);
-                return OperationResult<List<Usuario>>.Ok(usuarios);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error obteniendo usuarios por rol {Rol}", rol);
-                return OperationResult<List<Usuario>>.Fail("Ocurrió un error al obtener los usuarios");
-            }
-        }
         public async Task<OperationResult<List<Usuario>>> GetActivosAsync()
         {
             try

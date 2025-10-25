@@ -9,7 +9,7 @@ namespace SGHR.Api.Dependencia.Reservas
     {
         public static IServiceCollection AddTarifaDependences(this IServiceCollection services)
         {
-            services.AddScoped<ITarifaService, TarifaService>();
+            services.AddScoped<ITarifaServices, TarifaServices>();
             services.AddScoped<ITarifaRepository, TarifaRepository>();
 
             return services;

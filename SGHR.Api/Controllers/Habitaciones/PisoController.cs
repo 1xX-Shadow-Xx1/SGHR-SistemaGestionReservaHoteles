@@ -11,8 +11,8 @@ namespace SGHR.Api.Controllers.Habitaciones
     [ApiController]
     public class PisoController : ControllerBase
     {
-        public readonly IPisoService _pisoService;
-        public PisoController(IPisoService pisoService)
+        public readonly IPisoServices _pisoService;
+        public PisoController(IPisoServices pisoService)
         {
             _pisoService = pisoService;
         }
@@ -43,9 +43,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // POST api/<PisoController>
         [HttpPost("Create-Piso")]
-        public async Task<IActionResult> PostAsync([FromBody] CreatePisoDto createDto, int? idsesion = null)
+        public async Task<IActionResult> PostAsync([FromBody] CreatePisoDto createDto)
         {
-            ServiceResult result = await _pisoService.CreateAsync(createDto, idsesion);
+            ServiceResult result = await _pisoService.CreateAsync(createDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -55,9 +55,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // PUT api/<PisoController>/5
         [HttpPut("Update-Piso")]
-        public async Task<IActionResult> PutAsync([FromBody] UpdatePisoDto updateDto, int? idsesion = null)
+        public async Task<IActionResult> PutAsync([FromBody] UpdatePisoDto updateDto)
         {
-            ServiceResult result = await _pisoService.UpdateAsync(updateDto, idsesion);
+            ServiceResult result = await _pisoService.UpdateAsync(updateDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // DELETE api/<PisoController>/5
         [HttpDelete("Delete-Piso")]
-        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
-            ServiceResult result = await _pisoService.DeleteAsync(id, idsesion);
+            ServiceResult result = await _pisoService.DeleteAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);

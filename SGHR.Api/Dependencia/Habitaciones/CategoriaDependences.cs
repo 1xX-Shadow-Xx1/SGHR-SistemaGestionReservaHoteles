@@ -1,5 +1,6 @@
-﻿using SGHR.Application.Interfaces.Habitaciones;
-using SGHR.Application.Services.Categorias;
+﻿
+using SGHR.Application.Interfaces.Habitaciones;
+using SGHR.Application.Services.Habitaciones;
 using SGHR.Persistence.Interfaces.Habitaciones;
 using SGHR.Persistence.Repositories.EF.Habitaciones;
 
@@ -9,7 +10,7 @@ namespace SGHR.Api.Dependencia.Habitaciones
     {
         public static IServiceCollection AddCategoriaDependences(this IServiceCollection services)
         {
-            services.AddScoped<ICategoriaService, CategiriaService>();
+            services.AddScoped<ICategoriaServices, CategoriaServices>();
             services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 
             return services;

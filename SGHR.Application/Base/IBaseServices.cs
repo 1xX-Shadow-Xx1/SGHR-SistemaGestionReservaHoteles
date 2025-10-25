@@ -8,6 +8,6 @@ namespace SGHR.Application.Base
         Task<ServiceResult> UpdateAsync(Tdtoupdate UpdateDto);
         Task<ServiceResult> DeleteAsync(int id);
         Task<ServiceResult> GetByIdAsync(int id);
-        Task<List<ServiceResult>> GetAllAsync();
+        Task<ServiceResult> GetAllAsync();
     }
 }

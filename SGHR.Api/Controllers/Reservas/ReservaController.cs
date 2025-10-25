@@ -11,8 +11,8 @@ namespace SGHR.Api.Controllers.Reservas
     [ApiController]
     public class ReservaController : ControllerBase
     {
-        public readonly IReservaService _reservaService;
-        public ReservaController(IReservaService reservaService)
+        public readonly IReservaServices _reservaService;
+        public ReservaController(IReservaServices reservaService)
         {
             _reservaService = reservaService;
         }
@@ -43,9 +43,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // POST api/<ReservaController>
         [HttpPost("Create-Reserva")]
-        public async Task<IActionResult> PostAsync([FromBody] CreateReservaDto createDto, int? idsesion = null)
+        public async Task<IActionResult> PostAsync([FromBody] CreateReservaDto createDto)
         {
-            ServiceResult result = await _reservaService.CreateAsync(createDto, idsesion);
+            ServiceResult result = await _reservaService.CreateAsync(createDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -55,9 +55,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // PUT api/<ReservaController>/5
         [HttpPut("Update-Reserva")]
-        public async Task<IActionResult> PutAsync([FromBody] UpdateReservaDto updateDto, int? idsesion = null)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateReservaDto updateDto)
         {
-            ServiceResult result = await _reservaService.UpdateAsync(updateDto, idsesion);
+            ServiceResult result = await _reservaService.UpdateAsync(updateDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // DELETE api/<ReservaController>/5
         [HttpDelete("Delete-Reserva")]
-        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
-            ServiceResult result = await _reservaService.DeleteAsync(id, idsesion);
+            ServiceResult result = await _reservaService.DeleteAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);

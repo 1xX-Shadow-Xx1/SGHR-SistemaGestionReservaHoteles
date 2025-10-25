@@ -22,7 +22,7 @@ namespace SGHR.Application.Services
             _usuarioRepository = usuarioRepository;
         }
 
-        public async Task<ServiceResult> RegistrarUsuario(CreateUsuarioDto createUsuarioDto)
+        public async Task<ServiceResult> RegistrarUsuarioAsync(CreateUsuarioDto createUsuarioDto)
         {
             ServiceResult result = new ServiceResult();
 
@@ -60,7 +60,7 @@ namespace SGHR.Application.Services
 
                     result.Success = true;
                     result.Data = getusuario;
-                    result.Message = OpResult.Message;
+                    result.Message = "Usuario registrado correctamente.";
                 }
 
             }
@@ -118,6 +118,10 @@ namespace SGHR.Application.Services
                     result.Message = $"Usuario {existUser.Data.Nombre} Logeado correctamente.";
                     result.Data = usuario;
                 }
+                else
+                {
+                    result.Message = "Contraseña incorrecta.";
+                }
             }
             catch (Exception ex)
             {
@@ -163,7 +167,7 @@ namespace SGHR.Application.Services
                     };
 
                     result.Success = true;
-                    result.Message = $"Usuario {existUser.Data.Nombre} Logeado correctamente.";
+                    result.Message = $"Sesion cerrada correctamente.";
                     result.Data = usuario;
                 }
 

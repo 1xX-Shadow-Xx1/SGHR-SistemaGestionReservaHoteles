@@ -11,8 +11,8 @@ namespace SGHR.Api.Controllers.Reservas
     [ApiController]
     public class TarifaController : ControllerBase
     {
-        public readonly ITarifaService _tarifaService;
-        public TarifaController(ITarifaService tarifaService)
+        public readonly ITarifaServices _tarifaService;
+        public TarifaController(ITarifaServices tarifaService)
         {
             _tarifaService = tarifaService;
         }
@@ -45,9 +45,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // POST api/<TarifaController>
         [HttpPost("Create-Tarifa")]
-        public async Task<IActionResult> PostAsync([FromBody] CreateTarifaDto createTarifaDto, int? idsesion = null)
+        public async Task<IActionResult> PostAsync([FromBody] CreateTarifaDto createTarifaDto)
         {
-            ServiceResult result = await _tarifaService.CreateAsync(createTarifaDto, idsesion);
+            ServiceResult result = await _tarifaService.CreateAsync(createTarifaDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -57,9 +57,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // PUT api/<TarifaController>/5
         [HttpPut("Update-Tarifa")]
-        public async Task<IActionResult> PutAsync([FromBody] UpdateTarifaDto updateTarifaDto, int? idsesion = null)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateTarifaDto updateTarifaDto)
         {
-            ServiceResult result = await _tarifaService.UpdateAsync(updateTarifaDto, idsesion);
+            ServiceResult result = await _tarifaService.UpdateAsync(updateTarifaDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -69,9 +69,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // DELETE api/<TarifaController>/5
         [HttpDelete("Delete-Tarifa")]
-        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
-            ServiceResult result = await _tarifaService.DeleteAsync(id, idsesion);
+            ServiceResult result = await _tarifaService.DeleteAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);
