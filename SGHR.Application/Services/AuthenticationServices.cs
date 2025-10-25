@@ -25,13 +25,17 @@ namespace SGHR.Application.Services
         public async Task<ServiceResult> RegistrarUsuarioAsync(CreateUsuarioDto createUsuarioDto)
         {
             ServiceResult result = new ServiceResult();
-
+            if (createUsuarioDto == null)
+            {
+                result.Message = "El usuario no puede ser nulo.";
+                return result;
+            }
             try
             {
                 var existUser = await _usuarioRepository.GetByCorreoAsync(createUsuarioDto.Correo);
                 if (existUser.Success)
                 {
-                    result.Message = ("No se a encontrado el usuario.");
+                    result.Message = ("Ya existe un usuario con ese correo.");
                     return result;
                 }
                 if (!existUser.Success)
@@ -56,7 +60,7 @@ namespace SGHR.Application.Services
                         Id = OpResult.Data.Id,
                         Nombre = OpResult.Data.Nombre,
                         Correo = OpResult.Data.Correo,
-                        Rol = OpResult.Data.Estado.ToString()
+                        Rol = OpResult.Data.Rol.ToString()
                     };
 
                     result.Success = true;
@@ -134,13 +138,17 @@ namespace SGHR.Application.Services
         public async Task<ServiceResult> CloseSerionAsync(int idusuario)
         {
             ServiceResult result = new ServiceResult();
-
+            if (idusuario < 0)
+            {
+                result.Message = $"El id ingresado no es valido.";
+                return result;
+            }
             try
             {
                 var existUser = await _usuarioRepository.GetByIdAsync(idusuario);
                 if (!existUser.Success)
                 {
-                    result.Message = ("No se a encontrado el usuario.");
+                    result.Message = ("No se a encontro el usuario.");
                     return result;
                 }
 

@@ -7,7 +7,6 @@ namespace SGHR.Domain.Validators.ConfigurationRules.Users
         public bool Validate(Cliente cliente, out string errorMessage)
         {
             if (!ValidationHelper.NotNull(cliente, "Cliente", out errorMessage)) return false;
-            if (!ValidationHelper.GreaterThanZero(cliente.IdUsuario, "IdUsuario", out errorMessage)) return false;
             if (!ValidationHelper.Required(cliente.Nombre, "Nombre", out errorMessage)) return false;
             if (!ValidationHelper.MaxLength(cliente.Nombre, 100, "Nombre", out errorMessage)) return false;
             if (!ValidationHelper.Required(cliente.Apellido, "Apellido", out errorMessage)) return false;

@@ -7,7 +7,7 @@ namespace SGHR.Domain.Entities.Configuration.Usuers
     public sealed class Cliente : BaseEntity
     {
         [Column("id_usuario")]        
-        public int IdUsuario { get; set; }
+        public int? IdUsuario { get; set; }
         [Column("nombre")]
         public string Nombre { get; set; }
         [Column("apellido")]
@@ -15,9 +15,9 @@ namespace SGHR.Domain.Entities.Configuration.Usuers
         [Column("cedula")]
         public string Cedula { get; set; }
         [Column("telefono")]
-        public string Telefono { get; set; }
+        public string? Telefono { get; set; }
         [Column("direccion")]
-        public string Direccion { get; set; }
+        public string? Direccion { get; set; }
 
     }
 }

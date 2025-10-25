@@ -5,6 +5,6 @@ namespace SGHR.Application.Interfaces.Usuarios
 {
     public interface IClienteServices : IBaseServices<CreateClienteDto,UpdateClienteDto>
     {
-        Task<ServiceResult> GetByNameAsync(string name);
+        Task<ServiceResult> GetByCedulaAsync(string cedula);
     }
 }
