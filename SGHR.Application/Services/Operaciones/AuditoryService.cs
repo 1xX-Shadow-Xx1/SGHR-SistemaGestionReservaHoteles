@@ -19,16 +19,17 @@ namespace SGHR.Application.Services.Operaciones
             _auditoryRepository = auditoryRepository;
         }
 
-        public async Task<ServiceResult> GetAll()
+        public async Task<ServiceResult> GetAllAsync()
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de todas las auditorías.");
 
             try
             {
-                var opResult = await _auditoryRepository.GetAll();
+                var opResult = await _auditoryRepository.GetAllAsync();
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtuvieron {count} auditorias.", opResult.Data.Count);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Auditorías obtenidas correctamente.";
@@ -47,17 +48,17 @@ namespace SGHR.Application.Services.Operaciones
             }   
             return result;
         }
-
-        public async Task<ServiceResult> GetById(int id)
+        public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result= new ServiceResult();
             _logger.LogInformation("Iniciando obtención de auditoría por ID: {Id}", id);
 
             try
             {
-                var opResult = await _auditoryRepository.GetById(id);
+                var opResult = await _auditoryRepository.GetByIdAsync(id);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtuvo una auditoria con Id {id}.", id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Auditoría obtenida correctamente.";
@@ -76,22 +77,21 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> Remove(int id)
+        public async Task<ServiceResult> DeleteAsync(int id, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando eliminación de auditoría con ID: {Id}", id);
 
             try
             {
-                if (id <= 0)
+                if (id < 0)
                 {
                     result.Success = false;
                     result.Message = "El ID de la auditoría no es válido.";
                     return result;
                 }
 
-                var AuditoryExist = await _auditoryRepository.GetById(id);
+                var AuditoryExist = await _auditoryRepository.GetByIdAsync(id);
                 if (!AuditoryExist.Success)
                 {
                     result.Success = false;
@@ -99,9 +99,10 @@ namespace SGHR.Application.Services.Operaciones
                     return result;
                 }
 
-                var opResult = await _auditoryRepository.Delete(AuditoryExist.Data);
+                var opResult = await _auditoryRepository.DeleteAsync(AuditoryExist.Data, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se elimino una auditoria con Id {id} correctamente.", id);
                     result.Success = true;
                     result.Message = "Auditoría eliminada correctamente.";
                 }
@@ -119,8 +120,7 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> Save(CreateAuditoryDto createAuditoryDto)
+        public async Task<ServiceResult> CreateAsync(CreateAuditoryDto createAuditoryDto, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando creación de auditoría.", createAuditoryDto);
@@ -134,9 +134,10 @@ namespace SGHR.Application.Services.Operaciones
                     Detalle = createAuditoryDto.Detalle
                 };
 
-                var opResult = await _auditoryRepository.Save(auditory);
+                var opResult = await _auditoryRepository.SaveAsync(auditory, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a creado una auditoria al usuario con Id {id} correctamente.",createAuditoryDto.IdUsuario);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Auditoría creada correctamente.";
@@ -155,15 +156,14 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> Update(UpdateAuditoryDto updateAuditoryDto)
+        public async Task<ServiceResult> UpdateAsync(UpdateAuditoryDto updateAuditoryDto, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando actualización de auditoría con ID: {Id}", updateAuditoryDto.Id);
 
             try
             {
-                var existingAuditoryResult = await _auditoryRepository.GetById(updateAuditoryDto.Id);
+                var existingAuditoryResult = await _auditoryRepository.GetByIdAsync(updateAuditoryDto.Id);
                 if (!existingAuditoryResult.Success || existingAuditoryResult.Data == null)
                 {
                     result.Success = false;
@@ -177,9 +177,10 @@ namespace SGHR.Application.Services.Operaciones
                 auditory.Fecha = updateAuditoryDto.Fecha;
                 auditory.Detalle = updateAuditoryDto.Detalle;
 
-                var opResult = await _auditoryRepository.Update(auditory);
+                var opResult = await _auditoryRepository.UpdateAsync(auditory, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a actualizado una auditoria con Id {id} correctamente.", updateAuditoryDto.Id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Auditoría actualizada correctamente.";

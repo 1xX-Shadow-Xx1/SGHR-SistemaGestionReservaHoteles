@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
-using SGHR.Domain.Validators.Habitaciones;
 using SGHR.Persistence.Interfaces.Habitaciones;
 using System.Data;
 using System.Linq.Expressions;
@@ -11,7 +10,7 @@ using System.Linq.Expressions;
 
 namespace SGHR.Persistence.Repositories.ADO
 {
-    public class CategoriaRepositoryADO : ICategoriaRepository
+    /*public class CategoriaRepositoryADO : ICategoriaRepository
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<CategoriaRepositoryADO> _logger;
@@ -280,5 +279,5 @@ namespace SGHR.Persistence.Repositories.ADO
 
             return result;
         }
-    }
+    }*/
 }

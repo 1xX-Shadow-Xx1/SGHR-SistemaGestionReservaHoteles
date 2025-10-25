@@ -20,16 +20,17 @@ namespace SGHR.Application.Services.Categorias
 
         }
 
-        public async Task<ServiceResult> GetAll()
+        public async Task<ServiceResult> GetAllAsync()
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de todas las categorias.");
 
             try
             {
-                var opResult = await _categoriaRepository.GetAll();
+                var opResult = await _categoriaRepository.GetAllAsync();
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtuvieron {count} categorias correctamente.", opResult.Data.Count);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Categorias obtenidas correctamente.";
@@ -49,17 +50,17 @@ namespace SGHR.Application.Services.Categorias
 
             return result;
         }
-
-        public async Task<ServiceResult> GetById(int id)
+        public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de categoria por ID: {Id}", id);
 
             try
             {
-                var opResult = await _categoriaRepository.GetById(id);
+                var opResult = await _categoriaRepository.GetByIdAsync(id);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtuvo una categoria con Id {id} correctamente.", id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Categoria obtenida correctamente.";
@@ -78,15 +79,14 @@ namespace SGHR.Application.Services.Categorias
             }
             return result;
         }
-
-        public async Task<ServiceResult> Update(UpdateCategoriaDto updateCategoriaDto)
+        public async Task<ServiceResult> UpdateAsync(UpdateCategoriaDto updateCategoriaDto, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando actualización de categoria.", updateCategoriaDto);
 
             try
             {
-                var existingCategoriaResult = await _categoriaRepository.GetById(updateCategoriaDto.Id);
+                var existingCategoriaResult = await _categoriaRepository.GetByIdAsync(updateCategoriaDto.Id);
                 if (!existingCategoriaResult.Success || existingCategoriaResult.Data == null)
                 {
                     result.Success = false;
@@ -98,9 +98,10 @@ namespace SGHR.Application.Services.Categorias
                 existingCategoria.Nombre = updateCategoriaDto.Nombre;
                 existingCategoria.Descripcion = updateCategoriaDto.Descripcion;
 
-                var opResult = await _categoriaRepository.Update(existingCategoria);
+                var opResult = await _categoriaRepository.UpdateAsync(existingCategoria, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a actualizado la categoria con Id {id} correctamente.", updateCategoriaDto.Id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Categoria actualizada correctamente.";
@@ -119,21 +120,20 @@ namespace SGHR.Application.Services.Categorias
             }
             return result;
         }
-
-        public async Task<ServiceResult> Remove(int id)
+        public async Task<ServiceResult> DeleteAsync(int id, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando eliminación de categoria: {Id}", id);
 
             try
             {
-                if (id <= 0)
+                if (id < 0)
                 {
                     result.Success = false;
                     result.Message = "La categoria debe tener un ID válido.";
                     return result;
                 }
-                var CatagoriaExist = await _categoriaRepository.GetById(id);
+                var CatagoriaExist = await _categoriaRepository.GetByIdAsync(id);
                 if (!CatagoriaExist.Success)
                 {
                     result.Success = false;
@@ -141,9 +141,10 @@ namespace SGHR.Application.Services.Categorias
                     return result;
                 }
 
-                var opResult = await _categoriaRepository.Delete(CatagoriaExist.Data);
+                var opResult = await _categoriaRepository.DeleteAsync(CatagoriaExist.Data, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a eliminado una categoria con Id {id} correctamente.", id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Categoria eliminada correctamente.";
@@ -162,8 +163,7 @@ namespace SGHR.Application.Services.Categorias
             }
             return result;
         }
-
-        public async Task<ServiceResult> Save(CreateCategoriaDto createCategoriaDto)
+        public async Task<ServiceResult> CreateAsync(CreateCategoriaDto createCategoriaDto, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando creación de categoria.", createCategoriaDto);
@@ -185,9 +185,10 @@ namespace SGHR.Application.Services.Categorias
                 };
 
 
-                var opResult = await _categoriaRepository.Save(categoria);
+                var opResult = await _categoriaRepository.SaveAsync(categoria, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a creado una nueva categoria con el nombre {name} correctamente.", categoria.Nombre);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Categoria creada correctamente.";

@@ -19,9 +19,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // GET: api/<AmenityController>
         [HttpGet("Get-Amenities")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-            ServiceResult result = await _amenityService.GetAll();
+            ServiceResult result = await _amenityService.GetAllAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -31,9 +31,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // GET api/<AmenityController>/5
         [HttpGet("Get-Amenity-ByID")]
-        public async Task<IActionResult> GetByID(int id)
+        public async Task<IActionResult> GetByIDAsync(int id)
         {
-            ServiceResult result = await _amenityService.GetById(id);
+            ServiceResult result = await _amenityService.GetByIdAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -43,9 +43,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // POST api/<AmenityController>
         [HttpPost("Create-Amenity")]
-        public async Task<IActionResult> Post([FromBody] CreateAmenityDto createDto)
+        public async Task<IActionResult> PostAsync([FromBody] CreateAmenityDto createDto, int? idsesion = null)
         {
-            ServiceResult result = await _amenityService.Save(createDto);
+            ServiceResult result = await _amenityService.CreateAsync(createDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -55,9 +55,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // PUT api/<AmenityController>/5
         [HttpPut("Update-Amenity")]
-        public async Task<IActionResult> Put([FromBody] UpdateAmenityDto updateDto)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateAmenityDto updateDto, int? idsesion = null)
         {
-            ServiceResult result = await _amenityService.Update(updateDto);
+            ServiceResult result = await _amenityService.UpdateAsync(updateDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // DELETE api/<AmenityController>/5
         [HttpDelete("Delete-Amenity")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
         {
-            ServiceResult result = await _amenityService.Remove(id);
+            ServiceResult result = await _amenityService.DeleteAsync(id, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);

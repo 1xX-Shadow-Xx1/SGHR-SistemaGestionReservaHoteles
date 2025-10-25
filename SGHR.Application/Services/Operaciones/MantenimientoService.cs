@@ -1,10 +1,9 @@
-﻿
-
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Operaciones.Mantenimiento;
 using SGHR.Application.Interfaces.Operaciones;
 using SGHR.Domain.Entities.Configuration.Operaciones;
+using SGHR.Domain.Enum.Operaciones;
 using SGHR.Persistence.Interfaces.Operaciones;
 
 namespace SGHR.Application.Services.Operaciones
@@ -20,16 +19,17 @@ namespace SGHR.Application.Services.Operaciones
             _mantenimientoRepository = mantenimientoRepository;
         }
 
-        public async Task<ServiceResult> GetAll()
+        public async Task<ServiceResult> GetAllAsync()
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de todos los mantenimientos.");
 
             try
             {
-                var opResult = await _mantenimientoRepository.GetAll();
+                var opResult = await _mantenimientoRepository.GetAllAsync();
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtuvieron {count} mantenimientos.", opResult.Data.Count);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Mantenimientos obtenidos correctamente.";
@@ -48,17 +48,17 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> GetById(int id)
+        public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de mantenimiento por ID: {Id}", id);
 
             try
             {
-                var opResult = await _mantenimientoRepository.GetById(id);
+                var opResult = await _mantenimientoRepository.GetByIdAsync(id);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtuvo una mantenimiento con Id {id}.",id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Mantenimiento obtenido correctamente.";
@@ -77,22 +77,21 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> Remove(int id)
+        public async Task<ServiceResult> DeleteAsync(int id, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando eliminación de mantenimiento con ID: {Id}", id);
 
             try
             {
-                if (id <= 0)
+                if (id < 0)
                 {
                     result.Success = false;
                     result.Message = "El ID de mantenimiento no es válido.";
                     return result;
                 }
 
-                var MantenimientoExist = await  _mantenimientoRepository.GetById(id);
+                var MantenimientoExist = await  _mantenimientoRepository.GetByIdAsync(id);
                 if (!MantenimientoExist.Success)
                 {
                     result.Success = false;
@@ -100,9 +99,10 @@ namespace SGHR.Application.Services.Operaciones
                     return result;
                 }
 
-                var opResult =  _mantenimientoRepository.Delete(MantenimientoExist.Data);
+                var opResult =  _mantenimientoRepository.DeleteAsync(MantenimientoExist.Data, idsesion);
                 if (opResult.Result.Success)
                 {
+                    _logger.LogInformation("Se elimino una mantenimiento con Id {id}.", id);
                     result.Success = true;
                     result.Message = "Mantenimiento eliminado correctamente.";
                 }
@@ -120,8 +120,7 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> Save(CreateMantenimientoDto createMantenimientoDto)
+        public async Task<ServiceResult> CreateAsync(CreateMantenimientoDto createMantenimientoDto, int? idsesion = null)
         {
             ServiceResult   result = new ServiceResult();
             _logger.LogInformation("Iniciando creación de nuevo mantenimiento.", createMantenimientoDto);
@@ -137,7 +136,7 @@ namespace SGHR.Application.Services.Operaciones
                     FechaInicio = createMantenimientoDto.FechaInicio
                 };
 
-                var opResult = await _mantenimientoRepository.Save(mantenimiento);
+                var opResult = await _mantenimientoRepository.SaveAsync(mantenimiento);
                 if (opResult.Success)
                 {
                     result.Success = true;
@@ -158,15 +157,14 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> Update(UpdateMantenimientoDto updateMantenimientoDto)
+        public async Task<ServiceResult> UpdateAsync(UpdateMantenimientoDto updateMantenimientoDto, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando actualización de mantenimiento con ID: {Id}", updateMantenimientoDto.Id);
 
             try
             {
-                var existingMantenimientoResult = await _mantenimientoRepository.GetById(updateMantenimientoDto.Id);
+                var existingMantenimientoResult = await _mantenimientoRepository.GetByIdAsync(updateMantenimientoDto.Id);
                 if (existingMantenimientoResult == null || !existingMantenimientoResult.Success)
                 {
                     result.Success = false;
@@ -181,11 +179,18 @@ namespace SGHR.Application.Services.Operaciones
                 existingMantenimiento.FechaInicio = updateMantenimientoDto.FechaInicio;
                 existingMantenimiento.FechaFin = updateMantenimientoDto.FechaFin;
                 existingMantenimiento.RealizadoPor = updateMantenimientoDto.RealizadoPor;
-                existingMantenimiento.Estado = updateMantenimientoDto.Estado;
+                if (!string.IsNullOrWhiteSpace(updateMantenimientoDto.Estado))
+                {
+                    if (Enum.TryParse(updateMantenimientoDto.Estado, out EstadoMantenimiento estado))
+                    {
+                        existingMantenimiento.Estado = estado;
+                    }
+                }
 
-                var opResult = await _mantenimientoRepository.Update(existingMantenimiento);
+                var opResult = await _mantenimientoRepository.UpdateAsync(existingMantenimiento, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se actualizado el mantenimiento con Id {id}.", updateMantenimientoDto.Id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Mantenimiento actualizado correctamente.";

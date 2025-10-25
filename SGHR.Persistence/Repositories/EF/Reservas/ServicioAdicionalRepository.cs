@@ -71,7 +71,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             try
             {
                 var servicio = await _context.ServicioAdicional
-                    .FirstOrDefaultAsync(s => s.Nombre == nombre && !s.Eliminado);
+                    .FirstOrDefaultAsync(s => s.Nombre == nombre && !s.IsDeleted);
 
                 if (servicio == null)
                 {

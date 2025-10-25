@@ -1,9 +1,9 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Reservas.ServicioAdicional;
 using SGHR.Application.Interfaces.Reservas;
 using SGHR.Domain.Entities.Configuration.Reservas;
+using SGHR.Domain.Enum.Reservas;
 using SGHR.Persistence.Interfaces.Reservas;
 
 namespace SGHR.Application.Services.Reservas
@@ -177,6 +177,13 @@ namespace SGHR.Application.Services.Reservas
                 servicioAdicional.Nombre = updateServicioAdicionalDto.Nombre;
                 servicioAdicional.Descripcion = updateServicioAdicionalDto.Descripcion;
                 servicioAdicional.Precio = updateServicioAdicionalDto.Precio;
+                if (!string.IsNullOrWhiteSpace(updateServicioAdicionalDto.Estado))
+                {
+                    if (Enum.TryParse(updateServicioAdicionalDto.Estado, out EstadoServicioAdicional estado))
+                    {
+                        servicioAdicional.Estado = estado;
+                    }
+                }
 
                 var opResult = await _servicioAdicionalRepository.UpdateAsync(servicioAdicional, idsesion);
                 if (opResult.Success)

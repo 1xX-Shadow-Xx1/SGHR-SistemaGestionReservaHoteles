@@ -19,9 +19,9 @@ namespace SGHR.Api.Controllers.Usuarios
 
         // GET: api/<ClienteController>
         [HttpGet("Get-Clientes")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-            ServiceResult result = await _clienteService.GetAll();
+            ServiceResult result = await _clienteService.GetAllAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -31,9 +31,9 @@ namespace SGHR.Api.Controllers.Usuarios
 
         // GET api/<ClienteController>/5
         [HttpGet("Get-Cliente-ByID")]
-        public async Task<IActionResult> GetByID(int id)
+        public async Task<IActionResult> GetIdAsync(int id)
         {
-            ServiceResult result = await _clienteService.GetById(id);
+            ServiceResult result = await _clienteService.GetByIdAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -43,7 +43,7 @@ namespace SGHR.Api.Controllers.Usuarios
 
         // GET api/<ClienteController>
         [HttpGet("Get-Cliente-ByCedula")]
-        public async Task<IActionResult> GetClientByCedula(string cedula)
+        public async Task<IActionResult> GetClientByCedulaAsync(string cedula)
         {
             ServiceResult result = await _clienteService.GetByCedulaAsync(cedula);
             if(!result.Success)
@@ -55,9 +55,9 @@ namespace SGHR.Api.Controllers.Usuarios
 
         // POST api/<ClienteController>
         [HttpPost("Create-Cliente")]
-        public async Task<IActionResult> Post([FromBody] CreateClienteDto createClienteDto)
+        public async Task<IActionResult> PostAsync([FromBody] CreateClienteDto createClienteDto, int? idsesion = null)
         {
-            ServiceResult result = await _clienteService.Save(createClienteDto);
+            ServiceResult result = await _clienteService.CreateAsync(createClienteDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Usuarios
 
         // PUT api/<ClienteController>/5
         [HttpPut("Update-Cliente")]
-        public async Task<IActionResult> Put([FromBody] UpdateClienteDto updateClienteDto)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateClienteDto updateClienteDto, int? idsesion = null)
         {
-            ServiceResult result = await _clienteService.Update(updateClienteDto);
+            ServiceResult result = await _clienteService.UpdateAsync(updateClienteDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -79,9 +79,9 @@ namespace SGHR.Api.Controllers.Usuarios
 
         // DELETE api/<ClienteController>/5
         [HttpDelete("Delete-Cliente")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
         {
-            ServiceResult result = await _clienteService.Remove(id);
+            ServiceResult result = await _clienteService.DeleteAsync(id, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);

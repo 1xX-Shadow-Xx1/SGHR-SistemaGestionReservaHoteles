@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Reservas.Reserva;
 using SGHR.Application.Dtos.Configuration.Users.Usuario;
@@ -145,25 +146,24 @@ namespace SGHR.Application.Services.Reservas
 
             try
             {
-                var existReserva = await _reservaRepository.ExistsAsync(r => r.FechaInicio >= createReservaDto.FechaInicio &&
+                var OpReservas = await _reservaRepository.GetAllAsync();
+
+                var existReserva = OpReservas.Data.Where(r => r.FechaInicio >= createReservaDto.FechaInicio &&
                                                                    r.FechaFin <= createReservaDto.FechaFin &&
-                                                                   r.IdHabitacion == createReservaDto.IdHabitacion);
-                if (existReserva.Success)
+                                                                   r.IdHabitacion == createReservaDto.IdHabitacion)
+                                                  .ToList();
+                if (existReserva.Count != 0)
                 {
                     result.Message = "Ya existe una reserva para esa fecha.";
                     return result;
                 }
 
                 var HabitacionReservada = await _habitacionRepository.GetByIdAsync(createReservaDto.IdHabitacion);
-                
+
                 switch (HabitacionReservada.Data.Estado)
                 {
                     case EstadoHabitacion.EnMantenimiento:
                         result.Message = "La habitacion no se puede reservar por que esta en manteniminto.";
-                        return result;
-                        
-                    case EstadoHabitacion.Ocupada:
-                        result.Message = "La habitacion no se puede reservar por que esta ocupada.";
                         return result;
                         
                     case EstadoHabitacion.Reservada:
@@ -188,6 +188,7 @@ namespace SGHR.Application.Services.Reservas
                     IdUsuario = createReservaDto.IdUsuario,
                     CostoTotal = createReservaDto.CostoTotal
                 };
+
                 var opResult = await _reservaRepository.SaveAsync(reserva);
 
                 if (opResult.Success)
@@ -239,6 +240,8 @@ namespace SGHR.Application.Services.Reservas
                         existingReserva.Estado = estado;
                     }
                 }
+
+                
 
                 var opResult = await _reservaRepository.UpdateAsync(existingReserva);
                 if (opResult.Success)

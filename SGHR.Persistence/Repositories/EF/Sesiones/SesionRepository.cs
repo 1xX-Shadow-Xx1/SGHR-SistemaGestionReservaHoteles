@@ -86,7 +86,7 @@ namespace SGHR.Persistence.Repositories.EF.Sesiones
             try
             {
                 var sesiones = await _context.Sesiones
-                    .Where(s => s.IdUsuario == usuarioId && !s.Eliminado)
+                    .Where(s => s.IdUsuario == usuarioId && !s.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {Count} sesiones para el usuario {UsuarioId}", sesiones.Count, usuarioId);
@@ -104,7 +104,7 @@ namespace SGHR.Persistence.Repositories.EF.Sesiones
             try
             {
                 var sesiones = await _context.Sesiones
-                    .Where(s => s.Estado && !s.Eliminado) 
+                    .Where(s => s.Estado && !s.IsDeleted) 
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {Count} sesiones activas", sesiones.Count);

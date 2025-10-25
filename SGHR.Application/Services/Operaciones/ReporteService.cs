@@ -17,16 +17,17 @@ namespace SGHR.Application.Services.Operaciones
             _reporteRepository = reporteRepository;
         }
 
-        public async Task<ServiceResult> GetAll()
+        public async Task<ServiceResult> GetAllAsync()
         {
             ServiceResult result= new ServiceResult();  
             _logger.LogInformation("Iniciando obtención de todos los reportes.");
 
             try
             {
-                var opResult = await _reporteRepository.GetAll();
+                var opResult = await _reporteRepository.GetAllAsync();
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtubieron todos los reportes correctamente.");
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Reportes obtenidos correctamente.";
@@ -45,17 +46,17 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> GetById(int id)
+        public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de reporte por ID: {Id}", id);
 
             try
             {
-                var opResult = await _reporteRepository.GetById(id);
+                var opResult = await _reporteRepository.GetByIdAsync(id);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtuvo una reporte con Id {id}.",id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Reporte obtenido correctamente.";
@@ -74,22 +75,21 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> Remove(int id)
+        public async Task<ServiceResult> DeleteAsync(int id, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando eliminación de reporte con ID: {Id}", id);
 
             try
             {
-                if (id <= 0)
+                if (id < 0)
                 {
                     result.Success = false;
                     result.Message = "El ID del reporte no es válido.";
                     return result;
                 }
 
-                var reportExists = await _reporteRepository.GetById(id);
+                var reportExists = await _reporteRepository.GetByIdAsync(id);
                 if (!reportExists.Success)
                 {
                     result.Success = false;
@@ -97,9 +97,10 @@ namespace SGHR.Application.Services.Operaciones
                     return result;
                 }
 
-                var opResult = await _reporteRepository.Delete(reportExists.Data);
+                var opResult = await _reporteRepository.DeleteAsync(reportExists.Data, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation($"Se elimino el reporte con id {id} correctamente.");
                     result.Success = true;
                     result.Message = "Reporte eliminado correctamente.";
                 }
@@ -117,8 +118,7 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> Save(CreateReporteDto createReporteDto)
+        public async Task<ServiceResult> CreateAsync(CreateReporteDto createReporteDto, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando creación de nuevo reporte.", createReporteDto);
@@ -132,9 +132,10 @@ namespace SGHR.Application.Services.Operaciones
                     RutaArchivo = createReporteDto.RutaArchivo
                 };
 
-                var opResult = await _reporteRepository.Save(reporte);
+                var opResult = await _reporteRepository.SaveAsync(reporte, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a registrado un reporte en la ruta {ruta}.", createReporteDto.RutaArchivo);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Reporte creado correctamente.";
@@ -153,15 +154,14 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> Update(UpdateReporteDto updateReporteDto)
+        public async Task<ServiceResult> UpdateAsync(UpdateReporteDto updateReporteDto, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando actualización de reporte con ID: {Id}", updateReporteDto.Id);
 
             try
             {
-                var reportExists = await _reporteRepository.GetById(updateReporteDto.Id);
+                var reportExists = await _reporteRepository.GetByIdAsync(updateReporteDto.Id);
                 if (!reportExists.Success || reportExists.Data == null)
                 {
                     result.Success = false;
@@ -175,9 +175,10 @@ namespace SGHR.Application.Services.Operaciones
                 reporteToUpdate.GeneradoPor = updateReporteDto.GeneradoPor;
                 reporteToUpdate.RutaArchivo = updateReporteDto.RutaArchivo;
 
-                var opResult = await _reporteRepository.Update(reporteToUpdate);
+                var opResult = await _reporteRepository.UpdateAsync(reporteToUpdate, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a actualizado un reporte de tipo {tipo}.", reporteToUpdate.TipoReporte);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Reporte actualizado correctamente.";

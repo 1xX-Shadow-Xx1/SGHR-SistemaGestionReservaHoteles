@@ -3,8 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
-using SGHR.Domain.Validators.Habitaciones;
-using SGHR.Domain.Validators.Operaciones;
 using SGHR.Persistence.Interfaces.Reportes;
 using System;
 using System.Collections.Generic;
@@ -16,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace SGHR.Persistence.Repositories.ADO
 {
-    public class PagoRepositoryADO : IPagoRepository
+    /*public class PagoRepositoryADO : IPagoRepository
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<PagoRepositoryADO> _logger;
@@ -289,5 +287,5 @@ namespace SGHR.Persistence.Repositories.ADO
 
             return result;
         }
-    }
+    }*/
 }

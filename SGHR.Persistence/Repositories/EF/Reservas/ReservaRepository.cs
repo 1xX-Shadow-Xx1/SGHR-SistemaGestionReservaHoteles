@@ -1,19 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Enum.Reservas;
 using SGHR.Domain.Repository;
-using SGHR.Domain.Validators.Reservas;
 using SGHR.Persistence.Contex;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace SGHR.Persistence.Repositories.EF.Reservas
 {
@@ -82,7 +75,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             try
             {
                 var reservas = await _context.Reservas
-                    .Where(r => r.Estado == EstadoReserva.Activa && !r.Eliminado)
+                    .Where(r => r.Estado == EstadoReserva.Activa && !r.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {Cantidad} reservas activas", reservas.Count);
@@ -100,7 +93,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             try
             {
                 var reservas = await _context.Reservas
-                    .Where(r => r.IdCliente == idCliente && !r.Eliminado)
+                    .Where(r => r.IdCliente == idCliente && !r.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {Cantidad} reservas del cliente {ClienteId}", reservas.Count, idCliente);
@@ -118,7 +111,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             try
             {
                 var reservas = await _context.Reservas
-                    .Where(r => r.IdHabitacion == idHabitacion && !r.Eliminado)
+                    .Where(r => r.IdHabitacion == idHabitacion && !r.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {Cantidad} reservas para la habitacion {HabitacionId}", reservas.Count, idHabitacion);

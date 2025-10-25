@@ -76,7 +76,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var check = await _context.CheckInOut
-                    .FirstOrDefaultAsync(c => c.IdReserva == idReserva && !c.Eliminado);
+                    .FirstOrDefaultAsync(c => c.IdReserva == idReserva && !c.IsDeleted);
 
                 if (check == null)
                 {
@@ -99,7 +99,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var checks = await _context.CheckInOut
-                    .Where(c => c.FechaCheckIn.HasValue && c.FechaCheckIn.Value.Date == fecha.Date && !c.Eliminado)
+                    .Where(c => c.FechaCheckIn.HasValue && c.FechaCheckIn.Value.Date == fecha.Date && !c.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {count} CheckInOut con fecha {Fecha}.", checks.Count, fecha);
@@ -117,7 +117,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var checks = await _context.CheckInOut
-                    .Where(c => !c.FechaCheckIn.HasValue && !c.Eliminado)
+                    .Where(c => !c.FechaCheckIn.HasValue && !c.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {count} CheckInOut pendientes.", checks.Count);
@@ -136,7 +136,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             {
                 var checks = await _context.CheckInOut
                     .Where(c => c.FechaCheckIn.HasValue && c.FechaCheckIn.Value.Date >= inicio.Date
-                                && c.FechaCheckIn.Value.Date <= fin.Date && !c.Eliminado)
+                                && c.FechaCheckIn.Value.Date <= fin.Date && !c.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {count} CheckInOut desde el {fechainicio} hasta {fechafin}.", inicio, fin);

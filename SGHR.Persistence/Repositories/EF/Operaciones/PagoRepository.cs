@@ -110,7 +110,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var pagos = await _context.Pagos
-                    .Where(p => p.IdReserva == idReserva && !p.Eliminado)
+                    .Where(p => p.IdReserva == idReserva && !p.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {Cantidad} pagos de la reserva {IdReserva}", pagos.Count, idReserva);
@@ -128,7 +128,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var pagos = await _context.Pagos
-                    .Where(p => p.FechaPago.Date == fecha.Date && !p.Eliminado)
+                    .Where(p => p.FechaPago.Date == fecha.Date && !p.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {Cantidad} pagos realizados en {Fecha}", pagos.Count, fecha.ToShortDateString());

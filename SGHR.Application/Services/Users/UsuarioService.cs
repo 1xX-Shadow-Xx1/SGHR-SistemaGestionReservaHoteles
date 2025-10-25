@@ -1,10 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Users.Usuario;
 using SGHR.Application.Interfaces.Users;
 using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Enum.Usuario;
 using SGHR.Domain.Repository;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace SGHR.Application.Services.Users
@@ -54,6 +57,7 @@ namespace SGHR.Application.Services.Users
 
                 var usauriodto = new UsuarioDto()
                 {
+                    Id = opResult.Data.Id,
                     Nombre = opResult.Data.Nombre,
                     Correo = opResult.Data.Correo,
                     Estado = opResult.Data.Estado.ToString(),
@@ -112,46 +116,7 @@ namespace SGHR.Application.Services.Users
                 result.Message = ($"Error al eliminar el usuario: {ex.Message}");
             }
             return result;
-        }
-        public async Task<ServiceResult> ExistsAsync(Expression<Func<UsuarioDto, bool>> filter)
-        {
-            ServiceResult result = new ServiceResult();
-            _logger.LogInformation("Iniciando comprobación de existencia de usuario (DTO)");
-
-            try
-            {
-                Expression<Func<Usuario, bool>> entityFilter = u =>
-                    filter.Compile()(new UsuarioDto
-                    {
-                        Id = u.Id,
-                        Nombre = u.Nombre,
-                        Correo = u.Correo,
-                        Estado = u.Estado.ToString(),
-                        Rol = u.Rol
-                    });
-
-                var repoResult = await _usuarioRepository.ExistsAsync(entityFilter);
-                if (!repoResult.Success)
-                {
-                    _logger.LogError("Error verificando existencia de usuario en repositorio: {Message}", repoResult.Message);
-                    result.Success = false;
-                    result.Message = repoResult.Message;
-                    return result;
-                }
-
-                result.Success = true;
-                result.Message = "Existencia comprobada.";
-                result.Data = repoResult.Data;
-                _logger.LogInformation("Comprobación de existencia completada, resultado: {Exists}", repoResult.Data);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error verificando existencia de usuario (DTO)");
-                result.Success = false;
-                result.Message = ($"Ocurrió un error al comprobar la existencia del usuario: {ex.Message}");
-            }
-            return result;
-        }
+        }     
         public async Task<ServiceResult> GetActivosAsync()
         {
             ServiceResult result = new ServiceResult();
@@ -230,25 +195,21 @@ namespace SGHR.Application.Services.Users
             }
             return result;
         }
-        public async Task<ServiceResult> GetAllByAsync(Expression<Func<UsuarioDto, bool>> filter)
+        public async Task<ServiceResult> GetAllByAsync(string? nombre = null, string? rol = null, string? estado = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de usuarios con filtro");
 
             try
             {
-                Expression<Func<Usuario, bool>> repoFilter = u =>
-                filter.Compile().Invoke(new UsuarioDto
+                if (string.IsNullOrEmpty(nombre) && string.IsNullOrEmpty(rol) && string.IsNullOrEmpty(estado))
                 {
-                    Id = u.Id,
-                    Nombre = u.Nombre,
-                    Correo = u.Correo,
-                    Estado = u.Estado.ToString(),
-                    Rol = u.Rol
-                });
+                    result.Success = false;
+                    result.Message = "Tienes que llenar aunque sea un parametro de los 3 para filtrar.";
+                    return result;
+                }
 
-                var repoResult = await _usuarioRepository.GetAllByAsync(repoFilter);
-
+                var repoResult = await _usuarioRepository.GetAllAsync();
                 if (!repoResult.Success)
                 {
                     result.Success = false;
@@ -267,12 +228,31 @@ namespace SGHR.Application.Services.Users
                         Rol = u.Rol
                     })
                     .AsQueryable()
-                    .Where(filter) 
                     .ToList();
 
                 result.Success = true;
-                result.Message = repoResult.Message;
-                result.Data = usuariosDto;
+                if (!string.IsNullOrEmpty(nombre))
+                {
+                    result.Data = usuariosDto.Where(u => u.Nombre == nombre);
+                    result.Message = $"Se obtubieron los siguientes usuarios con el nombre {nombre}";
+                    return result;
+                }
+
+
+                if (!string.IsNullOrEmpty(rol))
+                {
+                    result.Data = usuariosDto.Where(u => u.Rol == rol);
+                    result.Message = $"Se obtubieron los siguientes usuarios con el rol {rol}";
+                    return result;
+                }
+
+
+                if (!string.IsNullOrEmpty(estado))
+                {
+                    result.Data = usuariosDto.Where(u => u.Estado == estado);
+                    result.Message = $"Se obtubieron los siguientes usuarios con el estado {estado}";
+                    return result;
+                }
 
                 _logger.LogInformation("Usuarios filtrados obtenidos correctamente, total: {Count}", usuariosDto.Count);
             }
@@ -419,7 +399,7 @@ namespace SGHR.Application.Services.Users
                 if (!repoResult.Success || repoResult.Data == null)
                 {
                     result.Success = false;
-                    result.Message = "Usuario no encontrado.";
+                    result.Message = repoResult.Message;
                     _logger.LogWarning("Intento de login fallido: usuario no encontrado para correo {Correo}", usuarioLoginDto.Correo);
                     return result;
                 }
@@ -486,6 +466,7 @@ namespace SGHR.Application.Services.Users
                     usuario.Contraseña = usuarioUpdateDto.Contraseña; 
                 }
                 usuario.Rol = usuarioUpdateDto.Rol;
+
                 // Si el estado se permite actualizar desde DTO
                 if (!string.IsNullOrWhiteSpace(usuarioUpdateDto.Estado))
                 {

@@ -67,7 +67,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var mantenimientos = await _context.Mantenimiento
-                    .Where(m => m.Estado == EstadoMantenimiento.EnProceso && !m.Eliminado)
+                    .Where(m => m.Estado == EstadoMantenimiento.EnProceso && !m.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Mantenimientos activos obtenidos, cantidad: {Count}", mantenimientos.Count);
@@ -87,7 +87,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var mantenimientos = await _context.Mantenimiento
-                    .Where(m => m.IdHabitacion == idHabitacion && !m.Eliminado)
+                    .Where(m => m.IdHabitacion == idHabitacion && !m.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Mantenimientos obtenidos por habitación {HabitacionId}, cantidad: {Count}", idHabitacion, mantenimientos.Count);
@@ -106,7 +106,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var mantenimientos = await _context.Mantenimiento
-                    .Where(m => m.IdPiso == idPiso && !m.Eliminado)
+                    .Where(m => m.IdPiso == idPiso && !m.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Mantenimientos obtenidos por piso {PisoId}, cantidad: {Count}", idPiso, mantenimientos.Count);

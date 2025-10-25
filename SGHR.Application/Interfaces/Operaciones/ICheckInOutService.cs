@@ -6,5 +6,6 @@ namespace SGHR.Application.Interfaces.Operaciones
 {
     public interface ICheckInOutService : IBaseServices<CreateCheckInOutDto, UpdateCheckInOutDto>
     {
+
     }
 }

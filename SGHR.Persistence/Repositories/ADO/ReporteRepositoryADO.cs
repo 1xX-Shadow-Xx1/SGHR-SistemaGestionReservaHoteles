@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace SGHR.Persistence.Repositories.ADO
 {
-    public class ReporteRepositoryADO: IReporteRepository
+    /*public class ReporteRepositoryADO: IReporteRepository
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<ReporteRepositoryADO> _logger;
@@ -283,5 +283,5 @@ namespace SGHR.Persistence.Repositories.ADO
 
             return result;
         }
-    }
+    }*/
 }

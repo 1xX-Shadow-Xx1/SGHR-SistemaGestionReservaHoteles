@@ -21,9 +21,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // GET: api/<PagoController>
         [HttpGet("Get-Pagos")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-            ServiceResult result = await _pagoService.GetAll();
+            ServiceResult result = await _pagoService.GetAllAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -33,9 +33,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // GET api/<PagoController>/5
         [HttpGet("Get-Pago-ByID")]
-        public async Task<IActionResult> GetByID(int id)
+        public async Task<IActionResult> GetByIDAsync(int id)
         {
-            ServiceResult result = await _pagoService.GetById(id);
+            ServiceResult result = await _pagoService.GetByIdAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -45,9 +45,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // POST api/<PagoController>
         [HttpPost("Create-Pago")]
-        public async Task<IActionResult> Post([FromBody] CreatePagoDto createDto)
+        public async Task<IActionResult> PostAsync([FromBody] CreatePagoDto createDto, int? idsesion = null)
         {
-            ServiceResult result = await _pagoService.Save(createDto);
+            ServiceResult result = await _pagoService.CreateAsync(createDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -57,9 +57,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // PUT api/<PagoController>/5
         [HttpPut("Update-Pago")]
-        public async Task<IActionResult> Put(int id, [FromBody] UpdatePagoDto updateDto)
+        public async Task<IActionResult> PutAsync(int id, [FromBody] UpdatePagoDto updateDto, int? idsesion = null)
         {
-            ServiceResult result = await _pagoService.Update(updateDto);
+            ServiceResult result = await _pagoService.UpdateAsync(updateDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -69,9 +69,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // DELETE api/<PagoController>/5
         [HttpDelete("Delete-Pago")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
         {
-            ServiceResult result = await _pagoService.Remove(id);
+            ServiceResult result = await _pagoService.DeleteAsync(id, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);

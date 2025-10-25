@@ -36,7 +36,7 @@ namespace SchoolPoliApp.Persistence.Base
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creando la entidad {EntityType}", typeof(TEntity).Name);
-                return OperationResult<TEntity>.Fail($"Error al guardar: {ex.Message}");
+                return OperationResult<TEntity>.Fail($"Error al guardar: {ex.Message.ToString()}");
             }
         }
 
@@ -64,7 +64,7 @@ namespace SchoolPoliApp.Persistence.Base
         {
             try
             {
-                entity.Eliminado = true;
+                entity.IsDeleted = true;
                 entity.FechaActualizacion = DateTime.Now;
                 entity.SesionActualizacionId = sesionId;
 
@@ -87,7 +87,7 @@ namespace SchoolPoliApp.Persistence.Base
             {
                 var query = _dbSet.AsQueryable();
                 if (!includeDeleted)
-                    query = query.Where(e => !e.Eliminado);
+                    query = query.Where(e => !e.IsDeleted);
 
                 var entity = await query.FirstOrDefaultAsync(e => e.Id == id);
 
@@ -112,7 +112,7 @@ namespace SchoolPoliApp.Persistence.Base
             try
             {
                 var entities = await _dbSet
-                    .Where(e => includeDeleted || !e.Eliminado)
+                    .Where(e => includeDeleted || !e.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("{Count} entidades {EntityType} obtenidas correctamente", entities.Count, typeof(TEntity).Name);
@@ -130,7 +130,7 @@ namespace SchoolPoliApp.Persistence.Base
             try
             {
                 var entities = await _dbSet
-                    .Where(e => includeDeleted || !e.Eliminado)
+                    .Where(e => includeDeleted || !e.IsDeleted)
                     .Where(filter)
                     .ToListAsync();
 
@@ -149,7 +149,8 @@ namespace SchoolPoliApp.Persistence.Base
             try
             {
                 var exists = await _dbSet
-                    .Where(e => includeDeleted || !e.Eliminado)
+                    .Where(e => includeDeleted || !e.IsDeleted)
+                    .Where(filter)
                     .AnyAsync(filter);
 
                 _logger.LogInformation("Existencia de entidad {EntityType} verificada: {Exists}", typeof(TEntity).Name, exists);

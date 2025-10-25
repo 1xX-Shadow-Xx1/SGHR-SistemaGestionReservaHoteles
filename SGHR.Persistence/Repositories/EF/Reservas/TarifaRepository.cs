@@ -73,7 +73,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             try
             {
                 var tarifas = await _context.Tarifa
-                    .Where(t => t.IdCategoria == idCategoria && !t.Eliminado)
+                    .Where(t => t.IdCategoria == idCategoria && !t.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {Count} tarifas para la categoría {CategoriaId}", tarifas.Count, idCategoria);
@@ -91,7 +91,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             try
             {
                 var tarifa = await _context.Tarifa
-                    .FirstOrDefaultAsync(t => t.IdCategoria == idCategoria && t.Temporada == temporada && !t.Eliminado);
+                    .FirstOrDefaultAsync(t => t.IdCategoria == idCategoria && t.Temporada == temporada && !t.IsDeleted);
 
                 if (tarifa == null)
                 {
@@ -114,7 +114,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             try
             {
                 var tarifas = await _context.Tarifa
-                    .Where(t => t.Temporada == temporada && !t.Eliminado)
+                    .Where(t => t.Temporada == temporada && !t.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {Count} tarifas para la temporada {Temporada}", tarifas.Count, temporada);

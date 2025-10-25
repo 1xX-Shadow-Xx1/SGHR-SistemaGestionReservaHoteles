@@ -22,7 +22,7 @@ namespace SGHR.Api.Controllers.Usuarios
         [HttpGet("Get-Usuarios")]
         public async Task<IActionResult> Get()
         {
-            ServiceResult result = await _usuarioService.GetAll();
+            ServiceResult result = await _usuarioService.GetAllAsync();
             if (!result.Success)
             {
                 return BadRequest(result);   
@@ -31,21 +31,10 @@ namespace SGHR.Api.Controllers.Usuarios
         }
 
         // GET api/<UsuarioController>
-        [HttpGet("Get-Usuario-Start-Sesion")]
-        public async Task<IActionResult> GetLogin(string email, string password)
+        [HttpPost("Usuario-Start-Sesion")]
+        public async Task<IActionResult> LoginAsync( UsuarioLoginDto usuarioLoginDto)
         {
-            ServiceResult result = await _usuarioService.LoginAsync(email, password);
-            if (!result.Success)
-            {
-                return BadRequest(result);
-            }
-            return Ok(result);
-        }
-        // GET api/<UsuarioController>
-        [HttpGet("Get-Usuario-Close-Sesion")]
-        public async Task<IActionResult> CloseSesion()
-        {
-            ServiceResult result = await _usuarioService.CloseAsync();
+            ServiceResult result = await _usuarioService.LoginAsync(usuarioLoginDto);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -54,10 +43,58 @@ namespace SGHR.Api.Controllers.Usuarios
         }
 
         // GET api/<UsuarioController>/5
-        [HttpGet("Get-Usuario-ById")]
+        [HttpGet("Get-Usuario-By-Id")]
         public async Task<IActionResult> GetByID(int id)
         {
-            ServiceResult result = await _usuarioService.GetById(id);
+            ServiceResult result = await _usuarioService.GetByIdAsync(id);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        // GET api/<UsuarioController>/5
+        [HttpGet("Get-Usuario-By-correo")]
+        public async Task<IActionResult> GetByCorreoAsync(string correo)
+        {
+            ServiceResult result = await _usuarioService.GetByCorreoAsync(correo);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        // GET api/<UsuarioController>/5
+        [HttpGet("Get-Usuario-By-Rol")]
+        public async Task<IActionResult> GetByRolAsync(string rol)
+        {
+            ServiceResult result = await _usuarioService.GetByRolAsync(rol);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        // GET api/<UsuarioController>/5
+        [HttpGet("Get-Usuario-By-filter")]
+        public async Task<IActionResult> GetAllByUserAsync(string? username, string? rol, string? estado)
+        {
+            ServiceResult result = await _usuarioService.GetAllByAsync(username,rol,estado);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        // GET api/<UsuarioController>/5
+        [HttpGet("Get-Usuario-Activos")]
+        public async Task<IActionResult> GetActivosAsync()
+        {
+            ServiceResult result = await _usuarioService.GetActivosAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -67,9 +104,9 @@ namespace SGHR.Api.Controllers.Usuarios
 
         // POST api/<UsuarioController>
         [HttpPost("create-Usuario")]
-        public async Task<IActionResult> Post([FromBody] UsuarioCreateDto createUsuarioDto)
+        public async Task<IActionResult> Post([FromBody] UsuarioCreateDto createUsuarioDto, int? idsesion = null)
         {
-            ServiceResult result = await _usuarioService.Save(createUsuarioDto);
+            ServiceResult result = await _usuarioService.CreateAsync(createUsuarioDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -79,9 +116,9 @@ namespace SGHR.Api.Controllers.Usuarios
 
         // PUT api/<UsuarioController>/5
         [HttpPut("update-Usuario")]
-        public async Task<IActionResult> Put([FromBody] UsuarioUpdateDto updateUsuarioDto)
+        public async Task<IActionResult> Put([FromBody] UsuarioUpdateDto updateUsuarioDto, int? idsesion = null)
         {
-            ServiceResult result = await _usuarioService.Update(updateUsuarioDto);
+            ServiceResult result = await _usuarioService.UpdateAsync(updateUsuarioDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -91,14 +128,16 @@ namespace SGHR.Api.Controllers.Usuarios
 
         // DELETE api/<UsuarioController>/5
         [HttpDelete("delete-Usuario")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, int? idsesion = null)
         {
-            ServiceResult result = await _usuarioService.Remove(id);
+            ServiceResult result = await _usuarioService.DeleteAsync(id, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
             }
             return Ok(result);
         }
+
+        
     }
 }

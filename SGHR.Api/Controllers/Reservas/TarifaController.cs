@@ -19,9 +19,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // GET: api/<TarifaController>
         [HttpGet("Get-Tarifas")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-            ServiceResult result = await _tarifaService.GetAll();
+            ServiceResult result = await _tarifaService.GetAllAsync();
 
             if (!result.Success)
             {
@@ -32,9 +32,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // GET api/<TarifaController>/5
         [HttpGet("Get-Tarifa-ByID")]
-        public async Task<IActionResult> GetByID(int id)
+        public async Task<IActionResult> GetByIDAsync(int id)
         {
-            ServiceResult result = await _tarifaService.GetById(id);
+            ServiceResult result = await _tarifaService.GetByIdAsync(id);
 
             if (!result.Success)
             {
@@ -45,9 +45,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // POST api/<TarifaController>
         [HttpPost("Create-Tarifa")]
-        public async Task<IActionResult> Post([FromBody] CreateTarifaDto createTarifaDto)
+        public async Task<IActionResult> PostAsync([FromBody] CreateTarifaDto createTarifaDto, int? idsesion = null)
         {
-            ServiceResult result = await _tarifaService.Save(createTarifaDto);
+            ServiceResult result = await _tarifaService.CreateAsync(createTarifaDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -57,9 +57,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // PUT api/<TarifaController>/5
         [HttpPut("Update-Tarifa")]
-        public async Task<IActionResult> Put([FromBody] UpdateTarifaDto updateTarifaDto)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateTarifaDto updateTarifaDto, int? idsesion = null)
         {
-            ServiceResult result = await _tarifaService.Update(updateTarifaDto);
+            ServiceResult result = await _tarifaService.UpdateAsync(updateTarifaDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -69,9 +69,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // DELETE api/<TarifaController>/5
         [HttpDelete("Delete-Tarifa")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
         {
-            ServiceResult result = await _tarifaService.Remove(id);
+            ServiceResult result = await _tarifaService.DeleteAsync(id, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);

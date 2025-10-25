@@ -22,9 +22,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // GET: api/<ReporteController>
         [HttpGet("get-Reportes")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-            ServiceResult result = await _reporteService.GetAll();
+            ServiceResult result = await _reporteService.GetAllAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -34,9 +34,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // GET api/<ReporteController>/5
         [HttpGet("get-Reporte-ById")]
-        public async Task<IActionResult> GetByID(int id)
+        public async Task<IActionResult> GetByIDAsync(int id)
         {
-            ServiceResult result = await _reporteService.GetById(id);
+            ServiceResult result = await _reporteService.GetByIdAsync(id);
             if(!result.Success)
             {
                 return BadRequest(result);
@@ -46,9 +46,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // POST api/<ReporteController>
         [HttpPost("create-Reporte")]
-        public async Task<IActionResult> Post([FromBody] CreateReporteDto createReporteDto)
+        public async Task<IActionResult> PostAsync([FromBody] CreateReporteDto createReporteDto, int? idsesion = null)
         {
-            ServiceResult result = await _reporteService.Save(createReporteDto);
+            ServiceResult result = await _reporteService.CreateAsync(createReporteDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -58,9 +58,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // PUT api/<ReporteController>/5
         [HttpPut("update-Reporte")]
-        public async Task<IActionResult> Put([FromBody] UpdateReporteDto updateReporteDto)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateReporteDto updateReporteDto, int? idsesion = null)
         {
-            ServiceResult result = await _reporteService.Update(updateReporteDto);
+            ServiceResult result = await _reporteService.UpdateAsync(updateReporteDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -70,9 +70,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // DELETE api/<ReporteController>/5
         [HttpDelete("delete-Reporte")]
-        public async Task<IActionResult> Remove(int id)
+        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
         {
-            ServiceResult result = await _reporteService.Remove(id);
+            ServiceResult result = await _reporteService.DeleteAsync(id, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);

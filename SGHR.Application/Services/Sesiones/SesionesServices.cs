@@ -206,7 +206,6 @@ namespace SGHR.Application.Services.Sesiones
             }
             return result;
         }
-
         public async Task<ServiceResult> DeleteAsync(int id, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
@@ -238,7 +237,6 @@ namespace SGHR.Application.Services.Sesiones
             }
             return result;
         }
-
         public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();

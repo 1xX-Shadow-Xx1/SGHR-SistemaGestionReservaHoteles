@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Usuers;
-using SGHR.Domain.Validators.Users;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Users;
 using System.Linq.Expressions;
@@ -149,7 +148,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
             try
             {
                 var cliente = await _context.Clientes
-                    .FirstOrDefaultAsync(c => c.Cedula == cedula && !c.Eliminado);
+                    .FirstOrDefaultAsync(c => c.Cedula == cedula && !c.IsDeleted);
 
                 if (cliente == null)
                 {
@@ -172,7 +171,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
             try
             {
                 var clientes = await _context.Clientes
-                    .Where(c => c.Nombre.Contains(nombre) && !c.Eliminado)
+                    .Where(c => c.Nombre.Contains(nombre) && !c.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Clientes filtrados por nombre '{Nombre}' obtenidos correctamente, total: {Count}", nombre, clientes.Count);

@@ -20,16 +20,17 @@ namespace SGHR.Application.Services.Operaciones
             _logger = logger;
         }
 
-        public async Task<ServiceResult> GetAll()
+        public async Task<ServiceResult> GetAllAsync()
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de todos los CheckInOut.");
 
             try
             {
-                var opResult = await _checkInOutRepository.GetAll();
+                var opResult = await _checkInOutRepository.GetAllAsync();
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtuvieron {count} CheckInOut", opResult.Data.Count);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "CheckInOut obtenidos correctamente.";
@@ -48,17 +49,17 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> GetById(int id)
+        public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de CheckInOut por ID: {Id}", id);
 
             try
             {
-                var opResult = await _checkInOutRepository.GetById(id);
+                var opResult = await _checkInOutRepository.GetByIdAsync(id);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtuvo un CheckInOut con Id {id}.", id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "CheckInOut obtenido correctamente.";
@@ -77,22 +78,21 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> Remove(int id)
+        public async Task<ServiceResult> DeleteAsync(int id, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando eliminación de CheckInOut con ID: {Id}", id);
 
             try
             {
-                if (id <= 0)
+                if (id < 0)
                 {
                     result.Success = false;
                     result.Message = "El ID del CheckInOut no es válido.";
                     return result;
                 }
 
-                var checkInOutExists = await _checkInOutRepository.GetById(id);
+                var checkInOutExists = await _checkInOutRepository.GetByIdAsync(id);
                 if (!checkInOutExists.Success)
                 {
                     result.Success = false;
@@ -100,9 +100,10 @@ namespace SGHR.Application.Services.Operaciones
                     return result;
                 }
 
-                var opResult = await _checkInOutRepository.Delete(checkInOutExists.Data);
+                var opResult = await _checkInOutRepository.DeleteAsync(checkInOutExists.Data, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se elimino un CheckInOut con Id {id} correctamente.", id);
                     result.Success = true;
                     result.Message = "CheckInOut eliminado correctamente.";
                 }
@@ -120,8 +121,7 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> Save(CreateCheckInOutDto createCheckInOutDto)
+        public async Task<ServiceResult> CreateAsync(CreateCheckInOutDto createCheckInOutDto, int? idsesion = null)
         {
             ServiceResult result= new ServiceResult();
             _logger.LogInformation("Iniciando creación de CheckInOut.", createCheckInOutDto);
@@ -136,9 +136,10 @@ namespace SGHR.Application.Services.Operaciones
                     AtendidoPor = createCheckInOutDto.AtendidoPor
                 };
 
-                var opResult = await _checkInOutRepository.Save(checkInOut);
+                var opResult = await _checkInOutRepository.SaveAsync(checkInOut, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se guardo un checkInOut a la reserva con Id {id} correctamente.", createCheckInOutDto.IdReserva);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "CheckInOut creado correctamente.";
@@ -157,15 +158,14 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
-
-        public async Task<ServiceResult> Update(UpdateCheckInOutDto updateCheckInOutDto)
+        public async Task<ServiceResult> UpdateAsync(UpdateCheckInOutDto updateCheckInOutDto, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando actualización de CheckInOut.", updateCheckInOutDto);
 
             try
             {
-                var checkInOutExists = await _checkInOutRepository.GetById(updateCheckInOutDto.Id);
+                var checkInOutExists = await _checkInOutRepository.GetByIdAsync(updateCheckInOutDto.Id);
                 if (!checkInOutExists.Success)
                 {
                     result.Success = false;
@@ -179,9 +179,10 @@ namespace SGHR.Application.Services.Operaciones
                 checkInOut.FechaCheckOut = updateCheckInOutDto.FechaCheckOut;
                 checkInOut.AtendidoPor = updateCheckInOutDto.AtendidoPor;
 
-                var opResult = await _checkInOutRepository.Update(checkInOut);
+                var opResult = await _checkInOutRepository.UpdateAsync(checkInOut, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a actualizado un CheckIOut con Id {id} correctamente.", updateCheckInOutDto.Id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "CheckInOut actualizado correctamente.";

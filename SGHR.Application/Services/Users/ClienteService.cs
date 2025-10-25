@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Operaciones.Auditory;
-using SGHR.Application.Dtos.Configuration.Sesiones.Sesion;
 using SGHR.Application.Dtos.Configuration.Users.Cliente;
 using SGHR.Application.Interfaces.Users;
 using SGHR.Domain.Entities.Configuration.Usuers;

@@ -96,7 +96,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
                 _logger.LogInformation("Obteniendo habitaciones disponibles entre {Inicio} y {Fin}", fechaInicio, fechaFin);
 
                 var disponibles = await _context.Habitaciones
-                    .Where(h => !h.Eliminado &&
+                    .Where(h => !h.IsDeleted &&
                                 h.Estado == EstadoHabitacion.Activa &&
                                 !_context.Reservas.Any(r =>
                                     r.IdHabitacion == h.Id &&
@@ -124,7 +124,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
                 _logger.LogInformation("Obteniendo habitaciones por categoría {CategoriaId}", idCategoria);
 
                 var habitaciones = await _context.Habitaciones
-                    .Where(h => h.IdCategoria == idCategoria && (includeDeleted || !h.Eliminado))
+                    .Where(h => h.IdCategoria == idCategoria && (includeDeleted || !h.IsDeleted))
                     .ToListAsync();
 
                 _logger.LogInformation("Se encontraron {Cantidad} habitaciones en la categoría {CategoriaId}", habitaciones.Count, idCategoria);
@@ -146,7 +146,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
                 _logger.LogInformation("Obteniendo habitaciones del piso {PisoId}", idPiso);
 
                 var habitaciones = await _context.Habitaciones
-                    .Where(h => h.IdPiso == idPiso && (includeDeleted || !h.Eliminado))
+                    .Where(h => h.IdPiso == idPiso && (includeDeleted || !h.IsDeleted))
                     .ToListAsync();
 
                 _logger.LogInformation("Se encontraron {Cantidad} habitaciones en el piso {PisoId}", habitaciones.Count, idPiso);

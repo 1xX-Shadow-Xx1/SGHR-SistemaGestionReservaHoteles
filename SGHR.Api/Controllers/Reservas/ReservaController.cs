@@ -19,9 +19,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // GET: api/<ReservaController>
         [HttpGet("Get-Reservas")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-            ServiceResult result = await _reservaService.GetAll();
+            ServiceResult result = await _reservaService.GetAllAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -31,9 +31,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // GET api/<ReservaController>/5
         [HttpGet("Get-Reserva-ByID")]
-        public async Task<IActionResult> GetByID(int id)
+        public async Task<IActionResult> GetByIDAsync(int id)
         {
-            ServiceResult result = await _reservaService.GetById(id);
+            ServiceResult result = await _reservaService.GetByIdAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -43,9 +43,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // POST api/<ReservaController>
         [HttpPost("Create-Reserva")]
-        public async Task<IActionResult> Post([FromBody] CreateReservaDto createDto)
+        public async Task<IActionResult> PostAsync([FromBody] CreateReservaDto createDto, int? idsesion = null)
         {
-            ServiceResult result = await _reservaService.Save(createDto);
+            ServiceResult result = await _reservaService.CreateAsync(createDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -55,9 +55,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // PUT api/<ReservaController>/5
         [HttpPut("Update-Reserva")]
-        public async Task<IActionResult> Put([FromBody] UpdateReservaDto updateDto)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateReservaDto updateDto, int? idsesion = null)
         {
-            ServiceResult result = await _reservaService.Update(updateDto);
+            ServiceResult result = await _reservaService.UpdateAsync(updateDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // DELETE api/<ReservaController>/5
         [HttpDelete("Delete-Reserva")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
         {
-            ServiceResult result = await _reservaService.Remove(id);
+            ServiceResult result = await _reservaService.DeleteAsync(id, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);

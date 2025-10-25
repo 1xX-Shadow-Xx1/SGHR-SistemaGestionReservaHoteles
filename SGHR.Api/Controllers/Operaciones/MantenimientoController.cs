@@ -19,9 +19,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // GET: api/<MantenimientoController>
         [HttpGet("Get-Mantenimientos")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-            ServiceResult result = await _mantenimientoService.GetAll();
+            ServiceResult result = await _mantenimientoService.GetAllAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -31,9 +31,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // GET api/<MantenimientoController>/5
         [HttpGet("Get-Mantenimiento-ByID")]
-        public async Task<IActionResult> GetByID(int id)
+        public async Task<IActionResult> GetByIDAsync(int id)
         {
-            ServiceResult result = await _mantenimientoService.GetById(id);
+            ServiceResult result = await _mantenimientoService.GetByIdAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -43,9 +43,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // POST api/<MantenimientoController>
         [HttpPost("Create-Mantenimiento")]
-        public async Task<IActionResult> Post([FromBody] CreateMantenimientoDto createDto)
+        public async Task<IActionResult> PostAsync([FromBody] CreateMantenimientoDto createDto, int? idsesion = null)
         {
-            ServiceResult result = await _mantenimientoService.Save(createDto);
+            ServiceResult result = await _mantenimientoService.CreateAsync(createDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -55,9 +55,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // PUT api/<MantenimientoController>/5
         [HttpPut("Update-Mantenimiento")]
-        public async Task<IActionResult> Put([FromBody] UpdateMantenimientoDto updateDto)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateMantenimientoDto updateDto, int? idsesion = null)
         {
-            ServiceResult result = await _mantenimientoService.Update(updateDto);
+            ServiceResult result = await _mantenimientoService.UpdateAsync(updateDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // DELETE api/<MantenimientoController>/5
         [HttpDelete("Delete-Mantenimiento")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
         {
-            ServiceResult result = await _mantenimientoService.Remove(id);
+            ServiceResult result = await _mantenimientoService.DeleteAsync(id, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);

@@ -75,7 +75,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var reportes = await _context.Reportes
-                    .Where(r => r.FechaGeneracion >= fechaInicio && r.FechaGeneracion <= fechaFin && !r.Eliminado)
+                    .Where(r => r.FechaGeneracion >= fechaInicio && r.FechaGeneracion <= fechaFin && !r.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {Cantidad} reportes entre {FechaInicio} y {FechaFin}", reportes.Count, fechaInicio, fechaFin);
@@ -93,7 +93,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var reportes = await _context.Reportes
-                    .Where(r => r.TipoReporte == tipoReporte && !r.Eliminado)
+                    .Where(r => r.TipoReporte == tipoReporte && !r.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {Cantidad} reportes del tipo {TipoReporte}", reportes.Count, tipoReporte);
@@ -111,7 +111,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var reportes = await _context.Reportes
-                    .Where(r => r.GeneradoPor == usuarioId && !r.Eliminado)
+                    .Where(r => r.GeneradoPor == usuarioId && !r.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {Cantidad} reportes para el usuario {UsuarioId}", reportes.Count, usuarioId);

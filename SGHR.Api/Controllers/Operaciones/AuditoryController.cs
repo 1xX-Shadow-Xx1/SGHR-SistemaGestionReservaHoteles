@@ -19,9 +19,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // GET: api/<AuditoryController>
         [HttpGet("Get-Auditorias")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-            ServiceResult result = await _auditoryService.GetAll();
+            ServiceResult result = await _auditoryService.GetAllAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -31,9 +31,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // GET api/<AuditoryController>/5
         [HttpGet("Get-Auditoria-ByID")]
-        public async Task<IActionResult> GetByID(int id)
+        public async Task<IActionResult> GetByIDAsync(int id)
         {
-            ServiceResult result = await _auditoryService.GetById(id);
+            ServiceResult result = await _auditoryService.GetByIdAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -43,9 +43,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // POST api/<AuditoryController>
         [HttpPost("Create-Auditoria")]
-        public async Task<IActionResult> Post([FromBody] CreateAuditoryDto createDto)
+        public async Task<IActionResult> PostAsync([FromBody] CreateAuditoryDto createDto, int? idsesion = null)
         {
-            ServiceResult result = await _auditoryService.Save(createDto);
+            ServiceResult result = await _auditoryService.CreateAsync(createDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -55,9 +55,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // PUT api/<AuditoryController>/5
         [HttpPut("Update-Auditoria")]
-        public async Task<IActionResult> Put([FromBody] UpdateAuditoryDto updateDto)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateAuditoryDto updateDto, int? idsesion = null)
         {
-            ServiceResult result = await _auditoryService.Update(updateDto);
+            ServiceResult result = await _auditoryService.UpdateAsync(updateDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // DELETE api/<AuditoryController>/5
         [HttpDelete("Delete-Auditoria")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
         {
-            ServiceResult result = await _auditoryService.Remove(id);
+            ServiceResult result = await _auditoryService.DeleteAsync(id, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);

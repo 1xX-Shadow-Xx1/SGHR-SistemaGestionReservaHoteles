@@ -7,7 +7,6 @@ namespace SGHR.Application.Interfaces.Sesiones
     {
         Task<ServiceResult> OpenSesionAsync(StartSesionDto startSesionDto);
         Task<ServiceResult> CloseSesionAsync(CloseSesionDto closeSesionDto, int? idsesion = null);
-        Task<ServiceResult> DeleteSesionAsync(int id);
         Task<ServiceResult> GetSesionAsync();
         Task<ServiceResult> GetSesionByUsersAsync(string correo);
         Task<ServiceResult> GetOpenSesionAsync();

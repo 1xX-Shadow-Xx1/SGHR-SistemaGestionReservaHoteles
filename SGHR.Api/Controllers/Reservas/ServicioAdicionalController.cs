@@ -20,9 +20,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // GET: api/<ServicioAdicionalController>
         [HttpGet("Get-ServiciosAdicionales")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-            ServiceResult result = await _servicioAdicionalService.GetAll();
+            ServiceResult result = await _servicioAdicionalService.GetAllAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -32,9 +32,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // GET api/<ServicioAdicionalController>/5
         [HttpGet("Get-ServicioAdicional-ByID")]
-        public async Task<IActionResult> GetByID(int id)
+        public async Task<IActionResult> GetByIDAsync(int id)
         {
-            ServiceResult result = await _servicioAdicionalService.GetById(id);
+            ServiceResult result = await _servicioAdicionalService.GetByIdAsync(id);
             if (result.Success)
             {
                 return BadRequest(result);
@@ -44,9 +44,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // POST api/<ServicioAdicionalController>
         [HttpPost("Create-ServicioAdicional")]
-        public async Task<IActionResult> Post([FromBody] CreateServicioAdicionalDto createServicioAdicionalDto)
+        public async Task<IActionResult> PostAsync([FromBody] CreateServicioAdicionalDto createServicioAdicionalDto, int? idseison = null)
         {
-            ServiceResult result = await _servicioAdicionalService.Save(createServicioAdicionalDto);
+            ServiceResult result = await _servicioAdicionalService.CreateAsync(createServicioAdicionalDto, idseison);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -56,9 +56,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // PUT api/<ServicioAdicionalController>/5
         [HttpPut("Update-ServicioAdicional")]
-        public async Task<IActionResult> Put([FromBody] UpdateServicioAdicionalDto updateServicioAdicionalDto)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateServicioAdicionalDto updateServicioAdicionalDto, int? idsesion = null)
         {
-            ServiceResult result = await _servicioAdicionalService.Update(updateServicioAdicionalDto);
+            ServiceResult result = await _servicioAdicionalService.UpdateAsync(updateServicioAdicionalDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -68,9 +68,9 @@ namespace SGHR.Api.Controllers.Reservas
 
         // DELETE api/<ServicioAdicionalController>/5
         [HttpDelete("Delete-ServicioAdicional")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
         {
-            ServiceResult result = await _servicioAdicionalService.Remove(id);
+            ServiceResult result = await _servicioAdicionalService.DeleteAsync(id, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);

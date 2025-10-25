@@ -114,7 +114,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var auditorias = await _context.Auditory
-                    .Where(a => a.Fecha >= fechaInicio && a.Fecha <= fechaFin && !a.Eliminado)
+                    .Where(a => a.Fecha >= fechaInicio && a.Fecha <= fechaFin && !a.IsDeleted)
                     .ToListAsync();
 
                 if (auditorias == null || auditorias.Count == 0)
@@ -138,7 +138,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
             try
             {
                 var auditorias = await _context.Auditory
-                    .Where(a => a.IdSesion == sesionId && !a.Eliminado)
+                    .Where(a => a.IdSesion == sesionId && !a.IsDeleted)
                     .ToListAsync();
 
                 if (auditorias == null || auditorias.Count == 0)

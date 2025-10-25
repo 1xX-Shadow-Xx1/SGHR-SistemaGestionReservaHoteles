@@ -109,7 +109,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
                 _logger.LogInformation("Buscando piso con número {NumeroPiso}", numeroPiso);
 
                 var piso = await _context.Piso
-                    .FirstOrDefaultAsync(p => p.NumeroPiso == numeroPiso && !p.Eliminado);
+                    .FirstOrDefaultAsync(p => p.NumeroPiso == numeroPiso && !p.IsDeleted);
 
                 if (piso == null)
                 {

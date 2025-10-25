@@ -19,9 +19,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // GET: api/<HabitacionController>
         [HttpGet("Get-Habitaciones")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-            ServiceResult result = await _habitacionService.GetAll();
+            ServiceResult result = await _habitacionService.GetAllAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -31,9 +31,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // GET api/<HabitacionController>/5
         [HttpGet("Get-Habitacion-ByID")]
-        public async Task<IActionResult> GetByID(int id)
+        public async Task<IActionResult> GetByIDAsync(int id)
         {
-            ServiceResult result = await _habitacionService.GetById(id);
+            ServiceResult result = await _habitacionService.GetByIdAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -43,9 +43,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // POST api/<HabitacionController>
         [HttpPost("Create-Habitacion")]
-        public async Task<IActionResult> Post([FromBody] CreateHabitacionDto createDto)
+        public async Task<IActionResult> PostAsync([FromBody] CreateHabitacionDto createDto, int? idsesion = null)
         {
-            ServiceResult result = await _habitacionService.Save(createDto);
+            ServiceResult result = await _habitacionService.CreateAsync(createDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -55,9 +55,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // PUT api/<HabitacionController>/5
         [HttpPut("Update-Habitacion")]
-        public async Task<IActionResult> Put([FromBody] UpdateHabitacionDto updateDto)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateHabitacionDto updateDto, int? idsesion = null)
         {
-            ServiceResult result = await _habitacionService.Update(updateDto);
+            ServiceResult result = await _habitacionService.UpdateAsync(updateDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // DELETE api/<HabitacionController>/5
         [HttpDelete("Delete-Habitacion")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
         {
-            ServiceResult result = await _habitacionService.Remove(id);
+            ServiceResult result = await _habitacionService.DeleteAsync(id, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);

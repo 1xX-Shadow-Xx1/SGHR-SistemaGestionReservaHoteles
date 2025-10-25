@@ -19,9 +19,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // GET: api/<CategoriaController>
         [HttpGet("Get-Categorias")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-            ServiceResult result = await _categoriaService.GetAll();
+            ServiceResult result = await _categoriaService.GetAllAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -31,9 +31,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // GET api/<CategoriaController>/5
         [HttpGet("Get-Categoria-ByID")]
-        public async Task<IActionResult> GetByID(int id)
+        public async Task<IActionResult> GetByIDAsync(int id)
         {
-            ServiceResult result = await _categoriaService.GetById(id);
+            ServiceResult result = await _categoriaService.GetByIdAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -43,9 +43,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // POST api/<CategoriaController>
         [HttpPost("Create-Categoria")]
-        public async Task<IActionResult> Post([FromBody] CreateCategoriaDto categoriaDto)
+        public async Task<IActionResult> PostAsync([FromBody] CreateCategoriaDto categoriaDto, int? idsesion = null)
         {
-            ServiceResult result = await _categoriaService.Save(categoriaDto);
+            ServiceResult result = await _categoriaService.CreateAsync(categoriaDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -55,9 +55,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // PUT api/<CategoriaController>/5
         [HttpPut("Update-Categoria")]
-        public async Task<IActionResult> Put([FromBody] UpdateCategoriaDto categoriaDto)
+        public async Task<IActionResult> PutAsync([FromBody] UpdateCategoriaDto categoriaDto, int? idsesion = null)
         {
-            ServiceResult result = await _categoriaService.Update(categoriaDto);
+            ServiceResult result = await _categoriaService.UpdateAsync(categoriaDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // DELETE api/<CategoriaController>/5
         [HttpDelete("Delete-Categoria")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
         {
-            ServiceResult result = await _categoriaService.Remove(id);
+            ServiceResult result = await _categoriaService.DeleteAsync(id, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);

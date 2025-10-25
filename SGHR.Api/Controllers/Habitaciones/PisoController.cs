@@ -19,9 +19,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // GET: api/<PisoController>
         [HttpGet("Get-Pisos")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAsync()
         {
-            ServiceResult result = await _pisoService.GetAll();
+            ServiceResult result = await _pisoService.GetAllAsync();
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -31,9 +31,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // GET api/<PisoController>/5
         [HttpGet("Get-Piso-ByID")]
-        public async Task<IActionResult> GetByID(int id)
+        public async Task<IActionResult> GetByIDAsync(int id)
         {
-            ServiceResult result = await _pisoService.GetById(id);
+            ServiceResult result = await _pisoService.GetByIdAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -43,9 +43,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // POST api/<PisoController>
         [HttpPost("Create-Piso")]
-        public async Task<IActionResult> Post([FromBody] CreatePisoDto createDto)
+        public async Task<IActionResult> PostAsync([FromBody] CreatePisoDto createDto, int? idsesion = null)
         {
-            ServiceResult result = await _pisoService.Save(createDto);
+            ServiceResult result = await _pisoService.CreateAsync(createDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -55,9 +55,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // PUT api/<PisoController>/5
         [HttpPut("Update-Piso")]
-        public async Task<IActionResult> Put([FromBody] UpdatePisoDto updateDto)
+        public async Task<IActionResult> PutAsync([FromBody] UpdatePisoDto updateDto, int? idsesion = null)
         {
-            ServiceResult result = await _pisoService.Update(updateDto);
+            ServiceResult result = await _pisoService.UpdateAsync(updateDto, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);
@@ -67,9 +67,9 @@ namespace SGHR.Api.Controllers.Habitaciones
 
         // DELETE api/<PisoController>/5
         [HttpDelete("Delete-Piso")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id, int? idsesion = null)
         {
-            ServiceResult result = await _pisoService.Remove(id);
+            ServiceResult result = await _pisoService.DeleteAsync(id, idsesion);
             if (!result.Success)
             {
                 return BadRequest(result);

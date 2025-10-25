@@ -115,7 +115,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
         {
             try
             {
-                var result = await base.GetAllByAsync(filter, includeDeleted);
+                var result = await base.GetAllByAsync(filter);
                 if (result.Success)
                     _logger.LogInformation("Usuarios filtrados obtenidos correctamente, total: {Count}", result.Data.Count);
 
@@ -149,7 +149,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
             try
             {
                 var usuario = await _context.Usuarios
-                    .FirstOrDefaultAsync(u => u.Correo == correo && !u.Eliminado);
+                    .FirstOrDefaultAsync(u => u.Correo == correo && !u.IsDeleted);
 
                 if (usuario == null)
                 {
@@ -172,7 +172,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
             try
             {
                 var usuarios = await _context.Usuarios
-                    .Where(u => u.Rol == rol && !u.Eliminado)
+                    .Where(u => u.Rol == rol && !u.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("{Count} usuarios obtenidos correctamente con rol {Rol}", usuarios.Count, rol);
@@ -190,7 +190,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
             try
             {
                 var usuarios = await _context.Usuarios
-                    .Where(u => u.Estado == EstadoUsuario.Activo && !u.Eliminado)
+                    .Where(u => u.Estado == EstadoUsuario.Activo && !u.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("{Count} usuarios activos obtenidos correctamente", usuarios.Count);

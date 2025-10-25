@@ -19,16 +19,17 @@ namespace SGHR.Application.Services.Categorias
             _logger = logger;
         }
 
-        public async Task<ServiceResult> GetAll()
+        public async Task<ServiceResult> GetAllAsync()
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de todos los amenities.");
 
             try
             {
-                var opResult = await _amenityRepository.GetAll();
+                var opResult = await _amenityRepository.GetAllAsync();
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtuvieron {count} Amenities correctamente.", opResult.Data.Count);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Amenities obtenidos correctamente.";
@@ -47,17 +48,17 @@ namespace SGHR.Application.Services.Categorias
             }
             return result;
         }
-
-        public async Task<ServiceResult> GetById(int id)
+        public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de amenity por ID: {Id}", id);
 
             try
             {
-                var opResult = await _amenityRepository.GetById(id);
+                var opResult = await _amenityRepository.GetByIdAsync(id);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtuvo una amenity con Id {id} correctamente.", id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Amenity obtenido correctamente.";
@@ -76,8 +77,7 @@ namespace SGHR.Application.Services.Categorias
             }
             return result;
         }
-
-        public async Task<ServiceResult> Update(UpdateAmenityDto updateAmenityDto)
+        public async Task<ServiceResult> UpdateAsync(UpdateAmenityDto updateAmenityDto, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando actualización de amenity: {Dto}", updateAmenityDto);
@@ -85,7 +85,7 @@ namespace SGHR.Application.Services.Categorias
             try
             {
 
-                var existingAmenityResult = await _amenityRepository.GetById(updateAmenityDto.Id);
+                var existingAmenityResult = await _amenityRepository.GetByIdAsync(updateAmenityDto.Id);
                 if (!existingAmenityResult.Success || existingAmenityResult.Data == null)
                 {
                     result.Success = false;
@@ -96,9 +96,10 @@ namespace SGHR.Application.Services.Categorias
                 var existingAmenity = existingAmenityResult.Data;
                 existingAmenity.Nombre = updateAmenityDto.Nombre;
                 existingAmenity.Descripcion = updateAmenityDto.Descripcion;
-                var opResult = await _amenityRepository.Update(existingAmenity);
+                var opResult = await _amenityRepository.UpdateAsync(existingAmenity, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a actualizado un amenity con Id {id} correctamente.", updateAmenityDto.Id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Amenity actualizado correctamente.";
@@ -117,31 +118,31 @@ namespace SGHR.Application.Services.Categorias
             }
             return result;
         }
-
-        public async Task<ServiceResult> Remove(int id)
+        public async Task<ServiceResult> DeleteAsync(int id, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando eliminación de amenity: {id}", id);
 
             try
             {
-                if (id <= 0)
+                if (id < 0)
                 {
                     result.Success = false;
                     result.Message = "El amenity debe tener un ID válido.";
                     return result;
                 }
 
-                var AmenityExist = await _amenityRepository.GetById(id);
+                var AmenityExist = await _amenityRepository.GetByIdAsync(id);
                 if (!AmenityExist.Success)
                 {
                     result.Success = false;
                     result.Message = AmenityExist.Message;
                     return result;
                 }
-                var opResult = await _amenityRepository.Delete(AmenityExist.Data);
+                var opResult = await _amenityRepository.DeleteAsync(AmenityExist.Data, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a eliminado un Amenity con Id {id} correctamente.", id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Amenity eliminado correctamente.";
@@ -160,8 +161,7 @@ namespace SGHR.Application.Services.Categorias
             }
             return result;
         }
-
-        public async Task<ServiceResult> Save(CreateAmenityDto createAmenityDto)
+        public async Task<ServiceResult> CreateAsync(CreateAmenityDto createAmenityDto, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando creación de amenity: {Dto}", createAmenityDto);
@@ -181,9 +181,10 @@ namespace SGHR.Application.Services.Categorias
                     Descripcion = createAmenityDto.Descripcion
                 };
 
-                var opResult = await _amenityRepository.Save(amenity);
+                var opResult = await _amenityRepository.SaveAsync(amenity, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a creado un nuevo amenity con el nombre {name} correctamente.", amenity.Nombre);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Amenity creado correctamente.";

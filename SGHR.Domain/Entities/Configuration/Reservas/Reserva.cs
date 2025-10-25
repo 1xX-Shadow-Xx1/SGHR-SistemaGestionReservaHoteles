@@ -1,10 +1,11 @@
-﻿using SGHR.Domain.Enum.Reservas;
+﻿using SGHR.Domain.Base;
+using SGHR.Domain.Enum.Reservas;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SGHR.Domain.Entities.Configuration.Reservas
 {
     [Table("Reservas")]
-    public sealed class Reserva : Base.BaseEntity
+    public sealed class Reserva : BaseEntity
     {
         [Column("id_cliente")]
         public int IdCliente { get; set; }

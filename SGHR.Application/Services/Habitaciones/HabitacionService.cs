@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion;
+using SGHR.Application.Dtos.Configuration.Reservas.Reserva;
 using SGHR.Application.Interfaces.Habitaciones;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
+using SGHR.Domain.Enum.Habitacion;
+using SGHR.Domain.Enum.Reservas;
 using SGHR.Domain.Repository;
 
 namespace SGHR.Application.Services.Categorias
@@ -18,16 +21,17 @@ namespace SGHR.Application.Services.Categorias
             _habitacionRepository = habitacionRepository;
         }
 
-        public async Task<ServiceResult> GetAll()
+        public async Task<ServiceResult> GetAllAsync()
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de todas las habitaciones.");
 
             try
             {
-                var opResult = await _habitacionRepository.GetAll();
+                var opResult = await _habitacionRepository.GetAllAsync();
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtuvieron {count} habitaciones correctamente.",opResult.Data.Count);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Habitaciones obtenidas correctamente.";
@@ -46,17 +50,17 @@ namespace SGHR.Application.Services.Categorias
             }
             return result;
         }
-
-        public async Task<ServiceResult> GetById(int id)
+        public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando obtención de habitación por ID: {Id}", id);
 
             try
             {
-                var opResult = await _habitacionRepository.GetById(id);
+                var opResult = await _habitacionRepository.GetByIdAsync(id);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se obtuvo una habitacion con Id {id} correctamente.", id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Habitación obtenida correctamente.";
@@ -75,22 +79,21 @@ namespace SGHR.Application.Services.Categorias
             }
             return result;
         }
-
-        public async Task<ServiceResult> Remove(int id)
+        public async Task<ServiceResult> DeleteAsync(int id, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando eliminación de habitación con ID: {Id}", id);
 
             try
             {
-                if(id <= 0)
+                if(id < 0)
                 {
                     result.Success = false;
                     result.Message = "ID de habitación inválido.";
                     return result;
                 }
 
-                var HabitacionExist = await _habitacionRepository.GetById(id);
+                var HabitacionExist = await _habitacionRepository.GetByIdAsync(id);
                 if (!HabitacionExist.Success)
                 {
                     result.Success = false;
@@ -98,9 +101,10 @@ namespace SGHR.Application.Services.Categorias
                     return result;
                 }
 
-                var opResult = await _habitacionRepository.Delete(HabitacionExist.Data);
+                var opResult = await _habitacionRepository.DeleteAsync(HabitacionExist.Data, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a eliminado una habitacion con Id {id} correctamente.", id);
                     result.Success = true;
                     result.Message = "Habitación eliminada correctamente.";
                 }
@@ -118,8 +122,7 @@ namespace SGHR.Application.Services.Categorias
             }
             return result;
         }
-
-        public async Task<ServiceResult> Save(CreateHabitacionDto createHabitacionDto)
+        public async Task<ServiceResult> CreateAsync(CreateHabitacionDto createHabitacionDto, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando creación de nueva habitación.", createHabitacionDto);
@@ -135,9 +138,10 @@ namespace SGHR.Application.Services.Categorias
                     Capacidad = createHabitacionDto.Capacidad
                 };
 
-                var opResult = await _habitacionRepository.Save(habitacion);
+                var opResult = await _habitacionRepository.SaveAsync(habitacion, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a creado una nueva habitacion en la categoria con id {id} correctamente.", habitacion.IdCategoria);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Habitación creada correctamente.";
@@ -156,15 +160,14 @@ namespace SGHR.Application.Services.Categorias
             }
             return result;
         }
-
-        public async Task<ServiceResult> Update(UpdateHabitacionDto updateHabitacionDto)
+        public async Task<ServiceResult> UpdateAsync(UpdateHabitacionDto updateHabitacionDto, int? idsesion = null)
         {
             ServiceResult result = new ServiceResult();
             _logger.LogInformation("Iniciando actualización de habitación con ID: {Id}", updateHabitacionDto.Id);
 
             try
             {
-                var existingHabitacionResult = await _habitacionRepository.GetById(updateHabitacionDto.Id);
+                var existingHabitacionResult = await _habitacionRepository.GetByIdAsync(updateHabitacionDto.Id);
                 if (!existingHabitacionResult.Success)
                 {
                     result.Success = false;
@@ -178,11 +181,18 @@ namespace SGHR.Application.Services.Categorias
                 habitacion.IdAmenity = updateHabitacionDto.IdAmenity;
                 habitacion.IdCategoria = updateHabitacionDto.IdCategoria;
                 habitacion.Capacidad = updateHabitacionDto.Capacidad;
-                habitacion.Estado = updateHabitacionDto.Estado;
+                if (!string.IsNullOrWhiteSpace(updateHabitacionDto.Estado))
+                {
+                    if (Enum.TryParse(updateHabitacionDto.Estado, out EstadoHabitacion estado))
+                    {
+                        habitacion.Estado = estado;
+                    }
+                }
 
-                var opResult = await _habitacionRepository.Update(habitacion);
+                var opResult = await _habitacionRepository.UpdateAsync(habitacion, idsesion);
                 if (opResult.Success)
                 {
+                    _logger.LogInformation("Se a actualizado una habitacion con id {id} correctamente.", habitacion.Id);
                     result.Success = true;
                     result.Data = opResult.Data;
                     result.Message = "Habitación actualizada correctamente.";
