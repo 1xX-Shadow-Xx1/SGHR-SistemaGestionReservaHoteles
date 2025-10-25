@@ -4,7 +4,7 @@
     {
         Disponible,             
         Ocupada,            
-        EnMantenimiento,    
+        Mantenimiento,    
         Limpieza,          
         Reservada           
     }

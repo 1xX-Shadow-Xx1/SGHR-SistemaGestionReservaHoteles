@@ -1,4 +1,6 @@
-﻿namespace SGHR.Application.Dtos.Configuration.Habitaciones.Categoria
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace SGHR.Application.Dtos.Configuration.Habitaciones.Categoria
 {
     public class CategoriaDto
     {

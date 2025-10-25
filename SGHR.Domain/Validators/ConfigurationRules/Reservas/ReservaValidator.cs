@@ -10,7 +10,6 @@ namespace SGHR.Domain.Validators.ConfigurationRules.Reservas
             if (!ValidationHelper.NotNull(reserva, "Reserva", out errorMessage)) return false;
             if (!ValidationHelper.GreaterThanZero(reserva.IdCliente, "IdCliente", out errorMessage)) return false;
             if (!ValidationHelper.GreaterThanZero(reserva.IdHabitacion, "IdHabitacion", out errorMessage)) return false;
-            if (!ValidationHelper.GreaterThanZero(reserva.IdUsuario, "IdUsuario", out errorMessage)) return false;
             if (reserva.FechaInicio == DateTime.MinValue)
             {
                 errorMessage = "Fecha de inicio es obligatoria.";
