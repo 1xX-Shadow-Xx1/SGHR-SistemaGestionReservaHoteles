@@ -84,7 +84,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             _logger.LogInformation("Obteniendo todas las habitaciones (includeDeleted = {IncludeDeleted})", includeDeleted);
             return await base.GetAllAsync(includeDeleted);
         }
-        public async Task<OperationResult<List<Habitacion>>> GetAvailableAsync(DateTime fechaInicio, DateTime fechaFin)
+        public async Task<OperationResult<List<Habitacion>>> GetAvailableAsync(DateTime fechaInicio, DateTime fechaFin, int? idreserva = 0)
         {
             try
             {
@@ -92,12 +92,12 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
                 var disponibles = await _context.Habitaciones
                     .Where(h => !h.IsDeleted &&
-                                h.Estado == EstadoHabitacion.Activa &&
+                                h.Estado == EstadoHabitacion.Disponible &&
                                 !_context.Reservas.Any(r =>
                                     r.IdHabitacion == h.Id &&
                                     ((fechaInicio >= r.FechaInicio && fechaInicio <= r.FechaFin) ||
                                      (fechaFin >= r.FechaInicio && fechaFin <= r.FechaFin) ||
-                                     (fechaInicio <= r.FechaInicio && fechaFin >= r.FechaFin))))
+                                     (fechaInicio <= r.FechaInicio && fechaFin >= r.FechaFin)) && r.Id != idreserva))
                     .ToListAsync();
 
                 _logger.LogInformation("Se encontraron {Cantidad} habitaciones disponibles", disponibles.Count);

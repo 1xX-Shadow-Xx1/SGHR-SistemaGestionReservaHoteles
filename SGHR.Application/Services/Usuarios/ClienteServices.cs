@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Users.Cliente;
-using SGHR.Application.Dtos.Configuration.Users.Usuario;
 using SGHR.Application.Interfaces.Usuarios;
 using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Repository;
@@ -128,21 +127,21 @@ namespace SGHR.Application.Services.Usuarios
             }
             try
             {
-                var existUsuario = await _clienteRepository.GetByIdAsync(id);
-                if (!existUsuario.Success)
+                var existCliente = await _clienteRepository.GetByIdAsync(id);
+                if (!existCliente.Success)
                 {
                     result.Message = $"No existe un cliente con ese id.";
                     return result;
                 }
 
-                var OpResult = await _clienteRepository.DeleteAsync(existUsuario.Data);
+                var OpResult = await _clienteRepository.DeleteAsync(existCliente.Data);
                 if (!OpResult.Success)
                 {
                     result.Message = OpResult.Message;
                     return result;
                 }
                 result.Success = true;
-                result.Message = $"Cliente {existUsuario.Data.Nombre} eliminado correctamente.";
+                result.Message = $"Cliente {existCliente.Data.Nombre} eliminado correctamente.";
 
             }
             catch (Exception ex)

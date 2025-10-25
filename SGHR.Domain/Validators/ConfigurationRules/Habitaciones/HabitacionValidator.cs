@@ -32,7 +32,7 @@ namespace SGHR.Domain.Validators.ConfigurationRules.Habitaciones
             if (!ValidationHelper.GreaterThanZero(habitacion.Capacidad, "Capacidad", out errorMessage)) return false;
 
             // Estado
-            var estadosValidos = new[] { EstadoHabitacion.Activa, EstadoHabitacion.Reservada, EstadoHabitacion.Ocupada, EstadoHabitacion.Limpieza, EstadoHabitacion.EnMantenimiento}; // 0=disponible, 1=ocupada, 2=mantenimiento
+            var estadosValidos = new[] { EstadoHabitacion.Disponible, EstadoHabitacion.Reservada, EstadoHabitacion.Ocupada, EstadoHabitacion.Limpieza, EstadoHabitacion.EnMantenimiento}; // 0=disponible, 1=ocupada, 2=mantenimiento
             if (!ValidationHelper.InList(habitacion.Estado, estadosValidos, "Estado", out errorMessage)) return false;
 
             errorMessage = string.Empty;

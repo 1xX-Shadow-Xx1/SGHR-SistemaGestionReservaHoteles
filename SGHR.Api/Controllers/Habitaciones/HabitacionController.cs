@@ -29,6 +29,30 @@ namespace SGHR.Api.Controllers.Habitaciones
             return Ok(result);
         }
 
+        // GET: api/<HabitacionController>
+        [HttpGet("Get-Habitaciones-disponibles")]
+        public async Task<IActionResult> GetAllDisponiblesAsync()
+        {
+            ServiceResult result = await _habitacionService.GetAllDisponiblesAsync();
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        // GET: api/<HabitacionController>
+        [HttpGet("Get-Habitaciones-disponibles-date")]
+        public async Task<IActionResult> GetAllDisponibleDateAsync(DateTime fechainicio, DateTime fechafin)
+        {
+            ServiceResult result = await _habitacionService.GetAllDisponibleDateAsync(fechainicio, fechafin);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
         // GET api/<HabitacionController>/5
         [HttpGet("Get-Habitacion-ByID")]
         public async Task<IActionResult> GetByIDAsync(int id)

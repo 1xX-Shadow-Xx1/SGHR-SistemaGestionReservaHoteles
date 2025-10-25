@@ -12,7 +12,7 @@ namespace SGHR.Domain.Entities.Configuration.Reservas
         [Column("id_habitacion")]
         public int IdHabitacion { get; set; }
         [Column("id_usuario")]  
-        public int IdUsuario { get; set; }
+        public int? IdUsuario { get; set; }
         [Column("fecha_inicio")]
         public DateTime FechaInicio { get; set; }
         [Column("fecha_fin")]

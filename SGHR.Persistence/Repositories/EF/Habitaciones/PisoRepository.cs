@@ -95,14 +95,14 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             _logger.LogInformation("Se obtuvieron {Count} pisos", result.Data?.Count ?? 0);
             return result;
         }
-        public async Task<OperationResult<Piso>> GetByNumeroPisoAsync(int numeroPiso)
+        public async Task<OperationResult<Piso>> GetByNumeroPisoAsync(int numeroPiso, int? idpiso = 0)
         {
             try
             {
                 _logger.LogInformation("Buscando piso con número {NumeroPiso}", numeroPiso);
 
                 var piso = await _context.Piso
-                    .FirstOrDefaultAsync(p => p.NumeroPiso == numeroPiso && !p.IsDeleted);
+                    .FirstOrDefaultAsync(p => p.NumeroPiso == numeroPiso && !p.IsDeleted && p.Id != idpiso);
 
                 if (piso == null)
                 {

@@ -1,6 +1,7 @@
-﻿namespace SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion
+﻿
+namespace SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion
 {
-    public record UpdateHabitacionDto
+    public class HabitacionDto
     {
         public int Id { get; set; }
         public string CategoriaName { get; set; }

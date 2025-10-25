@@ -17,7 +17,7 @@ namespace SGHR.Domain.Entities.Configuration.Habitaciones
         [Column("capacidad")]
         public int Capacidad { get; set; }
         [Column("estado")]
-        public EstadoHabitacion Estado { get; set; } = EstadoHabitacion.Activa;
+        public EstadoHabitacion Estado { get; set; } = EstadoHabitacion.Disponible;
 
     }
 }

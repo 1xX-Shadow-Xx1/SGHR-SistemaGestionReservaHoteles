@@ -30,7 +30,7 @@ namespace SGHR.Api.Controllers.Habitaciones
         }
 
         // GET api/<CategoriaController>/5
-        [HttpGet("Get-Categoria-ByID")]
+        [HttpGet("Get-Categoria-By-ID")]
         public async Task<IActionResult> GetByIDAsync(int id)
         {
             ServiceResult result = await _categoriaService.GetByIdAsync(id);

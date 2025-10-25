@@ -2,7 +2,7 @@
 {
     public enum EstadoHabitacion
     {
-        Activa,             
+        Disponible,             
         Ocupada,            
         EnMantenimiento,    
         Limpieza,          

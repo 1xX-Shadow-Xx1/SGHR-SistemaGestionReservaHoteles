@@ -6,7 +6,7 @@ namespace SGHR.Application.Dtos.Configuration.Operaciones.Reporte
         public int Id { get; set; }
         public string TipoReporte { get; set; }
         public DateTime FechaGeneracion { get; set; } 
-        public int GeneradoPor { get; set; }
+        public string GeneradoPor { get; set; }
         public string RutaArchivo { get; set; }
     }
 }

@@ -86,7 +86,7 @@ namespace SchoolPoliApp.Persistence.Base
                 if (entity == null)
                 {
                     _logger.LogWarning("Entidad {EntityType} con Id {Id} no encontrada", typeof(TEntity).Name, id);
-                    return OperationResult<TEntity>.Fail("Entidad no encontrada");
+                    return OperationResult<TEntity>.Fail($"{typeof(TEntity).Name} no encontrada");
                 }
 
                 _logger.LogInformation("Entidad {EntityType} con Id {Id} obtenida correctamente", typeof(TEntity).Name, id);
