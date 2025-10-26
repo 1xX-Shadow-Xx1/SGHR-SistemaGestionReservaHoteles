@@ -1,14 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using SGHR.Domain.Base;
-using SGHR.Domain.Entities.Configuration.Habitaciones;
-using SGHR.Persistence.Interfaces.Habitaciones;
-using System.Data;
-using System.Linq.Expressions;
-
-
-namespace SGHR.Persistence.Repositories.ADO
+﻿namespace SGHR.Persistence.Repositories.ADO
 {
     /*public class CategoriaRepositoryADO : ICategoriaRepository
     {

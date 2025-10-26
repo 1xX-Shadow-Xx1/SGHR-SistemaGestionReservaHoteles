@@ -6,7 +6,6 @@ using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Validators.ConfigurationRules.Reservas;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Reservas;
-using System.Linq.Expressions;
 
 namespace SGHR.Persistence.Repositories.EF.Reservas
 {

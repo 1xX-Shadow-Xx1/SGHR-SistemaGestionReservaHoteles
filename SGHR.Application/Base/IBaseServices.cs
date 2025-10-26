@@ -1,6 +1,4 @@
-﻿using SGHR.Application.Dtos.Configuration.Users.Usuario;
-
-namespace SGHR.Application.Base
+﻿namespace SGHR.Application.Base
 {
     public interface IBaseServices<Tdtocreate, Tdtoupdate>
     {

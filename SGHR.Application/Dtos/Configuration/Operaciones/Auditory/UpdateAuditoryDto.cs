@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SGHR.Application.Dtos.Configuration.Operaciones.Auditory
+﻿namespace SGHR.Application.Dtos.Configuration.Operaciones.Auditory
 {
     public record UpdateAuditoryDto
     {

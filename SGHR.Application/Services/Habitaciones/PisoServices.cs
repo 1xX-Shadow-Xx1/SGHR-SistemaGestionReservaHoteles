@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Habitaciones.Piso;
-using SGHR.Application.Dtos.Configuration.Users.Usuario;
 using SGHR.Application.Interfaces.Habitaciones;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Enum.Habitaciones;

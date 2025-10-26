@@ -6,7 +6,6 @@ using SGHR.Domain.Entities.Configuration.Operaciones;
 using SGHR.Domain.Validators.ConfigurationRules.Operaciones;
 using SGHR.Persistence.Contex;
 using SGHR.Persistence.Interfaces.Operaciones;
-using System.Linq.Expressions;
 
 namespace SGHR.Persistence.Repositories.EF.Operaciones
 {

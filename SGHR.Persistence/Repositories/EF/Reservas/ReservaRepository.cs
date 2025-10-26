@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
-using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Enum.Reservas;
 using SGHR.Domain.Repository;

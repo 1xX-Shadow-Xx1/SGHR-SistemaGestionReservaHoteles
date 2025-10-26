@@ -1,5 +1,4 @@
 ﻿using SGHR.Domain.Enum.Habitaciones;
-using SGHR.Domain.Enum.Operaciones;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SGHR.Domain.Entities.Configuration.Habitaciones
