@@ -5,12 +5,12 @@ using SGHR.Persistence.Repositories.EF.Operaciones;
 
 namespace SGHR.Api.Dependencia.Operaciones
 {
-    public static class PagoDependences
+    public static class ReporteDependences
     {
-        public static IServiceCollection AddPagoDependences(this IServiceCollection services)
+        public static IServiceCollection AddReporteDependences(this IServiceCollection services)
         {
-            services.AddScoped<IPagoRepository, PagoRepository>();
-            services.AddScoped<IPagoServices, PagoServices>();
+            services.AddScoped<IReporteServices, ReporteServices>();
+            services.AddScoped<IReporteRepository, ReporteRepository>();
 
             return services;
         }

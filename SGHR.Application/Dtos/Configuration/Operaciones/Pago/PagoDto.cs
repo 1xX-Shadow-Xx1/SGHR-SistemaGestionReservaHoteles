@@ -3,6 +3,7 @@ namespace SGHR.Application.Dtos.Configuration.Operaciones.Pago
 {
     public class PagoDto
     {
+        public int Id { get; set; }
         public int IdReserva { get; set; }
         public decimal Monto { get; set; }
         public string MetodoPago { get; set; }

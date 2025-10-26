@@ -24,9 +24,5 @@ namespace SGHR.Application.Dtos.Configuration.Reservas.Reserva
         [Required(ErrorMessage = "La fecha de fin es obligatoria.")]
         [DataType(DataType.Date, ErrorMessage = "Formato de fecha inválido.")]
         public DateTime FechaFin { get; set; }
-
-        [Required(ErrorMessage = "El costo total es obligatorio.")]
-        [Range(0.01, 999999.99, ErrorMessage = "El costo total debe ser mayor a 0 y menor a 1,000,000.")]
-        public decimal CostoTotal { get; set; }
     }
 }

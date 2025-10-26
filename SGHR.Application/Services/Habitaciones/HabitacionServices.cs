@@ -76,7 +76,7 @@ namespace SGHR.Application.Services.Habitaciones
                     return result;
                 }
 
-                var Piso = ListPiso.Data.FirstOrDefault(p => p.NumeroPiso == CreateDto.numeroPiso);
+                var Piso = ListPiso.Data.FirstOrDefault(p => p.NumeroPiso == CreateDto.NumeroPiso);
                 if(Piso == null)
                 {
                     result.Message = "No existe un piso con ese numero.";

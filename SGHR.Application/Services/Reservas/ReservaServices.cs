@@ -6,6 +6,8 @@ using SGHR.Application.Interfaces.Reservas;
 using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Enum.Reservas;
 using SGHR.Domain.Repository;
+using SGHR.Persistence.Interfaces.Habitaciones;
+using SGHR.Persistence.Interfaces.Reservas;
 using SGHR.Persistence.Interfaces.Users;
 
 namespace SGHR.Application.Services.Reservas
@@ -17,18 +19,29 @@ namespace SGHR.Application.Services.Reservas
         private readonly IHabitacionRepository _habitacionRepository;
         private readonly IClienteRepository _clienteRepository;
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly ITarifaRepository _tarifaRepository;
+        private readonly ICategoriaRepository _categoriaRepository;
+        private readonly IServicioAdicionalRepository _servicioAdicionalRepository;
 
         public ReservaServices(ILogger<ReservaServices> logger, 
                                IReservaRepository repository,
                                IUsuarioRepository suarioRepository,
                                IHabitacionRepository habitacionRepository,
-                               IClienteRepository clienteRepository)
+                               IClienteRepository clienteRepository,
+                               ITarifaRepository tarifaRepository,
+                               ICategoriaRepository categoriaRepository,
+                               IServicioAdicionalRepository servicioAdicionalRepository)
+                            
         {
             _logger = logger;
             _reservarepository = repository;
             _usuarioRepository = suarioRepository;
             _clienteRepository = clienteRepository;
             _habitacionRepository = habitacionRepository;
+            _tarifaRepository = tarifaRepository;
+            _categoriaRepository = categoriaRepository;
+            _servicioAdicionalRepository = servicioAdicionalRepository;
+
         }
 
         public async Task<ServiceResult> CreateAsync(CreateReservaDto CreateDto)
@@ -74,7 +87,15 @@ namespace SGHR.Application.Services.Reservas
                     result.Message = "No existe un cliente registrado con ese numero de cedula.";
                     return result;
                 }
-                               
+
+                var categoria = await _categoriaRepository.GetByIdAsync(ExistHabitacion.IdCategoria);
+                var tarifa = await _tarifaRepository.GetByCategoriaAsync(categoria.Data.Id);
+                if (!tarifa.Success)
+                {
+                    result.Message = tarifa.Message;
+                    return result;
+                }
+                var Coste = tarifa.Data.FirstOrDefault(c => c.IdCategoria == categoria.Data.Id);
 
                 Reserva reserva = new Reserva()
                 {
@@ -82,7 +103,7 @@ namespace SGHR.Application.Services.Reservas
                     IdHabitacion = ExistHabitacion.Id,
                     FechaInicio = CreateDto.FechaInicio,
                     FechaFin = CreateDto.FechaFin,
-                    CostoTotal = CreateDto.CostoTotal
+                    CostoTotal = Coste.Precio
                 };
 
                 if (!string.IsNullOrWhiteSpace(CreateDto.CorreoCliente))
@@ -118,7 +139,7 @@ namespace SGHR.Application.Services.Reservas
                     CorreoCliente = CreateDto.CorreoCliente,
                     FechaInicio = CreateDto.FechaInicio,
                     FechaFin = CreateDto.FechaFin,
-                    CostoTotal = CreateDto.CostoTotal,
+                    CostoTotal = opResult.Data.CostoTotal,
                     Estado = opResult.Data.Estado.ToString(),
                 };
 
@@ -225,7 +246,8 @@ namespace SGHR.Application.Services.Reservas
                         Estado = r.Estado.ToString(),
                         NumeroHabitacion = hab.Numero,
                         CedulaCliente = cli.Cedula,
-                        CorreoCliente = usr.Correo != null ? usr.Nombre : "N/A"
+                        CorreoCliente = usr.Correo != null ? usr.Nombre : "N/A",
+                        CostoTotal = r.CostoTotal
                     }
                 ).ToList();
 
@@ -365,7 +387,7 @@ namespace SGHR.Application.Services.Reservas
                 reserva.Data.IdHabitacion = ExistHabitacion.Id;
                 reserva.Data.FechaInicio = UpdateDto.FechaInicio;
                 reserva.Data.FechaFin = UpdateDto.FechaFin;
-                reserva.Data.CostoTotal = UpdateDto.CostoTotal;
+                reserva.Data.CostoTotal = (decimal)UpdateDto.CostoTotal;
                 if( Enum.TryParse<EstadoReserva>(UpdateDto.Estado, out var estado))
                 {
                     reserva.Data.Estado = estado;

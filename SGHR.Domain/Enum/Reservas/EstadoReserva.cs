@@ -6,6 +6,7 @@
         Confirmada,         
         Activa,             
         Finalizada,         
-        Cancelada           
+        Cancelada,
+        PagoParcial
     }
 }

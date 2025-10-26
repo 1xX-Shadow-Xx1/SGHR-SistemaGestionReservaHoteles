@@ -19,13 +19,13 @@ namespace SGHR.Application.Dtos.Configuration.Reservas.Reserva
         public string? CorreoCliente { get; set; }
 
         [DataType(DataType.Date, ErrorMessage = "Formato de fecha inválido.")]
-        public DateTime? FechaInicio { get; set; }
+        public DateTime FechaInicio { get; set; }
 
         [DataType(DataType.Date, ErrorMessage = "Formato de fecha inválido.")]
-        public DateTime? FechaFin { get; set; }
+        public DateTime FechaFin { get; set; }
 
         [Range(0.01, 999999.99, ErrorMessage = "El costo total debe ser mayor a 0 y menor a 1,000,000.")]
-        public decimal? CostoTotal { get; set; }
+        public decimal CostoTotal { get; set; }
 
         [RegularExpression("^(Pendiente|Confirmada|Cancelada|Finalizada|Activa)$",
             ErrorMessage = "El estado debe ser 'Pendiente', 'Confirmada', 'Activa' ,'Cancelada' o 'Finalizada'.")]

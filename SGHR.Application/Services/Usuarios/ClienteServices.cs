@@ -354,7 +354,7 @@ namespace SGHR.Application.Services.Usuarios
                         return result;
                     }
 
-                    if (LisClientes.Data.Where(u => u.IdUsuario == verificarCorreos.Id).FirstOrDefault() != null)
+                    if (Usuarios.Data.Where(u => u.Correo == verificarCorreos.Correo && u.Id != cliente.IdUsuario).FirstOrDefault() != null)
                     {
                         result.Message = "Ya hay un cliente registrado con ese correo.";
                         return result;
