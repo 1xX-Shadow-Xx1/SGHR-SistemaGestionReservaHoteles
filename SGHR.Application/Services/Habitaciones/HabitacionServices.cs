@@ -488,11 +488,11 @@ namespace SGHR.Application.Services.Habitaciones
         public async Task<ServiceResult> GetAllDisponibleDateAsync(DateTime fechainicio, DateTime fechafin)
         {
             ServiceResult result = new ServiceResult();
-            if(!string.IsNullOrWhiteSpace(fechafin.ToString()) && !string.IsNullOrWhiteSpace(fechafin.ToString()))
+            /*if(!string.IsNullOrWhiteSpace(fechafin.ToString()) && !string.IsNullOrWhiteSpace(fechafin.ToString()))
             {
                 result.Message = "Tiene los 2 campos de fecha son obligatorios.";
                 return result;
-            }
+            }*/
             try
             {
                 var disponibles = await _habitacionRepository.GetAvailableAsync(fechainicio,fechafin);

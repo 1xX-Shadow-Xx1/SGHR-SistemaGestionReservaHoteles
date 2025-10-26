@@ -103,7 +103,7 @@ namespace SGHR.Application.Services.Reservas
                     IdHabitacion = ExistHabitacion.Id,
                     FechaInicio = CreateDto.FechaInicio,
                     FechaFin = CreateDto.FechaFin,
-                    CostoTotal = Coste.Precio
+                    CostoTotal = Coste.Precio != null ? Coste.Precio : 0
                 };
 
                 if (!string.IsNullOrWhiteSpace(CreateDto.CorreoCliente))
