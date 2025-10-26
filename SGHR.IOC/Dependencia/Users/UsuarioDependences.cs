@@ -2,8 +2,9 @@
 using SGHR.Application.Services.Usuarios;
 using SGHR.Domain.Repository;
 using SGHR.Persistence.Repositories.EF.Users;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace SGHR.Api.Dependencia.Users
+namespace SGHR.IOC.Dependencia.Users
 {
     public static class UsuarioDependences
     {

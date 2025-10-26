@@ -1,7 +1,8 @@
 ﻿using SGHR.Persistence.Interfaces.Operaciones;
 using SGHR.Persistence.Repositories.EF.Operaciones;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace SGHR.Api.Dependencia.Operaciones
+namespace SGHR.IOC.Dependencia.Operaciones
 {
     public static class MantenimientoDependences
     {

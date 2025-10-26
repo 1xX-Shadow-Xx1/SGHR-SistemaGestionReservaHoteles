@@ -1,7 +1,8 @@
 ﻿using SGHR.Persistence.Interfaces.Reservas;
 using SGHR.Persistence.Repositories.EF.Reservas;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace SGHR.Api.Dependencia.Reservas
+namespace SGHR.IOC.Dependencia.Reservas
 {
     public static class ServicioAdicionalDependences
     {

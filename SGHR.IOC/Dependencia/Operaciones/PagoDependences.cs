@@ -2,8 +2,9 @@
 using SGHR.Application.Services.Operaciones;
 using SGHR.Persistence.Interfaces.Reportes;
 using SGHR.Persistence.Repositories.EF.Operaciones;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace SGHR.Api.Dependencia.Operaciones
+namespace SGHR.IOC.Dependencia.Operaciones
 {
     public static class PagoDependences
     {

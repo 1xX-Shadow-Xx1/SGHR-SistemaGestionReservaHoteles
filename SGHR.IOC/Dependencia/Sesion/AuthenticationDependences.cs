@@ -1,7 +1,8 @@
-﻿using SGHR.Application.Interfaces;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SGHR.Application.Interfaces;
 using SGHR.Application.Services;
 
-namespace SGHR.Api.Dependencia.Sesion
+namespace SGHR.IOC.Dependencia.Sesion
 {
     public static class AuthenticationDependences
     {

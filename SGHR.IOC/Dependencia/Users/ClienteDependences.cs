@@ -7,8 +7,9 @@ using SGHR.Domain.Validators.ConfigurationRules.Reservas;
 using SGHR.Domain.Validators.ConfigurationRules.Users;
 using SGHR.Persistence.Interfaces.Users;
 using SGHR.Persistence.Repositories.EF.Users;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace SGHR.Api.Dependencia.Users
+namespace SGHR.IOC.Dependencia.Users
 {
     public static class ClienteDependences
     {

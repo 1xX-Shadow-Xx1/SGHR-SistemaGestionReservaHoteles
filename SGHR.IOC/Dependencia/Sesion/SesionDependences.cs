@@ -1,7 +1,8 @@
-﻿using SGHR.Persistence.Interfaces.Sesiones;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SGHR.Persistence.Interfaces.Sesiones;
 using SGHR.Persistence.Repositories.EF.Sesiones;
 
-namespace SGHR.Api.Dependencia.Sesion
+namespace SGHR.IOC.Dependencia.Sesion
 {
     public static class SesionDependences
     {

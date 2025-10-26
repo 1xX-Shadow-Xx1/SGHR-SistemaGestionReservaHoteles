@@ -1,10 +1,11 @@
-﻿using SGHR.Api.Dependencia.Habitaciones;
-using SGHR.Api.Dependencia.Operaciones;
-using SGHR.Api.Dependencia.Reservas;
-using SGHR.Api.Dependencia.Sesion;
-using SGHR.Api.Dependencia.Users;
+﻿using SGHR.IOC.Dependencia.Habitaciones;
+using SGHR.IOC.Dependencia.Operaciones;
+using SGHR.IOC.Dependencia.Reservas;
+using SGHR.IOC.Dependencia.Sesion;
+using SGHR.IOC.Dependencia.Users;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace SGHR.Api.Builders
+namespace SGHR.IOC.Builders
 {
     public static class Dependences
     {

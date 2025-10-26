@@ -2,8 +2,9 @@
 using SGHR.Application.Services.Habitaciones;
 using SGHR.Domain.Repository;
 using SGHR.Persistence.Repositories.EF.Habitaciones;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace SGHR.Api.Dependencia.Habitaciones
+namespace SGHR.IOC.Dependencia.Habitaciones
 {
     public static class HabitacionDependences
     {

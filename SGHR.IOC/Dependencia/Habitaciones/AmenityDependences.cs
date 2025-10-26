@@ -1,7 +1,8 @@
-﻿using SGHR.Persistence.Interfaces.Habitaciones;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SGHR.Persistence.Interfaces.Habitaciones;
 using SGHR.Persistence.Repositories.EF.Habitaciones;
 
-namespace SGHR.Api.Dependencia.Habitaciones
+namespace SGHR.IOC.Dependencia.Habitaciones
 {
     public static class AmenityDependences
     {

@@ -3,8 +3,9 @@ using SGHR.Application.Interfaces.Reservas;
 using SGHR.Application.Services.Reservas;
 using SGHR.Domain.Repository;
 using SGHR.Persistence.Repositories.EF.Reservas;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace SGHR.Api.Dependencia.Reservas
+namespace SGHR.IOC.Dependencia.Reservas
 {
     public static class ReservaDependences
     {

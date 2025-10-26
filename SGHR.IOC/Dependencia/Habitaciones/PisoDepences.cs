@@ -2,8 +2,9 @@
 using SGHR.Application.Services.Habitaciones;
 using SGHR.Persistence.Interfaces.Habitaciones;
 using SGHR.Persistence.Repositories.EF.Habitaciones;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace SGHR.Api.Dependencia.Habitaciones
+namespace SGHR.IOC.Dependencia.Habitaciones
 {
     public static class PisoDepences
     {
