@@ -22,5 +22,7 @@ namespace SGHR.Domain.Entities.Configuration.Reservas
         [Column("estado")]
         public EstadoReserva Estado { get; set; } = EstadoReserva.Pendiente;
 
+        public ICollection<ServicioAdicional> Servicios { get; set; } = new List<ServicioAdicional>();
+
     }
 }

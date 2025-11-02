@@ -89,8 +89,8 @@ namespace SGHR.Api.Controllers.Habitaciones
             return Ok(result);
         }
 
-        // DELETE api/<HabitacionController>/5
-        [HttpDelete("Delete-Habitacion")]
+        // REMOVE api/<HabitacionController>/5
+        [HttpPut("Remove-Habitacion")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             ServiceResult result = await _habitacionService.DeleteAsync(id);

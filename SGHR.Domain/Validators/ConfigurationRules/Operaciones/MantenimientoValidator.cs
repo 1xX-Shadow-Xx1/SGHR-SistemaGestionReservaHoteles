@@ -10,7 +10,7 @@ namespace SGHR.Domain.Validators.ConfigurationRules.Operaciones
             if (!ValidationHelper.NotNull(mantenimiento, "Mantenimiento", out errorMessage)) return false;
 
             // FK Piso (opcional)
-            if (mantenimiento.IdPiso.HasValue && mantenimiento.IdPiso <= 0)
+            if (mantenimiento.IdPiso <= 0)
             {
                 errorMessage = "IdPiso inválido.";
                 return false;

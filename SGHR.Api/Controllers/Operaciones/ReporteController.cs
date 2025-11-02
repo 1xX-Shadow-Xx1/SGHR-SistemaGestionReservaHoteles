@@ -66,8 +66,8 @@ namespace SGHR.Api.Controllers.Operaciones
             return Ok(result);
         }
 
-        // DELETE api/<ReporteController>/5
-        [HttpDelete("delete-Reporte")]
+        // REMOVE api/<ReporteController>/5
+        [HttpPut("Remove-Reporte")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             ServiceResult result = await _reporteService.DeleteAsync(id);

@@ -5,5 +5,6 @@ namespace SGHR.Application.Interfaces.Reservas
 {
     public interface IReservaServices : IBaseServices<CreateReservaDto, UpdateReservaDto>
     {
+        Task<ServiceResult> AddServicioAdicional(int id, string nombreServicio);
     }
 }

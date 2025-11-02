@@ -65,8 +65,8 @@ namespace SGHR.Api.Controllers.Habitaciones
             return Ok(result);
         }
 
-        // DELETE api/<PisoController>/5
-        [HttpDelete("Delete-Piso")]
+        // REMOVE api/<PisoController>/5
+        [HttpPut("Remove-Piso")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             ServiceResult result = await _pisoService.DeleteAsync(id);

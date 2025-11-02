@@ -9,7 +9,7 @@ namespace SGHR.Domain.Entities.Configuration.Operaciones
     public sealed class Mantenimiento : BaseEntity
     {
         [Column("id_piso")]
-        public int? IdPiso { get; set; }
+        public int IdPiso { get; set; }
         [Column("id_habitacion")]
         public int IdHabitacion { get; set; }
         [Column("descripcion")]

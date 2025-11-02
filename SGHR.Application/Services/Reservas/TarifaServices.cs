@@ -282,7 +282,7 @@ namespace SGHR.Application.Services.Reservas
 
                 result.Success = true;
                 result.Data = tarifaDto;
-                result.Message = $"Se a registrado la tarifa correctamente.";
+                result.Message = $"Se a actualizado la tarifa correctamente.";
             }
             catch (Exception ex)
             {

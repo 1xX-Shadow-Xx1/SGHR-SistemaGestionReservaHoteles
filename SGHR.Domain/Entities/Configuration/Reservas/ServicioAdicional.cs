@@ -15,5 +15,8 @@ namespace SGHR.Domain.Entities.Configuration.Reservas
         [Column("estado")]
         public EstadoServicioAdicional Estado { get; set; } = EstadoServicioAdicional.Activo;
 
+
+        public ICollection<Reserva> reserva { get; set; } = new List<Reserva>();
+
     }
 }

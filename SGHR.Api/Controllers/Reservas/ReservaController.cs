@@ -65,8 +65,20 @@ namespace SGHR.Api.Controllers.Reservas
             return Ok(result);
         }
 
-        // DELETE api/<ReservaController>/5
-        [HttpDelete("Delete-Reserva")]
+        // PUT api/<ReservaController>/5
+        [HttpPut("Add-Servicio-Adicional-to-Reserva")]
+        public async Task<IActionResult> AddServicioAdicional(int id, string nameServicio)
+        {
+            ServiceResult result = await _reservaService.AddServicioAdicional(id, nameServicio);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        // Remove api/<ReservaController>/5
+        [HttpPut("Remove-Reserva")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             ServiceResult result = await _reservaService.DeleteAsync(id);

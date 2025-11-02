@@ -1,20 +1,102 @@
-﻿namespace SGHR.Persistence.Repositories.ADO
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using SGHR.Domain.Base;
+using SGHR.Domain.Entities.Configuration.Habitaciones;
+using SGHR.Domain.Validators.ConfigurationRules.Habitaciones;
+using SGHR.Persistence.Interfaces.Habitaciones;
+using System.Data;
+
+namespace SGHR.Persistence.Repositories.ADO
 {
-    /*public class CategoriaRepositoryADO : ICategoriaRepository
+    public class CategoriaRepositoryADO : ICategoriaRepository
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<CategoriaRepositoryADO> _logger;
         private readonly string _connectionString;
+        private readonly CategoriaValidator _categoriaValidator;
 
         public CategoriaRepositoryADO(IConfiguration configuration,
-                                      ILogger<CategoriaRepositoryADO> logger)
+                                      ILogger<CategoriaRepositoryADO> logger,
+                                      CategoriaValidator categoriaValidator)
         {
+            _categoriaValidator = categoriaValidator;
             _configuration = configuration;
             _logger = logger;
             _connectionString = _configuration.GetConnectionString("SghrConnString");
         }
 
-        public async Task<OperationResult<Categoria>> Save(Categoria entity)
+        public Task<OperationResult<Categoria>> DeleteAsync(Categoria entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<OperationResult<List<Categoria>>> GetAllAsync(bool includeDeleted = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<OperationResult<Categoria>> GetByIdAsync(int id, bool includeDeleted = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<OperationResult<Categoria>> GetByNombreAsync(string nombre)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<OperationResult<Categoria>> SaveAsync(Categoria entity)
+        {
+            if (!_categoriaValidator.Validate(entity, out string errorMessage))
+            {
+                _logger.LogWarning("Fallo al guardar Categoria: {fail}", errorMessage);
+                return OperationResult<Categoria>.Fail(errorMessage);
+            }
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionString))
+                using (SqlCommand cmd = new SqlCommand("usp_Categoria_Save", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@nombre", entity.Nombre);
+                    cmd.Parameters.AddWithValue("@descripcion", entity.Descripcion);
+                    cmd.Parameters.AddWithValue("@FechaCreacion", entity.FechaCreacion);
+
+                    SqlParameter p_result = new SqlParameter("@Preresult", SqlDbType.VarChar, 1000)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+                    cmd.Parameters.Add(p_result);
+
+                    await conn.OpenAsync();
+                    await cmd.ExecuteNonQueryAsync();
+
+                    _logger.LogInformation("Categoría guardada: {Nombre}", entity.Nombre);
+
+                    return OperationResult<Categoria>.Ok(entity,"Categoria guardada correctamente.");
+
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al guardar categoría");
+                return OperationResult<Categoria>.Fail($"Error al guardar categoría: {ex.Message}");
+            }
+        }
+
+        public Task<OperationResult<Categoria>> UpdateAsync(Categoria entity)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+
+        /*public async Task<OperationResult<Categoria>> Save(Categoria entity)
         {
             var result = CategoriaValidator.Validate(entity);
             if (!result.Success)
@@ -268,6 +350,6 @@
             }
 
             return result;
-        }
-    }*/
+        }*/
+    }
 }

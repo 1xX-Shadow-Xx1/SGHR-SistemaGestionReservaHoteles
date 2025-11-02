@@ -67,7 +67,7 @@ namespace SGHR.Application.Services.Habitaciones
             }
             catch (Exception ex)
             {
-                result.Message = $"Error creado al Piso : {ex.Message}";
+                result.Message = $"Error creado el Piso : {ex.Message}";
             }
             return result;
         }

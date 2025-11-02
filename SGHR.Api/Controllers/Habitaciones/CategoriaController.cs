@@ -65,8 +65,8 @@ namespace SGHR.Api.Controllers.Habitaciones
             return Ok(result);
         }
 
-        // DELETE api/<CategoriaController>/5
-        [HttpDelete("Delete-Categoria")]
+        // REMOVE api/<CategoriaController>/5
+        [HttpPut("Remove-Categoria")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             ServiceResult result = await _categoriaService.DeleteAsync(id);

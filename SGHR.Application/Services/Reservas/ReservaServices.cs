@@ -2,8 +2,11 @@
 using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Reservas.Reserva;
+using SGHR.Application.Dtos.Configuration.Reservas.ServicioAdicional;
 using SGHR.Application.Interfaces.Reservas;
 using SGHR.Domain.Entities.Configuration.Reservas;
+using SGHR.Domain.Entities.Configuration.Usuers;
+using SGHR.Domain.Enum.Habitacion;
 using SGHR.Domain.Enum.Reservas;
 using SGHR.Domain.Repository;
 using SGHR.Persistence.Interfaces.Habitaciones;
@@ -128,6 +131,15 @@ namespace SGHR.Application.Services.Reservas
                 if (!opResult.Success)
                 {
                     result.Message = opResult.Message;
+                    return result;
+                }
+
+                ExistHabitacion.Estado = EstadoHabitacion.Reservada;
+
+                var ophabitacion = await _habitacionRepository.UpdateAsync(ExistHabitacion);
+                if (!ophabitacion.Success)
+                {
+                    result.Message = ophabitacion.Message;
                     return result;
                 }
 
@@ -439,6 +451,56 @@ namespace SGHR.Application.Services.Reservas
             catch (Exception ex)
             {
                 result.Message = $"Error actualizando la reserva: {ex.Message}";
+            }
+            return result;
+        }
+        public async Task<ServiceResult> AddServicioAdicional(int id, string nombreServicio)
+        {
+            ServiceResult result = new ServiceResult();
+            try
+            {
+                var ExistServicio = await _servicioAdicionalRepository.GetByNombreAsync(nombreServicio);
+                if (!ExistServicio.Success)
+                {
+                    result.Message = ExistServicio.Message;
+                    return result;
+                }
+
+                var ExistReserva = await _reservarepository.GetByIdAsync(id);
+                if (!ExistReserva.Success)
+                {
+                    result.Message = ExistReserva.Message;
+                    return result;
+                }
+
+                ExistReserva.Data.Servicios.Add(ExistServicio.Data);
+
+                ExistReserva.Data.CostoTotal += ExistServicio.Data.Precio != null ? ExistServicio.Data.Precio : 0;
+
+                var opResult = await _reservarepository.UpdateAsync(ExistReserva.Data);
+                if (!opResult.Success)
+                {
+                    result.Message = opResult.Message;
+                    return result;
+                }
+
+                ReservaDto reservaDto = new ReservaDto()
+                {
+                    Id = opResult.Data.Id,
+                    FechaInicio = opResult.Data.FechaInicio,
+                    FechaFin = opResult.Data.FechaFin,
+                    CostoTotal = opResult.Data.CostoTotal,
+                    Estado = opResult.Data.Estado.ToString(),
+                };                
+
+                result.Success = true;
+                result.Message = "Servicio agregado correctamente.";
+                result.Data = reservaDto;
+
+            }
+            catch (Exception ex)
+            {
+                result.Message = $"Error al añadir el servicio adicional a la reserva.";
             }
             return result;
         }

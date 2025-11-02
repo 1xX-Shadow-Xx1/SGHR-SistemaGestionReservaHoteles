@@ -210,7 +210,7 @@ namespace SGHR.Application.Services.Operaciones
             ServiceResult result = new ServiceResult();
             if (UpdateDto == null)
             {
-                result.Message = "La tarifa no puede ser nula.";
+                result.Message = "El reporte no puede ser nula.";
                 return result;
             }
             if (UpdateDto.Id <= 0)
@@ -263,7 +263,7 @@ namespace SGHR.Application.Services.Operaciones
 
                 result.Success = true;
                 result.Data = reporteDto;
-                result.Message = $"Se a registrado el reporte correctamente.";
+                result.Message = $"Se a actualizado el reporte correctamente.";
             }
             catch (Exception ex)
             {

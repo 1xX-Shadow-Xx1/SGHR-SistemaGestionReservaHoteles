@@ -67,8 +67,8 @@ namespace SGHR.Api.Controllers.Reservas
             return Ok(result);
         }
 
-        // DELETE api/<TarifaController>/5
-        [HttpDelete("Delete-Tarifa")]
+        // REMOVE api/<TarifaController>/5
+        [HttpPut("Remove-Tarifa")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             ServiceResult result = await _tarifaService.DeleteAsync(id);
