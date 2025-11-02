@@ -12,12 +12,12 @@ namespace SGHR.Domain.Validators.ConfigurationRules.Habitaciones
             if (!ValidationHelper.Required(categoria.Nombre, "Nombre", out errorMessage)) return false;
             if (!ValidationHelper.MaxLength(categoria.Nombre, 100, "Nombre", out errorMessage)) return false;
 
-            // Descripción (opcional)
-            if (!string.IsNullOrEmpty(categoria.Descripcion))
-            {
-                if (!ValidationHelper.MaxLength(categoria.Descripcion, 1000, "Descripción", out errorMessage)) return false;
-                // Ajusta el límite si quieres permitir más texto
-            }
+
+            // Descripción
+            if (!ValidationHelper.Required(categoria.Descripcion, "Nombre", out errorMessage)) return false;
+            if (!ValidationHelper.MaxLength(categoria.Descripcion, 1000, "Descripción", out errorMessage)) return false;
+            // Ajusta el límite si quieres permitir más texto
+            
 
             errorMessage = string.Empty;
             return true;

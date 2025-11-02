@@ -17,8 +17,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
         public CategoriaRepository(SGHRContext context,
                                    CategoriaValidator categoriaValidator,
-                                   ILogger<CategoriaRepository> logger,
-                                   ILogger<BaseRepository<Categoria>> loggerBase) : base(context, loggerBase)
+                                   ILogger<CategoriaRepository> logger) : base(context)
         {
             _context = context;
             _logger = logger;

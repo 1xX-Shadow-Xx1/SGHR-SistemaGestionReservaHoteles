@@ -18,8 +18,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
         public PisoRepository(SGHRContext context,
                               PisoValidator pisoValidator,
-                              ILogger<PisoRepository> logger,
-                              ILogger<BaseRepository<Piso>> loggerBase) : base(context, loggerBase)
+                              ILogger<PisoRepository> logger) : base(context)
         {
             _context = context;
             _logger = logger;

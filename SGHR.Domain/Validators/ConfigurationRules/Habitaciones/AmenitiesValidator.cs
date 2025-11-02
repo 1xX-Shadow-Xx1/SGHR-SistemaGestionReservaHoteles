@@ -6,7 +6,7 @@ namespace SGHR.Domain.Validators.ConfigurationRules.Habitaciones
     {
         public bool Validate(Amenity amenity, out string errorMessage)
         {
-            if (!ValidationHelper.NotNull(amenity, "Amenity", out errorMessage)) return false;
+            if (!ValidationHelper.NotNull(amenity, "El amenity", out errorMessage)) return false;
 
             // Nombre
             if (!ValidationHelper.Required(amenity.Nombre, "Nombre", out errorMessage)) return false;

@@ -52,7 +52,7 @@ namespace SGHR.Domain.Validators
         {
             if (!string.IsNullOrEmpty(value) && value.Length > maxLength)
             {
-                errorMessage = $"{fieldName} no puede superar los {maxLength} caracteres.";
+                errorMessage = $"{fieldName} excede la longitud máxima de caracteres.";
                 return false;
             }
             errorMessage = string.Empty;

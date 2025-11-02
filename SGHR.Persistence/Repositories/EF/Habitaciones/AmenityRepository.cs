@@ -16,8 +16,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
 
         public AmenityRepository(SGHRContext context,
                                     AmenitiesValidator menitiesValidator,
-                                   ILogger<AmenityRepository> logger,
-                                   ILogger<BaseRepository<Amenity>> loggerBase) : base(context, loggerBase)
+                                   ILogger<AmenityRepository> logger) : base(context)
         {
             _context = context;
             _logger = logger;
