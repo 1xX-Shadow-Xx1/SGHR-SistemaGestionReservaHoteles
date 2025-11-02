@@ -4,7 +4,7 @@ using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Validators.ConfigurationRules.Reservas;
-using SGHR.Persistence.Contex;
+using SGHR.Persistence.Context;
 using SGHR.Persistence.Interfaces.Reservas;
 
 namespace SGHR.Persistence.Repositories.EF.Reservas
@@ -17,8 +17,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 
         public TarifaRepository(SGHRContext context,
                                 TarifaValidator tarifaValidator,
-                                ILogger<TarifaRepository> logger,
-                                ILogger<BaseRepository<Tarifa>> loggerBase) : base(context, loggerBase)
+                                ILogger<TarifaRepository> logger) : base(context)
         {
             _context = context;
             _logger = logger;

@@ -4,7 +4,7 @@ using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Validators.ConfigurationRules.Users;
-using SGHR.Persistence.Contex;
+using SGHR.Persistence.Context;
 using SGHR.Persistence.Interfaces.Users;
 
 
@@ -18,8 +18,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
 
         public ClienteRepository(SGHRContext context,
                                  ClienteValidator clienteValidator,
-                                 ILogger<ClienteRepository> logger,
-                                 ILogger<BaseRepository<Cliente>> loggercliente) : base(context,loggercliente)
+                                 ILogger<ClienteRepository> logger) : base(context)
         {
             _context = context;
             _logger = logger;

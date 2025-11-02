@@ -4,7 +4,7 @@ using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Validators.ConfigurationRules.Habitaciones;
-using SGHR.Persistence.Contex;
+using SGHR.Persistence.Context;
 using SGHR.Persistence.Interfaces.Habitaciones;
 
 namespace SGHR.Persistence.Repositories.EF.Habitaciones

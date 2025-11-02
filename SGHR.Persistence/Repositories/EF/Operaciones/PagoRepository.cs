@@ -4,7 +4,7 @@ using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
 using SGHR.Domain.Validators.ConfigurationRules.Operaciones;
-using SGHR.Persistence.Contex;
+using SGHR.Persistence.Context;
 using SGHR.Persistence.Interfaces.Reportes;
 
 namespace SGHR.Persistence.Repositories.EF.Operaciones
@@ -17,8 +17,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
         public PagoRepository(SGHRContext context,
                               PagoValidator validator,
-                              ILogger<PagoRepository> logger,
-                              ILogger<BaseRepository<Pago>> LoggerBase) : base(context, LoggerBase)
+                              ILogger<PagoRepository> logger) : base(context)
         {
             _context = context;
             _logger = logger;
@@ -50,25 +49,43 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
                 return OperationResult<Pago>.Fail(errorMessage);
             }
 
-            var result = await base.UpdateAsync(entity);
+            try
+            {
+                var result = await base.UpdateAsync(entity);
 
-            if (result.Success)
-                _logger.LogInformation("Pago {Id} actualizado correctamente", result.Data.Id);
-            else
-                _logger.LogWarning("Error actualizando el pago {Id}", entity.Id);
+                if (result.Success)
+                    _logger.LogInformation("Pago {Id} actualizado correctamente", result.Data.Id);
+                else
+                    _logger.LogWarning("Ocurrio un problema actualizando el pago {Id}", entity.Id);
 
-            return result;
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,$"Error actualizando el pago {entity.Id}");
+                return OperationResult<Pago>.Fail("Error al eliminar el pago.");
+            }            
         }
         public override async Task<OperationResult<Pago>> DeleteAsync(Pago entity)
         {
-            var result = await base.DeleteAsync(entity);
+            try
+            {
+                var result = await base.DeleteAsync(entity);
 
-            if (result.Success)
-                _logger.LogInformation("Pago {Id} eliminado correctamente", entity.Id);
-            else
-                _logger.LogWarning("Error eliminando el pago {Id}", entity.Id);
+                if (result.Success)
+                    _logger.LogInformation("Pago {Id} eliminado correctamente", entity.Id);
+                else
+                    _logger.LogWarning("Ocurrio un problema eliminando el pago {Id}", entity.Id);
 
-            return result;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error eliminando el pago {entity.Id}");
+                return OperationResult<Pago>.Fail("Error al eliminar el pago.");
+            }
+            
         }
         public override async Task<OperationResult<Pago>> GetByIdAsync(int id, bool includeDeleted = false)
         {

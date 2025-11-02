@@ -4,7 +4,7 @@ using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Reportes;
 using SGHR.Domain.Validators.ConfigurationRules.Operaciones;
-using SGHR.Persistence.Contex;
+using SGHR.Persistence.Context;
 using SGHR.Persistence.Interfaces.Reportes;
 
 
@@ -20,8 +20,7 @@ namespace SGHR.Persistence.Repositories.EF.Operaciones
 
         public ReporteRepository(SGHRContext context,
                                 ReporteValidator reporteValidator,
-                                 ILogger<ReporteRepository> logger,
-                                 ILogger<BaseRepository<Reporte>> loggerBase) : base(context, loggerBase)
+                                 ILogger<ReporteRepository> logger) : base(context)
         {
             _context = context;
             _logger = logger;

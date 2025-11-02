@@ -4,7 +4,7 @@ using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Validators.ConfigurationRules.Reservas;
-using SGHR.Persistence.Contex;
+using SGHR.Persistence.Context;
 using SGHR.Persistence.Interfaces.Reservas;
 
 namespace SGHR.Persistence.Repositories.EF.Reservas

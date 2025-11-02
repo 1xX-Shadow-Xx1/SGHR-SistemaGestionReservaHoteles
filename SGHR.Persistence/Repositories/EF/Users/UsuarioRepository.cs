@@ -6,7 +6,7 @@ using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Enum.Usuario;
 using SGHR.Domain.Repository;
 using SGHR.Domain.Validators.ConfigurationRules.Users;
-using SGHR.Persistence.Contex;
+using SGHR.Persistence.Context;
 
 
 namespace SGHR.Persistence.Repositories.EF.Users
@@ -19,14 +19,14 @@ namespace SGHR.Persistence.Repositories.EF.Users
 
         public UsuarioRepository(SGHRContext context,
                                  UsuarioValidator usuarioValidator,
-                                 ILogger<UsuarioRepository>logger,
-                                 ILogger<BaseRepository<Usuario>> loggerBase) : base(context, loggerBase)
+                                 ILogger<UsuarioRepository>logger) : base(context)
         {
             _context = context;
             _logger = logger;
             _usuarioValidator = usuarioValidator;
 
         }
+
 
         public override async Task<OperationResult<Usuario>> SaveAsync(Usuario entity)
         {
@@ -80,7 +80,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 if (result.Success)
                     _logger.LogInformation("Usuario {Nombre} eliminado correctamente.", entity.Nombre);
 
-                return result;
+                    return result;
             }
             catch (Exception ex)
             {

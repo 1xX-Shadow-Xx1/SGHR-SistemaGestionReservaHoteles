@@ -1,7 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using SGHR.IOC.Builders;
-using SGHR.Persistence.Contex;
+using SGHR.Persistence.Context;
 
 
 namespace SGHR.Api

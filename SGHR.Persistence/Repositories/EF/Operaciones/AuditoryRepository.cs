@@ -4,7 +4,7 @@ using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Operaciones;
 using SGHR.Domain.Validators.ConfigurationRules.Operaciones;
-using SGHR.Persistence.Contex;
+using SGHR.Persistence.Context;
 using SGHR.Persistence.Interfaces.Operaciones;
 
 namespace SGHR.Persistence.Repositories.EF.Operaciones

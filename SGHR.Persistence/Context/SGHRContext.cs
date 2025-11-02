@@ -7,11 +7,13 @@ using SGHR.Domain.Entities.Configuration.Sesiones;
 using SGHR.Domain.Entities.Configuration.Usuers;
 
 
-namespace SGHR.Persistence.Contex
+namespace SGHR.Persistence.Context
 {
     public class SGHRContext : DbContext
     {
         public SGHRContext(DbContextOptions<SGHRContext> options) : base(options) { }
+
+        public SGHRContext() { }
 
         //Habitaciones
         public DbSet<Amenity> Amenity { get; set; }

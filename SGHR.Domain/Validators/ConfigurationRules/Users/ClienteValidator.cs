@@ -2,7 +2,7 @@
 
 namespace SGHR.Domain.Validators.ConfigurationRules.Users
 {
-    public class ClienteValidator
+    public class ClienteValidator 
     {
         public bool Validate(Cliente cliente, out string errorMessage)
         {

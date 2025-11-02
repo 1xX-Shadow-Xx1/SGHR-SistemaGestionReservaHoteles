@@ -6,7 +6,7 @@ using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Enum.Reservas;
 using SGHR.Domain.Repository;
 using SGHR.Domain.Validators.ConfigurationRules.Reservas;
-using SGHR.Persistence.Contex;
+using SGHR.Persistence.Context;
 
 
 namespace SGHR.Persistence.Repositories.EF.Reservas
@@ -19,8 +19,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 
         public ReservaRepository(SGHRContext context,
                                  ReservaValidator validator,
-                                 ILogger<ReservaRepository> logger,
-                                 ILogger<BaseRepository<Reserva>> loggerBase) : base(context, loggerBase)
+                                 ILogger<ReservaRepository> logger) : base(context)
         {
             _context = context;
             _logger = logger;

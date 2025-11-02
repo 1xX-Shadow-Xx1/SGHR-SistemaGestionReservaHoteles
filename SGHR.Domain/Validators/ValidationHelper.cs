@@ -2,7 +2,7 @@
 
 namespace SGHR.Domain.Validators
 {
-    public static class ValidationHelper
+    public static class ValidationHelper 
     {
         public static bool NotNull<T>(T entity, string entityName, out string errorMessage)
         {
@@ -30,7 +30,7 @@ namespace SGHR.Domain.Validators
         {
             if (value <= 0)
             {
-                errorMessage = $"{fieldName} debe ser mayor que cero.";
+                errorMessage = $"{fieldName} debe ser mayor a 0.";
                 return false;
             }
             errorMessage = string.Empty;
@@ -41,7 +41,7 @@ namespace SGHR.Domain.Validators
         {
             if (value <= 0)
             {
-                errorMessage = $"{fieldName} debe ser mayor que cero.";
+                errorMessage = $"{fieldName} debe ser mayor a 0.";
                 return false;
             }
             errorMessage = string.Empty;

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Sesiones;
-using SGHR.Persistence.Contex;
+using SGHR.Persistence.Context;
 using SGHR.Persistence.Interfaces.Sesiones;
 
 namespace SGHR.Persistence.Repositories.EF.Sesiones
