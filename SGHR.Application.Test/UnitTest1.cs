@@ -1,4 +1,4 @@
-namespace Application.Test
+namespace SGHR.Application.Test
 {
     public class UnitTest1
     {
