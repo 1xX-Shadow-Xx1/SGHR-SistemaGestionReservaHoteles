@@ -100,7 +100,7 @@ namespace SGHR.Application.Services.Operaciones
                 var existReporte = await _reporteRepository.GetByIdAsync(id);
                 if (!existReporte.Success)
                 {
-                    result.Message = existReporte.Message;
+                    result.Message = "Reporte no encontrado.";
                     return result;
                 }
 
@@ -175,7 +175,7 @@ namespace SGHR.Application.Services.Operaciones
                 var opResult = await _reporteRepository.GetByIdAsync(id);
                 if (!opResult.Success)
                 {
-                    result.Message = opResult.Message;
+                    result.Message = "Reporte no encontrado.";
                     return result;
                 }
 

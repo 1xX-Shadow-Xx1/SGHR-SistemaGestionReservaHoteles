@@ -205,10 +205,7 @@ namespace SGHR.Application.Services.Operaciones
                 int cantidadParciales = pagos.Count(p => p.Estado == EstadoPago.Parcial);
                 int cantidadRechazados = pagos.Count(p => p.Estado == EstadoPago.Rechazado);
 
-                // Estructura del resultado
-                result.Success = true;
-                result.Message = "Resumen de pagos obtenido correctamente.";
-                result.Data = new
+                ResumenPagoDto resumenPago = new ResumenPagoDto
                 {
                     TotalRecaudado = totalRecaudado,
                     TotalRechazado = totalRechazado,
@@ -218,6 +215,11 @@ namespace SGHR.Application.Services.Operaciones
                     Rechazados = cantidadRechazados,
                     TotalPagos = pagos.Count()
                 };
+
+                // Estructura del resultado
+                result.Success = true;
+                result.Message = "Resumen de pagos obtenido correctamente.";
+                result.Data = resumenPago;
             }
             catch (Exception ex)
             {

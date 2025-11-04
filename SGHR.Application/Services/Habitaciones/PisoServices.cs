@@ -148,7 +148,7 @@ namespace SGHR.Application.Services.Habitaciones
                 var opResult = await _pisoRepository.GetByIdAsync(id);
                 if (!opResult.Success)
                 {
-                    result.Message = opResult.Message;
+                    result.Message = "Piso no encontrado.";
                     return result;
                 }
 

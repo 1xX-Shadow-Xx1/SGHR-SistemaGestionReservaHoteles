@@ -85,7 +85,7 @@ namespace SchoolPoliApp.Persistence.Base
 
                 if (entity == null)
                 {
-                    return OperationResult<TEntity>.Fail($"{typeof(TEntity).Name} no encontrada");
+                    return OperationResult<TEntity>.Fail($"{typeof(TEntity).Name} no encontrada.");
                 }
 
                 return OperationResult<TEntity>.Ok(entity,$"{typeof(TEntity).Name} con Id {id} obtenida correctamente.");

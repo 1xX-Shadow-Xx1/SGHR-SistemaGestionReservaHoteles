@@ -52,11 +52,17 @@ namespace SGHR.Application.Services.Reservas
             ServiceResult result = new ServiceResult();
             if (CreateDto == null)
             {
-                result.Message = "La habitacion no puede ser nula.";
+                result.Message = "La reserva no puede ser nula.";
                 return result;
             }
             try
             {
+                if (CreateDto.FechaInicio >= CreateDto.FechaFin)
+                {
+                    result.Message = "Las fechas de la reserva son inválidas.";
+                    return result;
+                }
+
                 var ListHabitacion = await _habitacionRepository.GetAvailableAsync(CreateDto.FechaInicio, CreateDto.FechaFin);
                 if (!ListHabitacion.Success)
                 {
@@ -64,7 +70,7 @@ namespace SGHR.Application.Services.Reservas
                     return result;
                 }
 
-                if(ListHabitacion.Data.Count() == 0)
+                if (ListHabitacion.Data.Count() == 0)
                 {
                     result.Message = "No hay habitaciones disponibles para esas fecha.";
                     return result;
@@ -156,7 +162,7 @@ namespace SGHR.Application.Services.Reservas
                 };
 
                 result.Success = true;
-                result.Message = "Se a registrado la reserva correctamente.";
+                result.Message = "Reserva registrada correctamente.";
                 result.Data = reservaDto;
 
 
@@ -180,7 +186,7 @@ namespace SGHR.Application.Services.Reservas
                 var existReserva = await _reservarepository.GetByIdAsync(id);
                 if (!existReserva.Success)
                 {
-                    result.Message = $"No existe una reserva con ese id.";
+                    result.Message = $"Reserva no encontrada.";
                     return result;
                 }
 
@@ -198,7 +204,7 @@ namespace SGHR.Application.Services.Reservas
                     return result;
                 }
                 result.Success = true;
-                result.Message = $"Reserva con id {existReserva.Data.Id} eliminada correctamente.";
+                result.Message = $"Reserva eliminada exitosamente.";
 
 
             }
@@ -258,7 +264,7 @@ namespace SGHR.Application.Services.Reservas
                         Estado = r.Estado.ToString(),
                         NumeroHabitacion = hab.Numero,
                         CedulaCliente = cli.Cedula,
-                        CorreoCliente = usr.Correo != null ? usr.Nombre : "N/A",
+                        CorreoCliente = usr.Correo != null ? usr.Correo : "N/A",
                         CostoTotal = r.CostoTotal
                     }
                 ).ToList();
@@ -286,18 +292,18 @@ namespace SGHR.Application.Services.Reservas
             }
             try
             {
-                var Habitacion = await _habitacionRepository.GetByIdAsync(id);
-                if (!Habitacion.Success)
-                {
-                    result.Message = Habitacion.Message;
-                    return result;
-                }
-                var reserva = await _reservarepository.GetByIdAsync(Habitacion.Data.IdCategoria);
+                var reserva = await _reservarepository.GetByIdAsync(id);
                 if (!reserva.Success)
                 {
                     result.Message = reserva.Message;
                     return result;
                 }
+                var Habitacion = await _habitacionRepository.GetByIdAsync(reserva.Data.IdHabitacion);
+                if (!Habitacion.Success)
+                {
+                    result.Message = Habitacion.Message;
+                    return result;
+                }                
                 var cliente = await _clienteRepository.GetByIdAsync(Habitacion.Data.IdPiso);
                 if (!cliente.Success)
                 {
@@ -339,7 +345,7 @@ namespace SGHR.Application.Services.Reservas
             ServiceResult result = new ServiceResult();
             if (UpdateDto == null)
             {
-                result.Message = "La habitacion no puede ser nula.";
+                result.Message = "La reserva no puede ser nula.";
                 return result;
             }
             if(UpdateDto.Id <= 0)
@@ -352,7 +358,7 @@ namespace SGHR.Application.Services.Reservas
                 var reserva = await _reservarepository.GetByIdAsync(UpdateDto.Id);
                 if (!reserva.Success)
                 {
-                    result.Message = "No se encontro una reserva con ese id.";
+                    result.Message = "Reserva no encontrada.";
                     return result;
                 }
                 if(reserva.Data.Estado == EstadoReserva.Finalizada)
@@ -360,8 +366,12 @@ namespace SGHR.Application.Services.Reservas
                     result.Message = "No se puede actualizar una reserva que ya este finalizada.";
                     return result;
                 }
-
-                var ListHabitacion = await _habitacionRepository.GetAvailableAsync(UpdateDto.FechaInicio, UpdateDto.FechaFin, UpdateDto.Id);
+                if(UpdateDto.FechaInicio <= UpdateDto.FechaFin)
+                {
+                    result.Message = "Las fechas de la reserva son inválidas.";
+                    return result;
+                }
+                var ListHabitacion = await _habitacionRepository.GetAvailableAsync(UpdateDto.FechaFin, UpdateDto.FechaInicio, UpdateDto.Id);
                 if (!ListHabitacion.Success)
                 {
                     result.Message = ListHabitacion.Message;

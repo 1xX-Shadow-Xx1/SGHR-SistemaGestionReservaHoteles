@@ -85,7 +85,6 @@ namespace SGHR.Application.Services.Operaciones
                 }
 
                 var ExistReserva = ListReserva.Data.FirstOrDefault(u => u.IdHabitacion == ExistHabitacion.Id);
-
                 if (ExistHabitacion.Estado == EstadoHabitacion.Reservada)
                 {
                     result.Message = $"La habitacion ya a sido reservada tendra que cancelar primero la reserva para poder hacer el mantenimiento. ID de la reserva: {ExistReserva.Id}";
@@ -127,7 +126,7 @@ namespace SGHR.Application.Services.Operaciones
                 MantenimientoDto MantenimientoDto = new MantenimientoDto()
                 {
                     Id = opResult.Data.Id,
-                    RealizadoPor = ExisUser.Data.Nombre,
+                    RealizadoPor = ExisUser.Data.Correo,
                     NumeroHabitacion = ExistHabitacion.Numero,
                     NumeroPiso = CreateDto.NumeroPiso,
                     Descripcion = CreateDto.Descripcion,

@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SGHR.IOC.Builders;
 using SGHR.Persistence.Context;
 
-namespace SGHR.WebApi
+namespace SGHR.Web
 {
     public class Program
     {
@@ -17,7 +17,7 @@ namespace SGHR.WebApi
             builder.Services.AddDependeces();
 
             // Add services to the container.
-            builder.Services.AddRazorPages();
+            builder.Services.AddControllersWithViews();
 
             var app = builder.Build();
 
@@ -36,7 +36,7 @@ namespace SGHR.WebApi
 
             app.UseAuthorization();
 
-            app.MapRazorPages();
+            app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
         }

@@ -7,7 +7,7 @@ using SGHR.Domain.Enum.Usuario;
 using SGHR.Domain.Repository;
 using SGHR.Domain.Validators.ConfigurationRules.Users;
 using SGHR.Persistence.Context;
-
+using SGHR.Infraestructure.Logging.Interfaces;
 
 namespace SGHR.Persistence.Repositories.EF.Users
 {
@@ -15,6 +15,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
     {
         private readonly SGHRContext _context;
         private readonly ILogger<UsuarioRepository> _logger;
+        private readonly ILoggerManager _loggerManager;
         private readonly UsuarioValidator _usuarioValidator;
 
         public UsuarioRepository(SGHRContext context,
@@ -94,9 +95,15 @@ namespace SGHR.Persistence.Repositories.EF.Users
             {
                 var result = await base.GetByIdAsync(id, includeDeleted);
                 if (result.Success)
+                {
                     _logger.LogInformation("Usuario con ID {Id} obtenido correctamente.", id);
-
-                return result;
+                    return result;
+                }
+                else
+                {
+                    return OperationResult<Usuario>.Fail("Usuario no encontrado");
+                }    
+                
             }
             catch (Exception ex)
             {

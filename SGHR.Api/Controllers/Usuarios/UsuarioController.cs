@@ -26,7 +26,7 @@ namespace SGHR.Api.Controllers.Usuarios
             {
                 return BadRequest(result);   
             }
-            return Ok(result);
+            return Ok(result.Data);
         }
 
         // GET api/<UsuarioController>/5

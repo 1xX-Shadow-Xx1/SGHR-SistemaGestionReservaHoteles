@@ -90,9 +90,13 @@ namespace SGHR.Persistence.Repositories.EF.Users
             {
                 var result = await base.GetByIdAsync(id, includeDeleted);
                 if (result.Success)
+                {
                     _logger.LogInformation("Cliente con ID {Id} obtenido correctamente.", id);
+                    return result;
+                }
 
-                return result;
+                return OperationResult<Cliente>.Fail("No existe un cliente con ese id.");
+                
             }
             catch (Exception ex)
             {

@@ -488,11 +488,18 @@ namespace SGHR.Application.Services.Habitaciones
         public async Task<ServiceResult> GetAllDisponibleDateAsync(DateTime fechainicio, DateTime fechafin)
         {
             ServiceResult result = new ServiceResult();
-            /*if(!string.IsNullOrWhiteSpace(fechafin.ToString()) && !string.IsNullOrWhiteSpace(fechafin.ToString()))
+            if (fechainicio == default || fechafin == default)
             {
-                result.Message = "Tiene los 2 campos de fecha son obligatorios.";
+                result.Message = "Los 2 campos de fecha son obligatorios.";
                 return result;
-            }*/
+            }
+
+            if (fechainicio >= fechafin)
+            {
+                result.Message = "La fecha de inicio debe ser menor que la fecha final.";
+                return result;
+            }
+
             try
             {
                 var disponibles = await _habitacionRepository.GetAvailableAsync(fechainicio,fechafin);
@@ -551,7 +558,7 @@ namespace SGHR.Application.Services.Habitaciones
 
                 result.Success = true;
                 result.Data = HabitacionDtos;
-                result.Message = $"Se obtuvieron las habitaciones disponibles entre {fechainicio} hasta {fechafin} correctamente.";
+                result.Message = $"Se obtuvieron las habitaciones disponibles en el rango de fechas correctamente.";
 
             }
             catch (Exception ex)

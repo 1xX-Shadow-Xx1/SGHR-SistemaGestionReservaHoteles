@@ -17,8 +17,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
 
         public ServicioAdicionalRepository(SGHRContext context,
                                            ServicioAdicionalValidator servicioAdicionalvalidator,
-                                           ILogger<ServicioAdicionalRepository> logger,
-                                           ILogger<BaseRepository<ServicioAdicional>> loggerBase) : base(context, loggerBase)
+                                           ILogger<ServicioAdicionalRepository> logger) : base(context)
         {
             _context = context;
             _logger = logger;
