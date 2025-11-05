@@ -2,21 +2,22 @@
 using SGHR.Application.Base;
 using SGHR.Application.Interfaces.Usuarios;
 
-namespace SGHR.Web.Controllers
+namespace SGHR.Web.Controllers.Usuarios
 {
-    public class UsuarioController : Controller
+    public class ClienteController : Controller
     {
-        private readonly IUsuarioServices _usuarioServices;
+        private readonly IClienteServices _clienteServices;
 
-        public UsuarioController(IUsuarioServices usuarioServices)
+        public ClienteController(IClienteServices clienteServices)
         {
-            _usuarioServices = usuarioServices;
+            _clienteServices = clienteServices;
         }
 
-        // GET: UsuarioController
+
+        // GET: ClienteController1
         public async Task<IActionResult> Index()
         {
-            ServiceResult result = await _usuarioServices.GetAllAsync();
+            ServiceResult result = await _clienteServices.GetAllAsync();
             if (!result.Success)
             {
                 ViewBag.ErrorMessage = result.Message;
@@ -25,22 +26,22 @@ namespace SGHR.Web.Controllers
             return View(result.Data);
         }
 
-        // GET: UsuarioController/Details/5
-        public ActionResult Details(int id)
+        // GET: ClienteController1/Details/5
+        public async Task<IActionResult> Details(int id)
         {
             return View();
         }
 
-        // GET: UsuarioController/Create
-        public ActionResult Create()
+        // GET: ClienteController1/Create
+        public async Task<IActionResult> Create()
         {
             return View();
         }
 
-        // POST: UsuarioController/Create
+        // POST: ClienteController1/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create(IFormCollection collection)
         {
             try
             {
@@ -52,16 +53,16 @@ namespace SGHR.Web.Controllers
             }
         }
 
-        // GET: UsuarioController/Edit/5
-        public ActionResult Edit(int id)
+        // GET: ClienteController1/Edit/5
+        public async Task<IActionResult> Edit(int id)
         {
             return View();
         }
 
-        // POST: UsuarioController/Edit/5
+        // POST: ClienteController1/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, IFormCollection collection)
         {
             try
             {
@@ -73,13 +74,13 @@ namespace SGHR.Web.Controllers
             }
         }
 
-        // GET: UsuarioController/Delete/5
-        public ActionResult Delete(int id)
+        // GET: ClienteController1/Delete/5
+        public async Task<IActionResult> Delete(int id)
         {
             return View();
         }
 
-        // POST: UsuarioController/Delete/5
+        // POST: ClienteController1/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, IFormCollection collection)
