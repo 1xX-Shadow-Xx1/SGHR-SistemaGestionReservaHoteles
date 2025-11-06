@@ -32,7 +32,7 @@ namespace SGHR.Application.ValidatorServices.Usuarios
         public bool ValidateDelete(int id, out string errorMessage)
         {
             if(!baseValidatorServices.IdValidate(id, out errorMessage)) return false;
-            var val = baseValidatorServices.ExistePorIdAsync<Usuario>(id, _usuarioRepository, "un usuario"); 
+            var val = baseValidatorServices.ExistePorIdAsync<Usuario>(id, _usuarioRepository); 
             if (!val.Result.Existe)
             {
                 errorMessage = val.Result.ErrorMessage;
@@ -52,7 +52,7 @@ namespace SGHR.Application.ValidatorServices.Usuarios
         {
             if (!baseValidatorServices.IsNull<UpdateUsuarioDto>(usuarioDto, "El usuario", out errorMessage)) return false;
             if (!baseValidatorServices.IdValidate(usuarioDto.Id, out errorMessage)) return false;
-            var val = baseValidatorServices.ExistePorIdAsync<Usuario>(usuarioDto.Id, _usuarioRepository,"un usuario");
+            var val = baseValidatorServices.ExistePorIdAsync<Usuario>(usuarioDto.Id, _usuarioRepository);
             if (!val.Result.Existe)
             {
                 errorMessage = val.Result.ErrorMessage;

@@ -119,7 +119,7 @@ namespace SGHR.Application.Test.UsuariosTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("Correo no encontrado, tiene que registrar un correo existente.", result.Message);
+            Assert.Equal("Usuario no encontrado.", result.Message);
         }
 
         [Fact]
@@ -127,7 +127,7 @@ namespace SGHR.Application.Test.UsuariosTest
         {
             //Arrange
             var usuario = new Usuario { Nombre = "Usuario", Correo = "user@test.com", Contraseña = "123456789", Rol = RolUsuarios.Cliente };
-            await _usuarioRepository.SaveAsync(usuario);
+            var re  = await _usuarioRepository.SaveAsync(usuario);
 
             var dto = new CreateClienteDto
             {
@@ -159,7 +159,7 @@ namespace SGHR.Application.Test.UsuariosTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("Tiene que introducir un id valido.", result.Message);
+            Assert.Equal("El id ingresado no es valido.", result.Message);
         }
 
         [Fact]
@@ -238,7 +238,7 @@ namespace SGHR.Application.Test.UsuariosTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("Tiene que introducir un id valido.", result.Message);
+            Assert.Equal("El id ingresado no es valido.", result.Message);
         }
 
         [Fact]
@@ -333,7 +333,7 @@ namespace SGHR.Application.Test.UsuariosTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("Ingrese un id valido.", result.Message);
+            Assert.Equal("El id ingresado no es valido.", result.Message);
         }
 
         [Fact]

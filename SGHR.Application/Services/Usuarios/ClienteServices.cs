@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Users.Cliente;
 using SGHR.Application.Interfaces.Usuarios;
+using SGHR.Application.ValidatorServices.Usuarios;
 using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Repository;
 using SGHR.Persistence.Interfaces.Users;
@@ -27,31 +28,14 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> CreateAsync(CreateClienteDto CreateDto)
         {
             ServiceResult result = new ServiceResult();
-            if (CreateDto == null)
+            var validator = new ClienteValidatorServices(_clienteRepository, _usuarioRepository).ValidateCreate(CreateDto, out string errorMessage);
+            if (!validator)
             {
-                result.Message = "El cliente no puede ser nulo.";
+                result.Message = errorMessage;
                 return result;
             }
-
             try
-            {
-
-                // Verificar si ya existe un cliente con ese correo
-                var LisClientes = await _clienteRepository.GetAllAsync();
-                if (!LisClientes.Success)
-                {
-                    result.Message = LisClientes.Message;
-                    return result;
-                }
-                
-                var existCliente = LisClientes.Data.FirstOrDefault(c => c.Cedula == CreateDto.Cedula);
-                if (existCliente != null)
-                {
-                    result.Message = "Ya existe un cliente registrado con esa cedula.";
-                    return result;
-                }
-
-                // Crear la entidad Cliente
+            {                
                 var cliente = new Cliente
                 {
                     Nombre = CreateDto.Nombre,
@@ -63,27 +47,13 @@ namespace SGHR.Application.Services.Usuarios
 
                 if (!string.IsNullOrWhiteSpace(CreateDto.Correo))
                 {
-                    var Usuarios = await _usuarioRepository.GetAllAsync();
-                    if (!Usuarios.Success)
+                    var Usuario = await _usuarioRepository.GetByCorreoAsync(CreateDto.Correo);
+                    if (!Usuario.Success)
                     {
-                        result.Message = Usuarios.Message;
+                        result.Message = Usuario.Message;
                         return result;
                     }
-
-                    var verificarCorreos = Usuarios.Data.FirstOrDefault(u => u.Correo == CreateDto.Correo);
-                    if (verificarCorreos == null)
-                    {
-                        result.Message = $"Correo no encontrado, tiene que registrar un correo existente.";
-                        return result;
-                    }
-
-                    if(LisClientes.Data.Where(u => u.IdUsuario == verificarCorreos.Id).FirstOrDefault() != null)
-                    {
-                        result.Message = "Ya hay un cliente registrado con ese correo.";
-                        return result;
-                    }
-
-                    cliente.IdUsuario = verificarCorreos.Id;
+                    cliente.IdUsuario = Usuario.Data.Id;
                 }
 
                 var opResult = await _clienteRepository.SaveAsync(cliente);
@@ -120,19 +90,15 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> DeleteAsync(int id)
         {
             ServiceResult result = new ServiceResult();
-            if(id <= 0)
+            var validate = new ClienteValidatorServices(_clienteRepository, _usuarioRepository).ValidateDelete(id, out string errorMessage);
+            if (!validate)
             {
-                result.Message = "Tiene que introducir un id valido.";
+                result.Message = errorMessage;
                 return result;
             }
             try
             {
                 var existCliente = await _clienteRepository.GetByIdAsync(id);
-                if (!existCliente.Success)
-                {
-                    result.Message = $"No existe un cliente con ese id.";
-                    return result;
-                }
 
                 var OpResult = await _clienteRepository.DeleteAsync(existCliente.Data);
                 if (!OpResult.Success)
@@ -154,6 +120,7 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> GetAllAsync()
         {
             ServiceResult result = new ServiceResult();
+
             try
             {
                 var ListaClientes = await _clienteRepository.GetAllAsync();
@@ -197,6 +164,12 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> GetByCedulaAsync(string cedula)
         {
             ServiceResult result = new ServiceResult();
+            var vali = new ClienteValidatorServices(_clienteRepository,_usuarioRepository).ValidateGetByCedula(cedula, out string errorMessage);
+            if (!vali)
+            {
+                result.Message = errorMessage;
+                return result;
+            }
             try
             {
                 var OpResult = await _clienteRepository.GetByCedulaAsync(cedula);
@@ -247,9 +220,10 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
-            if (id <= 0)
+            var vali = new ClienteValidatorServices(_clienteRepository, _usuarioRepository).ValidateGetById(id, out string errorMessage);
+            if (!vali)
             {
-                result.Message = "Tiene que introducir un id valido.";
+                result.Message = errorMessage;
                 return result;
             }
             try
@@ -302,68 +276,42 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> UpdateAsync(UpdateClienteDto UpdateDto)
         {
             ServiceResult result = new ServiceResult();
-            if (UpdateDto == null)
+            var vali = new ClienteValidatorServices(_clienteRepository, _usuarioRepository).ValidateUpdate(UpdateDto, out string errorMessage);
+            if (!vali)
             {
-                result.Message = "El cliente no puede ser nulo.";
-                return result;
-            }
-            if (UpdateDto.Id <= 0)
-            {
-                result.Message = "Ingrese un id valido.";
+                result.Message = errorMessage;
                 return result;
             }
             try
             {
 
-                var LisClientes = await _clienteRepository.GetAllAsync();
-                if (!LisClientes.Success)
+                var cliente = await _clienteRepository.GetByIdAsync(UpdateDto.Id);
+                if(!cliente.Success)
                 {
-                    result.Message = LisClientes.Message;
+                    result.Message = cliente.Message;
                     return result;
                 }
 
-                var existCliente = LisClientes.Data.FirstOrDefault(c => c.Cedula == UpdateDto.Cedula);
-                if (existCliente != null)
-                {
-                    result.Message = "Ya existe un cliente registrado con esa cedula.";
-                    return result;
-                }
-
-                var cliente = LisClientes.Data.FirstOrDefault(c => c.Id == UpdateDto.Id);
-
-                cliente.Id = UpdateDto.Id;
-                cliente.Nombre = UpdateDto.Nombre;
-                cliente.Direccion = UpdateDto.Direccion;
-                cliente.Apellido = UpdateDto.Apellido;
-                cliente.Telefono = UpdateDto.Telefono;
-                cliente.Cedula = UpdateDto.Cedula;
+                cliente.Data.Id = UpdateDto.Id;
+                cliente.Data.Nombre = UpdateDto.Nombre;
+                cliente.Data.Direccion = UpdateDto.Direccion;
+                cliente.Data.Apellido = UpdateDto.Apellido;
+                cliente.Data.Telefono = UpdateDto.Telefono;
+                cliente.Data.Cedula = UpdateDto.Cedula;
 
                 if (!string.IsNullOrWhiteSpace(UpdateDto.Correo))
                 {
-                    var Usuarios = await _usuarioRepository.GetAllAsync();
+                    var Usuarios = await _usuarioRepository.GetByCorreoAsync(UpdateDto.Correo);
                     if (!Usuarios.Success)
                     {
                         result.Message = Usuarios.Message;
                         return result;
                     }
 
-                    var verificarCorreos = Usuarios.Data.FirstOrDefault(u => u.Correo == UpdateDto.Correo);
-                    if (verificarCorreos == null)
-                    {
-                        result.Message = $"Correo no encontrado, tiene que registrar un correo existente.";
-                        return result;
-                    }
-
-                    if (Usuarios.Data.Where(u => u.Correo == verificarCorreos.Correo && u.Id != cliente.IdUsuario).FirstOrDefault() != null)
-                    {
-                        result.Message = "Ya hay un cliente registrado con ese correo.";
-                        return result;
-                    }
-
-                    cliente.IdUsuario = verificarCorreos.Id;
+                    cliente.Data.IdUsuario = Usuarios.Data.Id;
                 }
 
-                var opResult = await _clienteRepository.UpdateAsync(cliente);
+                var opResult = await _clienteRepository.UpdateAsync(cliente.Data);
                 if (!opResult.Success)
                 {
                     result.Message = opResult.Message;
@@ -388,7 +336,7 @@ namespace SGHR.Application.Services.Usuarios
             }
             catch (Exception ex)
             {
-
+                result.Message = "Ocurrio un Error al actualizar el cliente.";
             }
             return result;
         }

@@ -87,7 +87,7 @@ namespace SGHR.Application.Test.UsuariosTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("Ya existe un usuario con ese correo.", result.Message);
+            Assert.Equal("Ya existe un usuario registrado con ese correo.", result.Message);
         }
 
         [Fact]

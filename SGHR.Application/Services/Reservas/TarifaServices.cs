@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Reservas.Tarifa;
 using SGHR.Application.Interfaces.Reservas;
+using SGHR.Application.ValidatorServices.Reservas;
 using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Persistence.Interfaces.Habitaciones;
 using SGHR.Persistence.Interfaces.Reservas;
@@ -27,45 +28,24 @@ namespace SGHR.Application.Services.Reservas
         public async Task<ServiceResult> CreateAsync(CreateTarifaDto CreateDto)
         {
             ServiceResult result = new ServiceResult();
-            if(CreateDto == null)
+            var validate = new TarifaValidatorServices(_tarifaRepository, _categoriaRepository).ValidateCreate(CreateDto, out string errorMessage);
+            if (!validate)
             {
-                result.Message = "La tarifa no puede ser nula.";
+                result.Message = errorMessage;
                 return result;
             }
             try
             {
-                var Tarifas = await _tarifaRepository.GetAllAsync();
-                if (!Tarifas.Success)
+                var Categoria = await _categoriaRepository.GetByNombreAsync(CreateDto.NombreCategoria);
+                if (!Categoria.Success)
                 {
-                    result.Message = Tarifas.Message;
-                    return result;
-                }
-                var Categorias = await _categoriaRepository.GetAllAsync();
-                if (!Categorias.Success)
-                {
-                    result.Message = Categorias.Message;
-                    return result;
-                }
-
-                var ExistCategoria = Categorias.Data.FirstOrDefault(u => u.Nombre == CreateDto.NombreCategoria);
-                if(ExistCategoria == null)
-                {
-                    result.Message = $"No se encontro la categoria, introduce el nombre de una categoria ya registrada.";
-                    return result;
-                }
-
-
-
-                var ExistTarifa = Tarifas.Data.FirstOrDefault(u => u.Temporada == CreateDto.Temporada && u.IdCategoria == ExistCategoria.Id);
-                if (ExistTarifa != null)
-                {
-                    result.Message = $"Ya existe una tarifa para esa temporada con la misma categoria.";
+                    result.Message = Categoria.Message;
                     return result;
                 }
 
                 Tarifa tarifa = new Tarifa()
                 {
-                    IdCategoria = ExistCategoria.Id,
+                    IdCategoria = Categoria.Data.Id,
                     Temporada = CreateDto.Temporada,
                     Precio = CreateDto.Precio
                 };
@@ -81,7 +61,7 @@ namespace SGHR.Application.Services.Reservas
                 {
                     Id = opResult.Data.Id,
                     Temporada = opResult.Data.Temporada,
-                    NombreCategoria = ExistCategoria.Nombre,
+                    NombreCategoria = Categoria.Data.Nombre,
                     Precio = opResult.Data.Precio
                 };
 
@@ -99,28 +79,29 @@ namespace SGHR.Application.Services.Reservas
         public async Task<ServiceResult> DeleteAsync(int id)
         {
             ServiceResult result = new ServiceResult();
-            if (id <= 0)
+            var validate = new TarifaValidatorServices(_tarifaRepository, _categoriaRepository).ValidateDelete(id, out string errorMessage);
+            if (!validate)
             {
-                result.Message = "El id es invalido.";
+                result.Message = errorMessage;
                 return result;
             }
             try
             {
-                var existTarifa = await _tarifaRepository.GetByIdAsync(id);
-                if (!existTarifa.Success)
+                var tarifa = await _tarifaRepository.GetByIdAsync(id);
+                if (!tarifa.Success)
                 {
-                    result.Message = existTarifa.Message;
+                    result.Message = tarifa.Message;
                     return result;
                 }
 
-                var OpResult = await _tarifaRepository.DeleteAsync(existTarifa.Data);
+                var OpResult = await _tarifaRepository.DeleteAsync(tarifa.Data);
                 if (!OpResult.Success)
                 {
                     result.Message = OpResult.Message;
                     return result;
                 }
                 result.Success = true;
-                result.Message = $"Tarifa con id {existTarifa.Data.Id} eliminada correctamente.";
+                result.Message = $"Tarifa con id {tarifa.Data.Id} eliminada correctamente.";
 
             }
             catch (Exception ex)
@@ -173,9 +154,10 @@ namespace SGHR.Application.Services.Reservas
         public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
-            if (id <= 0)
+            var validate = new TarifaValidatorServices(_tarifaRepository, _categoriaRepository).ValidateGetById(id, out string errorMessage);
+            if (!validate)
             {
-                result.Message = "El id es invalido.";
+                result.Message = errorMessage;
                 return result;
             }
             try
@@ -215,57 +197,33 @@ namespace SGHR.Application.Services.Reservas
         public async Task<ServiceResult> UpdateAsync(UpdateTarifaDto UpdateDto)
         {
             ServiceResult result = new ServiceResult();
-            if (UpdateDto == null)
+            var validate = new TarifaValidatorServices(_tarifaRepository, _categoriaRepository).ValidateUpdate(UpdateDto, out string errorMessage);
+            if (!validate)
             {
-                result.Message = "La tarifa no puede ser nula.";
-                return result;
-            }
-            if (UpdateDto.Id <= 0)
-            {
-                result.Message = "El id es invalido.";
+                result.Message = errorMessage;
                 return result;
             }
             try
             {
-                var Tarifas = await _tarifaRepository.GetAllAsync();
-                if (!Tarifas.Success)
+                var tarifa = await _tarifaRepository.GetByIdAsync(UpdateDto.Id);
+                if (!tarifa.Success)
                 {
-                    result.Message = Tarifas.Message;
-                    return result;
-                }
-                var Categorias = await _categoriaRepository.GetAllAsync();
-                if (!Categorias.Success)
-                {
-                    result.Message = Categorias.Message;
+                    result.Message = tarifa.Message;
                     return result;
                 }
 
-                var tarifa = Tarifas.Data.FirstOrDefault(u => u.Id == UpdateDto.Id);
-                if (tarifa == null)
+                var categoria = await _categoriaRepository.GetByNombreAsync(UpdateDto.NombreCategoria);
+                if (categoria == null)
                 {
-                    result.Message = "No se a encontrado la tarifa con ese id.";
+                    result.Message = categoria.Message;
                     return result;
                 }
 
-                var ExistCategoria = Categorias.Data.FirstOrDefault(u => u.Nombre == UpdateDto.NombreCategoria);
-                if (ExistCategoria == null)
-                {
-                    result.Message = $"No se encontro la categoria, introduce el nombre de una categoria ya registrada.";
-                    return result;
-                }
+                tarifa.Data.IdCategoria = categoria.Data.Id;
+                tarifa.Data.Temporada = UpdateDto.Temporada;
+                tarifa.Data.Precio = (decimal)UpdateDto.Precio;
 
-                var ExistTarifa = Tarifas.Data.FirstOrDefault(u => u.Temporada == UpdateDto.Temporada && u.IdCategoria == ExistCategoria.Id && u.Id != UpdateDto.Id);
-                if (ExistTarifa != null)
-                {
-                    result.Message = $"Ya existe un tarifas para esas temporada con la misma categoria.";
-                    return result;
-                }
-
-                tarifa.IdCategoria = ExistCategoria.Id;
-                tarifa.Temporada = UpdateDto.Temporada;
-                tarifa.Precio = (decimal)UpdateDto.Precio;
-
-                var opResult = await _tarifaRepository.UpdateAsync(tarifa);
+                var opResult = await _tarifaRepository.UpdateAsync(tarifa.Data);
                 if (!opResult.Success)
                 {
                     result.Message = opResult.Message;
@@ -276,7 +234,7 @@ namespace SGHR.Application.Services.Reservas
                 {
                     Id = opResult.Data.Id,
                     Temporada = opResult.Data.Temporada,
-                    NombreCategoria = ExistCategoria.Nombre,
+                    NombreCategoria = categoria.Data.Nombre,
                     Precio = opResult.Data.Precio
                 };
 
