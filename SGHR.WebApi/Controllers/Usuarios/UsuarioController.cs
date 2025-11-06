@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
+using SGHR.Application.Dtos.Configuration.Users.Usuario;
 using SGHR.Application.Interfaces.Usuarios;
 
 namespace SGHR.Web.Controllers.Usuarios
@@ -13,85 +15,142 @@ namespace SGHR.Web.Controllers.Usuarios
             _usuarioServices = usuarioServices;
         }
 
-        // GET: UsuarioController
-        public async Task<IActionResult> Index()
+        // Página principal
+        public IActionResult Index()
         {
-            ServiceResult result = await _usuarioServices.GetAllAsync();
+            return View();
+        }
+
+        // --- Partial para listar usuarios ---
+        public async Task<IActionResult> _List(int? id)
+        {
+            if (id.HasValue && id > 0)
+            {
+                var result = await _usuarioServices.GetByIdAsync(id.Value);
+                if (!result.Success || result.Data == null)
+                    return PartialView("_List", new List<UsuarioDto>()); // lista vacía si no se encuentra
+
+                return PartialView("_List", new List<UsuarioDto> { (UsuarioDto)result.Data });
+            }
+            else
+            {
+                var result = await _usuarioServices.GetAllAsync();
+                if (!result.Success)
+                    return PartialView("_Error", result.Message);
+
+                var listaUsuarios = result.Data as IEnumerable<UsuarioDto>;
+                return PartialView("_List", listaUsuarios);
+            }
+        }
+
+
+        // --- Vista completa de detalles del usuario ---
+        public async Task<IActionResult> Details(int id)
+        {
+            ServiceResult result = await _usuarioServices.GetByIdAsync(id);
             if (!result.Success)
             {
-                ViewBag.ErrorMessage = result.Message;
-                return View();
+                // Puedes redirigir a un error general o mostrar mensaje
+                return RedirectToAction("Index");
             }
-            return View(result.Data);
+
+            var usuario = result.Data as UsuarioDto;
+            return View(usuario); // Vista completa
         }
 
-        // GET: UsuarioController/Details/5
-        public ActionResult Details(int id)
+
+        // GET: vista completa de creación de usuario
+        public IActionResult Create()
         {
-            return View();
+            var model = new CreateUsuarioDto();
+            return View(model); // Vista completa, no partial
         }
 
-        // GET: UsuarioController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: UsuarioController/Create
+        // POST: creación de usuario
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create(CreateUsuarioDto dto)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                // Si hay errores de validación, devolver la misma vista con mensajes
+                return View(dto);
             }
-            catch
+
+            var result = await _usuarioServices.CreateAsync(dto);
+            if (!result.Success)
             {
-                return View();
+                // Si hay error en el servicio, mostrarlo en la vista
+                ModelState.AddModelError(string.Empty, result.Message);
+                return View(dto);
             }
+
+            // Redirigir a la lista de usuarios o al detalle recién creado
+            return RedirectToAction("Index");
         }
 
-        // GET: UsuarioController/Edit/5
-        public ActionResult Edit(int id)
+        // GET: Editar usuario (vista completa)
+        public async Task<IActionResult> Edit(int id)
         {
-            return View();
+            var result = await _usuarioServices.GetByIdAsync(id);
+            if (!result.Success)
+                return View("_Error");  // o mostrar una página de error
+            UpdateUsuarioDto usuario = new UpdateUsuarioDto
+            {
+                Id = result.Data.Id,
+                Correo = result.Data.Correo,
+                Nombre = result.Data.Nombre,
+                Contraseña = result.Data.Contraseña,
+                Rol = result.Data.Rol,
+                Estado = result.Data.Estado
+            };
+            return View(usuario); // Vista completa
         }
 
-        // POST: UsuarioController/Edit/5
+        // POST: Guardar cambios
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(UpdateUsuarioDto dto)
         {
-            try
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var result = await _usuarioServices.UpdateAsync(dto);
+            if (!result.Success)
             {
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError(string.Empty, result.Message);
+                return View(dto);
             }
-            catch
-            {
-                return View();
-            }
+
+            // Redirigir a la lista después de guardar
+            return RedirectToAction("Index");
         }
 
-        // GET: UsuarioController/Delete/5
-        public ActionResult Delete(int id)
+
+        // --- Partial para eliminar ---
+        public async Task<IActionResult> _Delete(int id)
         {
-            return View();
+            var result = await _usuarioServices.GetByIdAsync(id);
+            if (!result.Success)
+                return PartialView("_Error");
+
+            if (result.Data == null)
+                return PartialView("_Error");
+
+            return PartialView("_Delete", (UsuarioDto)result.Data);
+
         }
 
-        // POST: UsuarioController/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("_DeleteConfirmed")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> _DeleteConfirmed(int id)
         {
-            try
+            var result = await _usuarioServices.DeleteAsync(id);
+            if (!result.Success)
             {
-                return RedirectToAction(nameof(Index));
+                return Json(result);
             }
-            catch
-            {
-                return View();
-            }
+            return Json(result);
         }
     }
 }

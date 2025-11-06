@@ -3,7 +3,6 @@ using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Users.Usuario;
 using SGHR.Application.Interfaces.Usuarios;
 using SGHR.Domain.Entities.Configuration.Usuers;
-using SGHR.Domain.Enum.Usuarios;
 using SGHR.Domain.Repository;
 
 namespace SGHR.Application.Services.Usuarios
@@ -41,12 +40,11 @@ namespace SGHR.Application.Services.Usuarios
                 {
                     Nombre = CreateDto.Nombre,
                     Correo = CreateDto.Correo,
-                    Contraseña = CreateDto.Contraseña
+                    Contraseña = CreateDto.Contraseña,
+                    Rol = CreateDto.Rol
                 };
-                if (Enum.TryParse<RolUsuarios>(CreateDto.Rol, out var estado))
-                {
-                    usuario.Rol = estado;
-                }
+                   
+                
 
                 var OpResult = await _usuarioRepository.SaveAsync(usuario);
                 if (!OpResult.Success)
@@ -60,7 +58,7 @@ namespace SGHR.Application.Services.Usuarios
                     Id = OpResult.Data.Id,
                     Nombre = OpResult.Data.Nombre,
                     Correo = OpResult.Data.Correo,
-                    Rol = OpResult.Data.Estado.ToString()
+                    Rol = OpResult.Data.Rol
                 };
 
                 result.Success = true;
@@ -126,8 +124,8 @@ namespace SGHR.Application.Services.Usuarios
                     Id = u.Id,
                     Nombre = u.Nombre,
                     Correo = u.Correo,
-                    Rol = u.Rol.ToString(),
-                    Estado = u.Estado.ToString()
+                    Rol = u.Rol,
+                    Estado = u.Estado
                 }).ToList();
 
                 result.Success = true;
@@ -162,8 +160,9 @@ namespace SGHR.Application.Services.Usuarios
                     Id = opResult.Data.Id,
                     Nombre = opResult.Data.Nombre,
                     Correo = opResult.Data.Correo,
-                    Rol = opResult.Data.Rol.ToString(),
-                    Estado = opResult.Data.Estado.ToString()
+                    Contraseña = opResult.Data.Contraseña,
+                    Rol = opResult.Data.Rol,
+                    Estado = opResult.Data.Estado
                 };
 
                 result.Success = true;
@@ -212,11 +211,8 @@ namespace SGHR.Application.Services.Usuarios
                 existUser.Data.Nombre = UpdateDto.Nombre;
                 existUser.Data.Correo = UpdateDto.Correo;
                 existUser.Data.Contraseña = UpdateDto.Contraseña;
-
-                if (Enum.TryParse<RolUsuarios>(UpdateDto.Rol, out var estado))
-                {
-                    existUser.Data.Rol = estado;
-                }
+                existUser.Data.Rol = UpdateDto.Rol;
+                
 
                 var OpResult = await _usuarioRepository.UpdateAsync(existUser.Data);
                 if (!OpResult.Success)
@@ -230,7 +226,7 @@ namespace SGHR.Application.Services.Usuarios
                     Id = OpResult.Data.Id,
                     Nombre = OpResult.Data.Nombre,
                     Correo = OpResult.Data.Correo,
-                    Rol = OpResult.Data.Estado.ToString()
+                    Rol = OpResult.Data.Rol
                 };
 
                 result.Success = true;

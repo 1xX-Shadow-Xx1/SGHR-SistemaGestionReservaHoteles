@@ -60,7 +60,7 @@ namespace SGHR.Application.Services
                         Id = OpResult.Data.Id,
                         Nombre = OpResult.Data.Nombre,
                         Correo = OpResult.Data.Correo,
-                        Rol = OpResult.Data.Rol.ToString()
+                        Rol = OpResult.Data.Rol
                     };
 
                     result.Success = true;
@@ -116,8 +116,8 @@ namespace SGHR.Application.Services
                         Id = existUser.Data.Id,
                         Nombre = existUser.Data.Nombre,
                         Correo = existUser.Data.Correo,
-                        Rol = existUser.Data.Rol.ToString(),
-                        Estado = existUser.Data.Estado.ToString()
+                        Rol = existUser.Data.Rol,
+                        Estado = existUser.Data.Estado
                     };
 
                     result.Success = true;
@@ -173,8 +173,8 @@ namespace SGHR.Application.Services
                         Id = OpResult.Data.Id,
                         Nombre = OpResult.Data.Nombre,
                         Correo = OpResult.Data.Correo,
-                        Rol = OpResult.Data.Rol.ToString(),
-                        Estado = OpResult.Data.Estado.ToString()
+                        Rol = OpResult.Data.Rol,
+                        Estado = OpResult.Data.Estado
                     };
 
                     result.Success = true;

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using SGHR.Domain.Enum.Usuarios;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace SGHR.Application.Dtos.Configuration.Users.Usuario
@@ -25,10 +26,7 @@ namespace SGHR.Application.Dtos.Configuration.Users.Usuario
 
 
         [Required(ErrorMessage = "El rol es obligatorio.")]
-        [StringLength(14, ErrorMessage = "El rol no puede superar los 14 caracteres.")]
-        [RegularExpression("^(Admin|Recepcionista|Cliente)$",
-       ErrorMessage = "El rol debe ser Admin, Recepcionista o Cliente.")]
-        public string Rol { get; set; }
+        public RolUsuarios Rol { get; set; }
 
     }
 }

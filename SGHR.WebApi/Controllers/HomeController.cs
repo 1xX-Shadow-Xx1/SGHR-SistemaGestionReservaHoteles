@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace SGHR.Web.Controllers
 {
@@ -14,7 +13,7 @@ namespace SGHR.Web.Controllers
         // GET: HomeController/Details/5
         public ActionResult Privacy()
         {
-            return View();
+            return View("Privacy", "Home");
         }
     }
 }

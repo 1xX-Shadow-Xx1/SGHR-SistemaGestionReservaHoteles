@@ -1,4 +1,6 @@
 ﻿
+using SGHR.Domain.Enum.Usuario;
+using SGHR.Domain.Enum.Usuarios;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -14,11 +16,7 @@ namespace SGHR.Application.Dtos.Configuration.Users.Usuario
         public string Correo { get; set; }
         [PasswordPropertyText]
         public string Contraseña { get; set; }
-        [StringLength(14)]
-        [RegularExpression("^(Admin|Recepcionista|Cliente)$", ErrorMessage = "El rol debe ser Admin, Recepcionista o Cliente.")]
-        public string Rol { get; set; }
-        [StringLength(14)]
-        [RegularExpression("^(Activo|Inactivo|Suspendido|Eliminado)$", ErrorMessage = "El rol debe ser Activo, Inactivo, Suspendido o Cliente.")]
-        public string Estado { get; set; }
+        public RolUsuarios Rol { get; set; }
+        public EstadoUsuario Estado { get; set; }
     }
 }

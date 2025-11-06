@@ -80,7 +80,7 @@ namespace SGHR.Application.Test.UsuariosTest
             var usuario = new Usuario { Nombre = "Juan", Correo = "juan@test.com", Contraseña = "123456789", Rol = RolUsuarios.Administrador };
             await _usuarioRepository.SaveAsync(usuario);
 
-            var nuevo = new CreateUsuarioDto { Nombre = "Pedro", Correo = "juan@test.com", Contraseña = "321123456", Rol = "Administrador" };
+            var nuevo = new CreateUsuarioDto { Nombre = "Pedro", Correo = "juan@test.com", Contraseña = "321123456", Rol = RolUsuarios.Administrador };
 
             //Act
             var result = await _usuarioServices.CreateAsync(nuevo);
@@ -94,7 +94,7 @@ namespace SGHR.Application.Test.UsuariosTest
         public async Task When_User_is_valid_CreateAsync_Should_Succeed()
         {
             //Arrange
-            var dto = new CreateUsuarioDto { Nombre = "Maria", Correo = "maria@test.com", Contraseña = "123456789", Rol = "Administrador" };
+            var dto = new CreateUsuarioDto { Nombre = "Maria", Correo = "maria@test.com", Contraseña = "123456789", Rol = RolUsuarios.Administrador };
 
             //Act
             var result = await _usuarioServices.CreateAsync(dto);
@@ -109,7 +109,7 @@ namespace SGHR.Application.Test.UsuariosTest
         {
             //Arrange
             _context.Dispose(); // provocar excepción
-            var dto = new CreateUsuarioDto { Nombre = "Error", Correo = "error@test.com", Contraseña = "123", Rol = "Administrador" };
+            var dto = new CreateUsuarioDto { Nombre = "Error", Correo = "error@test.com", Contraseña = "123", Rol = RolUsuarios.Administrador };
 
             //Act
             var result = await _usuarioServices.CreateAsync(dto);
@@ -329,7 +329,7 @@ namespace SGHR.Application.Test.UsuariosTest
         public async Task When_User_not_found_UpdateAsync_Should_Fail()
         {
             //Arrange
-            var dto = new UpdateUsuarioDto { Id = 99, Nombre = "Juan", Correo = "nuevo@test.com", Contraseña = "111456798", Rol = "Empleado" };
+            var dto = new UpdateUsuarioDto { Id = 99, Nombre = "Juan", Correo = "nuevo@test.com", Contraseña = "111456798", Rol = RolUsuarios.Recepcionista };
 
             //Act
             var result = await _usuarioServices.UpdateAsync(dto);
@@ -352,7 +352,7 @@ namespace SGHR.Application.Test.UsuariosTest
                 Nombre = "Roberto Actualizado",
                 Correo = "roberto@test.com",
                 Contraseña = "321456789",
-                Rol = "Recepcionista"
+                Rol = RolUsuarios.Recepcionista
             };
 
             //Act
