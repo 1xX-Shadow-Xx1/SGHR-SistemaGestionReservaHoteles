@@ -28,14 +28,15 @@ namespace SGHR.Application.Services.Reservas
         public async Task<ServiceResult> CreateAsync(CreateTarifaDto CreateDto)
         {
             ServiceResult result = new ServiceResult();
-            var validate = new TarifaValidatorServices(_tarifaRepository, _categoriaRepository).ValidateCreate(CreateDto, out string errorMessage);
-            if (!validate)
-            {
-                result.Message = errorMessage;
-                return result;
-            }
             try
             {
+                var validate = new TarifaValidatorServices(_tarifaRepository, _categoriaRepository).ValidateCreate(CreateDto, out string errorMessage);
+                if (!validate)
+                {
+                    result.Message = errorMessage;
+                    return result;
+                }
+
                 var Categoria = await _categoriaRepository.GetByNombreAsync(CreateDto.NombreCategoria);
                 if (!Categoria.Success)
                 {
@@ -79,14 +80,14 @@ namespace SGHR.Application.Services.Reservas
         public async Task<ServiceResult> DeleteAsync(int id)
         {
             ServiceResult result = new ServiceResult();
-            var validate = new TarifaValidatorServices(_tarifaRepository, _categoriaRepository).ValidateDelete(id, out string errorMessage);
-            if (!validate)
-            {
-                result.Message = errorMessage;
-                return result;
-            }
             try
             {
+                var validate = new TarifaValidatorServices(_tarifaRepository, _categoriaRepository).ValidateDelete(id, out string errorMessage);
+                if (!validate)
+                {
+                    result.Message = errorMessage;
+                    return result;
+                }
                 var tarifa = await _tarifaRepository.GetByIdAsync(id);
                 if (!tarifa.Success)
                 {
@@ -154,14 +155,14 @@ namespace SGHR.Application.Services.Reservas
         public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
-            var validate = new TarifaValidatorServices(_tarifaRepository, _categoriaRepository).ValidateGetById(id, out string errorMessage);
-            if (!validate)
-            {
-                result.Message = errorMessage;
-                return result;
-            }
             try
             {
+                var validate = new TarifaValidatorServices(_tarifaRepository, _categoriaRepository).ValidateGetById(id, out string errorMessage);
+                if (!validate)
+                {
+                    result.Message = errorMessage;
+                    return result;
+                }
                 var opResult = await _tarifaRepository.GetByIdAsync(id);
                 if (!opResult.Success)
                 {
@@ -197,14 +198,14 @@ namespace SGHR.Application.Services.Reservas
         public async Task<ServiceResult> UpdateAsync(UpdateTarifaDto UpdateDto)
         {
             ServiceResult result = new ServiceResult();
-            var validate = new TarifaValidatorServices(_tarifaRepository, _categoriaRepository).ValidateUpdate(UpdateDto, out string errorMessage);
-            if (!validate)
-            {
-                result.Message = errorMessage;
-                return result;
-            }
             try
             {
+                var validate = new TarifaValidatorServices(_tarifaRepository, _categoriaRepository).ValidateUpdate(UpdateDto, out string errorMessage);
+                if (!validate)
+                {
+                    result.Message = errorMessage;
+                    return result;
+                }
                 var tarifa = await _tarifaRepository.GetByIdAsync(UpdateDto.Id);
                 if (!tarifa.Success)
                 {

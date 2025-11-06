@@ -23,7 +23,7 @@ namespace SGHR.Application.ValidatorServices.Reservas
 
         public bool ValidateCreate(CreateTarifaDto? CreateDto, out string errorMessage)
         {
-            if(!baseValidatorServices.IsNull<CreateTarifaDto>(CreateDto, "la tarifa", out errorMessage)) return false;
+            if(!baseValidatorServices.IsNull<CreateTarifaDto>(CreateDto, "La tarifa", out errorMessage)) return false;
             var vali = baseValidatorServices.BuscarExistCampoAsync<Categoria>(c => c.Nombre == CreateDto.NombreCategoria, _categoriaRepository, "Categoria");
             if (!vali.Result.Existe)
             {
@@ -31,7 +31,7 @@ namespace SGHR.Application.ValidatorServices.Reservas
                 return false;
             }
             var vali3 = baseValidatorServices.ExistePorCampoAsync<Tarifa>(t => t.IdCategoria == vali.Result.data.Id && t.Temporada == CreateDto.Temporada, _tarifaRepository, "una tarifa", "esa categoria en la misma temporada");
-            if(vali3.Result.Existe)
+            if(!vali3.Result.Existe)
             {
                 errorMessage = vali3.Result.ErrorMessage;
                 return false;
@@ -63,8 +63,8 @@ namespace SGHR.Application.ValidatorServices.Reservas
 
         public bool ValidateUpdate(UpdateTarifaDto? UpdateDto, out string errorMessage)
         {
-            if (!baseValidatorServices.IdValidate(UpdateDto.Id, out errorMessage)) return false;
-            if (!baseValidatorServices.IsNull<UpdateTarifaDto>(UpdateDto, "la tarifa", out errorMessage)) return false;
+            if (!baseValidatorServices.IsNull<UpdateTarifaDto>(UpdateDto, "La tarifa", out errorMessage)) return false;
+            if (!baseValidatorServices.IdValidate(UpdateDto.Id, out errorMessage)) return false;            
             var vali = baseValidatorServices.BuscarExistCampoAsync<Categoria>(c => c.Nombre == UpdateDto.NombreCategoria, _categoriaRepository, "Categoria");
             if (!vali.Result.Existe)
             {
@@ -72,7 +72,7 @@ namespace SGHR.Application.ValidatorServices.Reservas
                 return false;
             }
             var vali3 = baseValidatorServices.ExistePorCampoAsync<Tarifa>(t => t.IdCategoria == vali.Result.data.Id && t.Temporada == UpdateDto.Temporada && t.Id != UpdateDto.Id, _tarifaRepository, "una tarifa", "esa categoria en la misma temporada");
-            if (vali3.Result.Existe)
+            if (!vali3.Result.Existe)
             {
                 errorMessage = vali3.Result.ErrorMessage;
                 return false;

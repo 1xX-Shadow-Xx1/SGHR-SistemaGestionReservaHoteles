@@ -70,7 +70,7 @@ namespace SGHR.Application.Test.ReservasTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("La tarifa no puede ser nula.", result.Message);
+            Assert.Equal("La tarifa no puede ser nulo.", result.Message);
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace SGHR.Application.Test.ReservasTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("No se encontro la categoria, introduce el nombre de una categoria ya registrada.", result.Message);
+            Assert.Equal("Categoria no encontrado.", result.Message);
         }
 
         [Fact]
@@ -114,7 +114,7 @@ namespace SGHR.Application.Test.ReservasTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("Ya existe una tarifa para esa temporada con la misma categoria.", result.Message);
+            Assert.Equal("Ya existe una tarifa registrado con esa categoria en la misma temporada.", result.Message);
         }
 
         [Fact]
@@ -156,7 +156,7 @@ namespace SGHR.Application.Test.ReservasTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("El id es invalido.", result.Message);
+            Assert.Equal("El id ingresado no es valido.", result.Message);
         }
 
         [Fact]
@@ -290,7 +290,7 @@ namespace SGHR.Application.Test.ReservasTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("El id es invalido.", result.Message);
+            Assert.Equal("El id ingresado no es valido.", result.Message);
         }
 
         [Fact]
@@ -357,7 +357,7 @@ namespace SGHR.Application.Test.ReservasTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("La tarifa no puede ser nula.", result.Message);
+            Assert.Equal("La tarifa no puede ser nulo.", result.Message);
         }
 
         [Fact]
@@ -377,7 +377,7 @@ namespace SGHR.Application.Test.ReservasTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("El id es invalido.", result.Message);
+            Assert.Equal("El id ingresado no es valido.", result.Message);
         }
 
         [Fact]
@@ -403,7 +403,7 @@ namespace SGHR.Application.Test.ReservasTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("No se encontro la categoria, introduce el nombre de una categoria ya registrada.", result.Message);
+            Assert.Equal("Categoria no encontrado.", result.Message);
         }
 
         [Fact]
@@ -431,7 +431,7 @@ namespace SGHR.Application.Test.ReservasTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("Ya existe un tarifas para esas temporada con la misma categoria.", result.Message);
+            Assert.Equal("Ya existe una tarifa registrado con esa categoria en la misma temporada.", result.Message);
         }
 
         [Fact]
