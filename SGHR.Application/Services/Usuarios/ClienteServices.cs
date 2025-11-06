@@ -28,14 +28,14 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> CreateAsync(CreateClienteDto CreateDto)
         {
             ServiceResult result = new ServiceResult();
-            var validator = new ClienteValidatorServices(_clienteRepository, _usuarioRepository).ValidateCreate(CreateDto, out string errorMessage);
-            if (!validator)
-            {
-                result.Message = errorMessage;
-                return result;
-            }
             try
-            {                
+            {
+                var validator = new ClienteValidatorServices(_clienteRepository, _usuarioRepository).ValidateCreate(CreateDto, out string errorMessage);
+                if (!validator)
+                {
+                    result.Message = errorMessage;
+                    return result;
+                }
                 var cliente = new Cliente
                 {
                     Nombre = CreateDto.Nombre,
@@ -86,18 +86,17 @@ namespace SGHR.Application.Services.Usuarios
             }
             return result;
         }
-
         public async Task<ServiceResult> DeleteAsync(int id)
         {
             ServiceResult result = new ServiceResult();
-            var validate = new ClienteValidatorServices(_clienteRepository, _usuarioRepository).ValidateDelete(id, out string errorMessage);
-            if (!validate)
-            {
-                result.Message = errorMessage;
-                return result;
-            }
             try
             {
+                var validate = new ClienteValidatorServices(_clienteRepository, _usuarioRepository).ValidateDelete(id, out string errorMessage);
+                if (!validate)
+                {
+                    result.Message = errorMessage;
+                    return result;
+                }
                 var existCliente = await _clienteRepository.GetByIdAsync(id);
 
                 var OpResult = await _clienteRepository.DeleteAsync(existCliente.Data);
@@ -116,7 +115,6 @@ namespace SGHR.Application.Services.Usuarios
             }
             return result;
         }
-
         public async Task<ServiceResult> GetAllAsync()
         {
             ServiceResult result = new ServiceResult();
@@ -160,18 +158,17 @@ namespace SGHR.Application.Services.Usuarios
             }
             return result;
         }
-
         public async Task<ServiceResult> GetByCedulaAsync(string cedula)
         {
             ServiceResult result = new ServiceResult();
-            var vali = new ClienteValidatorServices(_clienteRepository,_usuarioRepository).ValidateGetByCedula(cedula, out string errorMessage);
-            if (!vali)
-            {
-                result.Message = errorMessage;
-                return result;
-            }
             try
             {
+                var vali = new ClienteValidatorServices(_clienteRepository, _usuarioRepository).ValidateGetByCedula(cedula, out string errorMessage);
+                if (!vali)
+                {
+                    result.Message = errorMessage;
+                    return result;
+                }
                 var OpResult = await _clienteRepository.GetByCedulaAsync(cedula);
                 if (!OpResult.Success)
                 {
@@ -216,18 +213,17 @@ namespace SGHR.Application.Services.Usuarios
             }
             return result;
         }
-
         public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
-            var vali = new ClienteValidatorServices(_clienteRepository, _usuarioRepository).ValidateGetById(id, out string errorMessage);
-            if (!vali)
-            {
-                result.Message = errorMessage;
-                return result;
-            }
             try
             {
+                var vali = new ClienteValidatorServices(_clienteRepository, _usuarioRepository).ValidateGetById(id, out string errorMessage);
+                if (!vali)
+                {
+                    result.Message = errorMessage;
+                    return result;
+                }
                 var opResult = await _clienteRepository.GetByIdAsync(id);
                 if (!opResult.Success)
                 {
@@ -272,19 +268,17 @@ namespace SGHR.Application.Services.Usuarios
             }
             return result;
         }
-
         public async Task<ServiceResult> UpdateAsync(UpdateClienteDto UpdateDto)
         {
             ServiceResult result = new ServiceResult();
-            var vali = new ClienteValidatorServices(_clienteRepository, _usuarioRepository).ValidateUpdate(UpdateDto, out string errorMessage);
-            if (!vali)
-            {
-                result.Message = errorMessage;
-                return result;
-            }
             try
             {
-
+                var vali = new ClienteValidatorServices(_clienteRepository, _usuarioRepository).ValidateUpdate(UpdateDto, out string errorMessage);
+                if (!vali)
+                {
+                    result.Message = errorMessage;
+                    return result;
+                }
                 var cliente = await _clienteRepository.GetByIdAsync(UpdateDto.Id);
                 if(!cliente.Success)
                 {

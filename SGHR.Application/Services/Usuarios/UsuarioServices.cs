@@ -23,16 +23,14 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> CreateAsync(CreateUsuarioDto CreateDto)
         {
             ServiceResult result = new ServiceResult();
-
-            var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateSave(CreateDto, out string errorMessage);
-            if (!validate)
-            {
-                result.Message = errorMessage;
-                return result;
-            }
-
             try
-            {               
+            {
+                var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateSave(CreateDto, out string errorMessage);
+                if (!validate)
+                {
+                    result.Message = errorMessage;
+                    return result;
+                }
                 Usuario usuario = new Usuario()
                 {
                     Nombre = CreateDto.Nombre,
@@ -68,15 +66,15 @@ namespace SGHR.Application.Services.Usuarios
         }
         public async Task<ServiceResult> DeleteAsync(int id)
         {
-            ServiceResult result = new ServiceResult();
-            var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateDelete(id, out string errorMessage);
-            if (!validate)
-            {
-                result.Message = errorMessage;
-                return result;
-            }
+            ServiceResult result = new ServiceResult();     
             try
             {
+                var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateDelete(id, out string errorMessage);
+                if (!validate)
+                {
+                    result.Message = errorMessage;
+                    return result;
+                }
                 var user = await _usuarioRepository.GetByIdAsync(id);
                 if (!user.Success)
                 {
@@ -135,14 +133,14 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
-            var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateGetById(id, out string errorMessage);
-            if (!validate)
-            {
-                result.Message = errorMessage;
-                return result;
-            }
             try
             {
+                var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateGetById(id, out string errorMessage);
+                if (!validate)
+                {
+                    result.Message = errorMessage;
+                    return result;
+                }
                 var opResult = await _usuarioRepository.GetByIdAsync(id);
                 if (!opResult.Success)
                 {
@@ -174,14 +172,14 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> UpdateAsync(UpdateUsuarioDto UpdateDto)
         {
             ServiceResult result = new ServiceResult();
-            var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateUpdate(UpdateDto, out string errorMessage);
-            if (!validate)
-            {
-                result.Message = errorMessage;
-                return result;
-            }
             try
             {
+                var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateUpdate(UpdateDto, out string errorMessage);
+                if (!validate)
+                {
+                    result.Message = errorMessage;
+                    return result;
+                }
                 var usuario = await _usuarioRepository.GetByIdAsync(UpdateDto.Id);
                 if (!usuario.Success)
                 {
