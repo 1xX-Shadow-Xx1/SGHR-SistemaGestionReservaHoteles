@@ -24,26 +24,22 @@ namespace SGHR.Application.Services.Usuarios
         {
             ServiceResult result = new ServiceResult();
 
-            var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateSave(CreateDto, out string erroMessage);
+            var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateSave(CreateDto, out string errorMessage);
             if (!validate)
             {
-                result.Message = erroMessage;
+                result.Message = errorMessage;
                 return result;
             }
 
             try
-            {
-                
-
+            {               
                 Usuario usuario = new Usuario()
                 {
                     Nombre = CreateDto.Nombre,
                     Correo = CreateDto.Correo,
                     Contraseña = CreateDto.Contraseña,
                     Rol = CreateDto.Rol
-                };
-                   
-                
+                };               
 
                 var OpResult = await _usuarioRepository.SaveAsync(usuario);
                 if (!OpResult.Success)
@@ -63,8 +59,6 @@ namespace SGHR.Application.Services.Usuarios
                 result.Success = true;
                 result.Data = getusuario;
                 result.Message = "Usuario registrado correctamente.";
-
-
             }
             catch (Exception ex)
             {
@@ -75,10 +69,10 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> DeleteAsync(int id)
         {
             ServiceResult result = new ServiceResult();
-            var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateDelete(id, out string erroMessage);
+            var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateDelete(id, out string errorMessage);
             if (!validate)
             {
-                result.Message = erroMessage;
+                result.Message = errorMessage;
                 return result;
             }
             try
@@ -141,9 +135,10 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> GetByIdAsync(int id)
         {
             ServiceResult result = new ServiceResult();
-            if (id <= 0)
+            var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateGetById(id, out string errorMessage);
+            if (!validate)
             {
-                result.Message = $"El id ingresado no es valido.";
+                result.Message = errorMessage;
                 return result;
             }
             try
@@ -179,43 +174,29 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> UpdateAsync(UpdateUsuarioDto UpdateDto)
         {
             ServiceResult result = new ServiceResult();
-            if (UpdateDto == null)
+            var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateUpdate(UpdateDto, out string errorMessage);
+            if (!validate)
             {
-                result.Message = "El usuario no puede ser nulo.";
-                return result;
-            }
-            if (UpdateDto.Id <= 0)
-            {
-                result.Message = $"El id ingresado no es valido.";
+                result.Message = errorMessage;
                 return result;
             }
             try
             {
-                var existUser = await _usuarioRepository.GetByIdAsync(UpdateDto.Id);
-                if (!existUser.Success)
+                var usuario = await _usuarioRepository.GetByIdAsync(UpdateDto.Id);
+                if (!usuario.Success)
                 {
-                    result.Message = existUser.Message;
+                    result.Message = usuario.Message;
                     return result;
                 }
 
-                if(existUser.Data.Correo != UpdateDto.Correo)
-                {
-                    var verification = await _usuarioRepository.GetByCorreoAsync(UpdateDto.Correo);
-                    if (verification.Success)
-                    {
-                        result.Message = ("Ya existe un usuario con ese correo.");
-                        return result;
-                    }
-                }
-
-                existUser.Data.Nombre = UpdateDto.Nombre;
-                existUser.Data.Correo = UpdateDto.Correo;
-                existUser.Data.Contraseña = UpdateDto.Contraseña;
-                existUser.Data.Estado = UpdateDto.Estado;
-                existUser.Data.Rol = UpdateDto.Rol;
+                usuario.Data.Nombre = UpdateDto.Nombre;
+                usuario.Data.Correo = UpdateDto.Correo;
+                usuario.Data.Contraseña = UpdateDto.Contraseña;
+                usuario.Data.Estado = UpdateDto.Estado;
+                usuario.Data.Rol = UpdateDto.Rol;
                 
 
-                var OpResult = await _usuarioRepository.UpdateAsync(existUser.Data);
+                var OpResult = await _usuarioRepository.UpdateAsync(usuario.Data);
                 if (!OpResult.Success)
                 {
                     result.Message = OpResult.Message;

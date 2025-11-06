@@ -101,7 +101,7 @@ namespace SGHR.Persistence.Repositories.EF.Users
                 }
                 else
                 {
-                    return OperationResult<Usuario>.Fail("Usuario no encontrado");
+                    return OperationResult<Usuario>.Fail("Usuario no encontrado.");
                 }    
                 
             }

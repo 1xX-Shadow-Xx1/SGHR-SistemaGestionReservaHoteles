@@ -8,9 +8,9 @@ namespace SGHR.Application.ValidatorServices
     {
         public bool IdValidate(int id, out string errorMessage)
         {
-            if (id > 0)
+            if (id <= 0)
             {
-                errorMessage = "El id no es valido.";
+                errorMessage = "El id ingresado no es valido.";
                 return false;
             }
             errorMessage = string.Empty;
@@ -23,11 +23,11 @@ namespace SGHR.Application.ValidatorServices
             if (dto == null)
             {
                 errorMessage = $"{fielname} no puede ser nulo.";
-                return true;
+                return false;
             }
 
             errorMessage = string.Empty;
-            return false;
+            return true;
         }
 
         // Valida si un Id existe en el repositorio
@@ -36,7 +36,7 @@ namespace SGHR.Application.ValidatorServices
             IBaseRepository<T> repository,
             string fieldName) where T : class
         {
-            if (id < 0)
+            if (id <= 0)
                 return (false, $"El id ingresado no es válido.");
 
             var entity = await repository.GetByIdAsync(id);
@@ -55,13 +55,13 @@ namespace SGHR.Application.ValidatorServices
         {
             var entities = await repository.GetAllAsync();
             if (!entities.Success)
-                return (true, $"Error al obtener los registros: {entities.Message}");
+                return (false, entities.Message);
 
             var existe = entities.Data.Any(predicate);
             if (existe)
-                return (true, $"Ya existe {fieldname} con {fieldvalor}.");
+                return (false, $"Ya existe {fieldname} con {fieldvalor}.");
 
-            return (false, string.Empty);
+            return (true, string.Empty);
         }
 
 

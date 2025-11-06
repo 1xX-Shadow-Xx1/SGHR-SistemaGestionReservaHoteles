@@ -109,14 +109,14 @@ namespace SGHR.Application.Test.UsuariosTest
         {
             //Arrange
             _context.Dispose(); // provocar excepción
-            var dto = new CreateUsuarioDto { Nombre = "Error", Correo = "error@test.com", Contraseña = "123", Rol = RolUsuarios.Administrador };
+            var dto = new CreateUsuarioDto { Nombre = "Error", Correo = "error@test.com", Contraseña = "123456789", Rol = RolUsuarios.Administrador };
 
             //Act
             var result = await _usuarioServices.CreateAsync(dto);
 
             //Assert
             Assert.False(result.Success);
-            Assert.Contains("La contraseña debe tener al menos 8 caracteres.", result.Message);
+            Assert.Contains("Ocurrió un error al obtener los usuarios.", result.Message);
         }
 
         // -------------------- DELETE TESTS --------------------
@@ -146,7 +146,7 @@ namespace SGHR.Application.Test.UsuariosTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("No existe un usuario con ese id.", result.Message);
+            Assert.Equal("Usuario no encontrado.", result.Message);
         }
 
         [Fact]
@@ -175,7 +175,7 @@ namespace SGHR.Application.Test.UsuariosTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Contains("No existe un usuario con ese id.", result.Message);
+            Assert.Contains("Ocurrió un error al obtener el usuario.", result.Message);
         }
 
         // -------------------- GET ALL TESTS --------------------
@@ -263,7 +263,7 @@ namespace SGHR.Application.Test.UsuariosTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("Usuario no encontrado", result.Message);
+            Assert.Equal("Usuario no encontrado.", result.Message);
         }
 
         [Fact]
@@ -336,7 +336,7 @@ namespace SGHR.Application.Test.UsuariosTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Equal("Usuario no encontrado", result.Message);
+            Assert.Equal("Usuario no encontrado.", result.Message);
         }
 
         [Fact]
