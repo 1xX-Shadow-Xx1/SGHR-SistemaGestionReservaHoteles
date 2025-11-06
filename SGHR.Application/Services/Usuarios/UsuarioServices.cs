@@ -2,6 +2,7 @@
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Users.Usuario;
 using SGHR.Application.Interfaces.Usuarios;
+using SGHR.Application.ValidatorServices.Usuarios;
 using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Repository;
 
@@ -22,19 +23,17 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> CreateAsync(CreateUsuarioDto CreateDto)
         {
             ServiceResult result = new ServiceResult();
-            if (CreateDto == null)
+
+            var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateSave(CreateDto, out string erroMessage);
+            if (!validate)
             {
-                result.Message = "El usuario no puede ser nulo.";
+                result.Message = erroMessage;
                 return result;
             }
+
             try
             {
-                var existUser = await _usuarioRepository.GetByCorreoAsync(CreateDto.Correo);
-                if (existUser.Success)
-                {
-                    result.Message = ("Ya existe un usuario con ese correo.");
-                    return result;
-                }
+                
 
                 Usuario usuario = new Usuario()
                 {
@@ -76,28 +75,29 @@ namespace SGHR.Application.Services.Usuarios
         public async Task<ServiceResult> DeleteAsync(int id)
         {
             ServiceResult result = new ServiceResult();
-            if (id <= 0)
+            var validate = new UsuarioValidatorServices(_usuarioRepository).ValidateDelete(id, out string erroMessage);
+            if (!validate)
             {
-                result.Message = $"El id ingresado no es valido.";
+                result.Message = erroMessage;
                 return result;
             }
             try
             {
-                var existUsuario = await _usuarioRepository.GetByIdAsync(id);
-                if (!existUsuario.Success)
+                var user = await _usuarioRepository.GetByIdAsync(id);
+                if (!user.Success)
                 {
-                    result.Message = $"No existe un usuario con ese id.";
+                    result.Message = user.Message;
                     return result;
                 }
 
-                var OpResult = await _usuarioRepository.DeleteAsync(existUsuario.Data);
+                var OpResult = await _usuarioRepository.DeleteAsync(user.Data);
                 if (!OpResult.Success)
                 {
                     result.Message = OpResult.Message;
                     return result;
                 }
                 result.Success = true;
-                result.Message = $"Usuario {existUsuario.Data.Nombre} eliminado correctamente.";
+                result.Message = $"Usuario {user.Data.Nombre} eliminado correctamente.";
 
 
             }
@@ -211,6 +211,7 @@ namespace SGHR.Application.Services.Usuarios
                 existUser.Data.Nombre = UpdateDto.Nombre;
                 existUser.Data.Correo = UpdateDto.Correo;
                 existUser.Data.Contraseña = UpdateDto.Contraseña;
+                existUser.Data.Estado = UpdateDto.Estado;
                 existUser.Data.Rol = UpdateDto.Rol;
                 
 

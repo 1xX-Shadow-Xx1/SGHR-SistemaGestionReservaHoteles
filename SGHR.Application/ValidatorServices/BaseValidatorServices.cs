@@ -1,0 +1,70 @@
+﻿
+
+using SGHR.Domain.Repository;
+
+namespace SGHR.Application.ValidatorServices
+{
+    public class BaseValidatorServices
+    {
+        public bool IdValidate(int id, out string errorMessage)
+        {
+            if (id > 0)
+            {
+                errorMessage = "El id no es valido.";
+                return false;
+            }
+            errorMessage = string.Empty;
+            return true;
+        }
+        // Método para verificar si un DTO es null
+        public bool IsNull<T>(T dto, string fielname, out string errorMessage)
+            where T : class
+        {
+            if (dto == null)
+            {
+                errorMessage = $"{fielname} no puede ser nulo.";
+                return true;
+            }
+
+            errorMessage = string.Empty;
+            return false;
+        }
+
+        // Valida si un Id existe en el repositorio
+        public async Task<(bool Existe, string ErrorMessage)> ExistePorIdAsync<T>(
+            int id,
+            IBaseRepository<T> repository,
+            string fieldName) where T : class
+        {
+            if (id < 0)
+                return (false, $"El id ingresado no es válido.");
+
+            var entity = await repository.GetByIdAsync(id);
+            if (entity == null)
+                return (false, $"No existe {fieldName} con ese id.");
+
+            return (true, string.Empty);
+        }
+
+        // Valida si un campo existe en el repositorio
+        public async Task<(bool Existe, string ErrorMessage)> ExistePorCampoAsync<T>(
+        Func<T, bool> predicate,
+        IBaseRepository<T> repository,
+        string fieldname,
+        string fieldvalor) where T : class
+        {
+            var entities = await repository.GetAllAsync();
+            if (!entities.Success)
+                return (true, $"Error al obtener los registros: {entities.Message}");
+
+            var existe = entities.Data.Any(predicate);
+            if (existe)
+                return (true, $"Ya existe {fieldname} con {fieldvalor}.");
+
+            return (false, string.Empty);
+        }
+
+
+        
+    }
+}
