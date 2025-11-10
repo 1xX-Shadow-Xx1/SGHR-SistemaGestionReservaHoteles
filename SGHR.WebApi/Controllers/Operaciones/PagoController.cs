@@ -1,10 +1,21 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SGHR.Application.Base;
+using SGHR.Application.Dtos.Configuration.Operaciones.Pago;
+using SGHR.Application.Interfaces.Operaciones;
 
 namespace SGHR.Web.Controllers.Operaciones
 {
     public class PagoController : Controller
     {
+
+        private readonly IPagoServices _pagoServices;
+
+        public PagoController(IPagoServices pagoServices)
+        {
+            _pagoServices = pagoServices;
+        }
+
         // GET: PagoController
         public ActionResult Index()
         {
@@ -12,72 +23,117 @@ namespace SGHR.Web.Controllers.Operaciones
         }
 
         // GET: PagoController/Details/5
-        public ActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            return View();
+            ServiceResult result = await _pagoServices.GetPagoByIdAsync(id);
+            if (!result.Success)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var pago = result.Data as PagoDto;
+            return View(pago); // Vista completa
         }
 
-        // GET: PagoController/Create
-        public ActionResult Create()
+        //GET: Partial para listar pagos
+        public async Task<IActionResult> _List(int? id)
         {
-            return View();
+            if (id.HasValue && id > 0)
+            {
+                var result = await _pagoServices.GetPagoByCliente(id.Value);
+                if (!result.Success || result.Data == null)
+                    return PartialView("_List", new List<PagoDto>());
+
+                var listaPagosCliente = result.Data as IEnumerable<PagoDto>;
+                return PartialView("_List", listaPagosCliente);
+            }
+            else
+            {
+                var result = await _pagoServices.ObtenerPagosAsync();
+                if (!result.Success)
+                    return PartialView("_Error", result.Message);
+
+                var listaPagos = result.Data as IEnumerable<PagoDto>;
+                return PartialView("_List", listaPagos);
+            }
         }
 
-        // POST: PagoController/Create
+        // GET: PagoController/RealizarPago
+        public IActionResult RealizarPago()
+        {
+            var model = new RealizarPagoDto();
+            return View(model); // Vista completa
+        }
+
+        // POST: PagoController/PagoConfirmed
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> PagoConfirmed(RealizarPagoDto dto)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                // Si hay errores de validación, devolver la misma vista con mensajes
+                return View(dto);
             }
-            catch
+
+            var result = await _pagoServices.RealizarPagoAsync(dto);
+            if (!result.Success)
             {
-                return View();
+                // Si hay error en el servicio, mostrarlo en la vista
+                ModelState.AddModelError(string.Empty, result.Message);
+                return View(dto);
             }
+
+            // Redirigir a la lista de pagos o al detalle recién creado
+            return RedirectToAction("Index");
         }
 
-        // GET: PagoController/Edit/5
-        public ActionResult Edit(int id)
+        // GET: partial view PagoController/_AnularPago/5
+        public async Task<IActionResult> _AnularPago(int id)
         {
-            return View();
+            var result = await _pagoServices.GetPagoByIdAsync(id);
+            if (!result.Success)
+                return PartialView("_Error");
+
+            if (result.Data == null)
+                return PartialView("_Error");
+
+            return PartialView("_AnularPago", (PagoDto)result.Data);
         }
 
-        // POST: PagoController/Edit/5
+        // POST: PagoController/AnularConfirmed/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> AnularConfirmed(int id)
         {
-            try
+            var result = await _pagoServices.AnularPagoAsync(id);
+            if (!result.Success)
             {
-                return RedirectToAction(nameof(Index));
+                return Json(new
+                {
+                    success = result.Success,
+                    message = result.Message
+                });
             }
-            catch
+            return Json(new
             {
-                return View();
-            }
+                success = result.Success,
+                message = result.Message,
+                data = result.Data
+            });
         }
 
-        // GET: PagoController/Delete/5
-        public ActionResult Delete(int id)
+        // GET: partial view PagoController/ResumenPagos/5
+        public async Task<IActionResult> _resumenPagos()
         {
-            return View();
-        }
+            ServiceResult result = await _pagoServices.ObtenerResumenPagosAsync();
+            if (!result.Success)
+            {
+                return RedirectToAction("Index");
+            }
 
-        // POST: PagoController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var resumenPagos = result.Data as ResumenPagoDto;
+            return PartialView(resumenPagos); // Vista completa
         }
     }
 }

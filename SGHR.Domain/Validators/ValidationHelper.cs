@@ -48,6 +48,17 @@ namespace SGHR.Domain.Validators
             return true;
         }
 
+        public static bool GreaterOrZero(int value, string fieldName, out string errorMessage)
+        {
+            if (value < 0)
+            {
+                errorMessage = $"{fieldName} debe ser mayor o igual 0.";
+                return false;
+            }
+            errorMessage = string.Empty;
+            return true;
+        }
+
         public static bool GreaterThanZero(int value, string fieldName, out string errorMessage)
         {
             if (value <= 0)
@@ -61,9 +72,9 @@ namespace SGHR.Domain.Validators
 
         public static bool GreaterThanZero(decimal value, string fieldName, out string errorMessage)
         {
-            if (value <= 0)
+            if (value < 0)
             {
-                errorMessage = $"{fieldName} debe ser mayor a 0.";
+                errorMessage = $"{fieldName} debe ser mayor o igual 0.";
                 return false;
             }
             errorMessage = string.Empty;

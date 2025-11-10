@@ -35,7 +35,7 @@ namespace SGHR.Web.Controllers.Reservas
             return View(tarifa); // Vista completa
         }
 
-        //GET: Partial para listar Categorias
+        //GET: Partial para listar tarifa
         public async Task<IActionResult> _List(int? id)
         {
             if (id.HasValue && id > 0)

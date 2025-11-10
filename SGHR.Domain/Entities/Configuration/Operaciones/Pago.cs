@@ -11,7 +11,7 @@ namespace SGHR.Domain.Entities.Configuration.Operaciones
         [Column("monto")]
         public decimal Monto { get; set; }
         [Column("metodo_pago")]
-        public string MetodoPago { get; set; }
+        public MetodoPago MetodoPago { get; set; }
         [Column("fecha_pago")]
         public DateTime FechaPago { get; set; } = DateTime.Now;
         [Column("estado")]

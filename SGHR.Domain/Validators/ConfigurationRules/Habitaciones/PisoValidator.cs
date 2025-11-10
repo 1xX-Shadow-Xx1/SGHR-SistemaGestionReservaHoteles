@@ -11,7 +11,7 @@ namespace SGHR.Domain.Validators.ConfigurationRules.Habitaciones
             if (!ValidationHelper.NotNull(piso, "Piso", out errorMessage)) return false;
 
             // Número de piso
-            if (!ValidationHelper.GreaterThanZero(piso.NumeroPiso, "Número de Piso", out errorMessage)) return false;
+            if (!ValidationHelper.GreaterOrZero(piso.NumeroPiso, "Número de Piso", out errorMessage)) return false;
 
             // Descripción (opcional)
             if (!string.IsNullOrEmpty(piso.Descripcion))

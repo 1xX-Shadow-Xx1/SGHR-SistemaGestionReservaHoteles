@@ -1,0 +1,61 @@
+﻿@model IEnumerable<SGHR.Application.Dtos.Configuration.Operaciones.Pago.PagoDto>
+
+<style>
+    /* Columna de acciones compacta */
+    th.acciones, td.acciones {
+        width: 120px; /* ancho fijo pero suficiente para 2 botones */
+        white-space: nowrap; /* evita que los botones se separen en varias líneas */
+    }
+
+    /* Ajuste de botones para no separarse demasiado */
+    .btn-accion {
+        margin: 0 2px; /* espacio pequeño entre botones */
+    }
+
+    /* Cursor pointer en filas */
+    .fila-usuario {
+        cursor: pointer;
+    }
+</style>
+
+<table class="table table-striped table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Reserva</th>
+            <th>Fecha</th>
+            <th>Método</th>
+            <th>Monto</th>
+            <th class="text-center">Estado</th>
+            <th class="acciones text-center">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pago in Model)
+        {
+            <tr data-id="@pago.Id" class="fila-pago">
+                <td>@pago.Id</td>
+                <td>@pago.IdReserva</td>
+                <td>@pago.FechaPago.ToString("dd/MM/yyyy")</td>
+                <td>@pago.MetodoPago</td>
+                <td>@pago.Monto.ToString("C")</td>
+                <td class="text-center">
+                    @if (pago.Estado.ToString() == "Anulado")
+                    {
+                        <span class="badge bg-danger text-center">Anulado</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success text-center">Activo</span>
+                    }
+                </td>
+                <td class="acciones text-center">
+                    <button class="btn btn-sm btn-danger btn-anular btn-accion" data-id="@pago.Id">
+                        Anular
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

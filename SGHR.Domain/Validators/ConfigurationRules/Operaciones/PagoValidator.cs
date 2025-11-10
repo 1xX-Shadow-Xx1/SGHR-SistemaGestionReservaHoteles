@@ -17,8 +17,9 @@ namespace SGHR.Domain.Validators.ConfigurationRules.Operaciones
             if (!ValidationHelper.GreaterThanZero(pago.Monto, "Monto", out errorMessage)) return false;
 
             // Método de pago
-            if (!ValidationHelper.Required(pago.MetodoPago, "Método de Pago", out errorMessage)) return false;
-            if (!ValidationHelper.MaxLength(pago.MetodoPago, 50, "Método de Pago", out errorMessage)) return false;
+            if (!ValidationHelper.Required(pago.MetodoPago.ToString(), "Método de Pago", out errorMessage)) return false;
+            var metodosValidos = new[] { MetodoPago.Efectivo, MetodoPago.TransferenciaBancaria, MetodoPago.TarjetaDebito, MetodoPago.TarjetaCredito };
+            if (!ValidationHelper.InList(pago.MetodoPago, metodosValidos, "El Metodo de pago ", out errorMessage)) return false;
 
             // Fecha de pago
             if (pago.FechaPago == DateTime.MinValue)

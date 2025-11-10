@@ -35,7 +35,7 @@ namespace SGHR.Web.Controllers.Reservas
             return View(reserva); // Vista completa
         }
 
-        //GET: Partial para listar Habitaciones
+        //GET: Partial para listar reservas
         public async Task<IActionResult> _List(int? id)
         {
             if (id.HasValue && id > 0)

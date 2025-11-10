@@ -3,11 +3,13 @@ using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Operaciones.Pago;
 using SGHR.Application.Interfaces.Operaciones;
 using SGHR.Domain.Entities.Configuration.Operaciones;
+using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Enum.Operaciones;
 using SGHR.Domain.Enum.Reservas;
 using SGHR.Domain.Repository;
 using SGHR.Persistence.Interfaces.Reportes;
 using SGHR.Persistence.Interfaces.Users;
+using System.Linq.Expressions;
 
 namespace SGHR.Application.Services.Operaciones
 {
@@ -160,7 +162,7 @@ namespace SGHR.Application.Services.Operaciones
                         MetodoPago = p.MetodoPago,
                         FechaPago = p.FechaPago,
                         Estado = p.Estado.ToString()
-                    })
+                    })                    
                     .ToList();
 
                 result.Success = true;
@@ -322,6 +324,103 @@ namespace SGHR.Application.Services.Operaciones
                 result.Message = $"Error al anular el pago: {ex.Message}";
             }
 
+            return result;
+        }
+        public async Task<ServiceResult> GetPagoByCliente(int idcliente)
+        {
+            ServiceResult result = new ServiceResult();
+            try
+            {
+                var cliente = await _clienteRepository.GetByIdAsync(idcliente);
+                if (!cliente.Success)
+                {
+                    result.Message = cliente.Message;
+                    return result;
+                }
+
+                var lisReservas = await _reservaRepository.GetByClienteAsync(idcliente);
+                if (!lisReservas.Success)
+                {
+                    result.Message = lisReservas.Message;
+                    return result;
+                }
+
+                var reservas = lisReservas.Data.ToArray();
+
+                var pagos = new List<Pago>();
+
+                for (int i = 0; i <= lisReservas.Data.Count; i++)
+                {
+                    var lispagos = await _pagoRepository.GetByReservaAsync(reservas[i].Id);
+                    if (!lispagos.Success)
+                    {
+                        result.Message = lispagos.Message;
+                        return result;
+                    }
+
+                    for (int p = 0; p <= lispagos.Data.Count(); p++)
+                    {
+                        pagos.Add(lispagos.Data[p]);
+                    }
+                }
+
+                var pagosDto = pagos
+                    .Select(p => new PagoDto
+                    {
+                        Id = p.Id,
+                        IdReserva = p.IdReserva,
+                        Monto = p.Monto,
+                        MetodoPago = p.MetodoPago,
+                        FechaPago = p.FechaPago,
+                        Estado = p.Estado.ToString()
+                    })
+                    .ToList();
+
+                result.Success = true;
+                result.Data = pagosDto;
+                result.Message = "Pagos obtenidos correctamente.";
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.Message;
+            }
+            return result;
+        }
+        public async Task<ServiceResult> GetPagoByIdAsync(int idPago)
+        {
+            ServiceResult result = new ServiceResult();
+            try
+            {
+                if(idPago <= 0)
+                {
+                    result.Message = "El id del pago es inválido.";
+                    return result;
+                }
+                var pagoResult = await _pagoRepository.GetByIdAsync(idPago);
+                if (!pagoResult.Success || pagoResult.Data == null)
+                {
+                    result.Message = pagoResult.Message ?? $"No se encontró el pago con ID {idPago}.";
+                    return result;
+                }
+                var pago = pagoResult.Data;
+                var pagoDto = new PagoDto
+                {
+                    Id = pago.Id,
+                    IdReserva = pago.IdReserva,
+                    Monto = pago.Monto,
+                    MetodoPago = pago.MetodoPago,
+                    FechaPago = pago.FechaPago,
+                    Estado = pago.Estado.ToString()
+                };
+                result.Success = true;
+                result.Data = pagoDto;
+                result.Message = "Pago obtenido correctamente.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error en GetPagoByIdAsync de PagoServices");
+                result.Message = $"Error al obtener el pago: {ex.Message}";
+            }
             return result;
         }
     }
