@@ -47,7 +47,8 @@ namespace SGHR.Application.Services.Reservas
                 Tarifa tarifa = new Tarifa()
                 {
                     IdCategoria = Categoria.Data.Id,
-                    Temporada = CreateDto.Temporada,
+                    Fecha_inicio = CreateDto.Fecha_inicio,
+                    Fecha_fin = CreateDto.Fecha_fin,
                     Precio = CreateDto.Precio
                 };
 
@@ -61,7 +62,8 @@ namespace SGHR.Application.Services.Reservas
                 TarifaDto tarifaDto = new TarifaDto()
                 {
                     Id = opResult.Data.Id,
-                    Temporada = opResult.Data.Temporada,
+                    Fecha_inicio = opResult.Data.Fecha_inicio,
+                    Fecha_fin = opResult.Data.Fecha_fin,
                     NombreCategoria = Categoria.Data.Nombre,
                     Precio = opResult.Data.Precio
                 };
@@ -137,7 +139,8 @@ namespace SGHR.Application.Services.Reservas
                     {
                         Id = c.Id,
                         NombreCategoria = u.Nombre,
-                        Temporada = c.Temporada,
+                        Fecha_inicio = c.Fecha_inicio,
+                        Fecha_fin = c.Fecha_fin,
                         Precio = c.Precio
                     }
                 ).ToList();
@@ -180,7 +183,8 @@ namespace SGHR.Application.Services.Reservas
                 TarifaDto tarifaDto = new TarifaDto()
                 {
                     Id = opResult.Data.Id,
-                    Temporada = opResult.Data.Temporada,
+                    Fecha_inicio = opResult.Data.Fecha_inicio,
+                    Fecha_fin = opResult.Data.Fecha_fin,
                     NombreCategoria = categoria.Data.Nombre,
                     Precio = opResult.Data.Precio
                 };
@@ -221,7 +225,8 @@ namespace SGHR.Application.Services.Reservas
                 }
 
                 tarifa.Data.IdCategoria = categoria.Data.Id;
-                tarifa.Data.Temporada = UpdateDto.Temporada;
+                tarifa.Data.Fecha_inicio = UpdateDto.Fecha_inicio;
+                tarifa.Data.Fecha_fin = UpdateDto.Fecha_fin;
                 tarifa.Data.Precio = (decimal)UpdateDto.Precio;
 
                 var opResult = await _tarifaRepository.UpdateAsync(tarifa.Data);
@@ -234,7 +239,8 @@ namespace SGHR.Application.Services.Reservas
                 TarifaDto tarifaDto = new TarifaDto()
                 {
                     Id = opResult.Data.Id,
-                    Temporada = opResult.Data.Temporada,
+                    Fecha_inicio = opResult.Data.Fecha_inicio,
+                    Fecha_fin = opResult.Data.Fecha_fin,
                     NombreCategoria = categoria.Data.Nombre,
                     Precio = opResult.Data.Precio
                 };

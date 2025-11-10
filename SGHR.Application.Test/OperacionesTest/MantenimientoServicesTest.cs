@@ -6,7 +6,7 @@ using SGHR.Application.Services.Operaciones;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Entities.Configuration.Usuers;
-using SGHR.Domain.Enum.Habitacion;
+using SGHR.Domain.Enum.Habitaciones;
 using SGHR.Domain.Enum.Operaciones;
 using SGHR.Domain.Enum.Reservas;
 using SGHR.Domain.Enum.Usuarios;

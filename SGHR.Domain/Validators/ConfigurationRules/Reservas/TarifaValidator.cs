@@ -13,8 +13,8 @@ namespace SGHR.Domain.Validators.ConfigurationRules.Reservas
             if (!ValidationHelper.GreaterThanZero(tarifa.IdCategoria, "IdCategoria", out errorMessage)) return false;
 
             // Temporada
-            if (!ValidationHelper.Required(tarifa.Temporada, "Temporada", out errorMessage)) return false;
-            if (!ValidationHelper.MaxLength(tarifa.Temporada, 50, "Temporada", out errorMessage)) return false;
+            if (!ValidationHelper.Required(tarifa.Fecha_inicio, "Fecha de Inicio", out errorMessage)) return false;
+            if (!ValidationHelper.Required(tarifa.Fecha_fin, "Fecha de Fin", out errorMessage)) return false;
 
             // Precio
             if (!ValidationHelper.GreaterThanZero(tarifa.Precio, "Precio", out errorMessage)) return false;

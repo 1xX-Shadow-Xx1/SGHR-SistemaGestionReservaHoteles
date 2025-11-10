@@ -93,42 +93,42 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
                 return OperationResult<List<Tarifa>>.Fail("Ocurrió un error al obtener las tarifas");
             }
         }
-        public async Task<OperationResult<Tarifa>> GetByCategoriaAndTemporadaAsync(int idCategoria, string temporada)
+        public async Task<OperationResult<Tarifa>> GetByCategoriaAndTemporadaAsync(int idCategoria, DateTime fecha_inicio, DateTime fecha_fin)
         {
             try
             {
                 var tarifa = await _context.Tarifa
-                    .FirstOrDefaultAsync(t => t.IdCategoria == idCategoria && t.Temporada == temporada && !t.IsDeleted);
+                    .FirstOrDefaultAsync(t => t.IdCategoria == idCategoria && t.Fecha_inicio == fecha_inicio && t.Fecha_fin == fecha_fin && !t.IsDeleted);
 
                 if (tarifa == null)
                 {
-                    _logger.LogWarning("No se encontró tarifa para la categoría {CategoriaId} y temporada {Temporada}", idCategoria, temporada);
+                    _logger.LogWarning("No se encontró tarifa para la categoría {CategoriaId} y temporada {inicio}, {fin}", idCategoria, fecha_inicio.DayOfWeek, fecha_fin.DayOfWeek);
                     return OperationResult<Tarifa>.Fail("Tarifa no encontrada");
                 }
 
-                _logger.LogInformation("Se obtuvo tarifa para la categoría {CategoriaId} y temporada {Temporada}", idCategoria, temporada);
+                _logger.LogInformation("Se obtuvo tarifa para la categoría {CategoriaId} y temporada {inicio}, {fin}", idCategoria, fecha_inicio.DayOfWeek, fecha_fin.DayOfWeek);
                 return OperationResult<Tarifa>.Ok(tarifa);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error obteniendo tarifa para la categoría {CategoriaId} y temporada {Temporada}", idCategoria, temporada);
+                _logger.LogError(ex, "Error obteniendo tarifa para la categoría {CategoriaId} y temporada {inicio}, {fin}", idCategoria, fecha_inicio.DayOfWeek, fecha_fin.DayOfWeek);
                 return OperationResult<Tarifa>.Fail("Ocurrió un error al obtener la tarifa");
             }
         }
-        public async Task<OperationResult<List<Tarifa>>> GetByTemporadaAsync(string temporada)
+        public async Task<OperationResult<List<Tarifa>>> GetByTemporadaAsync(DateTime fecha_inicio, DateTime fecha_fin)
         {
             try
             {
                 var tarifas = await _context.Tarifa
-                    .Where(t => t.Temporada == temporada && !t.IsDeleted)
+                    .Where(t => t.Fecha_inicio == fecha_inicio && t.Fecha_fin == fecha_fin && !t.IsDeleted)
                     .ToListAsync();
 
-                _logger.LogInformation("Se obtuvieron {Count} tarifas para la temporada {Temporada}", tarifas.Count, temporada);
+                _logger.LogInformation("Se obtuvieron {Count} tarifas para la temporada {inicio}, {fin}", tarifas.Count, fecha_inicio.DayOfWeek, fecha_fin.DayOfWeek);
                 return OperationResult<List<Tarifa>>.Ok(tarifas);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error obteniendo tarifas para la temporada {Temporada}", temporada);
+                _logger.LogError(ex, "Error obteniendo tarifas para la temporada {inicio}, {fin}", fecha_inicio.DayOfWeek, fecha_fin.DayOfWeek);
                 return OperationResult<List<Tarifa>>.Fail("Ocurrió un error al obtener las tarifas");
             }
         }

@@ -30,7 +30,8 @@ namespace SGHR.Application.ValidatorServices.Reservas
                 errorMessage = vali.Result.ErrorMessage;
                 return false;
             }
-            var vali3 = baseValidatorServices.ExistePorCampoAsync<Tarifa>(t => t.IdCategoria == vali.Result.data.Id && t.Temporada == CreateDto.Temporada, _tarifaRepository, "una tarifa", "esa categoria en la misma temporada");
+
+            var vali3 = baseValidatorServices.ExistePorCampoAsync<Tarifa>(t => t.IdCategoria == vali.Result.data.Id && t.Fecha_inicio <= CreateDto.Fecha_fin && t.Fecha_fin >= CreateDto.Fecha_inicio, _tarifaRepository, "una tarifa", "esa categoria para esa temporada");
             if(!vali3.Result.Existe)
             {
                 errorMessage = vali3.Result.ErrorMessage;
@@ -71,7 +72,7 @@ namespace SGHR.Application.ValidatorServices.Reservas
                 errorMessage = vali.Result.ErrorMessage;
                 return false;
             }
-            var vali3 = baseValidatorServices.ExistePorCampoAsync<Tarifa>(t => t.IdCategoria == vali.Result.data.Id && t.Temporada == UpdateDto.Temporada && t.Id != UpdateDto.Id, _tarifaRepository, "una tarifa", "esa categoria en la misma temporada");
+            var vali3 = baseValidatorServices.ExistePorCampoAsync<Tarifa>(t => t.IdCategoria == vali.Result.data.Id && t.Fecha_inicio <= UpdateDto.Fecha_fin && t.Fecha_fin >= UpdateDto.Fecha_inicio && t.Id != UpdateDto.Id, _tarifaRepository, "una tarifa", "esa categoria en la misma temporada");
             if (!vali3.Result.Existe)
             {
                 errorMessage = vali3.Result.ErrorMessage;

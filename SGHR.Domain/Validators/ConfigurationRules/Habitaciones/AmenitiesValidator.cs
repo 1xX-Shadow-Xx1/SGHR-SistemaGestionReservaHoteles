@@ -12,6 +12,14 @@ namespace SGHR.Domain.Validators.ConfigurationRules.Habitaciones
             if (!ValidationHelper.Required(amenity.Nombre, "Nombre", out errorMessage)) return false;
             if (!ValidationHelper.MaxLength(amenity.Nombre, 100, "Nombre", out errorMessage)) return false;
 
+            // Precio
+            if(!ValidationHelper.Required(amenity.Precio, "Precio", out errorMessage)) return false;
+            if (!ValidationHelper.GreaterThanZero(amenity.Precio, "Precio", out errorMessage)) return false;
+
+            // PorCapacidad
+            if (!ValidationHelper.Required(amenity.PorCapacidad, "PorCapacidad", out errorMessage)) return false;
+            if (!ValidationHelper.GreaterThanZero(amenity.PorCapacidad, "PorCapacidad", out errorMessage)) return false;
+
             // Descripción (opcional)
             if (!string.IsNullOrEmpty(amenity.Descripcion))
             {

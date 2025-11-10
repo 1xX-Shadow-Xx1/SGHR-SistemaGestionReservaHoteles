@@ -15,5 +15,7 @@ namespace SGHR.Application.Dtos.Configuration.Habitaciones.Categoria
         [Required(ErrorMessage = "La descripción de la categoría es obligatoria.")]
         [StringLength(200, MinimumLength = 5, ErrorMessage = "La descripción debe tener entre 5 y 200 caracteres.")]
         public string Descripcion { get; set; }
+        [Required(ErrorMessage = "El precio de la categoria es obligatorio.")]
+        public decimal Precio { get; set; }
     }
 }

@@ -1,4 +1,6 @@
 ﻿
+using SGHR.Domain.Enum.Reservas;
+
 namespace SGHR.Application.Dtos.Configuration.Reservas.Reserva
 {
     public class ReservaDto
@@ -10,6 +12,6 @@ namespace SGHR.Application.Dtos.Configuration.Reservas.Reserva
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
         public decimal CostoTotal { get; set; }
-        public string Estado { get; set; } 
+        public EstadoReserva Estado { get; set; } 
     }
 }

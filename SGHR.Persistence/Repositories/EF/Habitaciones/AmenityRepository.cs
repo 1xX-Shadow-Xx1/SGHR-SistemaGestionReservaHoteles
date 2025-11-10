@@ -82,7 +82,7 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
             {
                 var result = _context.Amenity.Where(a => a.Nombre == nombre);
 
-                if (result.Count() == 0)
+                if (result.Count() == 0 || result == null)
                 {
                     _logger.LogWarning("Amenity con nombre {Nombre} no encontrado", nombre);
                     return OperationResult<Amenity>.Fail("Amenity no encontrado");

@@ -1,0 +1,22 @@
+﻿@model SGHR.Application.Dtos.Configuration.Habitaciones.Piso.PisoDto
+
+@{
+    ViewData["Title"] = "Detalles del piso";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm mx-auto" style="max-width:600px;">
+        <div class="card-header bg-primary text-white">
+            <h4>Detalles del Piso</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>ID:</strong> @Model.Id</p>
+            <p><strong>Nombre:</strong> @Model.NumeroPiso</p>
+            <p><strong>Descripcion:</strong> @Model.Descripcion</p>
+            <p><strong>Estado:</strong> @Model.Estado</p>
+        </div>
+        <div class="card-footer text-center">
+            <a href="@Url.Action("Index", "Piso")" class="btn btn-secondary">Volver a la Lista</a>
+        </div>
+    </div>
+</div>

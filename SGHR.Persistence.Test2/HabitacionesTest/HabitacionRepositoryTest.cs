@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
-using SGHR.Domain.Enum.Habitacion;
+using SGHR.Domain.Enum.Habitaciones;
 using SGHR.Domain.Validators.ConfigurationRules.Habitaciones;
 using SGHR.Persistence.Context;
 using SGHR.Persistence.Repositories.EF.Habitaciones;

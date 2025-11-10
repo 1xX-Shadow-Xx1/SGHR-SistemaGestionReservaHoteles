@@ -16,8 +16,10 @@ namespace SGHR.Domain.Validators.ConfigurationRules.Habitaciones
             // Descripción
             if (!ValidationHelper.Required(categoria.Descripcion, "Nombre", out errorMessage)) return false;
             if (!ValidationHelper.MaxLength(categoria.Descripcion, 1000, "Descripción", out errorMessage)) return false;
-            // Ajusta el límite si quieres permitir más texto
-            
+
+            // Precio
+            if (!ValidationHelper.Required(categoria.Precio, "Precio", out errorMessage)) return false;
+            if (!ValidationHelper.GreaterThanZero(categoria.Precio, "Precio", out errorMessage)) return false;
 
             errorMessage = string.Empty;
             return true;

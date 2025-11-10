@@ -1,0 +1,66 @@
+﻿@using SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion
+@using SGHR.Domain.Enum.Habitaciones
+@model UpdateHabitacionDto
+
+@{
+    ViewData["Title"] = "Editar Habitacion";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm mx-auto" style="max-width: 500px;">
+        <div class="card-header bg-primary text-white">
+            <h4>Editar Habitacion</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label asp-for="Numero" class="form-label"></label>
+                    <input asp-for="Numero" class="form-control" />
+                    <span asp-validation-for="Numero" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="NumeroPiso" class="form-label"></label>
+                    <input asp-for="NumeroPiso" class="form-control" />
+                    <span asp-validation-for="NumeroPiso" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Capacidad" class="form-label"></label>
+                    <input asp-for="Capacidad" class="form-control" />
+                    <span asp-validation-for="Capacidad" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AmenityName" class="form-label"></label>
+                    <input asp-for="AmenityName" class="form-control" />
+                    <span asp-validation-for="AmenityName" class="text-danger"></span>
+                </div>
+
+
+                <div class="mb-3">
+                    <label asp-for="CategoriaName" class="form-label"></label>
+                    <input asp-for="CategoriaName" class="form-control" />
+                    <span asp-validation-for="CategoriaName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Estado" class="form-label"></label>
+                    <select asp-for="Estado" class="form-select" asp-items="Html.GetEnumSelectList<EstadoHabitacion>()"></select>
+                    <span asp-validation-for="Estado" class="text-danger"></span>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary me-2">Guardar Cambios</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

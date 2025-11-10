@@ -7,5 +7,6 @@ namespace SGHR.Application.Interfaces.Habitaciones
     {
         Task<ServiceResult> GetAllDisponiblesAsync();
         Task<ServiceResult> GetAllDisponibleDateAsync(DateTime fechainicio, DateTime fechafin);
+        Task<ServiceResult> GetByNumero(string? numHabitacion);
     }
 }

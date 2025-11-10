@@ -1,0 +1,34 @@
+﻿@model SGHR.Application.Dtos.Configuration.Habitaciones.Amenity.AmenityDto
+
+<div class="container mt-3">
+    <h4>¿Estás seguro de que deseas eliminar este amenity?</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">ID</dt>
+        <dd class="col-sm-10">@Model.Id</dd>
+
+        <dt class="col-sm-2">Nombre</dt>
+        <dd class="col-sm-10">@Model.Nombre</dd>
+
+        <dt class="col-sm-2">Descripción</dt>
+        <dd class="col-sm-10">@Model.Descripcion</dd>
+
+        <dt class="col-sm-2">Precio</dt>
+        <dd class="col-sm-10">@Model.Precio</dd>
+
+        <dt class="col-sm-2">Precio por capacidad de habitacion</dt>
+        <dd class="col-sm-10">@Model.PorCapacidad</dd>
+    </dl>
+
+    <form id="formDelete" method="post" class="d-flex gap-2">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+
+        <!-- Botón Eliminar: rojo -->
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+
+        <!-- Botón Cancelar: gris -->
+        <button type="button" class="btn btn-secondary btn-btnCancelDelete">Cancelar</button>
+    </form>
+</div>
+

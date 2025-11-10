@@ -15,6 +15,28 @@ namespace SGHR.Domain.Validators
             return true;
         }
 
+        public static bool Required(decimal? value, string fieldName, out string errorMessage)
+        {
+            if (value == null)
+            {
+                errorMessage = $"{fieldName} es obligatorio.";
+                return false;
+            }
+            errorMessage = string.Empty;
+            return true;
+        }
+
+        public static bool Required(DateTime? value, string fieldName, out string errorMessage)
+        {
+            if (value == null || value == DateTime.MinValue)
+            {
+                errorMessage = $"{fieldName} es obligatorio.";
+                return false;
+            }
+            errorMessage = string.Empty;
+            return true;
+        }
+
         public static bool Required(string? value, string fieldName, out string errorMessage)
         {
             if (string.IsNullOrWhiteSpace(value))

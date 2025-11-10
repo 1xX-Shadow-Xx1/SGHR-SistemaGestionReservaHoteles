@@ -4,9 +4,10 @@ using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Reservas.Reserva;
 using SGHR.Application.Dtos.Configuration.Reservas.ServicioAdicional;
 using SGHR.Application.Interfaces.Reservas;
+using SGHR.Domain.Entities.Configuration.Habitaciones;
 using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Entities.Configuration.Usuers;
-using SGHR.Domain.Enum.Habitacion;
+using SGHR.Domain.Enum.Habitaciones;
 using SGHR.Domain.Enum.Reservas;
 using SGHR.Domain.Repository;
 using SGHR.Persistence.Interfaces.Habitaciones;
@@ -25,6 +26,7 @@ namespace SGHR.Application.Services.Reservas
         private readonly ITarifaRepository _tarifaRepository;
         private readonly ICategoriaRepository _categoriaRepository;
         private readonly IServicioAdicionalRepository _servicioAdicionalRepository;
+        private readonly IAmenityRepository _amenityRepository;
 
         public ReservaServices(ILogger<ReservaServices> logger, 
                                IReservaRepository repository,
@@ -33,7 +35,8 @@ namespace SGHR.Application.Services.Reservas
                                IClienteRepository clienteRepository,
                                ITarifaRepository tarifaRepository,
                                ICategoriaRepository categoriaRepository,
-                               IServicioAdicionalRepository servicioAdicionalRepository)
+                               IServicioAdicionalRepository servicioAdicionalRepository,
+                               IAmenityRepository amenityRepository)
                             
         {
             _logger = logger;
@@ -44,6 +47,7 @@ namespace SGHR.Application.Services.Reservas
             _tarifaRepository = tarifaRepository;
             _categoriaRepository = categoriaRepository;
             _servicioAdicionalRepository = servicioAdicionalRepository;
+            _amenityRepository = amenityRepository;
 
         }
 
@@ -98,13 +102,37 @@ namespace SGHR.Application.Services.Reservas
                 }
 
                 var categoria = await _categoriaRepository.GetByIdAsync(ExistHabitacion.IdCategoria);
-                var tarifa = await _tarifaRepository.GetByCategoriaAsync(categoria.Data.Id);
-                if (!tarifa.Success)
+                if (!categoria.Success)
                 {
-                    result.Message = tarifa.Message;
+                    result.Message = categoria.Message;
                     return result;
                 }
-                var Coste = tarifa.Data.FirstOrDefault(c => c.IdCategoria == categoria.Data.Id);
+
+                var listTarifaByCategory = await _tarifaRepository.GetByCategoriaAsync(categoria.Data.Id);
+                if (!listTarifaByCategory.Success)
+                {
+                    result.Message = listTarifaByCategory.Message;
+                    return result;
+                }
+
+                var amenity = await _amenityRepository.GetByIdAsync(ExistHabitacion.IdAmenity);
+                if (!amenity.Success)
+                {
+                    result.Message = amenity.Message;
+                    return result;
+                }
+                var Coste = amenity.Data.Precio;
+                Coste += amenity.Data.PorCapacidad * ExistHabitacion.Capacidad;
+
+                var fecha = DateTime.Now;
+
+                var tarifa = listTarifaByCategory.Data.FirstOrDefault(t => fecha >= t.Fecha_inicio &&  fecha <= t.Fecha_fin);
+
+                if (tarifa == null)
+                    Coste += categoria.Data.Precio;
+                else
+                    Coste += tarifa.Precio;
+
 
                 Reserva reserva = new Reserva()
                 {
@@ -112,7 +140,7 @@ namespace SGHR.Application.Services.Reservas
                     IdHabitacion = ExistHabitacion.Id,
                     FechaInicio = CreateDto.FechaInicio,
                     FechaFin = CreateDto.FechaFin,
-                    CostoTotal = Coste.Precio != null ? Coste.Precio : 0
+                    CostoTotal = Coste != null ? Coste : 0
                 };
 
                 if (!string.IsNullOrWhiteSpace(CreateDto.CorreoCliente))
@@ -158,7 +186,7 @@ namespace SGHR.Application.Services.Reservas
                     FechaInicio = CreateDto.FechaInicio,
                     FechaFin = CreateDto.FechaFin,
                     CostoTotal = opResult.Data.CostoTotal,
-                    Estado = opResult.Data.Estado.ToString(),
+                    Estado = opResult.Data.Estado
                 };
 
                 result.Success = true;
@@ -261,7 +289,7 @@ namespace SGHR.Application.Services.Reservas
                         Id = r.Id,
                         FechaInicio = r.FechaInicio,
                         FechaFin = r.FechaFin,
-                        Estado = r.Estado.ToString(),
+                        Estado = r.Estado,
                         NumeroHabitacion = hab.Numero,
                         CedulaCliente = cli.Cedula,
                         CorreoCliente = usr.Correo != null ? usr.Correo : "N/A",
@@ -304,13 +332,13 @@ namespace SGHR.Application.Services.Reservas
                     result.Message = Habitacion.Message;
                     return result;
                 }                
-                var cliente = await _clienteRepository.GetByIdAsync(Habitacion.Data.IdPiso);
+                var cliente = await _clienteRepository.GetByIdAsync(reserva.Data.IdCliente);
                 if (!cliente.Success)
                 {
                     result.Message = cliente.Message;
                     return result;
                 }
-                var usuario = await _usuarioRepository.GetByIdAsync(Habitacion.Data.IdPiso);
+                var usuario = await _usuarioRepository.GetByIdAsync((int)cliente.Data.IdUsuario);
                 if (!usuario.Success)
                 {
                     result.Message = usuario.Message;
@@ -326,7 +354,7 @@ namespace SGHR.Application.Services.Reservas
                     FechaInicio = reserva.Data.FechaInicio,
                     FechaFin = reserva.Data.FechaFin,
                     CostoTotal = reserva.Data.CostoTotal,
-                    Estado = Habitacion.Data.Estado.ToString()
+                    Estado = reserva.Data.Estado
                 };
 
                 result.Success = true;
@@ -366,7 +394,7 @@ namespace SGHR.Application.Services.Reservas
                     result.Message = "No se puede actualizar una reserva que ya este finalizada.";
                     return result;
                 }
-                if(UpdateDto.FechaInicio <= UpdateDto.FechaFin)
+                if(UpdateDto.FechaInicio >= UpdateDto.FechaFin)
                 {
                     result.Message = "Las fechas de la reserva son inválidas.";
                     return result;
@@ -405,15 +433,45 @@ namespace SGHR.Application.Services.Reservas
                     return result;
                 }
 
+                var categoria = await _categoriaRepository.GetByIdAsync(ExistHabitacion.IdCategoria);
+                if (!categoria.Success)
+                {
+                    result.Message = categoria.Message;
+                    return result;
+                }
+
+                var listTarifaByCategory = await _tarifaRepository.GetByCategoriaAsync(categoria.Data.Id);
+                if (!listTarifaByCategory.Success)
+                {
+                    result.Message = listTarifaByCategory.Message;
+                    return result;
+                }
+
+                var amenity = await _amenityRepository.GetByIdAsync(ExistHabitacion.IdAmenity);
+                if (!amenity.Success)
+                {
+                    result.Message = amenity.Message;
+                    return result;
+                }
+
+                var Coste = amenity.Data.Precio;
+                Coste += amenity.Data.PorCapacidad * ExistHabitacion.Capacidad;
+
+                var fecha = DateTime.Now;
+
+                var tarifa = listTarifaByCategory.Data.FirstOrDefault(t => fecha >= t.Fecha_inicio && fecha <= t.Fecha_fin);
+
+                if (tarifa == null)
+                    Coste += categoria.Data.Precio;
+                else
+                    Coste += tarifa.Precio;
+
                 reserva.Data.IdCliente = Cliente.Id;
                 reserva.Data.IdHabitacion = ExistHabitacion.Id;
                 reserva.Data.FechaInicio = UpdateDto.FechaInicio;
                 reserva.Data.FechaFin = UpdateDto.FechaFin;
-                reserva.Data.CostoTotal = (decimal)UpdateDto.CostoTotal;
-                if( Enum.TryParse<EstadoReserva>(UpdateDto.Estado, out var estado))
-                {
-                    reserva.Data.Estado = estado;
-                }
+                reserva.Data.CostoTotal = Coste;
+                reserva.Data.Estado = (EstadoReserva)UpdateDto.Estado;
 
                 if (!string.IsNullOrWhiteSpace(UpdateDto.CorreoCliente))
                 {
@@ -433,7 +491,7 @@ namespace SGHR.Application.Services.Reservas
                     reserva.Data.IdUsuario = Usuario.Id;
                 }
 
-                var opResult = await _reservarepository.SaveAsync(reserva.Data);
+                var opResult = await _reservarepository.UpdateAsync(reserva.Data);
                 if (!opResult.Success)
                 {
                     result.Message = opResult.Message;
@@ -448,8 +506,8 @@ namespace SGHR.Application.Services.Reservas
                     CorreoCliente = UpdateDto.CorreoCliente,
                     FechaInicio = UpdateDto.FechaInicio,
                     FechaFin = UpdateDto.FechaFin,
-                    CostoTotal = UpdateDto.CostoTotal,
-                    Estado = opResult.Data.Estado.ToString(),
+                    CostoTotal = opResult.Data.CostoTotal,
+                    Estado = opResult.Data.Estado,
                 };
 
                 result.Success = true;
@@ -500,7 +558,7 @@ namespace SGHR.Application.Services.Reservas
                     FechaInicio = opResult.Data.FechaInicio,
                     FechaFin = opResult.Data.FechaFin,
                     CostoTotal = opResult.Data.CostoTotal,
-                    Estado = opResult.Data.Estado.ToString(),
+                    Estado = opResult.Data.Estado
                 };                
 
                 result.Success = true;

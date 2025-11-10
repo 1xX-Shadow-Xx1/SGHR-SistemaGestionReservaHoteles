@@ -1,4 +1,4 @@
-﻿using SGHR.Domain.Enum.Habitacion;
+﻿using SGHR.Domain.Enum.Habitaciones;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SGHR.Domain.Entities.Configuration.Habitaciones
@@ -11,7 +11,7 @@ namespace SGHR.Domain.Entities.Configuration.Habitaciones
         [Column("id_piso")]
         public int IdPiso { get; set; }
         [Column("id_amenity")]
-        public int? IdAmenity { get; set; }
+        public int IdAmenity { get; set; }
         [Column("numero")]
         public string Numero { get; set; }
         [Column("capacidad")]

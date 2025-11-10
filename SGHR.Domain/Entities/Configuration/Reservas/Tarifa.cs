@@ -9,10 +9,13 @@ namespace SGHR.Domain.Entities.Configuration.Reservas
     {
         [Column("id_categoria")]
         public int IdCategoria { get; set; }
-        [Column("temporada")]
-        public string Temporada { get; set; }
+        [Column("fecha_inicio")]
+        public DateTime Fecha_inicio { get; set; }
+        [Column("fecha_fin")]
+        public DateTime Fecha_fin { get; set; }
         [Column("precio")]
         public decimal Precio { get; set; }
+        
 
     }
 }

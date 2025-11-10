@@ -256,7 +256,7 @@ namespace SGHR.Application.Test.HabitacionesTest
         public async Task UpdateAsync_When_Id_Invalid_Should_Return_Error()
         {
             // Arrange
-            var dto = new UpdatePisoDto { Id = 0, NumeroPiso = 5, Descripcion = "Update Test", Estado = "Disponible" };
+            var dto = new UpdatePisoDto { Id = 0, NumeroPiso = 5, Descripcion = "Update Test", Estado = EstadoPiso.Habilitado };
 
             // Act
             var result = await _pisoServices.UpdateAsync(dto);
@@ -276,7 +276,7 @@ namespace SGHR.Application.Test.HabitacionesTest
                 Id = piso.Id,
                 NumeroPiso = piso.NumeroPiso + 10,
                 Descripcion = "Actualizado",
-                Estado = EstadoPiso.EnMantenimiento.ToString()
+                Estado = EstadoPiso.EnMantenimiento
             };
 
             // Act

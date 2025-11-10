@@ -54,7 +54,8 @@ namespace SGHR.Application.Services.Habitaciones
                 var categoria = new Categoria
                 {
                     Nombre = CreateDto.Nombre,
-                    Descripcion = CreateDto.Descripcion
+                    Descripcion = CreateDto.Descripcion,
+                    Precio = CreateDto.Precio
                 };
 
                 var opResult = await _categoriaRepository.SaveAsync(categoria);
@@ -68,7 +69,8 @@ namespace SGHR.Application.Services.Habitaciones
                 {
                     Id = categoria.Id,
                     Nombre = opResult.Data.Nombre,
-                    Descripcion = opResult.Data.Descripcion
+                    Descripcion = opResult.Data.Descripcion,
+                    Precio = opResult.Data.Precio
                 };
 
                 result.Success = true;
@@ -133,7 +135,8 @@ namespace SGHR.Application.Services.Habitaciones
                 {
                     Id = c.Id,
                     Nombre = c.Nombre,
-                    Descripcion = c.Descripcion
+                    Descripcion = c.Descripcion,
+                    Precio = c.Precio
                 })
                 .ToList();
 
@@ -170,7 +173,8 @@ namespace SGHR.Application.Services.Habitaciones
                 {
                     Id = Categoria.Data.Id,
                     Nombre = Categoria.Data.Nombre,
-                    Descripcion = Categoria.Data.Descripcion
+                    Descripcion = Categoria.Data.Descripcion,
+                    Precio = Categoria.Data.Precio
                 };
 
                 result.Success = true;
@@ -241,7 +245,8 @@ namespace SGHR.Application.Services.Habitaciones
                 {
                     Id = opResult.Data.Id,
                     Nombre = opResult.Data.Nombre,
-                    Descripcion = opResult.Data.Descripcion
+                    Descripcion = opResult.Data.Descripcion,
+                    Precio = opResult.Data.Precio
                 };
 
                 result.Success = true;

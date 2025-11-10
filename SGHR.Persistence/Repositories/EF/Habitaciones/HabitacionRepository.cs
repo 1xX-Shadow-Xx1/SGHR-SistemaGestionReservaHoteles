@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using SchoolPoliApp.Persistence.Base;
 using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
-using SGHR.Domain.Enum.Habitacion;
+using SGHR.Domain.Enum.Habitaciones;
 using SGHR.Domain.Repository;
 using SGHR.Domain.Validators.ConfigurationRules.Habitaciones;
 using SGHR.Persistence.Context;
@@ -80,8 +80,16 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
         }
         public override async Task<OperationResult<List<Habitacion>>> GetAllAsync(bool includeDeleted = false)
         {
-            _logger.LogInformation("Obteniendo todas las habitaciones (includeDeleted = {IncludeDeleted})", includeDeleted);
-            return await base.GetAllAsync(includeDeleted);
+
+            var habitaciones = await base.GetAllAsync(includeDeleted);
+            if (!habitaciones.Success)
+            {
+                _logger.LogInformation("Habitaciones obtenidas correctamente.");
+                return habitaciones;
+            }
+
+            _logger.LogInformation("Habitaciones obtenidas correctamente.");
+            return habitaciones;
         }
         public async Task<OperationResult<List<Habitacion>>> GetAvailableAsync(DateTime fechaInicio, DateTime fechaFin, int? idreserva = 0)
         {

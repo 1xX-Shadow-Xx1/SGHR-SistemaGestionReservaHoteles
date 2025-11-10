@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SGHR.Domain.Enum.Habitaciones;
+using System.ComponentModel.DataAnnotations;
 
 namespace SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion
 {
@@ -11,12 +12,12 @@ namespace SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion
         public string CategoriaName { get; set; }
 
         [Range(1, 100, ErrorMessage = "El número de piso debe estar entre 1 y 100.")]
-        public int numeroPiso { get; set; }
+        public int NumeroPiso { get; set; }
 
         [StringLength(50, ErrorMessage = "El nombre de la amenidad no puede superar los 50 caracteres.")]
         public string? AmenityName { get; set; }
 
-        [StringLength(10, MinimumLength = 1, ErrorMessage = "El número de habitación debe tener entre 1 y 10 caracteres.")]
+        [RegularExpression(@"^[A-Z]-\d{3}$", ErrorMessage = "Ingrese un número de habitación válido (ej. A-001)")]
         public string Numero { get; set; }
 
         [Range(1, 10, ErrorMessage = "La capacidad debe estar entre 1 y 10 personas.")]
@@ -24,6 +25,6 @@ namespace SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion
 
         [RegularExpression("^(Disponible|Ocupada|Mantenimiento|Reservada|Limpieza)$",
             ErrorMessage = "El estado debe ser 'Disponible', 'Ocupada', 'Limpieza', 'Mantenimiento' o 'Reservada'.")]
-        public string Estado { get; set; }
+        public EstadoHabitacion Estado { get; set; }
     }
 }

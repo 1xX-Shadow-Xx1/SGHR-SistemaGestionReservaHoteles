@@ -7,7 +7,7 @@ namespace SGHR.Persistence.Interfaces.Reservas
     public interface ITarifaRepository : IBaseRepository<Tarifa>
     {
         Task<OperationResult<List<Tarifa>>> GetByCategoriaAsync(int idCategoria);
-        Task<OperationResult<Tarifa>> GetByCategoriaAndTemporadaAsync(int idCategoria, string temporada);
-        Task<OperationResult<List<Tarifa>>> GetByTemporadaAsync(string temporada);
+        Task<OperationResult<Tarifa>> GetByCategoriaAndTemporadaAsync(int idCategoria, DateTime fecha_inicio, DateTime fecha_fin);
+        Task<OperationResult<List<Tarifa>>> GetByTemporadaAsync(DateTime fecha_inicio, DateTime fecha_fin);
     }
 }

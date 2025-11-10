@@ -56,7 +56,7 @@ namespace SGHR.Application.Services.Habitaciones
                     Id = OpResult.Data.Id,
                     NumeroPiso = OpResult.Data.NumeroPiso,
                     Descripcion = OpResult.Data.Descripcion,
-                    Estado = OpResult.Data.Estado.ToString()
+                    Estado = OpResult.Data.Estado
                 };
 
                 result.Success = true;
@@ -117,13 +117,15 @@ namespace SGHR.Application.Services.Habitaciones
                     return result;
                 }
 
-                var Pisos = ListaPisos.Data.ToList().Select(u => new PisoDto()
+                var Pisos = ListaPisos.Data.ToList().Select(p => new PisoDto()
                 {
-                    Id = u.Id,
-                    NumeroPiso = u.NumeroPiso,
-                    Descripcion = u.Descripcion,
-                    Estado = u.Estado.ToString()
-                }).ToList();
+                    Id = p.Id,
+                    NumeroPiso = p.NumeroPiso,
+                    Descripcion = p.Descripcion,
+                    Estado = p.Estado
+                })
+                .OrderBy(p => p.NumeroPiso)
+                .ToList();
 
                 result.Success = true;
                 result.Data = Pisos;
@@ -157,7 +159,7 @@ namespace SGHR.Application.Services.Habitaciones
                     Id = opResult.Data.Id,
                     NumeroPiso = opResult.Data.NumeroPiso,
                     Descripcion = opResult.Data.Descripcion,
-                    Estado = opResult.Data.Estado.ToString()
+                    Estado = opResult.Data.Estado
                 };
 
                 result.Success = true;
@@ -203,11 +205,8 @@ namespace SGHR.Application.Services.Habitaciones
 
                 Piso.Data.NumeroPiso = UpdateDto.NumeroPiso;
                 Piso.Data.Descripcion = UpdateDto.Descripcion;
-
-                if (Enum.TryParse<EstadoPiso>(UpdateDto.Estado, out var estado))
-                {
-                    Piso.Data.Estado = estado;
-                }
+                Piso.Data.Estado = UpdateDto.Estado;
+                
 
                 var OpResult = await _pisoRepository.UpdateAsync(Piso.Data);
                 if (!OpResult.Success)
@@ -221,7 +220,7 @@ namespace SGHR.Application.Services.Habitaciones
                     Id = OpResult.Data.Id,
                     NumeroPiso = OpResult.Data.NumeroPiso,
                     Descripcion = OpResult.Data.Descripcion,
-                    Estado = OpResult.Data.Estado.ToString()
+                    Estado = OpResult.Data.Estado
                 };
 
                 result.Success = true;

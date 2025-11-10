@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
+using SGHR.Application.Dtos.Configuration.Users.Cliente;
 using SGHR.Application.Interfaces.Usuarios;
 
 namespace SGHR.Web.Controllers.Usuarios
@@ -17,82 +18,138 @@ namespace SGHR.Web.Controllers.Usuarios
         // GET: ClienteController1
         public async Task<IActionResult> Index()
         {
-            ServiceResult result = await _clienteServices.GetAllAsync();
-            if (!result.Success)
+            return View();
+        }
+
+        // --- Partial para listar clientes ---
+        public async Task<IActionResult> _List(string? cedula)
+        {
+            if (!string.IsNullOrEmpty(cedula))
             {
-                ViewBag.ErrorMessage = result.Message;
-                return View();
+                var result = await _clienteServices.GetByCedulaAsync(cedula);
+                if (!result.Success || result.Data == null)
+                    return PartialView("_List", new List<ClienteDto>()); // lista vacía si no se encuentra
+
+                return PartialView("_List", new List<ClienteDto> { (ClienteDto)result.Data });
             }
-            return View(result.Data);
+            else
+            {
+                var result = await _clienteServices.GetAllAsync();
+                if (!result.Success)
+                    return PartialView("_Error", result.Message);
+
+                var listaClientes = result.Data as IEnumerable<ClienteDto>;
+                return PartialView("_List", listaClientes);
+            }
         }
 
         // GET: ClienteController1/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            return View();
+            ServiceResult result = await _clienteServices.GetByIdAsync(id);
+            if (!result.Success)
+            {
+                // Puedes redirigir a un error general o mostrar mensaje
+                return RedirectToAction("Index");
+            }
+
+            var cliente = result.Data as ClienteDto;
+            return View(cliente); // Vista completa
         }
 
         // GET: ClienteController1/Create
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            return View();
+            var model = new CreateClienteDto();
+            return View(model); // Vista completa
         }
 
         // POST: ClienteController1/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(IFormCollection collection)
+        public async Task<IActionResult> Create(CreateClienteDto dto)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                // Si hay errores de validación, devolver la misma vista con mensajes
+                return View(dto);
             }
-            catch
+
+            var result = await _clienteServices.CreateAsync(dto);
+            if (!result.Success)
             {
-                return View();
+                // Si hay error en el servicio, mostrarlo en la vista
+                ModelState.AddModelError(string.Empty, result.Message);
+                return View(dto);
             }
+
+            // Redirigir a la lista de usuarios o al detalle recién creado
+            return RedirectToAction("Index");
         }
 
         // GET: ClienteController1/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            return View();
+            var result = await _clienteServices.GetByIdAsync(id);
+            if (!result.Success)
+                return View("_Error");  // o mostrar una página de error
+            UpdateClienteDto cliente = new UpdateClienteDto
+            {
+                Id = result.Data.Id,
+                Correo = result.Data.Correo,
+                Nombre = result.Data.Nombre,
+                Apellido = result.Data.Apellido,
+                Cedula = result.Data.Cedula,
+                Direccion = result.Data.Direccion,
+                Telefono = result.Data.Telefono
+            };
+            return View(cliente); // Vista completa
         }
 
         // POST: ClienteController1/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(UpdateClienteDto dto)
         {
-            try
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var result = await _clienteServices.UpdateAsync(dto);
+            if (!result.Success)
             {
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError(string.Empty, result.Message);
+                return View(dto);
             }
-            catch
-            {
-                return View();
-            }
+
+            // Redirigir a la lista después de guardar
+            return RedirectToAction("Index");
         }
 
         // GET: ClienteController1/Delete/5
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> _Delete(int id)
         {
-            return View();
+            var result = await _clienteServices.GetByIdAsync(id);
+            if (!result.Success)
+                return PartialView("_Error");
+
+            if (result.Data == null)
+                return PartialView("_Error");
+
+            return PartialView("_Delete", (ClienteDto)result.Data);
+
         }
 
         // POST: ClienteController1/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> _DeleteConfirmed(int id)
         {
-            try
+            var result = await _clienteServices.DeleteAsync(id);
+            if (!result.Success)
             {
-                return RedirectToAction(nameof(Index));
+                return Json(result);
             }
-            catch
-            {
-                return View();
-            }
+            return Json(result);
         }
     }
 }

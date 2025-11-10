@@ -4,7 +4,7 @@ using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Operaciones.Mantenimiento;
 using SGHR.Application.Interfaces.Operaciones;
 using SGHR.Domain.Entities.Configuration.Operaciones;
-using SGHR.Domain.Enum.Habitacion;
+using SGHR.Domain.Enum.Habitaciones;
 using SGHR.Domain.Enum.Operaciones;
 using SGHR.Domain.Repository;
 using SGHR.Persistence.Interfaces.Habitaciones;

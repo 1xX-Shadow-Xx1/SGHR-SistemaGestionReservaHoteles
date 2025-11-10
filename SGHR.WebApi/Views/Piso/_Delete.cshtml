@@ -1,0 +1,30 @@
+﻿@model SGHR.Application.Dtos.Configuration.Habitaciones.Piso.PisoDto
+
+<div class="container mt-3">
+    <h4>¿Estás seguro de que deseas eliminar este piso?</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">ID</dt>
+        <dd class="col-sm-10">@Model.Id</dd>
+
+        <dt class="col-sm-2">NumeroPiso</dt>
+        <dd class="col-sm-10">@Model.NumeroPiso</dd>
+
+        <dt class="col-sm-2">Descripción</dt>
+        <dd class="col-sm-10">@Model.Descripcion</dd>
+
+        <dt class="col-sm-2">Estado</dt>
+        <dd class="col-sm-10">@Model.Estado</dd>
+    </dl>
+
+    <form id="formDelete" method="post" class="d-flex gap-2">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+
+        <!-- Botón Eliminar: rojo -->
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+
+        <!-- Botón Cancelar: gris -->
+        <button type="button" class="btn btn-secondary btn-btnCancelDelete btnCancelDelete">Cancelar</button>
+    </form>
+</div>

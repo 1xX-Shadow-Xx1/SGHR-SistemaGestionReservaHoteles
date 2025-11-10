@@ -1,4 +1,4 @@
-﻿namespace SGHR.Domain.Enum.Habitacion
+﻿namespace SGHR.Domain.Enum.Habitaciones
 {
     public enum EstadoHabitacion
     {

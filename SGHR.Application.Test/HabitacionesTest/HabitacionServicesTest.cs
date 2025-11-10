@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion;
 using SGHR.Application.Services.Habitaciones;
 using SGHR.Domain.Entities.Configuration.Habitaciones;
-using SGHR.Domain.Enum.Habitacion;
+using SGHR.Domain.Enum.Habitaciones;
 using SGHR.Domain.Validators.ConfigurationRules.Habitaciones;
 using SGHR.Persistence.Context;
 using SGHR.Persistence.Repositories.EF.Habitaciones;
@@ -405,8 +405,8 @@ namespace SGHR.Application.Test.HabitacionesTest
                 Numero = "NoExiste",
                 Capacidad = 2,
                 CategoriaName = "Normal",
-                numeroPiso = 1,
-                Estado = EstadoHabitacion.Disponible.ToString()
+                NumeroPiso = 1,
+                Estado = EstadoHabitacion.Disponible
             };
 
             // Act
@@ -428,9 +428,9 @@ namespace SGHR.Application.Test.HabitacionesTest
                 Numero = existing.Numero + "_UP",
                 Capacidad = existing.Capacidad + 1,
                 CategoriaName = "Normal",
-                numeroPiso = 1,
+                NumeroPiso = 1,
                 AmenityName = "WiFi",
-                Estado = EstadoHabitacion.Mantenimiento.ToString()
+                Estado = EstadoHabitacion.Mantenimiento
             };
 
             // Act

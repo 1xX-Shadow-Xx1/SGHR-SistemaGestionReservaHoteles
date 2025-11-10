@@ -6,6 +6,6 @@ namespace SGHR.Persistence.Interfaces.Habitaciones
 {
     public interface IPisoRepository : IBaseRepository<Piso>
     {
-        Task<OperationResult<Piso>> GetByNumeroPisoAsync(int numeroPiso, int? idpiso = 0);
+        Task<OperationResult<Piso>> GetByNumeroPisoAsync(int numeroPiso, int? idpiso = 0, bool? isDeleted = false);
     }
 }

@@ -86,11 +86,11 @@ namespace SGHR.Application.ValidatorServices
             if (!entities.Success)
                 return (false, entities.Message, null);
 
-            var existe = entities.Data.Any(predicate);
-            if (!existe)
+            var existe = entities.Data.FirstOrDefault(predicate);
+            if (existe == null)
                 return (false, $"{fieldname} no encontrado.", null);
 
-            return (true, string.Empty, entities.Data.First());
+            return (true, string.Empty, existe);
         }
 
     }

@@ -11,6 +11,9 @@ namespace SGHR.Domain.Entities.Configuration.Habitaciones
         public string Nombre { get; set; }
         [Column("descripcion")]
         public string Descripcion { get; set; }
-
+        [Column("precio")]
+        public decimal Precio { get; set; } 
+        [Column("por_capadidad")]
+        public decimal PorCapacidad { get; set; }
     }
 }

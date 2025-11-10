@@ -47,7 +47,9 @@ namespace SGHR.Application.Services.Habitaciones
                 Amenity amenity = new Amenity()
                 {
                     Nombre = CreateDto.Nombre,
-                    Descripcion = CreateDto.Descripcion
+                    Descripcion = CreateDto.Descripcion,
+                    Precio = CreateDto.Precio,
+                    PorCapacidad = CreateDto.PorCapacidad
                 };
 
                 var OpResult = await _amenityRepository.SaveAsync(amenity);
@@ -61,7 +63,9 @@ namespace SGHR.Application.Services.Habitaciones
                 {
                     Id = OpResult.Data.Id,
                     Nombre = OpResult.Data.Nombre,
-                    Descripcion = OpResult.Data.Descripcion               
+                    Descripcion = OpResult.Data.Descripcion,
+                    Precio = OpResult.Data.Precio,
+                    PorCapacidad = OpResult.Data.PorCapacidad
                 };
 
                 result.Success = true;
@@ -128,7 +132,9 @@ namespace SGHR.Application.Services.Habitaciones
                 {
                     Id = u.Id,
                     Nombre = u.Nombre,
-                    Descripcion = u.Descripcion
+                    Descripcion = u.Descripcion,
+                    Precio = u.Precio,
+                    PorCapacidad = u.PorCapacidad
                 }).ToList();
 
                 result.Success = true;
@@ -163,7 +169,9 @@ namespace SGHR.Application.Services.Habitaciones
                 {
                     Id = opResult.Data.Id,
                     Nombre = opResult.Data.Nombre,
-                    Descripcion = opResult.Data.Descripcion
+                    Descripcion = opResult.Data.Descripcion,
+                    Precio = opResult.Data.Precio,
+                    PorCapacidad = opResult.Data.PorCapacidad
                 };
 
                 result.Success = true;
@@ -229,6 +237,8 @@ namespace SGHR.Application.Services.Habitaciones
                     Id = OpResult.Data.Id,
                     Nombre = OpResult.Data.Nombre,
                     Descripcion = OpResult.Data.Descripcion,
+                    Precio = OpResult.Data.Precio,
+                    PorCapacidad = OpResult.Data.PorCapacidad
                 };
 
                 result.Success = true;

@@ -1,4 +1,5 @@
 ﻿
+using SGHR.Domain.Enum.Reservas;
 using System.ComponentModel.DataAnnotations;
 
 namespace SGHR.Application.Dtos.Configuration.Reservas.Reserva
@@ -24,11 +25,6 @@ namespace SGHR.Application.Dtos.Configuration.Reservas.Reserva
         [DataType(DataType.Date, ErrorMessage = "Formato de fecha inválido.")]
         public DateTime FechaFin { get; set; }
 
-        [Range(0.01, 999999.99, ErrorMessage = "El costo total debe ser mayor a 0 y menor a 1,000,000.")]
-        public decimal CostoTotal { get; set; }
-
-        [RegularExpression("^(Pendiente|Confirmada|Cancelada|Finalizada|Activa)$",
-            ErrorMessage = "El estado debe ser 'Pendiente', 'Confirmada', 'Activa' ,'Cancelada' o 'Finalizada'.")]
-        public string? Estado { get; set; }
+        public EstadoReserva? Estado { get; set; }
     }
 }

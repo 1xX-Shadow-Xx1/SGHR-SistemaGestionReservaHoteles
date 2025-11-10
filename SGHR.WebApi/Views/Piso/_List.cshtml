@@ -1,0 +1,54 @@
+﻿@model IEnumerable<SGHR.Application.Dtos.Configuration.Habitaciones.Piso.PisoDto>
+
+<style>
+    /* Columna de acciones compacta */
+    th.acciones, td.acciones {
+        width: 120px; /* ancho fijo pero suficiente para 2 botones */
+        white-space: nowrap; /* evita que los botones se separen en varias líneas */
+    }
+
+    /* Ajuste de botones para no separarse demasiado */
+    .btn-accion {
+        margin: 0 2px; /* espacio pequeño entre botones */
+    }
+
+    /* Cursor pointer en filas */
+    .fila-usuario {
+        cursor: pointer;
+    }
+</style>
+
+<table class="table table-striped table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>NumeroPiso</th>
+            <th>Descripcion</th>
+            <th>Estado</th>
+            <th class="acciones text-center">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var piso in Model)
+        {
+            <tr data-id="@piso.Id" class="fila-piso">
+                <td>@piso.Id</td>
+                <td>@piso.NumeroPiso</td>
+                <td>@piso.Descripcion</td>
+                <td>@piso.Estado</td>
+                <td class="acciones text-center">
+                    <a class="btn btn-sm btn-primary btn-editar btn-accion"
+                       asp-action="Edit"
+                       asp-controller="Piso"
+                       asp-route-id="@piso.Id">
+                        Editar
+                    </a>
+                    <button class="btn btn-sm btn-danger btn-eliminar btn-accion" data-id="@piso.Id">
+                        Eliminar
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

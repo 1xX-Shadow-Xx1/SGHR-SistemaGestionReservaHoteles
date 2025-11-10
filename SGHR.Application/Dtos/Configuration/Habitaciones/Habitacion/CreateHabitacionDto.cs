@@ -6,7 +6,8 @@ namespace SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion
     public class CreateHabitacionDto
     {
         [Required(ErrorMessage = "El número de la habitación es obligatorio.")]
-        [StringLength(10, MinimumLength = 1, ErrorMessage = "El número de la habitación debe tener entre 1 y 10 caracteres.")]
+        [StringLength(5, MinimumLength = 1, ErrorMessage = "El número de la habitación debe tener entre 1 y 5 caracteres.")]
+        [RegularExpression(@"^[A-Z]-\d{3}$", ErrorMessage = "Ingrese un número de habitación válido (ej. A-001)")]
         public string Numero { get; set; }
 
         [Required(ErrorMessage = "La capacidad es obligatoria.")]
