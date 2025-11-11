@@ -98,14 +98,23 @@ namespace SGHR.Persistence.Repositories.EF.Habitaciones
                 _logger.LogInformation("Obteniendo habitaciones disponibles entre {Inicio} y {Fin}", fechaInicio, fechaFin);
 
                 var disponibles = await _context.Habitaciones
-                    .Where(h => !h.IsDeleted &&
-                                h.Estado == EstadoHabitacion.Disponible &&
-                                !_context.Reservas.Any(r =>
-                                    r.IdHabitacion == h.Id &&
-                                    ((fechaInicio >= r.FechaInicio && fechaInicio <= r.FechaFin) ||
-                                     (fechaFin >= r.FechaInicio && fechaFin <= r.FechaFin) ||
-                                     (fechaInicio <= r.FechaInicio && fechaFin >= r.FechaFin)) && r.Id != idreserva))
-                    .ToListAsync();
+                .Where(h => !h.IsDeleted &&
+                            !_context.Reservas.Any(r =>
+                                !r.IsDeleted &&
+                                (
+                                    r.Estado == Domain.Enum.Reservas.EstadoReserva.Confirmada ||
+                                    r.Estado == Domain.Enum.Reservas.EstadoReserva.PagoParcial ||
+                                    r.Estado == Domain.Enum.Reservas.EstadoReserva.Activa
+                                ) &&
+                                r.IdHabitacion == h.Id &&
+                                (
+                                    (fechaInicio >= r.FechaInicio && fechaInicio <= r.FechaFin) ||
+                                    (fechaFin >= r.FechaInicio && fechaFin <= r.FechaFin) ||
+                                    (fechaInicio <= r.FechaInicio && fechaFin >= r.FechaFin)
+                                ) &&
+                                r.Id != idreserva))
+                .ToListAsync();
+
 
                 _logger.LogInformation("Se encontraron {Cantidad} habitaciones disponibles", disponibles.Count);
 

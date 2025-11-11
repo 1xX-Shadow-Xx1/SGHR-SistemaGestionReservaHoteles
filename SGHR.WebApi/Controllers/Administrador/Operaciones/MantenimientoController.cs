@@ -1,79 +1,80 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Habitaciones.Categoria;
-using SGHR.Application.Interfaces.Habitaciones;
+using SGHR.Application.Dtos.Configuration.Operaciones.Mantenimiento;
+using SGHR.Application.Interfaces.Operaciones;
 
-namespace SGHR.Web.Controllers.Habitaciones
+namespace SGHR.Web.Controllers.Administrador.Operaciones
 {
-    public class CategoriaController : Controller
+    public class MantenimientoController : Controller
     {
-        private readonly ICategoriaServices _categoriaServices;
+        private readonly IMantenimientoServices _mantenimientoServices;
 
-        public CategoriaController(ICategoriaServices categoriaServices)
+        public MantenimientoController(IMantenimientoServices mantenimientoServices)
         {
-            _categoriaServices = categoriaServices;
+            _mantenimientoServices = mantenimientoServices;
         }
 
-        // GET: CategoriaController
+        // GET: MantenimientoController
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: CategoriaController/Details/5
+        // GET: MantenimientoController/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            ServiceResult result = await _categoriaServices.GetByIdAsync(id);
+            ServiceResult result = await _mantenimientoServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 // Puedes redirigir a un error general o mostrar mensaje
                 TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
-            var categoria = result.Data as CategoriaDto;
-            return View(categoria); // Vista completa
+
+            var mantenimiento = result.Data as MantenimientoDto;
+            return View(mantenimiento); // Vista completa
         }
 
-        //GET: Partial para listar Categorias
+        //GET: Partial para listar reservas
         public async Task<IActionResult> _List(int? id)
         {
             if (id.HasValue && id > 0)
             {
-                var result = await _categoriaServices.GetByIdAsync(id.Value);
+                var result = await _mantenimientoServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
                 {
-                    
-                    return PartialView("_List", new List<CategoriaDto>()); // lista vacía si no se encuentra
+                   
+                    return PartialView("_List", new List<MantenimientoDto>()); // lista vacía si no se encuentra
                 }
                 
-                return PartialView("_List", new List<CategoriaDto> { (CategoriaDto)result.Data });
+                return PartialView("_List", new List<MantenimientoDto> { (MantenimientoDto)result.Data });
             }
             else
             {
-                var result = await _categoriaServices.GetAllAsync();
+                var result = await _mantenimientoServices.GetAllAsync();
                 if (!result.Success)
                 {
                     
                     return PartialView("_Error", result.Message);
-                }
+                }         
 
-                var listaCategorias = result.Data as IEnumerable<CategoriaDto>;
-                return PartialView("_List", listaCategorias);
+                var listaMantenimientos = result.Data as IEnumerable<MantenimientoDto>;
+                return PartialView("_List", listaMantenimientos);
             }
         }
 
-        // GET: CategoriaController/Create
+        // GET: MantenimientoController/Create
         public IActionResult Create()
         {
-            var model = new CreateCategoriaDto();
+            var model = new CreateMantenimientoDto();
             return View(model); // Vista completa
         }
 
-        // POST: CategoriaController/Create
+        // POST: MantenimientoController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateCategoriaDto dto)
+        public async Task<IActionResult> Create(CreateMantenimientoDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -81,47 +82,53 @@ namespace SGHR.Web.Controllers.Habitaciones
                 return View(dto);
             }
 
-            var result = await _categoriaServices.CreateAsync(dto);
+            var result = await _mantenimientoServices.CreateAsync(dto);
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
                 TempData["Error"] = result.Message;
                 return View(dto);
+  
             }
 
-            // Redirigir a la lista de categorias o al detalle recién creado
+            // Redirigir a la lista de mantenimiento o al detalle recién creado
             TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
-        // GET: CategoriaController/Edit/5
+        // GET: MantenimientoController/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var result = await _categoriaServices.GetByIdAsync(id);
+            var result = await _mantenimientoServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
                 return View("_Error");
             }
-            UpdateCategoriaDto categoria = new UpdateCategoriaDto
+                  // o mostrar una página de error
+            UpdateMantenimientoDto mantenimiento = new UpdateMantenimientoDto
             {
                 Id = result.Data.Id,
-                Nombre = result.Data.Nombre,
                 Descripcion = result.Data.Descripcion,
-                Precio = result.Data.Precio
+                FechaInicio = result.Data.FechaInicio,
+                FechaFin = result.Data.FechaFin,
+                Estado = result.Data.Estado,
+                NumeroHabitacion = result.Data.NumeroHabitacion,
+                NumeroPiso = result.Data.NumeroPiso,
+                RealizadoPor = result.Data.RealizadoPor
             };
-            return View(categoria); // Vista completa
+            return View(mantenimiento); // Vista completa
         }
 
-        // POST: CategoriaController/Edit/5
+        // POST: MantenimientoController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdateCategoriaDto dto)
+        public async Task<IActionResult> Edit(UpdateMantenimientoDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
-            var result = await _categoriaServices.UpdateAsync(dto);
+            var result = await _mantenimientoServices.UpdateAsync(dto);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -133,31 +140,33 @@ namespace SGHR.Web.Controllers.Habitaciones
             return RedirectToAction("Index");
         }
 
-        // GET: CategoriaController/Delete/5
+        // GET: MantenimientoController/Delete/5
         public async Task<IActionResult> _Delete(int id)
         {
-            var result = await _categoriaServices.GetByIdAsync(id);
+            var result = await _mantenimientoServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
                 return PartialView("_Error");
             }
+                
+
             if (result.Data == null)
             {
-                TempData["Error"] = result.Message;
+                TempData["Error"] = "No se encontró el mantenimiento.";
                 return PartialView("_Error");
-            }
+            }               
 
-            return PartialView("_Delete", (CategoriaDto)result.Data);
+            return PartialView("_Delete", (MantenimientoDto)result.Data);
 
         }
 
-        // POST: CategoriaController/Delete/5
+        // POST: MantenimientoController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> _DeleteConfirmed(int id)
         {
-            var result = await _categoriaServices.DeleteAsync(id);
+            var result = await _mantenimientoServices.DeleteAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;

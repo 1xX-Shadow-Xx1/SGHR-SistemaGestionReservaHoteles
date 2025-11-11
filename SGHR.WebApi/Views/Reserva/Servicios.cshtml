@@ -1,0 +1,160 @@
+﻿@{
+    ViewData["Title"] = "Servicios adicionales de la reserva";
+}
+
+<div class="container mt-4">
+    <h3 class="text-center mb-4">Servicios de la reserva #@ViewBag.IdReserva</h3>
+
+    <div class="d-flex justify-content-center gap-3 mb-4">
+        <button id="btnCargarServicios" class="btn btn-primary px-4">Cargar servicios agregados</button>
+        <a asp-action="Index" class="btn btn-secondary px-4">Volver</a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Contenedor de servicios disponibles -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-success text-white text-center fw-bold">
+                    Servicios disponibles
+                </div>
+                <div class="card-body p-3" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-bordered table-hover text-center align-middle" id="tablaDisponibles">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Descripción</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedor de servicios agregados -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white text-center fw-bold">
+                    Servicios agregados a la reserva
+                </div>
+                <div class="card-body p-3" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-bordered table-hover text-center align-middle" id="tablaAgregados">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔹 Modal de confirmación al entrar -->
+<div class="modal fade" id="modalConfirmarServicios" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalLabel">Agregar servicios adicionales</h5>
+            </div>
+            <div class="modal-body text-center">
+                <p>¿Desea agregar servicios adicionales a esta reserva?</p>
+            </div>
+            <div class="modal-footer d-flex justify-content-center">
+                <button type="button" class="btn btn-secondary" id="btnNoAgregar">No, volver</button>
+                <button type="button" class="btn btn-success" id="btnSiAgregar">Sí, continuar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const idReserva = @ViewBag.IdReserva;
+
+        $(document).ready(function () {
+            // Mostrar modal al cargar la página
+            $("#modalConfirmarServicios").modal("show");
+
+            $("#btnNoAgregar").on("click", function () {
+                window.location.href = '@Url.Action("Index", "Reserva")';
+            });
+
+            $("#btnSiAgregar").on("click", function () {
+                $("#modalConfirmarServicios").modal("hide");
+                $("#btnCargarServicios").trigger("click");
+            });
+        });
+
+        // 🔹 Cargar datos iniciales
+        $("#btnCargarServicios").on("click", function () {
+            cargarServiciosDisponibles();
+            cargarServiciosReserva();
+        });
+
+        // 🔹 Cargar servicios disponibles
+        function cargarServiciosDisponibles() {
+            $.get('@Url.Action("GetServiciosDisponibles", "Reserva")', function (response) {
+                if (response.success) {
+                    const tbody = $("#tablaDisponibles tbody");
+                    tbody.empty();
+                    response.data.forEach(s => {
+                        tbody.append(`
+                            <tr>
+                                <td>${s.nombre}</td>
+                                <td>${s.precio?.toFixed(2) ?? "0.00"}</td>
+                                <td>${s.descripcion ?? "Sin descripción"}</td>
+                                <td><button class="btn btn-sm btn-success btnAgregar" data-nombre="${s.nombre}">Agregar</button></td>
+                            </tr>
+                        `);
+                    });
+                }
+            });
+        }
+
+        // 🔹 Cargar servicios agregados
+        function cargarServiciosReserva() {
+            $.get('@Url.Action("GetServiciosPorReserva", "Reserva")', { id: idReserva }, function (response) {
+                if (response.success) {
+                    const tbody = $("#tablaAgregados tbody");
+                    tbody.empty();
+                    response.data.forEach(s => {
+                        tbody.append(`
+                            <tr>
+                                <td>${s.nombre}</td>
+                                <td>${s.precio?.toFixed(2) ?? "0.00"}</td>
+                                <td>${s.descripcion ?? "Sin descripción"}</td>
+                            </tr>
+                        `);
+                    });
+                }
+            });
+        }
+
+        // 🔹 Agregar servicio (corregido)
+        $(document).on("click", ".btnAgregar", function () {
+            const nombre = $(this).data("nombre");
+
+            if (!confirm(`¿Desea agregar el servicio "${nombre}" a la reserva?`)) return;
+
+            $.post('@Url.Action("AgregarServicio", "Reserva")',
+                { idReserva: idReserva, nombreServicio: nombre },
+                function (response) {
+                    if (response.success) {
+                        alert("✅ " + response.message);
+                        cargarServiciosReserva();
+                    } else {
+                        alert("⚠️ " + response.message);
+                    }
+                });
+        });
+    </script>
+}
+
+

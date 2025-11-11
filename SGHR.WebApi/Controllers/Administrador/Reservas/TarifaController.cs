@@ -1,30 +1,30 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Reservas.ServicioAdicional;
+using SGHR.Application.Dtos.Configuration.Reservas.Tarifa;
 using SGHR.Application.Interfaces.Reservas;
 
-namespace SGHR.Web.Controllers.Reservas
+namespace SGHR.Web.Controllers.Administrador.Reservas
 {
-    public class ServicioAdicionalController : Controller
+    public class TarifaController : Controller
     {
-        private readonly IServicioAdicionalServices _servicioAdicionalServices;
+        private readonly ITarifaServices _tarifaServices;
 
-        public ServicioAdicionalController(IServicioAdicionalServices servicioAdicionalServices)
+        public TarifaController(ITarifaServices tarifaServices)
         {
-            _servicioAdicionalServices = servicioAdicionalServices;
+            _tarifaServices = tarifaServices;
         }
 
-        // GET: ServicioAdicionalController
+        // GET: TarifaController
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: ServicioAdicionalController/Details/5
+        // GET: TarifaController/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            ServiceResult result = await _servicioAdicionalServices.GetByIdAsync(id);
+            ServiceResult result = await _tarifaServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 // Puedes redirigir a un error general o mostrar mensaje
@@ -32,47 +32,48 @@ namespace SGHR.Web.Controllers.Reservas
                 return RedirectToAction("Index");
             }
 
-            var reserva = result.Data as ServicioAdicionalDto;
-            return View(reserva); // Vista completa
+            var tarifa = result.Data as TarifaDto;
+            return View(tarifa); // Vista completa
         }
 
-        //GET: Partial para listar servicios adicionales
+        //GET: Partial para listar tarifa
         public async Task<IActionResult> _List(int? id)
         {
             if (id.HasValue && id > 0)
             {
-                var result = await _servicioAdicionalServices.GetByIdAsync(id.Value);
+                var result = await _tarifaServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
                 {
                     
-                    return PartialView("_List", new List<ServicioAdicionalDto>()); // lista vacía si no se encuentra
+                    return PartialView("_List", new List<TarifaDto>()); // lista vacía si no se encuentra
                 }
-                return PartialView("_List", new List<ServicioAdicionalDto> { (ServicioAdicionalDto)result.Data });
+                
+                return PartialView("_List", new List<TarifaDto> { (TarifaDto)result.Data });
             }
             else
             {
-                var result = await _servicioAdicionalServices.GetAllAsync();
+                var result = await _tarifaServices.GetAllAsync();
                 if (!result.Success)
                 {
                     
                     return PartialView("_Error", result.Message);
                 }
-                var listaServicios = result.Data as IEnumerable<ServicioAdicionalDto>;
-                return PartialView("_List", listaServicios);
+                var listaTarifas = result.Data as IEnumerable<TarifaDto>;
+                return PartialView("_List", listaTarifas);
             }
         }
 
-        // GET: ServicioAdicionalController/Create
+        // GET: TarifaController/Create
         public IActionResult Create()
         {
-            var model = new CreateServicioAdicionalDto();
+            var model = new CreateTarifaDto();
             return View(model); // Vista completa
         }
 
-        // POST: ServicioAdicionalController/Create
+        // POST: TarifaController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateServicioAdicionalDto dto)
+        public async Task<IActionResult> Create(CreateTarifaDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -80,7 +81,7 @@ namespace SGHR.Web.Controllers.Reservas
                 return View(dto);
             }
 
-            var result = await _servicioAdicionalServices.CreateAsync(dto);
+            var result = await _tarifaServices.CreateAsync(dto);
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
@@ -88,40 +89,40 @@ namespace SGHR.Web.Controllers.Reservas
                 return View(dto);
             }
 
-            // Redirigir a la lista de habitaciones o al detalle recién creado
+            // Redirigir a la lista de tarifas o al detalle recién creado
             TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
-        // GET: ServicioAdicionalController/Edit/5
+        // GET: TarifaController/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var result = await _servicioAdicionalServices.GetByIdAsync(id);
+            var result = await _tarifaServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
                 return View("_Error");
             }
-            UpdateServicioAdicionalDto servicio = new UpdateServicioAdicionalDto
+            UpdateTarifaDto tarifa = new UpdateTarifaDto
             {
                 Id = result.Data.Id,
-                Nombre = result.Data.Nombre,
-                Descripcion = result.Data.Descripcion,
-                Precio = result.Data.Precio,
-                Estado = result.Data.Estado
+                NombreCategoria = result.Data.NombreCategoria,
+                Fecha_inicio = result.Data.Fecha_inicio,
+                Fecha_fin = result.Data.Fecha_fin,
+                Precio = result.Data.Precio
             };
-            return View(servicio); // Vista completa
+            return View(tarifa); // Vista completa
         }
 
-        // POST: ServicioAdicionalController/Edit/5
+        // POST: TarifaController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdateServicioAdicionalDto dto)
+        public async Task<IActionResult> Edit(UpdateTarifaDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
-            var result = await _servicioAdicionalServices.UpdateAsync(dto);
+            var result = await _tarifaServices.UpdateAsync(dto);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -133,10 +134,10 @@ namespace SGHR.Web.Controllers.Reservas
             return RedirectToAction("Index");
         }
 
-        // GET: ServicioAdicionalController/Delete/5
+        // GET: TarifaController/Delete/5
         public async Task<IActionResult> _Delete(int id)
         {
-            var result = await _servicioAdicionalServices.GetByIdAsync(id);
+            var result = await _tarifaServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -144,20 +145,19 @@ namespace SGHR.Web.Controllers.Reservas
             }
             if (result.Data == null)
             {
-                TempData["Error"] = "Servicio no encontrado.";
+                TempData["Error"] = "Tarifa no encontrada.";
                 return PartialView("_Error");
             }
-
-            return PartialView("_Delete", (ServicioAdicionalDto)result.Data);
+            return PartialView("_Delete", (TarifaDto)result.Data);
 
         }
 
-        // POST: ServicioAdicionalController/Delete/5
+        // POST: TarifaController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> _DeleteConfirmed(int id)
         {
-            var result = await _servicioAdicionalServices.DeleteAsync(id);
+            var result = await _tarifaServices.DeleteAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;

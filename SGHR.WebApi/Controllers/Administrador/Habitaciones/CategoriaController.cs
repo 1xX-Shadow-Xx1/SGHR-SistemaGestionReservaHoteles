@@ -1,83 +1,79 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Habitaciones.Habitacion;
+using SGHR.Application.Dtos.Configuration.Habitaciones.Categoria;
 using SGHR.Application.Interfaces.Habitaciones;
 
-namespace SGHR.Web.Controllers.Habitaciones
+namespace SGHR.Web.Controllers.Administrador.Habitaciones
 {
-    public class HabitacionController : Controller
+    public class CategoriaController : Controller
     {
-        private readonly IHabitacionServices _habitacionServices;
+        private readonly ICategoriaServices _categoriaServices;
 
-        public HabitacionController(IHabitacionServices habitacionServices)
+        public CategoriaController(ICategoriaServices categoriaServices)
         {
-            _habitacionServices = habitacionServices;
+            _categoriaServices = categoriaServices;
         }
 
-        // GET: HabitacionController
+        // GET: CategoriaController
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: HabitacionController/Details/5
+        // GET: CategoriaController/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            ServiceResult result = await _habitacionServices.GetByIdAsync(id);
+            ServiceResult result = await _categoriaServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 // Puedes redirigir a un error general o mostrar mensaje
                 TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
-
-            var habitacion = result.Data as HabitacionDto;
-            return View(habitacion); // Vista completa
+            var categoria = result.Data as CategoriaDto;
+            return View(categoria); // Vista completa
         }
 
-        //GET: Partial para listar Habitaciones
-        public async Task<IActionResult> _List(string? numeroHabitacion)
+        //GET: Partial para listar Categorias
+        public async Task<IActionResult> _List(int? id)
         {
-            // 3️⃣ Filtro por número de habitación
-            if (!string.IsNullOrEmpty(numeroHabitacion))
+            if (id.HasValue && id > 0)
             {
-                var habitacion = await _habitacionServices.GetByNumero(numeroHabitacion);
-                if (!habitacion.Success)
+                var result = await _categoriaServices.GetByIdAsync(id.Value);
+                if (!result.Success || result.Data == null)
                 {
                     
-                    return PartialView("_Error", habitacion.Message);
+                    return PartialView("_List", new List<CategoriaDto>()); // lista vacía si no se encuentra
                 }
                 
-                var list = new List<HabitacionDto> { habitacion.Data };
-                return PartialView("_List", list);
+                return PartialView("_List", new List<CategoriaDto> { (CategoriaDto)result.Data });
             }
-                
             else
             {
-                var result = await _habitacionServices.GetAllAsync();
+                var result = await _categoriaServices.GetAllAsync();
                 if (!result.Success)
                 {
                     
                     return PartialView("_Error", result.Message);
                 }
-                var listaHabitaciones = result.Data as IEnumerable<HabitacionDto>;
-                return PartialView("_List", listaHabitaciones);
+
+                var listaCategorias = result.Data as IEnumerable<CategoriaDto>;
+                return PartialView("_List", listaCategorias);
             }
         }
 
-        // GET: HabitacionController/Create
+        // GET: CategoriaController/Create
         public IActionResult Create()
         {
-            var model = new CreateHabitacionDto();
+            var model = new CreateCategoriaDto();
             return View(model); // Vista completa
         }
 
-        // POST: HabitacionController/Create
+        // POST: CategoriaController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateHabitacionDto dto)
+        public async Task<IActionResult> Create(CreateCategoriaDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -85,7 +81,7 @@ namespace SGHR.Web.Controllers.Habitaciones
                 return View(dto);
             }
 
-            var result = await _habitacionServices.CreateAsync(dto);
+            var result = await _categoriaServices.CreateAsync(dto);
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
@@ -93,42 +89,39 @@ namespace SGHR.Web.Controllers.Habitaciones
                 return View(dto);
             }
 
-            // Redirigir a la lista de habitaciones o al detalle recién creado
+            // Redirigir a la lista de categorias o al detalle recién creado
             TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
-        // GET: HabitacionController/Edit/5
+        // GET: CategoriaController/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var result = await _habitacionServices.GetByIdAsync(id);
+            var result = await _categoriaServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
                 return View("_Error");
             }
-            UpdateHabitacionDto habitacion = new UpdateHabitacionDto
+            UpdateCategoriaDto categoria = new UpdateCategoriaDto
             {
                 Id = result.Data.Id,
-                Numero = result.Data.Numero,
-                NumeroPiso = result.Data.NumeroPiso,
-                Capacidad = result.Data.Capacidad,    
-                CategoriaName = result.Data.CategoriaName,
-                AmenityName = result.Data.AmenityName,
-                Estado = result.Data.Estado
+                Nombre = result.Data.Nombre,
+                Descripcion = result.Data.Descripcion,
+                Precio = result.Data.Precio
             };
-            return View(habitacion); // Vista completa
+            return View(categoria); // Vista completa
         }
 
-        // POST: HabitacionController/Edit/5
+        // POST: CategoriaController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdateHabitacionDto dto)
+        public async Task<IActionResult> Edit(UpdateCategoriaDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
-            var result = await _habitacionServices.UpdateAsync(dto);
+            var result = await _categoriaServices.UpdateAsync(dto);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -140,10 +133,10 @@ namespace SGHR.Web.Controllers.Habitaciones
             return RedirectToAction("Index");
         }
 
-        // GET: HabitacionController/Delete/5
+        // GET: CategoriaController/Delete/5
         public async Task<IActionResult> _Delete(int id)
         {
-            var result = await _habitacionServices.GetByIdAsync(id);
+            var result = await _categoriaServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -151,20 +144,20 @@ namespace SGHR.Web.Controllers.Habitaciones
             }
             if (result.Data == null)
             {
-                TempData["Error"] = "Habitación no encontrada.";
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
             }
-            TempData["Success"] = result.Message;
-            return PartialView("_Delete", (HabitacionDto)result.Data);
+
+            return PartialView("_Delete", (CategoriaDto)result.Data);
 
         }
 
-        // POST: HabitacionController/Delete/5
+        // POST: CategoriaController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> _DeleteConfirmed(int id)
         {
-            var result = await _habitacionServices.DeleteAsync(id);
+            var result = await _categoriaServices.DeleteAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;

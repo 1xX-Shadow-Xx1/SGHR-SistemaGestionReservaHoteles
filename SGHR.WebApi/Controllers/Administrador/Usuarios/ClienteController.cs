@@ -1,58 +1,57 @@
-﻿using Humanizer;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Users.Usuario;
+using SGHR.Application.Dtos.Configuration.Users.Cliente;
 using SGHR.Application.Interfaces.Usuarios;
 
-namespace SGHR.Web.Controllers.Usuarios
+namespace SGHR.Web.Controllers.Administrador.Usuarios
 {
-    public class UsuarioController : Controller
+    public class ClienteController : Controller
     {
-        private readonly IUsuarioServices _usuarioServices;
+        private readonly IClienteServices _clienteServices;
 
-        public UsuarioController(IUsuarioServices usuarioServices)
+        public ClienteController(IClienteServices clienteServices)
         {
-            _usuarioServices = usuarioServices;
+            _clienteServices = clienteServices;
         }
 
-        // Página principal
-        public IActionResult Index()
+
+        // GET: ClienteController1
+        public async Task<IActionResult> Index()
         {
             return View();
         }
 
-        // --- Partial para listar usuarios ---
-        public async Task<IActionResult> _List(int? id)
+        // --- Partial para listar clientes ---
+        public async Task<IActionResult> _List(string? cedula)
         {
-            if (id.HasValue && id > 0)
+            if (!string.IsNullOrEmpty(cedula))
             {
-                var result = await _usuarioServices.GetByIdAsync(id.Value);
+                var result = await _clienteServices.GetByCedulaAsync(cedula);
                 if (!result.Success || result.Data == null)
                 {
                     
-                    return PartialView("_List", new List<UsuarioDto>()); // lista vacía si no se encuentra
+                    return PartialView("_List", new List<ClienteDto>()); // lista vacía si no se encuentra
                 }
                 
-                return PartialView("_List", new List<UsuarioDto> { (UsuarioDto)result.Data });
+                return PartialView("_List", new List<ClienteDto> { (ClienteDto)result.Data });
             }
             else
             {
-                var result = await _usuarioServices.GetAllAsync();
+                var result = await _clienteServices.GetAllAsync();
                 if (!result.Success)
                 {
                     
                     return PartialView("_Error", result.Message);
                 }
-                var listaUsuarios = result.Data as IEnumerable<UsuarioDto>;
-                return PartialView("_List", listaUsuarios);
+                var listaClientes = result.Data as IEnumerable<ClienteDto>;
+                return PartialView("_List", listaClientes);
             }
         }
 
-
-        // --- Vista completa de detalles del usuario ---
+        // GET: ClienteController1/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            ServiceResult result = await _usuarioServices.GetByIdAsync(id);
+            ServiceResult result = await _clienteServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 // Puedes redirigir a un error general o mostrar mensaje
@@ -60,22 +59,21 @@ namespace SGHR.Web.Controllers.Usuarios
                 return RedirectToAction("Index");
             }
 
-            var usuario = result.Data as UsuarioDto;
-            return View(usuario); // Vista completa
+            var cliente = result.Data as ClienteDto;
+            return View(cliente); // Vista completa
         }
 
-
-        // GET: vista completa de creación de usuario
+        // GET: ClienteController1/Create
         public IActionResult Create()
         {
-            var model = new CreateUsuarioDto();
-            return View(model); // Vista completa, no partial
+            var model = new CreateClienteDto();
+            return View(model); // Vista completa
         }
 
-        // POST: creación de usuario
+        // POST: ClienteController1/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateUsuarioDto dto)
+        public async Task<IActionResult> Create(CreateClienteDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -83,7 +81,7 @@ namespace SGHR.Web.Controllers.Usuarios
                 return View(dto);
             }
 
-            var result = await _usuarioServices.CreateAsync(dto);
+            var result = await _clienteServices.CreateAsync(dto);
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
@@ -96,36 +94,37 @@ namespace SGHR.Web.Controllers.Usuarios
             return RedirectToAction("Index");
         }
 
-        // GET: Editar usuario (vista completa)
+        // GET: ClienteController1/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var result = await _usuarioServices.GetByIdAsync(id);
+            var result = await _clienteServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
                 return View("_Error");
-            } 
-            UpdateUsuarioDto usuario = new UpdateUsuarioDto
+            }
+            UpdateClienteDto cliente = new UpdateClienteDto
             {
                 Id = result.Data.Id,
                 Correo = result.Data.Correo,
                 Nombre = result.Data.Nombre,
-                Contraseña = result.Data.Contraseña,
-                Rol = result.Data.Rol,
-                Estado = result.Data.Estado
+                Apellido = result.Data.Apellido,
+                Cedula = result.Data.Cedula,
+                Direccion = result.Data.Direccion,
+                Telefono = result.Data.Telefono
             };
-            return View(usuario); // Vista completa
+            return View(cliente); // Vista completa
         }
 
-        // POST: Guardar cambios
+        // POST: ClienteController1/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdateUsuarioDto dto)
+        public async Task<IActionResult> Edit(UpdateClienteDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
-            var result = await _usuarioServices.UpdateAsync(dto);
+            var result = await _clienteServices.UpdateAsync(dto);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -137,11 +136,10 @@ namespace SGHR.Web.Controllers.Usuarios
             return RedirectToAction("Index");
         }
 
-
-        // --- Partial para eliminar ---
+        // GET: ClienteController1/Delete/5
         public async Task<IActionResult> _Delete(int id)
         {
-            var result = await _usuarioServices.GetByIdAsync(id);
+            var result = await _clienteServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -149,18 +147,19 @@ namespace SGHR.Web.Controllers.Usuarios
             }
             if (result.Data == null)
             {
-                TempData["Error"] = "Usuario no encontrado.";
+                TempData["Error"] = "Cliente no encontrado.";
                 return PartialView("_Error");
             }
-            return PartialView("_Delete", (UsuarioDto)result.Data);
+            return PartialView("_Delete", (ClienteDto)result.Data);
 
         }
 
-        [HttpPost, ActionName("_DeleteConfirmed")]
+        // POST: ClienteController1/Delete/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> _DeleteConfirmed(int id)
         {
-            var result = await _usuarioServices.DeleteAsync(id);
+            var result = await _clienteServices.DeleteAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;

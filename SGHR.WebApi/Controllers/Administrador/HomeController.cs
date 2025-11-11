@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace SGHR.Web.Controllers
+namespace SGHR.Web.Controllers.Administrador
 {
     public class HomeController : Controller
     {

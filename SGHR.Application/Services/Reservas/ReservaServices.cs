@@ -231,6 +231,22 @@ namespace SGHR.Application.Services.Reservas
                     result.Message = OpResult.Message;
                     return result;
                 }
+
+                var habitacion = await _habitacionRepository.GetByIdAsync(reserva.IdHabitacion);
+                if (!habitacion.Success)
+                {
+                    result.Message = habitacion.Message;
+                    return result;
+                }
+
+                habitacion.Data.Estado = EstadoHabitacion.Disponible;
+                var ophabitacion = await _habitacionRepository.UpdateAsync(habitacion.Data);
+                if (!ophabitacion.Success)
+                {
+                    result.Message = ophabitacion.Message;
+                    return result;
+                }
+
                 result.Success = true;
                 result.Message = $"Reserva eliminada exitosamente.";
 
@@ -541,6 +557,13 @@ namespace SGHR.Application.Services.Reservas
                     return result;
                 }
 
+                if (ExistReserva.Data.Servicios.Any(s => s.Nombre == ExistServicio.Data.Nombre))
+                {
+                    result.Message = "El servicio ya está agregado a la reserva.";
+                    return result;
+                }
+
+
                 ExistReserva.Data.Servicios.Add(ExistServicio.Data);
 
                 ExistReserva.Data.CostoTotal += ExistServicio.Data.Precio != null ? ExistServicio.Data.Precio : 0;
@@ -569,6 +592,102 @@ namespace SGHR.Application.Services.Reservas
             catch (Exception ex)
             {
                 result.Message = $"Error al añadir el servicio adicional a la reserva.";
+            }
+            return result;
+        }
+        public async Task<ServiceResult> RemoveServicioAdicional(int id, string nombreServicio)
+        {
+            ServiceResult result = new ServiceResult();
+            try
+            {
+                var ExistServicio = await _servicioAdicionalRepository.GetByNombreAsync(nombreServicio);
+                if (!ExistServicio.Success)
+                {
+                    result.Message = ExistServicio.Message;
+                    return result;
+                }
+                var ExistReserva = await _reservarepository.GetByIdAsync(id);
+                if (!ExistReserva.Success)
+                {
+                    result.Message = ExistReserva.Message;
+                    return result;
+                }
+
+                var servicioEnReserva = ExistReserva.Data.Servicios
+                                        .FirstOrDefault(s => s.Nombre == ExistServicio.Data.Nombre);
+
+                if (servicioEnReserva == null)
+                {
+                    result.Message = "El servicio no está agregado en esta reserva.";
+                    return result;
+                }
+
+                ExistReserva.Data.Servicios.Remove(servicioEnReserva);
+
+
+                ExistReserva.Data.Servicios.Remove(ExistServicio.Data);
+                ExistReserva.Data.CostoTotal = Math.Max(0, ExistReserva.Data.CostoTotal - (ExistServicio.Data.Precio != null ? ExistServicio.Data.Precio : 0));
+
+                var opResult = await _reservarepository.UpdateAsync(ExistReserva.Data);
+                if (!opResult.Success)
+                {
+                    result.Message = opResult.Message;
+                    return result;
+                }
+                ReservaDto reservaDto = new ReservaDto()
+                {
+                    Id = opResult.Data.Id,
+                    FechaInicio = opResult.Data.FechaInicio,
+                    FechaFin = opResult.Data.FechaFin,
+                    CostoTotal = opResult.Data.CostoTotal,
+                    Estado = opResult.Data.Estado
+                };
+                result.Success = true;
+                result.Message = "Servicio removido correctamente.";
+                result.Data = reservaDto;
+            }
+            catch (Exception ex)
+            {
+                result.Message = $"Error al remover el servicio adicional a la reserva.";
+            }
+            return result;
+        }
+        public async Task<ServiceResult> GetServiciosByReservaId(int id)
+        {
+            ServiceResult result = new ServiceResult();
+            if (id <= 0)
+            {
+                result.Message = "El id es invalido.";
+                return result;
+            }
+            try
+            {
+                var reserva = await _reservarepository.GetByIdAsync(id);
+                if (!reserva.Success)
+                {
+                    result.Message = reserva.Message;
+                    return result;
+                }
+
+                var servicios = reserva.Data.Servicios ?? new List<ServicioAdicional>();
+
+
+                var servicioDtos = servicios.Select(s => new ServicioAdicionalDto
+                {
+                    Id = s.Id,
+                    Nombre = s.Nombre,
+                    Descripcion = s.Descripcion,
+                    Precio = s.Precio,
+                    Estado = s.Estado
+                }).ToList();
+
+                result.Success = true;
+                result.Data = servicioDtos;
+                result.Message = "Se obtuvieron los servicios adicionales correctamente.";
+            }
+            catch (Exception ex)
+            {
+                result.Message = $"Error al obtener los servicios adicionales de la reserva: {ex.Message}";
             }
             return result;
         }

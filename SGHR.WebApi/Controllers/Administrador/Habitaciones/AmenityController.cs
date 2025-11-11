@@ -1,80 +1,78 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Operaciones.Mantenimiento;
-using SGHR.Application.Interfaces.Operaciones;
+using SGHR.Application.Dtos.Configuration.Habitaciones.Amenity;
+using SGHR.Application.Interfaces.Habitaciones;
 
-namespace SGHR.Web.Controllers.Operaciones
+namespace SGHR.Web.Controllers.Administrador.Habitaciones
 {
-    public class MantenimientoController : Controller
+    public class AmenityController : Controller
     {
-        private readonly IMantenimientoServices _mantenimientoServices;
+        private readonly IAmenityServices _amenityServices;
 
-        public MantenimientoController(IMantenimientoServices mantenimientoServices)
+        public AmenityController(IAmenityServices amenityServices)
         {
-            _mantenimientoServices = mantenimientoServices;
+            _amenityServices = amenityServices;
         }
 
-        // GET: MantenimientoController
+        // GET: AmenityController
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: MantenimientoController/Details/5
+        // GET: AmenityController/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            ServiceResult result = await _mantenimientoServices.GetByIdAsync(id);
+            ServiceResult result = await _amenityServices.GetByIdAsync(id);
             if (!result.Success)
             {
-                // Puedes redirigir a un error general o mostrar mensaje
                 TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
 
-            var mantenimiento = result.Data as MantenimientoDto;
-            return View(mantenimiento); // Vista completa
+            var amenity = result.Data as AmenityDto;
+            return View(amenity); // Vista completa
         }
 
-        //GET: Partial para listar reservas
+        //GET: Partial para listar amenities
         public async Task<IActionResult> _List(int? id)
         {
             if (id.HasValue && id > 0)
             {
-                var result = await _mantenimientoServices.GetByIdAsync(id.Value);
+                var result = await _amenityServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
                 {
-                   
-                    return PartialView("_List", new List<MantenimientoDto>()); // lista vacía si no se encuentra
+                    
+                    return PartialView("_List", new List<AmenityDto>()); // lista vacía si no se encuentra
                 }
                 
-                return PartialView("_List", new List<MantenimientoDto> { (MantenimientoDto)result.Data });
+                return PartialView("_List", new List<AmenityDto> { (AmenityDto)result.Data });
             }
             else
             {
-                var result = await _mantenimientoServices.GetAllAsync();
+                var result = await _amenityServices.GetAllAsync();
                 if (!result.Success)
                 {
                     
                     return PartialView("_Error", result.Message);
-                }         
-
-                var listaMantenimientos = result.Data as IEnumerable<MantenimientoDto>;
-                return PartialView("_List", listaMantenimientos);
+                }
+                var listaAmenities = result.Data as IEnumerable<AmenityDto>;
+                return PartialView("_List", listaAmenities);
             }
         }
 
-        // GET: MantenimientoController/Create
+        // GET: AmenityController/Create
         public IActionResult Create()
         {
-            var model = new CreateMantenimientoDto();
+            var model = new CreateAmenityDto();
             return View(model); // Vista completa
         }
 
-        // POST: MantenimientoController/Create
+        // POST: AmenityController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateMantenimientoDto dto)
+        public async Task<IActionResult> Create(CreateAmenityDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -82,53 +80,48 @@ namespace SGHR.Web.Controllers.Operaciones
                 return View(dto);
             }
 
-            var result = await _mantenimientoServices.CreateAsync(dto);
+            var result = await _amenityServices.CreateAsync(dto);
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
                 TempData["Error"] = result.Message;
                 return View(dto);
-  
             }
 
-            // Redirigir a la lista de mantenimiento o al detalle recién creado
+            // Redirigir a la lista de amenities o al detalle recién creado
             TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
-        // GET: MantenimientoController/Edit/5
+        // GET: AmenityController/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var result = await _mantenimientoServices.GetByIdAsync(id);
+            var result = await _amenityServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
                 return View("_Error");
             }
-                  // o mostrar una página de error
-            UpdateMantenimientoDto mantenimiento = new UpdateMantenimientoDto
+            UpdateAmenityDto amenity = new UpdateAmenityDto
             {
                 Id = result.Data.Id,
+                Nombre = result.Data.Nombre,
                 Descripcion = result.Data.Descripcion,
-                FechaInicio = result.Data.FechaInicio,
-                FechaFin = result.Data.FechaFin,
-                Estado = result.Data.Estado,
-                NumeroHabitacion = result.Data.NumeroHabitacion,
-                NumeroPiso = result.Data.NumeroPiso,
-                RealizadoPor = result.Data.RealizadoPor
+                Precio = result.Data.Precio,
+                PorCapacidad = result.Data.PorCapacidad
             };
-            return View(mantenimiento); // Vista completa
+            return View(amenity); // Vista completa
         }
 
-        // POST: MantenimientoController/Edit/5
+        // POST: AmenityController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdateMantenimientoDto dto)
+        public async Task<IActionResult> Edit(UpdateAmenityDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
-            var result = await _mantenimientoServices.UpdateAsync(dto);
+            var result = await _amenityServices.UpdateAsync(dto);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -140,10 +133,10 @@ namespace SGHR.Web.Controllers.Operaciones
             return RedirectToAction("Index");
         }
 
-        // GET: MantenimientoController/Delete/5
+        // GET: AmenityController/Delete/5
         public async Task<IActionResult> _Delete(int id)
         {
-            var result = await _mantenimientoServices.GetByIdAsync(id);
+            var result = await _amenityServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -153,20 +146,20 @@ namespace SGHR.Web.Controllers.Operaciones
 
             if (result.Data == null)
             {
-                TempData["Error"] = "No se encontró el mantenimiento.";
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
-            }               
+            }
 
-            return PartialView("_Delete", (MantenimientoDto)result.Data);
+            return PartialView("_Delete", (AmenityDto)result.Data);
 
         }
 
-        // POST: MantenimientoController/Delete/5
+        // POST: AmenityController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> _DeleteConfirmed(int id)
         {
-            var result = await _mantenimientoServices.DeleteAsync(id);
+            var result = await _amenityServices.DeleteAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;

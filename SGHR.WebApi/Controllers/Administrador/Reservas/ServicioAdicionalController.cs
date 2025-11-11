@@ -1,30 +1,30 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Habitaciones.Piso;
-using SGHR.Application.Interfaces.Habitaciones;
+using SGHR.Application.Dtos.Configuration.Reservas.ServicioAdicional;
+using SGHR.Application.Interfaces.Reservas;
 
-namespace SGHR.Web.Controllers.Habitaciones
+namespace SGHR.Web.Controllers.Administrador.Reservas
 {
-    public class PisoController : Controller
+    public class ServicioAdicionalController : Controller
     {
-        private readonly IPisoServices _pisoServices;
+        private readonly IServicioAdicionalServices _servicioAdicionalServices;
 
-        public PisoController(IPisoServices pisoServices)
+        public ServicioAdicionalController(IServicioAdicionalServices servicioAdicionalServices)
         {
-            _pisoServices = pisoServices;
+            _servicioAdicionalServices = servicioAdicionalServices;
         }
 
-        // GET: PisoController
+        // GET: ServicioAdicionalController
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: PisoController/Details/5
+        // GET: ServicioAdicionalController/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            ServiceResult result = await _pisoServices.GetByIdAsync(id);
+            ServiceResult result = await _servicioAdicionalServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 // Puedes redirigir a un error general o mostrar mensaje
@@ -32,48 +32,47 @@ namespace SGHR.Web.Controllers.Habitaciones
                 return RedirectToAction("Index");
             }
 
-            var piso = result.Data as PisoDto;
-            return View(piso); // Vista completa
+            var reserva = result.Data as ServicioAdicionalDto;
+            return View(reserva); // Vista completa
         }
 
-        //GET: Partial para listar pisos
+        //GET: Partial para listar servicios adicionales
         public async Task<IActionResult> _List(int? id)
         {
             if (id.HasValue && id > 0)
             {
-                var result = await _pisoServices.GetByIdAsync(id.Value);
+                var result = await _servicioAdicionalServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
                 {
                     
-                    return PartialView("_List", new List<PisoDto>()); // lista vacía si no se encuentra
+                    return PartialView("_List", new List<ServicioAdicionalDto>()); // lista vacía si no se encuentra
                 }
-                
-                return PartialView("_List", new List<PisoDto> { (PisoDto)result.Data });
+                return PartialView("_List", new List<ServicioAdicionalDto> { (ServicioAdicionalDto)result.Data });
             }
             else
             {
-                var result = await _pisoServices.GetAllAsync();
+                var result = await _servicioAdicionalServices.GetAllAsync();
                 if (!result.Success)
                 {
                     
                     return PartialView("_Error", result.Message);
                 }
-                var listaPisos = result.Data as IEnumerable<PisoDto>;
-                return PartialView("_List", listaPisos);
+                var listaServicios = result.Data as IEnumerable<ServicioAdicionalDto>;
+                return PartialView("_List", listaServicios);
             }
         }
 
-        // GET: PisoController/Create
+        // GET: ServicioAdicionalController/Create
         public IActionResult Create()
         {
-            var model = new CreatePisoDto();
+            var model = new CreateServicioAdicionalDto();
             return View(model); // Vista completa
         }
 
-        // POST: PisoController/Create
+        // POST: ServicioAdicionalController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreatePisoDto dto)
+        public async Task<IActionResult> Create(CreateServicioAdicionalDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -81,7 +80,7 @@ namespace SGHR.Web.Controllers.Habitaciones
                 return View(dto);
             }
 
-            var result = await _pisoServices.CreateAsync(dto);
+            var result = await _servicioAdicionalServices.CreateAsync(dto);
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
@@ -89,39 +88,40 @@ namespace SGHR.Web.Controllers.Habitaciones
                 return View(dto);
             }
 
-            // Redirigir a la lista de pisos o al detalle recién creado
+            // Redirigir a la lista de habitaciones o al detalle recién creado
             TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
-        // GET: PisoController/Edit/5
+        // GET: ServicioAdicionalController/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var result = await _pisoServices.GetByIdAsync(id);
+            var result = await _servicioAdicionalServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
                 return View("_Error");
             }
-            UpdatePisoDto piso = new UpdatePisoDto
+            UpdateServicioAdicionalDto servicio = new UpdateServicioAdicionalDto
             {
                 Id = result.Data.Id,
-                NumeroPiso = result.Data.NumeroPiso,
+                Nombre = result.Data.Nombre,
                 Descripcion = result.Data.Descripcion,
+                Precio = result.Data.Precio,
                 Estado = result.Data.Estado
             };
-            return View(piso); // Vista completa
+            return View(servicio); // Vista completa
         }
 
-        // POST: PisoController/Edit/5
+        // POST: ServicioAdicionalController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdatePisoDto dto)
+        public async Task<IActionResult> Edit(UpdateServicioAdicionalDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
-            var result = await _pisoServices.UpdateAsync(dto);
+            var result = await _servicioAdicionalServices.UpdateAsync(dto);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -133,10 +133,10 @@ namespace SGHR.Web.Controllers.Habitaciones
             return RedirectToAction("Index");
         }
 
-        // GET: PisoController/Delete/5
+        // GET: ServicioAdicionalController/Delete/5
         public async Task<IActionResult> _Delete(int id)
         {
-            var result = await _pisoServices.GetByIdAsync(id);
+            var result = await _servicioAdicionalServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -144,19 +144,20 @@ namespace SGHR.Web.Controllers.Habitaciones
             }
             if (result.Data == null)
             {
-                TempData["Error"] = result.Message;
+                TempData["Error"] = "Servicio no encontrado.";
                 return PartialView("_Error");
             }
-            return PartialView("_Delete", (PisoDto)result.Data);
+
+            return PartialView("_Delete", (ServicioAdicionalDto)result.Data);
 
         }
 
-        // POST: PisoController/Delete/5
+        // POST: ServicioAdicionalController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> _DeleteConfirmed(int id)
         {
-            var result = await _pisoServices.DeleteAsync(id);
+            var result = await _servicioAdicionalServices.DeleteAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;

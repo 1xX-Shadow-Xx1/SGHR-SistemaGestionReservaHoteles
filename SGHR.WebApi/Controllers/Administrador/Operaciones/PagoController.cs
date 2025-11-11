@@ -4,7 +4,7 @@ using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Operaciones.Pago;
 using SGHR.Application.Interfaces.Operaciones;
 
-namespace SGHR.Web.Controllers.Operaciones
+namespace SGHR.Web.Controllers.Administrador.Operaciones
 {
     public class PagoController : Controller
     {

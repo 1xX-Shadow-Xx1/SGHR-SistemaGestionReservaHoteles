@@ -1,78 +1,79 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Habitaciones.Amenity;
+using SGHR.Application.Dtos.Configuration.Habitaciones.Piso;
 using SGHR.Application.Interfaces.Habitaciones;
 
-namespace SGHR.Web.Controllers.Habitaciones
+namespace SGHR.Web.Controllers.Administrador.Habitaciones
 {
-    public class AmenityController : Controller
+    public class PisoController : Controller
     {
-        private readonly IAmenityServices _amenityServices;
+        private readonly IPisoServices _pisoServices;
 
-        public AmenityController(IAmenityServices amenityServices)
+        public PisoController(IPisoServices pisoServices)
         {
-            _amenityServices = amenityServices;
+            _pisoServices = pisoServices;
         }
 
-        // GET: AmenityController
+        // GET: PisoController
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: AmenityController/Details/5
+        // GET: PisoController/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            ServiceResult result = await _amenityServices.GetByIdAsync(id);
+            ServiceResult result = await _pisoServices.GetByIdAsync(id);
             if (!result.Success)
             {
+                // Puedes redirigir a un error general o mostrar mensaje
                 TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
 
-            var amenity = result.Data as AmenityDto;
-            return View(amenity); // Vista completa
+            var piso = result.Data as PisoDto;
+            return View(piso); // Vista completa
         }
 
-        //GET: Partial para listar amenities
+        //GET: Partial para listar pisos
         public async Task<IActionResult> _List(int? id)
         {
             if (id.HasValue && id > 0)
             {
-                var result = await _amenityServices.GetByIdAsync(id.Value);
+                var result = await _pisoServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
                 {
                     
-                    return PartialView("_List", new List<AmenityDto>()); // lista vacía si no se encuentra
+                    return PartialView("_List", new List<PisoDto>()); // lista vacía si no se encuentra
                 }
                 
-                return PartialView("_List", new List<AmenityDto> { (AmenityDto)result.Data });
+                return PartialView("_List", new List<PisoDto> { (PisoDto)result.Data });
             }
             else
             {
-                var result = await _amenityServices.GetAllAsync();
+                var result = await _pisoServices.GetAllAsync();
                 if (!result.Success)
                 {
                     
                     return PartialView("_Error", result.Message);
                 }
-                var listaAmenities = result.Data as IEnumerable<AmenityDto>;
-                return PartialView("_List", listaAmenities);
+                var listaPisos = result.Data as IEnumerable<PisoDto>;
+                return PartialView("_List", listaPisos);
             }
         }
 
-        // GET: AmenityController/Create
+        // GET: PisoController/Create
         public IActionResult Create()
         {
-            var model = new CreateAmenityDto();
+            var model = new CreatePisoDto();
             return View(model); // Vista completa
         }
 
-        // POST: AmenityController/Create
+        // POST: PisoController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateAmenityDto dto)
+        public async Task<IActionResult> Create(CreatePisoDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -80,7 +81,7 @@ namespace SGHR.Web.Controllers.Habitaciones
                 return View(dto);
             }
 
-            var result = await _amenityServices.CreateAsync(dto);
+            var result = await _pisoServices.CreateAsync(dto);
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
@@ -88,40 +89,39 @@ namespace SGHR.Web.Controllers.Habitaciones
                 return View(dto);
             }
 
-            // Redirigir a la lista de amenities o al detalle recién creado
+            // Redirigir a la lista de pisos o al detalle recién creado
             TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
-        // GET: AmenityController/Edit/5
+        // GET: PisoController/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var result = await _amenityServices.GetByIdAsync(id);
+            var result = await _pisoServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
                 return View("_Error");
             }
-            UpdateAmenityDto amenity = new UpdateAmenityDto
+            UpdatePisoDto piso = new UpdatePisoDto
             {
                 Id = result.Data.Id,
-                Nombre = result.Data.Nombre,
+                NumeroPiso = result.Data.NumeroPiso,
                 Descripcion = result.Data.Descripcion,
-                Precio = result.Data.Precio,
-                PorCapacidad = result.Data.PorCapacidad
+                Estado = result.Data.Estado
             };
-            return View(amenity); // Vista completa
+            return View(piso); // Vista completa
         }
 
-        // POST: AmenityController/Edit/5
+        // POST: PisoController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdateAmenityDto dto)
+        public async Task<IActionResult> Edit(UpdatePisoDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
-            var result = await _amenityServices.UpdateAsync(dto);
+            var result = await _pisoServices.UpdateAsync(dto);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -133,40 +133,37 @@ namespace SGHR.Web.Controllers.Habitaciones
             return RedirectToAction("Index");
         }
 
-        // GET: AmenityController/Delete/5
+        // GET: PisoController/Delete/5
         public async Task<IActionResult> _Delete(int id)
         {
-            var result = await _amenityServices.GetByIdAsync(id);
+            var result = await _pisoServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
                 return PartialView("_Error");
             }
-                
-
             if (result.Data == null)
             {
                 TempData["Error"] = result.Message;
                 return PartialView("_Error");
             }
-
-            return PartialView("_Delete", (AmenityDto)result.Data);
+            return PartialView("_Delete", (PisoDto)result.Data);
 
         }
 
-        // POST: AmenityController/Delete/5
+        // POST: PisoController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> _DeleteConfirmed(int id)
         {
-            var result = await _amenityServices.DeleteAsync(id);
+            var result = await _pisoServices.DeleteAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
-                return Json(new { success = false, data = result.Data, message = result.Message });
+                return Json(new { success = false, message = result.Message, data = result.Data });
             }
             TempData["Success"] = result.Message;
-            return Json(new { success = true, data = result.Data, message = result.Message });
+            return Json(new { success = true, message = result.Message, data = result.Data });
         }
     }
 }

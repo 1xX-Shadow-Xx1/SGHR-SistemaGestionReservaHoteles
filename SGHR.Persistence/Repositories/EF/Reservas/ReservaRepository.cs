@@ -70,6 +70,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
         {
             try
             {
+                entity.Estado = EstadoReserva.Cancelada;
                 var result = await base.DeleteAsync(entity);
                 _logger.LogInformation("Reserva del cliente {ClienteId} eliminada exitosamente", entity.IdCliente);
                 return result;
@@ -78,6 +79,28 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             {
                 _logger.LogError(ex, "Error eliminando la reserva del cliente {ClienteId}", entity.IdCliente);
                 return OperationResult<Reserva>.Fail("Error eliminando la reserva");
+            }
+        }
+        public override async Task<OperationResult<Reserva>> GetByIdAsync(int id, bool includeDeleted = false)
+        {
+            try
+            {
+                var result = await _context.Reservas
+                    .Include(r => r.Servicios)
+                    .FirstOrDefaultAsync(r => r.Id == id && 
+                    r.IsDeleted == includeDeleted);
+                if(result == null)
+                {
+                    _logger.LogInformation("Reserva con id {id} obtenida correctamente.", id);
+                    return OperationResult<Reserva>.Fail("Reserva no encontrada.");
+                }
+                _logger.LogInformation("Reserva con id {id} obtenida correctamente.", id);
+                return OperationResult<Reserva>.Ok(result,"Reserva encontrada correctamente."); ;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error pbteniendo la reserva con Id {id}", id);
+                return OperationResult<Reserva>.Fail("Error al tratar de obtener la reserva.");
             }
         }
         public async Task<OperationResult<List<Reserva>>> GetActiveReservationsAsync()

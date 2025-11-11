@@ -3,16 +3,20 @@ using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Reservas.Reserva;
 using SGHR.Application.Interfaces.Reservas;
+using SGHR.Persistence.Interfaces.Reservas;
 
-namespace SGHR.Web.Controllers.Reservas
+namespace SGHR.Web.Controllers.Administrador.Reservas
 {
     public class ReservaController : Controller
     {
         private readonly IReservaServices _reservaServices;
+        private readonly IServicioAdicionalServices _servicioAdicionalServices;
 
-        public ReservaController(IReservaServices reservaServices)
+        public ReservaController(IReservaServices reservaServices,
+                                 IServicioAdicionalServices servicioAdicionalServices)
         {
             _reservaServices = reservaServices;
+            _servicioAdicionalServices = servicioAdicionalServices;
         }
 
         // GET: ReservaController
@@ -90,7 +94,7 @@ namespace SGHR.Web.Controllers.Reservas
 
             // Redirigir a la lista de habitaciones o al detalle recién creado
             TempData["Success"] = result.Message;
-            return RedirectToAction("Index");
+            return RedirectToAction("Servicios", new { id = result.Data.Id });
         }
 
         // GET: ReservaController/Edit/5
@@ -168,5 +172,73 @@ namespace SGHR.Web.Controllers.Reservas
             TempData["Success"] = result.Message;
             return Json(new { success = true, message = result.Message, data = result.Data });
         }
+
+        // GET: ReservaController/ViewServicios/5
+        [HttpGet]
+        public IActionResult Servicios(int id)
+        {
+            ViewBag.IdReserva = id;
+            return View("Servicios");
+        }
+
+        // GET: ReservaController/ServiciosPorReservas/5
+        [HttpGet]
+        public async Task<IActionResult> GetServiciosPorReserva(int id)
+        {
+            var result = await _reservaServices.GetServiciosByReservaId(id);
+            if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
+                return Json(new { success = false, message = result.Message });
+            }
+            TempData["Success"] = result.Message;
+            return Json(new { success = true, data = result.Data });
+        }
+        // GET: ReservaController/ServiciosDisponibles/5
+        [HttpGet]
+        public async Task<IActionResult> GetServiciosDisponibles()
+        {
+            var result = await _servicioAdicionalServices.GetAllAsync();
+
+            if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
+                return Json(new { success = false, message = result.Message });
+            }
+            TempData["Success"] = result.Message;
+            return Json(new { success = true, data = result.Data });
+        }
+
+        // POST: ReservaController/AgregarServicio/5
+        [HttpPost]
+        public async Task<IActionResult> AgregarServicio(int idReserva, string nombreServicio)
+        {
+            var result = await _reservaServices.AddServicioAdicional(idReserva, nombreServicio);
+
+            if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
+                return Json(new { success = false, message = result.Message });
+            }
+            TempData["Success"] = result.Message;
+            return Json(new { success = true, message = result.Message });
+        }
+
+        // POST: ReservaController/RemoverServicio/5
+        [HttpPost]
+        public async Task<IActionResult> RemoverServicio(int idReserva, string nombreServicio)
+        {
+            var result = await _reservaServices.RemoveServicioAdicional(idReserva, nombreServicio);
+
+            if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
+                return Json(new { success = false, message = result.Message });
+            }
+            TempData["Success"] = result.Message;
+            return Json(new { success = true, message = result.Message });
+        }
+
+
     }
 }

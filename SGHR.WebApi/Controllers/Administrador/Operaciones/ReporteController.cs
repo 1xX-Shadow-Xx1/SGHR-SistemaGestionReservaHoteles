@@ -1,79 +1,78 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Reservas.Tarifa;
-using SGHR.Application.Interfaces.Reservas;
+using SGHR.Application.Dtos.Configuration.Operaciones.Reporte;
+using SGHR.Application.Interfaces.Operaciones;
 
-namespace SGHR.Web.Controllers.Reservas
+namespace SGHR.Web.Controllers.Administrador.Operaciones
 {
-    public class TarifaController : Controller
+    public class ReporteController : Controller
     {
-        private readonly ITarifaServices _tarifaServices;
+        private readonly IReporteServices _reporteServices;
 
-        public TarifaController(ITarifaServices tarifaServices)
+        public ReporteController(IReporteServices reporteServices)
         {
-            _tarifaServices = tarifaServices;
+            _reporteServices = reporteServices;
         }
 
-        // GET: TarifaController
+        // GET: ReporteController
         public ActionResult Index()
         {
             return View();
         }
 
-        // GET: TarifaController/Details/5
+        // GET: ReporteController/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            ServiceResult result = await _tarifaServices.GetByIdAsync(id);
+            ServiceResult result = await _reporteServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 // Puedes redirigir a un error general o mostrar mensaje
                 TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
-
-            var tarifa = result.Data as TarifaDto;
-            return View(tarifa); // Vista completa
+            var reserva = result.Data as ReporteDto;
+            return View(reserva); // Vista completa
         }
 
-        //GET: Partial para listar tarifa
+        //GET: Partial para listar reportes
         public async Task<IActionResult> _List(int? id)
         {
             if (id.HasValue && id > 0)
             {
-                var result = await _tarifaServices.GetByIdAsync(id.Value);
+                var result = await _reporteServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
                 {
                     
-                    return PartialView("_List", new List<TarifaDto>()); // lista vacía si no se encuentra
+                    return PartialView("_List", new List<ReporteDto>()); // lista vacía si no se encuentra
                 }
                 
-                return PartialView("_List", new List<TarifaDto> { (TarifaDto)result.Data });
+                return PartialView("_List", new List<ReporteDto> { (ReporteDto)result.Data });
             }
             else
             {
-                var result = await _tarifaServices.GetAllAsync();
+                var result = await _reporteServices.GetAllAsync();
                 if (!result.Success)
                 {
                     
                     return PartialView("_Error", result.Message);
                 }
-                var listaTarifas = result.Data as IEnumerable<TarifaDto>;
-                return PartialView("_List", listaTarifas);
+                var listaReportes = result.Data as IEnumerable<ReporteDto>;
+                return PartialView("_List", listaReportes);
             }
         }
 
-        // GET: TarifaController/Create
+        // GET: ReporteController/Create
         public IActionResult Create()
         {
-            var model = new CreateTarifaDto();
+            var model = new CreateReporteDto();
             return View(model); // Vista completa
         }
 
-        // POST: TarifaController/Create
+        // POST: ReporteController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateTarifaDto dto)
+        public async Task<IActionResult> Create(CreateReporteDto dto)
         {
             if (!ModelState.IsValid)
             {
@@ -81,7 +80,7 @@ namespace SGHR.Web.Controllers.Reservas
                 return View(dto);
             }
 
-            var result = await _tarifaServices.CreateAsync(dto);
+            var result = await _reporteServices.CreateAsync(dto);
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
@@ -89,40 +88,39 @@ namespace SGHR.Web.Controllers.Reservas
                 return View(dto);
             }
 
-            // Redirigir a la lista de tarifas o al detalle recién creado
+            // Redirigir a la lista de reportes o al detalle recién creado
             TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
-        // GET: TarifaController/Edit/5
+        // GET: ReporteController/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var result = await _tarifaServices.GetByIdAsync(id);
+            var result = await _reporteServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
                 return View("_Error");
             }
-            UpdateTarifaDto tarifa = new UpdateTarifaDto
+            UpdateReporteDto reporte = new UpdateReporteDto
             {
                 Id = result.Data.Id,
-                NombreCategoria = result.Data.NombreCategoria,
-                Fecha_inicio = result.Data.Fecha_inicio,
-                Fecha_fin = result.Data.Fecha_fin,
-                Precio = result.Data.Precio
+                GeneradoPor = result.Data.GeneradoPor,
+                RutaArchivo = result.Data.RutaArchivo,
+                TipoReporte = result.Data.TipoReporte
             };
-            return View(tarifa); // Vista completa
+            return View(reporte); // Vista completa
         }
 
-        // POST: TarifaController/Edit/5
+        // POST: ReporteController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdateTarifaDto dto)
+        public async Task<IActionResult> Edit(UpdateReporteDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
-            var result = await _tarifaServices.UpdateAsync(dto);
+            var result = await _reporteServices.UpdateAsync(dto);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -134,10 +132,10 @@ namespace SGHR.Web.Controllers.Reservas
             return RedirectToAction("Index");
         }
 
-        // GET: TarifaController/Delete/5
+        // GET: ReporteController/Delete/5
         public async Task<IActionResult> _Delete(int id)
         {
-            var result = await _tarifaServices.GetByIdAsync(id);
+            var result = await _reporteServices.GetByIdAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
@@ -145,26 +143,28 @@ namespace SGHR.Web.Controllers.Reservas
             }
             if (result.Data == null)
             {
-                TempData["Error"] = "Tarifa no encontrada.";
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
             }
-            return PartialView("_Delete", (TarifaDto)result.Data);
+                
+
+            return PartialView("_Delete", (ReporteDto)result.Data);
 
         }
 
-        // POST: TarifaController/Delete/5
+        // POST: ReporteController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> _DeleteConfirmed(int id)
         {
-            var result = await _tarifaServices.DeleteAsync(id);
+            var result = await _reporteServices.DeleteAsync(id);
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
-                return Json(new { success = false, message = result.Message, data = result.Data });
+                return Json(new { success = false, data = result.Data, message = result.Message });
             }
             TempData["Success"] = result.Message;
-            return Json(new { success = true, message = result.Message, data = result.Data });
+            return Json(new { success = true, data = result.Data, message = result.Message });
         }
     }
 }
