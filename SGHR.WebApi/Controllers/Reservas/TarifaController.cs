@@ -28,6 +28,7 @@ namespace SGHR.Web.Controllers.Reservas
             if (!result.Success)
             {
                 // Puedes redirigir a un error general o mostrar mensaje
+                TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
 
@@ -42,16 +43,21 @@ namespace SGHR.Web.Controllers.Reservas
             {
                 var result = await _tarifaServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
+                {
+                    
                     return PartialView("_List", new List<TarifaDto>()); // lista vacía si no se encuentra
-
+                }
+                
                 return PartialView("_List", new List<TarifaDto> { (TarifaDto)result.Data });
             }
             else
             {
                 var result = await _tarifaServices.GetAllAsync();
                 if (!result.Success)
+                {
+                    
                     return PartialView("_Error", result.Message);
-
+                }
                 var listaTarifas = result.Data as IEnumerable<TarifaDto>;
                 return PartialView("_List", listaTarifas);
             }
@@ -79,11 +85,12 @@ namespace SGHR.Web.Controllers.Reservas
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista de tarifas o al detalle recién creado
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -92,7 +99,10 @@ namespace SGHR.Web.Controllers.Reservas
         {
             var result = await _tarifaServices.GetByIdAsync(id);
             if (!result.Success)
-                return View("_Error");  // o mostrar una página de error
+            {
+                TempData["Error"] = result.Message;
+                return View("_Error");
+            }
             UpdateTarifaDto tarifa = new UpdateTarifaDto
             {
                 Id = result.Data.Id,
@@ -115,11 +125,12 @@ namespace SGHR.Web.Controllers.Reservas
             var result = await _tarifaServices.UpdateAsync(dto);
             if (!result.Success)
             {
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista después de guardar
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -128,11 +139,15 @@ namespace SGHR.Web.Controllers.Reservas
         {
             var result = await _tarifaServices.GetByIdAsync(id);
             if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
-
+            }
             if (result.Data == null)
+            {
+                TempData["Error"] = "Tarifa no encontrada.";
                 return PartialView("_Error");
-
+            }
             return PartialView("_Delete", (TarifaDto)result.Data);
 
         }
@@ -145,9 +160,11 @@ namespace SGHR.Web.Controllers.Reservas
             var result = await _tarifaServices.DeleteAsync(id);
             if (!result.Success)
             {
-                return Json(result);
+                TempData["Error"] = result.Message;
+                return Json(new { success = false, message = result.Message, data = result.Data });
             }
-            return Json(result);
+            TempData["Success"] = result.Message;
+            return Json(new { success = true, message = result.Message, data = result.Data });
         }
     }
 }

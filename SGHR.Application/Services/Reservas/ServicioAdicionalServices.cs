@@ -66,7 +66,7 @@ namespace SGHR.Application.Services.Reservas
                     Nombre = opResult.Data.Nombre,
                     Descripcion = opResult.Data.Descripcion,
                     Precio = opResult.Data.Precio,
-                    Estado = opResult.Data.Estado.ToString()
+                    Estado = opResult.Data.Estado
                 };
 
                 result.Success = true;
@@ -134,7 +134,7 @@ namespace SGHR.Application.Services.Reservas
                     Nombre = u.Nombre,
                     Descripcion = u.Descripcion,
                     Precio = u.Precio,
-                    Estado = u.Estado.ToString()
+                    Estado = u.Estado
                 }).ToList();
 
                 result.Success = true;
@@ -171,7 +171,7 @@ namespace SGHR.Application.Services.Reservas
                     Nombre = opResult.Data.Nombre,
                     Descripcion = opResult.Data.Descripcion,
                     Precio = opResult.Data.Precio,
-                    Estado = opResult.Data.Estado.ToString()
+                    Estado = opResult.Data.Estado
                 };
 
                 result.Success = true;
@@ -219,10 +219,8 @@ namespace SGHR.Application.Services.Reservas
                 ExistServicioAdicional.Data.Nombre = UpdateDto.Nombre;
                 ExistServicioAdicional.Data.Descripcion = UpdateDto.Descripcion;
                 ExistServicioAdicional.Data.Precio = UpdateDto.Precio;
-                if (Enum.TryParse<EstadoServicioAdicional>(UpdateDto.Estado, out var estado))
-                {
-                    ExistServicioAdicional.Data.Estado = estado;
-                }
+                ExistServicioAdicional.Data.Estado = UpdateDto.Estado;
+                
 
                 var OpResult = await _servicioAdicionalRepository.UpdateAsync(ExistServicioAdicional.Data);
                 if (!OpResult.Success)
@@ -237,7 +235,7 @@ namespace SGHR.Application.Services.Reservas
                     Nombre = OpResult.Data.Nombre,
                     Descripcion = OpResult.Data.Descripcion,
                     Precio = OpResult.Data.Precio,
-                    Estado = OpResult.Data.Estado.ToString()
+                    Estado = OpResult.Data.Estado
                 };
 
                 result.Success = true;

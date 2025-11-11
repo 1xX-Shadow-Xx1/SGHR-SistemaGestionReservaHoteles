@@ -1,7 +1,23 @@
-﻿
+﻿@model SGHR.Application.Dtos.Configuration.Operaciones.Reporte.ReporteDto
+
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles del Reporte";
 }
 
-<h1>Details</h1>
-
+<div class="container mt-5">
+    <div class="card shadow-sm mx-auto" style="max-width:600px;">
+        <div class="card-header bg-primary text-white">
+            <h4>Detalles del Reporte</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>ID:</strong> @Model.Id</p>
+            <p><strong>Tipo de reporte:</strong> @Model.TipoReporte</p>
+            <p><strong>Usuario que lo genero:</strong> @Model.GeneradoPor</p>
+            <p><strong>Ruta del archivo:</strong> @Model.RutaArchivo</p>
+            <p><strong>Fecha de generacion:</strong> @Model.FechaGeneracion</p>
+        </div>
+        <div class="card-footer text-center">
+            <a href="@Url.Action("Index", "Reporte")" class="btn btn-secondary">Volver a la Lista</a>
+        </div>
+    </div>
+</div>

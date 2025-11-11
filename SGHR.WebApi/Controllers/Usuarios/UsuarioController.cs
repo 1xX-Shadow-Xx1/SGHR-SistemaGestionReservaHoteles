@@ -28,16 +28,21 @@ namespace SGHR.Web.Controllers.Usuarios
             {
                 var result = await _usuarioServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
+                {
+                    
                     return PartialView("_List", new List<UsuarioDto>()); // lista vacía si no se encuentra
-
+                }
+                
                 return PartialView("_List", new List<UsuarioDto> { (UsuarioDto)result.Data });
             }
             else
             {
                 var result = await _usuarioServices.GetAllAsync();
                 if (!result.Success)
+                {
+                    
                     return PartialView("_Error", result.Message);
-
+                }
                 var listaUsuarios = result.Data as IEnumerable<UsuarioDto>;
                 return PartialView("_List", listaUsuarios);
             }
@@ -51,6 +56,7 @@ namespace SGHR.Web.Controllers.Usuarios
             if (!result.Success)
             {
                 // Puedes redirigir a un error general o mostrar mensaje
+                TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
 
@@ -81,11 +87,12 @@ namespace SGHR.Web.Controllers.Usuarios
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista de usuarios o al detalle recién creado
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -94,7 +101,10 @@ namespace SGHR.Web.Controllers.Usuarios
         {
             var result = await _usuarioServices.GetByIdAsync(id);
             if (!result.Success)
-                return View("_Error");  // o mostrar una página de error
+            {
+                TempData["Error"] = result.Message;
+                return View("_Error");
+            } 
             UpdateUsuarioDto usuario = new UpdateUsuarioDto
             {
                 Id = result.Data.Id,
@@ -118,11 +128,12 @@ namespace SGHR.Web.Controllers.Usuarios
             var result = await _usuarioServices.UpdateAsync(dto);
             if (!result.Success)
             {
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista después de guardar
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -132,11 +143,15 @@ namespace SGHR.Web.Controllers.Usuarios
         {
             var result = await _usuarioServices.GetByIdAsync(id);
             if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
-
+            }
             if (result.Data == null)
+            {
+                TempData["Error"] = "Usuario no encontrado.";
                 return PartialView("_Error");
-
+            }
             return PartialView("_Delete", (UsuarioDto)result.Data);
 
         }
@@ -148,9 +163,11 @@ namespace SGHR.Web.Controllers.Usuarios
             var result = await _usuarioServices.DeleteAsync(id);
             if (!result.Success)
             {
-                return Json(result);
+                TempData["Error"] = result.Message;
+                return Json(new { success = false, message = result.Message, data = result.Data });
             }
-            return Json(result);
+            TempData["Success"] = result.Message;
+            return Json(new { success = true, message = result.Message, data = result.Data });
         }
     }
 }

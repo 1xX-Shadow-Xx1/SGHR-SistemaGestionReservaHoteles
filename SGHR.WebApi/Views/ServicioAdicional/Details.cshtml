@@ -1,0 +1,23 @@
+﻿@model SGHR.Application.Dtos.Configuration.Reservas.ServicioAdicional.ServicioAdicionalDto
+
+@{
+    ViewData["Title"] = "Detalles del Servicio";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm mx-auto" style="max-width:600px;">
+        <div class="card-header bg-primary text-white">
+            <h4>Detalles del Servicio</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>ID:</strong> @Model.Id</p>
+            <p><strong>Nombre:</strong> @Model.Nombre</p>
+            <p><strong>Precio:</strong> @Model.Precio</p>
+            <p><strong>Estado:</strong> @Model.Estado</p>
+            <p><strong class="text-body">Descripcion:</strong> @Model.Descripcion</p>
+        </div>
+        <div class="card-footer text-center">
+            <a href="@Url.Action("Index", "ServicioAdicional")" class="btn btn-secondary">Volver a la Lista</a>
+        </div>
+    </div>
+</div>

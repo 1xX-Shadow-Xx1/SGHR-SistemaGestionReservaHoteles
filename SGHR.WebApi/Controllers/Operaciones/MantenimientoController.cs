@@ -33,7 +33,6 @@ namespace SGHR.Web.Controllers.Operaciones
             }
 
             var mantenimiento = result.Data as MantenimientoDto;
-            TempData["Success"] = result.Message;
             return View(mantenimiento); // Vista completa
         }
 
@@ -45,10 +44,10 @@ namespace SGHR.Web.Controllers.Operaciones
                 var result = await _mantenimientoServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
                 {
-                    TempData["Error"] = result.Message;
+                   
                     return PartialView("_List", new List<MantenimientoDto>()); // lista vacía si no se encuentra
                 }
-                TempData["Success"] = result.Message;
+                
                 return PartialView("_List", new List<MantenimientoDto> { (MantenimientoDto)result.Data });
             }
             else
@@ -56,7 +55,7 @@ namespace SGHR.Web.Controllers.Operaciones
                 var result = await _mantenimientoServices.GetAllAsync();
                 if (!result.Success)
                 {
-                    TempData["Error"] = result.Message;
+                    
                     return PartialView("_Error", result.Message);
                 }         
 

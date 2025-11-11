@@ -28,6 +28,7 @@ namespace SGHR.Web.Controllers.Habitaciones
             if (!result.Success)
             {
                 // Puedes redirigir a un error general o mostrar mensaje
+                TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
 
@@ -42,16 +43,21 @@ namespace SGHR.Web.Controllers.Habitaciones
             {
                 var result = await _pisoServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
+                {
+                    
                     return PartialView("_List", new List<PisoDto>()); // lista vacía si no se encuentra
-
+                }
+                
                 return PartialView("_List", new List<PisoDto> { (PisoDto)result.Data });
             }
             else
             {
                 var result = await _pisoServices.GetAllAsync();
                 if (!result.Success)
+                {
+                    
                     return PartialView("_Error", result.Message);
-
+                }
                 var listaPisos = result.Data as IEnumerable<PisoDto>;
                 return PartialView("_List", listaPisos);
             }
@@ -79,11 +85,12 @@ namespace SGHR.Web.Controllers.Habitaciones
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista de pisos o al detalle recién creado
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -92,7 +99,10 @@ namespace SGHR.Web.Controllers.Habitaciones
         {
             var result = await _pisoServices.GetByIdAsync(id);
             if (!result.Success)
-                return View("_Error");  // o mostrar una página de error
+            {
+                TempData["Error"] = result.Message;
+                return View("_Error");
+            }
             UpdatePisoDto piso = new UpdatePisoDto
             {
                 Id = result.Data.Id,
@@ -114,11 +124,12 @@ namespace SGHR.Web.Controllers.Habitaciones
             var result = await _pisoServices.UpdateAsync(dto);
             if (!result.Success)
             {
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista después de guardar
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -127,11 +138,15 @@ namespace SGHR.Web.Controllers.Habitaciones
         {
             var result = await _pisoServices.GetByIdAsync(id);
             if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
-
+            }
             if (result.Data == null)
+            {
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
-
+            }
             return PartialView("_Delete", (PisoDto)result.Data);
 
         }
@@ -144,9 +159,11 @@ namespace SGHR.Web.Controllers.Habitaciones
             var result = await _pisoServices.DeleteAsync(id);
             if (!result.Success)
             {
-                return Json(result);
+                TempData["Error"] = result.Message;
+                return Json(new { success = false, message = result.Message, data = result.Data });
             }
-            return Json(result);
+            TempData["Success"] = result.Message;
+            return Json(new { success = true, message = result.Message, data = result.Data });
         }
     }
 }

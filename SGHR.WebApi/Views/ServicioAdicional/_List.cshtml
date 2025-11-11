@@ -1,4 +1,4 @@
-﻿@model IEnumerable<SGHR.Application.Dtos.Configuration.Operaciones.Reporte.ReporteDto>
+﻿@model IEnumerable<SGHR.Application.Dtos.Configuration.Reservas.ServicioAdicional.ServicioAdicionalDto>
 
 <style>
     /* Columna de acciones compacta */
@@ -22,28 +22,28 @@
     <thead class="table-dark">
         <tr>
             <th>ID</th>
-            <th>Tipo de Reporte</th>
-            <th>Generado por</th>
-            <th>Fecha de generacion</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Estado</th>
             <th class="acciones text-center">Acciones</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var reporte in Model)
+        @foreach (var servicio in Model)
         {
-            <tr data-id="@reporte.Id" class="fila-reporte">
-                <td>@reporte.Id</td>
-                <td>@reporte.TipoReporte</td>
-                <td>@reporte.GeneradoPor</td>
-                <td>@reporte.FechaGeneracion</td>
+            <tr data-id="@servicio.Id" class="fila-servicio">
+                <td>@servicio.Id</td>
+                <td>@servicio.Nombre</td>
+                <td>@servicio.Precio</td>
+                <td>@servicio.Estado</td>
                 <td class="acciones text-center">
                     <a class="btn btn-sm btn-primary btn-editar btn-accion"
                        asp-action="Edit"
-                       asp-controller="Reporte"
-                       asp-route-id="@reporte.Id">
+                       asp-controller="ServicioAdicional"
+                       asp-route-id="@servicio.Id">
                         Editar
                     </a>
-                    <button class="btn btn-sm btn-danger btn-eliminar btn-accion" data-id="@reporte.Id">
+                    <button class="btn btn-sm btn-danger btn-eliminar btn-accion" data-id="@servicio.Id">
                         Eliminar
                     </button>
                 </td>
@@ -51,4 +51,3 @@
         }
     </tbody>
 </table>
-

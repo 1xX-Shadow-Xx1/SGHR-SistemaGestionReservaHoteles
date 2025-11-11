@@ -31,7 +31,6 @@ namespace SGHR.Web.Controllers.Operaciones
                 TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
-            TempData["Success"] = result.Message;
             var reserva = result.Data as ReporteDto;
             return View(reserva); // Vista completa
         }
@@ -44,10 +43,10 @@ namespace SGHR.Web.Controllers.Operaciones
                 var result = await _reporteServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
                 {
-                    TempData["Error"] = result.Message;
+                    
                     return PartialView("_List", new List<ReporteDto>()); // lista vacía si no se encuentra
                 }
-                TempData["Success"] = result.Message;
+                
                 return PartialView("_List", new List<ReporteDto> { (ReporteDto)result.Data });
             }
             else
@@ -55,7 +54,7 @@ namespace SGHR.Web.Controllers.Operaciones
                 var result = await _reporteServices.GetAllAsync();
                 if (!result.Success)
                 {
-                    TempData["Error"] = result.Message;
+                    
                     return PartialView("_Error", result.Message);
                 }
                 var listaReportes = result.Data as IEnumerable<ReporteDto>;

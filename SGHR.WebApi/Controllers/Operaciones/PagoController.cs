@@ -42,8 +42,11 @@ namespace SGHR.Web.Controllers.Operaciones
             {
                 var result = await _pagoServices.GetPagoByCliente(id.Value);
                 if (!result.Success || result.Data == null)
+                {
+                    
                     return PartialView("_List", new List<PagoDto>());
-
+                }
+                
                 var listaPagosCliente = result.Data as IEnumerable<PagoDto>;
                 return PartialView("_List", listaPagosCliente);
             }
@@ -51,8 +54,10 @@ namespace SGHR.Web.Controllers.Operaciones
             {
                 var result = await _pagoServices.ObtenerPagosAsync();
                 if (!result.Success)
+                {
+                    
                     return PartialView("_Error", result.Message);
-
+                }
                 var listaPagos = result.Data as IEnumerable<PagoDto>;
                 return PartialView("_List", listaPagos);
             }
@@ -80,11 +85,12 @@ namespace SGHR.Web.Controllers.Operaciones
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista de pagos o al detalle recién creado
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -93,11 +99,15 @@ namespace SGHR.Web.Controllers.Operaciones
         {
             var result = await _pagoServices.GetPagoByIdAsync(id);
             if (!result.Success)
+            {
+                TempData["Success"] = result.Message;
                 return PartialView("_Error");
-
+            }
             if (result.Data == null)
+            {
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
-
+            }
             return PartialView("_AnularPago", (PagoDto)result.Data);
         }
 
@@ -109,12 +119,14 @@ namespace SGHR.Web.Controllers.Operaciones
             var result = await _pagoServices.AnularPagoAsync(id);
             if (!result.Success)
             {
+                TempData["Error"] = result.Message;
                 return Json(new
                 {
                     success = result.Success,
                     message = result.Message
                 });
             }
+            TempData["Success"] = result.Message;
             return Json(new
             {
                 success = result.Success,
@@ -129,6 +141,7 @@ namespace SGHR.Web.Controllers.Operaciones
             ServiceResult result = await _pagoServices.ObtenerResumenPagosAsync();
             if (!result.Success)
             {
+                TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
 

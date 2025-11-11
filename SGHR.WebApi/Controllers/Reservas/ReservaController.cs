@@ -28,6 +28,7 @@ namespace SGHR.Web.Controllers.Reservas
             if (!result.Success)
             {
                 // Puedes redirigir a un error general o mostrar mensaje
+                TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
 
@@ -42,16 +43,20 @@ namespace SGHR.Web.Controllers.Reservas
             {
                 var result = await _reservaServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
+                {
+                    
                     return PartialView("_List", new List<ReservaDto>()); // lista vacía si no se encuentra
-
+                }
                 return PartialView("_List", new List<ReservaDto> { (ReservaDto)result.Data });
             }
             else
             {
                 var result = await _reservaServices.GetAllAsync();
                 if (!result.Success)
+                {
+                    
                     return PartialView("_Error", result.Message);
-
+                }
                 var listaReservas = result.Data as IEnumerable<ReservaDto>;
                 return PartialView("_List", listaReservas);
             }
@@ -79,11 +84,12 @@ namespace SGHR.Web.Controllers.Reservas
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista de habitaciones o al detalle recién creado
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -92,7 +98,10 @@ namespace SGHR.Web.Controllers.Reservas
         {
             var result = await _reservaServices.GetByIdAsync(id);
             if (!result.Success)
-                return View("_Error");  // o mostrar una página de error
+            {
+                TempData["Error"] = result.Message;
+                return View("_Error");
+            }
             UpdateReservaDto habitacion = new UpdateReservaDto
             {
                 Id = result.Data.Id,
@@ -117,11 +126,12 @@ namespace SGHR.Web.Controllers.Reservas
             var result = await _reservaServices.UpdateAsync(dto);
             if (!result.Success)
             {
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista después de guardar
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -130,10 +140,15 @@ namespace SGHR.Web.Controllers.Reservas
         {
             var result = await _reservaServices.GetByIdAsync(id);
             if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
-
+            }
             if (result.Data == null)
+            {
+                TempData["Error"] = "Reserva no encontrada.";
                 return PartialView("_Error");
+            }
 
             return PartialView("_Delete", (ReservaDto)result.Data);
 
@@ -147,9 +162,11 @@ namespace SGHR.Web.Controllers.Reservas
             var result = await _reservaServices.DeleteAsync(id);
             if (!result.Success)
             {
-                return Json(result);
+                TempData["Error"] = result.Message;
+                return Json(new { success = false, message = result.Message, data = result.Data });
             }
-            return Json(result);
+            TempData["Success"] = result.Message;
+            return Json(new { success = true, message = result.Message, data = result.Data });
         }
     }
 }

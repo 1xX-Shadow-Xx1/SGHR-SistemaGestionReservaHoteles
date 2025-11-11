@@ -31,7 +31,6 @@ namespace SGHR.Web.Controllers.Habitaciones
                 TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
-            TempData["Success"] = result.Message;
             var categoria = result.Data as CategoriaDto;
             return View(categoria); // Vista completa
         }
@@ -44,10 +43,10 @@ namespace SGHR.Web.Controllers.Habitaciones
                 var result = await _categoriaServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
                 {
-                    TempData["Error"] = result.Message;
+                    
                     return PartialView("_List", new List<CategoriaDto>()); // lista vacía si no se encuentra
                 }
-                TempData["Success"] = result.Message;
+                
                 return PartialView("_List", new List<CategoriaDto> { (CategoriaDto)result.Data });
             }
             else
@@ -55,7 +54,7 @@ namespace SGHR.Web.Controllers.Habitaciones
                 var result = await _categoriaServices.GetAllAsync();
                 if (!result.Success)
                 {
-                    TempData["Error"] = result.Message;
+                    
                     return PartialView("_Error", result.Message);
                 }
 
