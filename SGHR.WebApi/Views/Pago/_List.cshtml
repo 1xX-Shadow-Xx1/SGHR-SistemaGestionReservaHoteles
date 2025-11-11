@@ -40,9 +40,9 @@
                 <td>@pago.MetodoPago</td>
                 <td>@pago.Monto.ToString("C")</td>
                 <td class="text-center">
-                    @if (pago.Estado.ToString() == "Anulado")
+                    @if (pago.Estado == "Rechazado")
                     {
-                        <span class="badge bg-danger text-center">Anulado</span>
+                        <span class="badge bg-danger text-center">Rechazado</span>
                     }
                     else
                     {

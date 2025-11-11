@@ -103,7 +103,7 @@ namespace SGHR.Application.Services.Operaciones
                 {
                     IdHabitacion = ExistHabitacion.Id,
                     RealizadoPor = ExisUser.Data.Id,
-                    IdPiso = ExistPiso.Data.NumeroPiso,
+                    IdPiso = ExistPiso.Data.Id,
                     Descripcion = CreateDto.Descripcion,
                     FechaInicio = CreateDto.FechaInicio == null ? CreateDto.FechaInicio : DateTime.Now
                 };
@@ -130,7 +130,7 @@ namespace SGHR.Application.Services.Operaciones
                     NumeroHabitacion = ExistHabitacion.Numero,
                     NumeroPiso = CreateDto.NumeroPiso,
                     Descripcion = CreateDto.Descripcion,
-                    Estado = opResult.Data.Estado.ToString(),
+                    Estado = opResult.Data.Estado,
                     FechaInicio = opResult.Data.FechaInicio,
                     FechaFin = opResult.Data.FechaFin
                 };
@@ -232,7 +232,7 @@ namespace SGHR.Application.Services.Operaciones
                         NumeroPiso = p.NumeroPiso,
                         Descripcion = m.Descripcion,
                         RealizadoPor = u.Correo,
-                        Estado = m.Estado.ToString(),
+                        Estado = m.Estado,
                         FechaInicio = m.FechaInicio,
                         FechaFin = m.FechaFin
                     }
@@ -294,7 +294,7 @@ namespace SGHR.Application.Services.Operaciones
                     NumeroPiso = ExistPiso.Data.NumeroPiso,
                     Descripcion = ExistMantenimiento.Data.Descripcion,
                     RealizadoPor = ExistUsuarios.Data.Correo,
-                    Estado = ExistMantenimiento.Data.Estado.ToString(),
+                    Estado = ExistMantenimiento.Data.Estado,
                     FechaInicio = ExistMantenimiento.Data.FechaInicio,
                     FechaFin = ExistMantenimiento.Data.FechaFin
                 };
@@ -365,10 +365,8 @@ namespace SGHR.Application.Services.Operaciones
                 mantenimiento.Data.Descripcion = UpdateDto.Descripcion;
                 mantenimiento.Data.FechaInicio = UpdateDto.FechaInicio;
                 mantenimiento.Data.FechaFin = UpdateDto.FechaFin;                
-                if ( Enum.TryParse<EstadoMantenimiento> (UpdateDto.Estado, out var estado))
-                {
-                    mantenimiento.Data.Estado = estado;
-                }
+                mantenimiento.Data.Estado = UpdateDto.Estado;
+                
 
                 var opResult = await _mantenimientoRepo.UpdateAsync(mantenimiento.Data);
                 if (!opResult.Success)
@@ -384,7 +382,7 @@ namespace SGHR.Application.Services.Operaciones
                     NumeroPiso = ExistPiso.Data.NumeroPiso,
                     Descripcion = mantenimiento.Data.Descripcion,
                     RealizadoPor = ExistUsuarios.Data.Correo,
-                    Estado = mantenimiento.Data.Estado.ToString(),
+                    Estado = mantenimiento.Data.Estado,
                     FechaInicio = mantenimiento.Data.FechaInicio,
                     FechaFin = mantenimiento.Data.FechaFin
                 };

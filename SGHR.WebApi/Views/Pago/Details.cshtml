@@ -12,9 +12,9 @@
         <div class="card-body">
             <p><strong>ID:</strong> @Model.Id</p>
             <p><strong>reserva:</strong> @Model.IdReserva</p>
-            <p><strong>Fecha:</strong> @Model.FechaPago</p>
+            <p><strong>Fecha:</strong> @Model.FechaPago.ToString("dd/MM/yyyy")</p>
             <p><strong>Metodo:</strong> @Model.MetodoPago</p>
-            <p><strong>Monto:</strong> @Model.Monto</p>
+            <p><strong>Monto:</strong> @Model.Monto.ToString("C")</p>
             <p><strong>Estado:</strong> @Model.Estado</p>
         </div>
         <div class="card-footer text-center">

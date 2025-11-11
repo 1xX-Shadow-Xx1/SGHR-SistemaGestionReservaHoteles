@@ -1,10 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SGHR.Application.Base;
+using SGHR.Application.Dtos.Configuration.Operaciones.Reporte;
+using SGHR.Application.Interfaces.Operaciones;
 
 namespace SGHR.Web.Controllers.Operaciones
 {
     public class ReporteController : Controller
     {
+        private readonly IReporteServices _reporteServices;
+
+        public ReporteController(IReporteServices reporteServices)
+        {
+            _reporteServices = reporteServices;
+        }
+
         // GET: ReporteController
         public ActionResult Index()
         {
@@ -12,72 +22,131 @@ namespace SGHR.Web.Controllers.Operaciones
         }
 
         // GET: ReporteController/Details/5
-        public ActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            return View();
+            ServiceResult result = await _reporteServices.GetByIdAsync(id);
+            if (!result.Success)
+            {
+                // Puedes redirigir a un error general o mostrar mensaje
+                return RedirectToAction("Index");
+            }
+
+            var reserva = result.Data as ReporteDto;
+            return View(reserva); // Vista completa
+        }
+
+        //GET: Partial para listar reportes
+        public async Task<IActionResult> _List(int? id)
+        {
+            if (id.HasValue && id > 0)
+            {
+                var result = await _reporteServices.GetByIdAsync(id.Value);
+                if (!result.Success || result.Data == null)
+                    return PartialView("_List", new List<ReporteDto>()); // lista vacía si no se encuentra
+
+                return PartialView("_List", new List<ReporteDto> { (ReporteDto)result.Data });
+            }
+            else
+            {
+                var result = await _reporteServices.GetAllAsync();
+                if (!result.Success)
+                    return PartialView("_Error", result.Message);
+
+                var listaReportes = result.Data as IEnumerable<ReporteDto>;
+                return PartialView("_List", listaReportes);
+            }
         }
 
         // GET: ReporteController/Create
-        public ActionResult Create()
+        public IActionResult Create()
         {
-            return View();
+            var model = new CreateReporteDto();
+            return View(model); // Vista completa
         }
 
         // POST: ReporteController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create(CreateReporteDto dto)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                // Si hay errores de validación, devolver la misma vista con mensajes
+                return View(dto);
             }
-            catch
+
+            var result = await _reporteServices.CreateAsync(dto);
+            if (!result.Success)
             {
-                return View();
+                // Si hay error en el servicio, mostrarlo en la vista
+                ModelState.AddModelError(string.Empty, result.Message);
+                return View(dto);
             }
+
+            // Redirigir a la lista de reportes o al detalle recién creado
+            return RedirectToAction("Index");
         }
 
         // GET: ReporteController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            return View();
+            var result = await _reporteServices.GetByIdAsync(id);
+            if (!result.Success)
+                return View("_Error");  // o mostrar una página de error
+            UpdateReporteDto reporte = new UpdateReporteDto
+            {
+                Id = result.Data.Id,
+                GeneradoPor = result.Data.GeneradoPor,
+                RutaArchivo = result.Data.RutaArchivo,
+                TipoReporte = result.Data.TipoReporte
+            };
+            return View(reporte); // Vista completa
         }
 
         // POST: ReporteController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(UpdateReporteDto dto)
         {
-            try
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var result = await _reporteServices.UpdateAsync(dto);
+            if (!result.Success)
             {
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError(string.Empty, result.Message);
+                return View(dto);
             }
-            catch
-            {
-                return View();
-            }
+
+            // Redirigir a la lista después de guardar
+            return RedirectToAction("Index");
         }
 
         // GET: ReporteController/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<IActionResult> _Delete(int id)
         {
-            return View();
+            var result = await _reporteServices.GetByIdAsync(id);
+            if (!result.Success)
+                return PartialView("_Error");
+
+            if (result.Data == null)
+                return PartialView("_Error");
+
+            return PartialView("_Delete", (ReporteDto)result.Data);
+
         }
 
         // POST: ReporteController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> _DeleteConfirmed(int id)
         {
-            try
+            var result = await _reporteServices.DeleteAsync(id);
+            if (!result.Success)
             {
-                return RedirectToAction(nameof(Index));
+                return Json(result);
             }
-            catch
-            {
-                return View();
-            }
+            return Json(result);
         }
     }
 }

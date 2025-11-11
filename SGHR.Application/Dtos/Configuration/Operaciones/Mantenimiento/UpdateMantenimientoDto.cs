@@ -1,4 +1,6 @@
 ﻿
+using SGHR.Domain.Enum.Operaciones;
+
 namespace SGHR.Application.Dtos.Configuration.Operaciones.Mantenimiento
 {
     public record UpdateMantenimientoDto
@@ -10,6 +12,6 @@ namespace SGHR.Application.Dtos.Configuration.Operaciones.Mantenimiento
         public DateTime FechaInicio { get; set; }
         public DateTime? FechaFin { get; set; }
         public string RealizadoPor { get; set; }
-        public string Estado { get; set; }
+        public EstadoMantenimiento Estado { get; set; }
     }
 }

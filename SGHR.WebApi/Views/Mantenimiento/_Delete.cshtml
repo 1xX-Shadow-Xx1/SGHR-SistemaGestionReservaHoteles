@@ -1,0 +1,42 @@
+﻿@model SGHR.Application.Dtos.Configuration.Operaciones.Mantenimiento.MantenimientoDto
+
+<div class="container mt-3">
+    <h4>¿Estás seguro de que deseas eliminar este mantenimiento?</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">ID</dt>
+        <dd class="col-sm-10">@Model.Id</dd>
+
+        <dt class="col-sm-2">Habitacion</dt>
+        <dd class="col-sm-10">@Model.NumeroHabitacion</dd>
+
+        <dt class="col-sm-2">Piso</dt>
+        <dd class="col-sm-10">@Model.NumeroPiso</dd>
+
+        <dt class="col-sm-2">Realizado Por</dt>
+        <dd class="col-sm-10">@Model.RealizadoPor</dd>
+
+        <dt class="col-sm-2">Fecha Inicio</dt>
+        <dd class="col-sm-10">@Model.FechaInicio</dd>
+
+        <dt class="col-sm-2">Fecha fin</dt>
+        <dd class="col-sm-10">@Model.FechaFin</dd>
+
+        <dt class="col-sm-2">Descripcion</dt>
+        <dd class="col-sm-10">@Model.Descripcion</dd>
+
+        <dt class="col-sm-2">Estado</dt>
+        <dd class="col-sm-10">@Model.Estado</dd>
+    </dl>
+
+    <form id="formDelete" method="post" class="d-flex gap-2">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+
+        <!-- Botón Eliminar: rojo -->
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+
+        <!-- Botón Cancelar: gris -->
+        <button type="button" class="btn btn-secondary btn-btnCancelDelete">Cancelar</button>
+    </form>
+</div>

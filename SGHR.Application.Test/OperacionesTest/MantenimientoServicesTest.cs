@@ -207,7 +207,7 @@ namespace SGHR.Application.Test.OperacionesTest
                 NumeroPiso = 1,
                 RealizadoPor = "admin@mail.com",
                 Descripcion = "Cambio de bombillos",
-                Estado = EstadoMantenimiento.Completado.ToString(),
+                Estado = EstadoMantenimiento.Completado,
                 FechaInicio = DateTime.Now.AddDays(-1),
                 FechaFin = DateTime.Now
             };
