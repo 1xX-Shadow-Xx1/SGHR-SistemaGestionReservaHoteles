@@ -28,9 +28,10 @@ namespace SGHR.Web.Controllers.Operaciones
             if (!result.Success)
             {
                 // Puedes redirigir a un error general o mostrar mensaje
+                TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
-
+            TempData["Success"] = result.Message;
             var reserva = result.Data as ReporteDto;
             return View(reserva); // Vista completa
         }
@@ -42,16 +43,21 @@ namespace SGHR.Web.Controllers.Operaciones
             {
                 var result = await _reporteServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
+                {
+                    TempData["Error"] = result.Message;
                     return PartialView("_List", new List<ReporteDto>()); // lista vacía si no se encuentra
-
+                }
+                TempData["Success"] = result.Message;
                 return PartialView("_List", new List<ReporteDto> { (ReporteDto)result.Data });
             }
             else
             {
                 var result = await _reporteServices.GetAllAsync();
                 if (!result.Success)
+                {
+                    TempData["Error"] = result.Message;
                     return PartialView("_Error", result.Message);
-
+                }
                 var listaReportes = result.Data as IEnumerable<ReporteDto>;
                 return PartialView("_List", listaReportes);
             }
@@ -79,11 +85,12 @@ namespace SGHR.Web.Controllers.Operaciones
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista de reportes o al detalle recién creado
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -92,7 +99,10 @@ namespace SGHR.Web.Controllers.Operaciones
         {
             var result = await _reporteServices.GetByIdAsync(id);
             if (!result.Success)
-                return View("_Error");  // o mostrar una página de error
+            {
+                TempData["Error"] = result.Message;
+                return View("_Error");
+            }
             UpdateReporteDto reporte = new UpdateReporteDto
             {
                 Id = result.Data.Id,
@@ -114,11 +124,12 @@ namespace SGHR.Web.Controllers.Operaciones
             var result = await _reporteServices.UpdateAsync(dto);
             if (!result.Success)
             {
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista después de guardar
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -127,10 +138,16 @@ namespace SGHR.Web.Controllers.Operaciones
         {
             var result = await _reporteServices.GetByIdAsync(id);
             if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
-
+            }
             if (result.Data == null)
+            {
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
+            }
+                
 
             return PartialView("_Delete", (ReporteDto)result.Data);
 
@@ -144,9 +161,11 @@ namespace SGHR.Web.Controllers.Operaciones
             var result = await _reporteServices.DeleteAsync(id);
             if (!result.Success)
             {
-                return Json(result);
+                TempData["Error"] = result.Message;
+                return Json(new { success = false, data = result.Data, message = result.Message });
             }
-            return Json(result);
+            TempData["Success"] = result.Message;
+            return Json(new { success = true, data = result.Data, message = result.Message });
         }
     }
 }

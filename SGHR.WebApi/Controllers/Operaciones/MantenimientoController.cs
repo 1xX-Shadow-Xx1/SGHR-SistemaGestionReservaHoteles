@@ -171,10 +171,10 @@ namespace SGHR.Web.Controllers.Operaciones
             if (!result.Success)
             {
                 TempData["Error"] = result.Message;
-                return Json(result);
+                return Json(new { success = false, data = result.Data, message = result.Message });
             }
             TempData["Success"] = result.Message;
-            return Json(result);
+            return Json(new { success = true, data = result.Data, message = result.Message });
         }
     }
 }

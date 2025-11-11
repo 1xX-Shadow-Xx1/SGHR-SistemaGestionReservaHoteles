@@ -28,9 +28,10 @@ namespace SGHR.Web.Controllers.Habitaciones
             if (!result.Success)
             {
                 // Puedes redirigir a un error general o mostrar mensaje
+                TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
-
+            TempData["Success"] = result.Message;
             var categoria = result.Data as CategoriaDto;
             return View(categoria); // Vista completa
         }
@@ -42,15 +43,21 @@ namespace SGHR.Web.Controllers.Habitaciones
             {
                 var result = await _categoriaServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
+                {
+                    TempData["Error"] = result.Message;
                     return PartialView("_List", new List<CategoriaDto>()); // lista vacía si no se encuentra
-
+                }
+                TempData["Success"] = result.Message;
                 return PartialView("_List", new List<CategoriaDto> { (CategoriaDto)result.Data });
             }
             else
             {
                 var result = await _categoriaServices.GetAllAsync();
                 if (!result.Success)
+                {
+                    TempData["Error"] = result.Message;
                     return PartialView("_Error", result.Message);
+                }
 
                 var listaCategorias = result.Data as IEnumerable<CategoriaDto>;
                 return PartialView("_List", listaCategorias);
@@ -79,11 +86,12 @@ namespace SGHR.Web.Controllers.Habitaciones
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista de categorias o al detalle recién creado
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -92,7 +100,10 @@ namespace SGHR.Web.Controllers.Habitaciones
         {
             var result = await _categoriaServices.GetByIdAsync(id);
             if (!result.Success)
-                return View("_Error");  // o mostrar una página de error
+            {
+                TempData["Error"] = result.Message;
+                return View("_Error");
+            }
             UpdateCategoriaDto categoria = new UpdateCategoriaDto
             {
                 Id = result.Data.Id,
@@ -114,11 +125,12 @@ namespace SGHR.Web.Controllers.Habitaciones
             var result = await _categoriaServices.UpdateAsync(dto);
             if (!result.Success)
             {
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista después de guardar
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -127,10 +139,15 @@ namespace SGHR.Web.Controllers.Habitaciones
         {
             var result = await _categoriaServices.GetByIdAsync(id);
             if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
-
+            }
             if (result.Data == null)
+            {
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
+            }
 
             return PartialView("_Delete", (CategoriaDto)result.Data);
 
@@ -144,9 +161,11 @@ namespace SGHR.Web.Controllers.Habitaciones
             var result = await _categoriaServices.DeleteAsync(id);
             if (!result.Success)
             {
-                return Json(result);
+                TempData["Error"] = result.Message;
+                return Json(new { success = false, data = result.Data, message = result.Message });
             }
-            return Json(result);
+            TempData["Success"] = result.Message;
+            return Json(new { success = true, data = result.Data, message = result.Message });
         }
     }
 }

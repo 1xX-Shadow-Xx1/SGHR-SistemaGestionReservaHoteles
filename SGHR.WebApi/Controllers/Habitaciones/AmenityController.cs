@@ -27,10 +27,10 @@ namespace SGHR.Web.Controllers.Habitaciones
             ServiceResult result = await _amenityServices.GetByIdAsync(id);
             if (!result.Success)
             {
-                // Puedes redirigir a un error general o mostrar mensaje
+                TempData["Error"] = result.Message;
                 return RedirectToAction("Index");
             }
-
+            TempData["Success"] = result.Message;
             var amenity = result.Data as AmenityDto;
             return View(amenity); // Vista completa
         }
@@ -42,8 +42,11 @@ namespace SGHR.Web.Controllers.Habitaciones
             {
                 var result = await _amenityServices.GetByIdAsync(id.Value);
                 if (!result.Success || result.Data == null)
+                {
+                    TempData["Error"] = result.Message;
                     return PartialView("_List", new List<AmenityDto>()); // lista vacía si no se encuentra
-
+                }
+                TempData["Success"] = result.Message;
                 return PartialView("_List", new List<AmenityDto> { (AmenityDto)result.Data });
             }
             else
@@ -79,11 +82,12 @@ namespace SGHR.Web.Controllers.Habitaciones
             if (!result.Success)
             {
                 // Si hay error en el servicio, mostrarlo en la vista
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista de amenities o al detalle recién creado
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -92,7 +96,10 @@ namespace SGHR.Web.Controllers.Habitaciones
         {
             var result = await _amenityServices.GetByIdAsync(id);
             if (!result.Success)
-                return View("_Error");  // o mostrar una página de error
+            {
+                TempData["Error"] = result.Message;
+                return View("_Error");
+            }
             UpdateAmenityDto amenity = new UpdateAmenityDto
             {
                 Id = result.Data.Id,
@@ -115,11 +122,12 @@ namespace SGHR.Web.Controllers.Habitaciones
             var result = await _amenityServices.UpdateAsync(dto);
             if (!result.Success)
             {
-                ModelState.AddModelError(string.Empty, result.Message);
+                TempData["Error"] = result.Message;
                 return View(dto);
             }
 
             // Redirigir a la lista después de guardar
+            TempData["Success"] = result.Message;
             return RedirectToAction("Index");
         }
 
@@ -128,10 +136,17 @@ namespace SGHR.Web.Controllers.Habitaciones
         {
             var result = await _amenityServices.GetByIdAsync(id);
             if (!result.Success)
+            {
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
+            }
+                
 
             if (result.Data == null)
+            {
+                TempData["Error"] = result.Message;
                 return PartialView("_Error");
+            }
 
             return PartialView("_Delete", (AmenityDto)result.Data);
 
@@ -145,9 +160,11 @@ namespace SGHR.Web.Controllers.Habitaciones
             var result = await _amenityServices.DeleteAsync(id);
             if (!result.Success)
             {
-                return Json(result);
+                TempData["Error"] = result.Message;
+                return Json(new { success = false, data = result.Data, message = result.Message });
             }
-            return Json(result);
+            TempData["Success"] = result.Message;
+            return Json(new { success = true, data = result.Data, message = result.Message });
         }
     }
 }
