@@ -12,6 +12,8 @@ namespace SGHR.IOC.Dependencia.Sesion
         {
             services.AddScoped<ISesionRepository, SesionRepository>();
             services.AddScoped<ISesionServices, SesionServices>();
+            services.AddHostedService<SesionMonitorService>();
+
 
             return services;
         }

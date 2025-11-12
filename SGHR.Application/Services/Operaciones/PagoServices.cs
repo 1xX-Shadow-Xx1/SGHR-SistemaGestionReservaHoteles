@@ -77,7 +77,7 @@ namespace SGHR.Application.Services.Operaciones
                     return result;
                 }
 
-                var pagosDeReserva = pagosResult.Data.Where(p => p.IdReserva == realiarpagoDto.IdReserva).ToList();
+                var pagosDeReserva = pagosResult.Data.Where(p => p.IdReserva == realiarpagoDto.IdReserva && p.Estado != EstadoPago.Rechazado).ToList();
                 decimal totalPagado = Math.Round(pagosDeReserva.Sum(p => p.Monto), 2);
 
                 if (totalPagado + realiarpagoDto.Monto > reserva.CostoTotal)

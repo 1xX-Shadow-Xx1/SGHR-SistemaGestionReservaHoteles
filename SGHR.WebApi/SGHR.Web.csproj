@@ -16,8 +16,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\Cliente\" />
-    <Folder Include="Controllers\Recepcionista\" />
+    <None Include="wwwroot\css\Login.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Areas\Administrador\Data\" />
+    <Folder Include="Areas\Administrador\Models\" />
+    <Folder Include="Areas\Cliente\Data\" />
+    <Folder Include="Areas\Cliente\Models\" />
+    <Folder Include="Areas\Recepcionista\Data\" />
+    <Folder Include="Areas\Recepcionista\Models\" />
   </ItemGroup>
 
 </Project>

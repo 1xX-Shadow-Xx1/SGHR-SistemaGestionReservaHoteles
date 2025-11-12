@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using SGHR.Application.Services.Sesion;
 using SGHR.IOC.Builders;
 using SGHR.Persistence.Context;
 
@@ -23,6 +24,8 @@ namespace SGHR.Api
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddHostedService<SesionMonitorService>();
+
 
             var app = builder.Build();
 

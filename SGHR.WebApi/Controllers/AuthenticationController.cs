@@ -22,14 +22,6 @@ namespace SGHR.Web.Controllers
         // En un controlador
         public IActionResult Index()
         {
-            if (User.IsInRole("Administrador"))
-                ViewData["Layout"] = "_LayoutAdmin";
-            else if (User.IsInRole("Cliente"))
-                ViewData["Layout"] = "_LayoutCliente";
-            else if (User.IsInRole("Recepcionista"))
-                ViewData["Layout"] = "_LayoutRecepcionista";
-            else
-                ViewData["_Error"] = "No tiene permisos para acceder a esta sección.";
             return View();
         }
 
@@ -76,7 +68,19 @@ namespace SGHR.Web.Controllers
             HttpContext.Session.SetString("UserRole", usuario.Rol.ToString());
 
             TempData["Success"] = result.Message;
-            return RedirectToAction("Index", "Home");
+            // Redirigir según el rol
+            switch (usuario.Rol.ToString())
+            {
+                case "Cliente":
+                    return RedirectToAction("Index", "Home", new { area = "Cliente" });
+                case "Recepcionista":
+                    return RedirectToAction("Index", "Home", new { area = "Recepcionista" });
+                case "Administrador":
+                    return RedirectToAction("Index", "Home", new { area = "Administrador" });
+                default:
+                    return RedirectToAction("Login");
+            }
+
         }
 
         // 🔹 GET: /Authentication/Register

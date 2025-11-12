@@ -1,20 +1,5 @@
 ﻿@{
-    var userRole = Context.Session.GetString("UserRole");
 
-    if (userRole == "Administrador")
-    {
-        Layout = "_LayoutAdmin";
-    }
-    else if (userRole == "Recepcionista")
-    {
-        Layout = "_LayoutRecepcionista";
-    }
-    else if (userRole == "Cliente")
-    {
-        Layout = "_LayoutCliente";
-    }
-    else
-    {
-        Layout = "_Layout"; // layout general o login
-    }
+    Layout = "_Layout"; 
+    
 }

@@ -1,0 +1,190 @@
+﻿@{
+    ViewData["Title"] = "Pagos";
+}
+
+<div class="container mt-4">
+
+    <h2 class="text-center mb-4">Gestión de Pagos</h2>
+
+
+    <!-- Contenedor principal para resumen de pagos -->
+    <div id="contenidoResumenPagos" class="card p-3 shadow-sm mx-auto mb-5" style="min-height: 300px; width: 50%;">
+        <!-- Aquí se cargará _List, _Create o _Edit -->
+    </div>
+
+
+    <!-- Buscar por ID arriba alineado a la izquierda -->
+    <div class="mb-3 d-flex align-items-center gap-2">
+        <label for="buscarId" class="fw-bold">Pagos de cliente:</label>
+        <input type="number" id="buscarId" class="form-control" placeholder="ID pago" style="width: 150px;">
+        <button id="btnBuscar" class="btn btn-info">Buscar</button>
+    </div>
+
+    <!-- Contenedor principal para la lista -->
+    <div id="contenidoPagos" class="card p-3 shadow-sm mx-auto" style="min-height: 500px; width: 95%;">
+        <!-- Aquí se cargará _List, _Create o _Edit -->
+    </div>
+
+    <!-- Botones Crear y Cargar Lista debajo, centrados -->
+    <div class="mt-3 d-flex gap-2 justify-content-center">
+        <button id="btnRealizar" class="btn btn-primary">Realizar Pago</button>
+        <button id="btnCargarLista" class="btn btn-secondary">Cargar Lista</button>
+
+    </div>
+
+    
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+                $(document).ready(function() {
+        
+            // --- Cargar lista automáticamente al iniciar ---
+            cargarLista();
+            cargarResumen();
+
+            // --- Botón Realizar Pago ---
+             $('#btnRealizar').click(function () {
+                window.location.href = '@Url.Action("RealizarPago", "Pago")';
+            });
+
+
+            // --- Botón Cargar Lista ---
+            $('#btnCargarLista').click(function () {
+                cargarLista();
+            });
+
+           // --- Botón Lista de Pagos por ID Cliente ---
+            $('#btnBuscar').click(function() {
+                var id = $('#buscarId').val().trim(); // obtiene el ID
+                if (!id || id <= 0) {
+                    alert("Ingrese un ID válido");
+                    return;
+                }
+
+                // Llamada AJAX a la acción _List pasando el ID
+                $.get('@Url.Action("_List", "Pago")', { id: id }, function(data) {
+                    $('#contenidoPagos').html(data);
+                }).fail(function() {
+                    alert("Pago no encontrado");
+                });
+            });
+            $('#buscarId').keypress(function(e) {
+                if(e.which == 13) { // Enter
+                    $('#btnBuscar').click();
+                    e.preventDefault();
+                }
+            });
+
+               
+            // Botón Anular - carga la vista parcial
+            $(".btn-anular").click(function () {
+                var id = $(this).data("id");
+
+                $.get('@Url.Action("_AnularPago", "Pago")', { id: id }, function (data) {
+                    $("#contenidoPago").html(data);
+                });
+            });
+
+            
+            // --- Función para cargar lista ---
+            function cargarLista() {
+                $.get('@Url.Action("_List", "Pago")', function(data) {
+                    $('#contenidoPagos').html(data);
+                });
+            }
+
+            // --- Función para cargar Resumen ---
+            function cargarResumen() {
+                $.get('@Url.Action("_resumenPagos", "Pago")', function(data) {
+                    $('#contenidoResumenPagos').html(data);
+                });
+            }
+
+             // Anular pago
+            $('#contenidoPagos').on('click', '.btn-anular', function(e) {
+                e.preventDefault();
+                var id = $(this).data('id');
+                $.get('@Url.Action("_AnularPago", "Pago")', { id: id }, function(data) {
+                    $('#contenidoPagos').html(data);
+                });
+            });
+
+           // --- DOBLE CLICK y CLICK DERECHO sobre filas (delegación) ---
+            $('#contenidoPagos').on('dblclick', '.fila-pago', function() {
+                var id = $(this).data('id');
+                // Redirige a la vista completa de Details
+                window.location.href = '@Url.Action("Details", "Pago")/' + id;
+            });
+
+             // Botón cancelar en la vista de eliminación → vuelve a la lista
+            $('#contenidoPagos').on('dblclick', '.btnCancelDelete', function(e) {
+                // Redirige a la vista completa de Details
+                e.preventDefault();
+                 cargarLista();
+            });
+
+            // Boton Confirmar eliminar
+            // Envío del formulario de eliminación por AJAX
+            $('#contenidoPagos').on('submit', '#formDelete', function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("AnularConfirmed", "Pago")', // Acción que devuelve JSON { success, message, data }
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            $('#contenidoPagos').html(`
+                                <div class="alert alert-success" role="alert">
+                                    ✅ Pago eliminado correctamente.
+                                </div>
+                                <button id="btnVolverIndex" class="btn btn-primary mt-3">
+                                    Aceptar
+                                </button>
+                            `);
+                        } else {
+                            $('#contenidoPagos').html(`
+                                <div class="alert alert-danger" role="alert">
+                                    ⚠️ No se pudo eliminar el pago: ${response.message ?? ''}.
+                                </div>
+                                <button id="btnVolverIndex" class="btn btn-primary mt-3">
+                                    Aceptar
+                                </button>
+                            `);
+                        }
+                    },
+                    error: function () {
+                        $('#contenidoPagos').html(`
+                            <div class="alert alert-danger" role="alert">
+                                ❌ Error inesperado al eliminar el pago.
+                            </div>
+                            <button id="btnVolverIndex" class="btn btn-primary mt-3">
+                                Aceptar
+                            </button>
+                        `);
+                    }
+                });
+            });
+
+            // Botón “Aceptar” → vuelve a la lista
+            $('#contenidoPagos').on('click', '#btnVolverIndex', function (e) {
+                e.preventDefault();
+                $.get('@Url.Action("_List", "Pago")', function (data) {
+                    $('#contenidoPagos').html(data);
+                });
+            });
+
+            // Botón “Cancelar” dentro de la vista AnularPago
+            $('#contenidoPagos').on('click', '.btnCancelDelete', function (e) {
+                e.preventDefault();
+                $.get('@Url.Action("_List", "Pago")', function (data) {
+                    $('#contenidoPagos').html(data);
+                });
+            });
+
+        });
+
+    </script>
+}
