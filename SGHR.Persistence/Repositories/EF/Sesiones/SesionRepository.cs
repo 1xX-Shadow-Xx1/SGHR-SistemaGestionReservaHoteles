@@ -5,6 +5,8 @@ using SGHR.Domain.Base;
 using SGHR.Domain.Entities.Configuration.Sesiones;
 using SGHR.Persistence.Context;
 using SGHR.Persistence.Interfaces.Sesiones;
+using System.Runtime.InteropServices;
+using System.Threading.Channels;
 
 namespace SGHR.Persistence.Repositories.EF.Sesiones
 {
@@ -25,6 +27,7 @@ namespace SGHR.Persistence.Repositories.EF.Sesiones
         {
             try
             {
+
 
                 var result = await base.SaveAsync(entity);
 
@@ -108,6 +111,57 @@ namespace SGHR.Persistence.Repositories.EF.Sesiones
                 _logger.LogError(ex, "Error obteniendo sesiones activas");
                 return OperationResult<List<Sesion>>.Fail("Ocurrió un error al obtener las sesiones activas");
             }
+        }
+        public async Task<OperationResult<Sesion>> GetActiveSesionByUserAsync(int usuarioId)
+        {
+            try
+            {
+                var sesiones = await _context.Sesiones
+                    .Where(s => s.IdUsuario == usuarioId && !s.IsDeleted)
+                    .ToListAsync();
+
+                if (!sesiones.Any())
+                {
+                    _logger.LogWarning("No se encontraron sesiones para el usuario {UsuarioId}", usuarioId);
+                    return OperationResult<Sesion>.Fail("No se encontraron sesiones para el usuario");
+                }
+
+                // Filtrar solo las sesiones activas
+                var activeSesiones = sesiones.Where(s => s.Estado).ToList();
+
+                if (!activeSesiones.Any())
+                {
+                    _logger.LogWarning("No se encontraron sesiones activas para el usuario {UsuarioId}", usuarioId);
+                    return OperationResult<Sesion>.Fail("No se encontraron sesiones activas para el usuario");
+                }
+
+                // Obtener la sesión más reciente
+                var ultimaSesion = activeSesiones.MaxBy(s => s.Id);
+
+                // Cerrar todas las sesiones excepto la última
+                foreach (var s in activeSesiones)
+                {
+                    if (s.Id != ultimaSesion.Id)
+                    {
+                        s.Estado = false;
+                        s.FechaFin = DateTime.Now;
+                        s.FechaActualizacion = DateTime.Now;
+                    }
+                }
+
+                // Guardar los cambios en la BD
+                _context.Sesiones.UpdateRange(activeSesiones);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Se encontraron {Count} sesiones activas para el usuario {UsuarioId}", activeSesiones.Count, usuarioId);
+                return OperationResult<Sesion>.Ok(ultimaSesion, "Se obtuvo la sesión activa correctamente.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error obteniendo todas las sesiones");
+                return OperationResult<Sesion>.Fail("Ocurrió un error al obtener la sesión del usuario");
+            }
+
         }
 
     }

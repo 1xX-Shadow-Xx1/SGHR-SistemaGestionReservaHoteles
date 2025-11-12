@@ -13,6 +13,9 @@ namespace SGHR.Domain.Entities.Configuration.Sesiones
         [Column("fecha_inicio")]
         public DateTime FechaInicio { get; set; } = DateTime.Now;
         [Column("fecha_fin")]
-        public DateTime? FechaFin { get; set; }
+        public DateTime? FechaFin { get; set; } = null;
+        [Column("ultima_actividad")]
+        public DateTime UltimaActividad { get; set; } = DateTime.Now;
+
     }
 }

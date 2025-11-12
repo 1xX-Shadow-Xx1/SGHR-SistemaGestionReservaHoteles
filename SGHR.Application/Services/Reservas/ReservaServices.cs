@@ -124,9 +124,14 @@ namespace SGHR.Application.Services.Reservas
                 var Coste = amenity.Data.Precio;
                 Coste += amenity.Data.PorCapacidad * ExistHabitacion.Capacidad;
 
-                var fecha = DateTime.Now;
 
-                var tarifa = listTarifaByCategory.Data.FirstOrDefault(t => fecha >= t.Fecha_inicio &&  fecha <= t.Fecha_fin);
+                var tarifa = listTarifaByCategory.Data.FirstOrDefault(t =>
+                categoria.Data.Id == t.IdCategoria &&
+                (
+                    (CreateDto.FechaInicio >= t.Fecha_inicio && CreateDto.FechaInicio <= t.Fecha_fin) || 
+                    (CreateDto.FechaFin >= t.Fecha_inicio && CreateDto.FechaFin <= t.Fecha_fin) ||       
+                    (CreateDto.FechaInicio <= t.Fecha_inicio && CreateDto.FechaFin >= t.Fecha_fin)       
+                ));
 
                 if (tarifa == null)
                     Coste += categoria.Data.Precio;
@@ -473,9 +478,15 @@ namespace SGHR.Application.Services.Reservas
                 var Coste = amenity.Data.Precio;
                 Coste += amenity.Data.PorCapacidad * ExistHabitacion.Capacidad;
 
-                var fecha = DateTime.Now;
+                var tarifa = listTarifaByCategory.Data.FirstOrDefault(t =>
+                categoria.Data.Id == t.IdCategoria &&
+                (
+                    (UpdateDto.FechaInicio >= t.Fecha_inicio && UpdateDto.FechaInicio <= t.Fecha_fin) || 
+                    (UpdateDto.FechaFin >= t.Fecha_inicio && UpdateDto.FechaFin <= t.Fecha_fin) ||      
+                    (UpdateDto.FechaInicio <= t.Fecha_inicio && UpdateDto.FechaFin >= t.Fecha_fin)       
+                ));
 
-                var tarifa = listTarifaByCategory.Data.FirstOrDefault(t => fecha >= t.Fecha_inicio && fecha <= t.Fecha_fin);
+
 
                 if (tarifa == null)
                     Coste += categoria.Data.Precio;

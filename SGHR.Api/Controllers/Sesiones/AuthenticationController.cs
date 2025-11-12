@@ -49,7 +49,7 @@ namespace SGHR.Api.Controllers.Sesiones
         public async Task<IActionResult> CloseSerionAsync(int id)
         {
             ServiceResult result = new ServiceResult();
-            result = await _authenticationServices.CloseSerionAsync(id);
+            result = await _authenticationServices.CloseSesionAsync(id);
             if (!result.Success)
             {
                 return BadRequest(result);

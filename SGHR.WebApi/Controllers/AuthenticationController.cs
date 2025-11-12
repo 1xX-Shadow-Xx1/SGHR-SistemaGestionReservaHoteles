@@ -1,90 +1,164 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using SGHR.Application.Dtos.Configuration.Sesiones.Sesion;
+using SGHR.Application.Dtos.Configuration.Users.Usuario;
+using SGHR.Application.Interfaces;
+using SGHR.Application.Interfaces.Sesion;
 
 namespace SGHR.Web.Controllers
 {
     public class AuthenticationController : Controller
     {
-        private readonly IAuthenticationService _authenticationService;
+        private readonly IAuthenticationServices _authServices;
+        private readonly ISesionServices _sesionServices;
 
-        public AuthenticationController(IAuthenticationService authenticationService)
+        public AuthenticationController(IAuthenticationServices authServices,
+                                        ISesionServices sesionServices)
         {
-            _authenticationService = authenticationService;
+            _authServices = authServices;
+            _sesionServices = sesionServices;
         }
 
-        // GET: AuthenticationController
-        public ActionResult Index()
+        // En un controlador
+        public IActionResult Index()
+        {
+            if (User.IsInRole("Administrador"))
+                ViewData["Layout"] = "_LayoutAdmin";
+            else if (User.IsInRole("Cliente"))
+                ViewData["Layout"] = "_LayoutCliente";
+            else if (User.IsInRole("Recepcionista"))
+                ViewData["Layout"] = "_LayoutRecepcionista";
+            else
+                ViewData["_Error"] = "No tiene permisos para acceder a esta sección.";
+            return View();
+        }
+
+
+        // 🔹 GET: /Authentication/Login
+        [HttpGet]
+        public IActionResult Login()
         {
             return View();
         }
 
-        // GET: AuthenticationController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: AuthenticationController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: AuthenticationController/Create
+        // 🔹 POST: /Authentication/Login
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Login(string correo, string contraseña)
         {
-            try
+            if (string.IsNullOrEmpty(correo) || string.IsNullOrEmpty(contraseña))
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
+                ViewBag.Error = "Debe ingresar correo y contraseña.";
                 return View();
             }
-        }
 
-        // GET: AuthenticationController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
+            var result = await _authServices.LoginSesionAsync(correo, contraseña);
 
-        // POST: AuthenticationController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
+            if (!result.Success)
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
+                ViewBag.Error = result.Message;
                 return View();
             }
-        }
 
-        // GET: AuthenticationController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
+            // ✅ Guardar datos de usuario en sesión y la sesion activa
+            var usuario = result.Data as UsuarioDto;
 
-        // POST: AuthenticationController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
+            var sesionResult = await _sesionServices.GetSesionByIdUser(usuario.Id);
+            if (!sesionResult.Success)
             {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
+                TempData["Error"] = sesionResult.Message;
                 return View();
             }
+            var sesion = sesionResult.Data as SesionDto;
+
+            HttpContext.Session.SetInt32("UserId", usuario.Id);
+            HttpContext.Session.SetInt32("SesionId", sesion.Id);
+            HttpContext.Session.SetString("UserName", usuario.Nombre);
+            HttpContext.Session.SetString("UserRole", usuario.Rol.ToString());
+
+            TempData["Success"] = result.Message;
+            return RedirectToAction("Index", "Home");
         }
+
+        // 🔹 GET: /Authentication/Register
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View(new CreateUsuarioDto());
+        }
+
+        // 🔹 POST: /Authentication/Register
+        [HttpPost]
+        public async Task<IActionResult> Register(CreateUsuarioDto dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var result = await _authServices.RegistrarUsuarioAsync(dto);
+
+            if (!result.Success)
+            {
+                ViewBag.Error = result.Message;
+                return View(dto);
+            }
+
+            TempData["Success"] = result.Message;
+            return RedirectToAction("Login");
+        }
+
+        // 🔹 GET: /Authentication/Logout
+        public async Task<IActionResult> Logout()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId.HasValue)
+                await _authServices.CloseSesionAsync(userId.Value);
+
+            HttpContext.Session.Clear();
+            TempData["Success"] = "Sesión cerrada correctamente.";
+            return RedirectToAction("Login");
+        }
+    
+        [HttpPost]
+        public async Task<IActionResult> AutoLogout()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId.HasValue)
+            {
+                await _sesionServices.CloseSesionAsync(userId.Value);
+                await _authServices.CloseSesionAsync(userId.Value);
+            }
+
+            HttpContext.Session.Clear();
+            return Ok();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckSession([FromBody] CheckSesionDto dto)
+        {
+            var sesionResult = await _sesionServices.CheckActivitySesionByUserAsync(dto.IdUsuario);
+            bool active = false;
+
+            if (sesionResult.Success && sesionResult.Data != null)
+            {
+                active = sesionResult.Data.Estado; // true = activa, false = inactiva
+            }
+            return Ok(new { active });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateActivity(int idusuario)
+        {
+            var sesionid = HttpContext.Session.GetInt32("SesionId");
+
+            var sesionResult = await _sesionServices.UpdateActivitySesionByUserAsync(sesionid.Value);
+            bool active = false;
+
+            if (sesionResult.Success && sesionResult.Data != null)
+            {
+                active = sesionResult.Data.Estado; // true = activa, false = inactiva
+            }
+            return Ok(new { active });
+        }
+
+
     }
 }

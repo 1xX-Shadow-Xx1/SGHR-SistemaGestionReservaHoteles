@@ -47,13 +47,17 @@
 
                 <div class="mb-3">
                     <label asp-for="Estado" class="form-label"></label>
-                    <select asp-for="Estado" class="form-select" asp-items="Html.GetEnumSelectList<EstadoReserva>()"></select>>
+                    <select asp-for="Estado" class="form-select" asp-items="Html.GetEnumSelectList<EstadoReserva>()"></select>
                     <span asp-validation-for="Estado" class="text-danger"></span>
                     </select>
                     <span asp-validation-for="Estado" class="text-danger"></span>
                 </div>
 
                 <div class="text-center">
+                    <a asp-action="Servicios" asp-route-id="@Model.Id" class="btn btn-primary">
+                        Ver Servicios
+                    </a>
+
                     <button type="submit" class="btn btn-primary me-2">Guardar Cambios</button>
                     <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
                 </div>

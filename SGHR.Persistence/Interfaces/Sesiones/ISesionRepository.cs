@@ -8,5 +8,6 @@ namespace SGHR.Persistence.Interfaces.Sesiones
     {
         Task<OperationResult<List<Sesion>>> GetByUsuarioAsync(int usuarioId);
         Task<OperationResult<List<Sesion>>> GetActiveSessionsAsync();
+        Task<OperationResult<Sesion>> GetActiveSesionByUserAsync(int usuarioId);
     }
 }

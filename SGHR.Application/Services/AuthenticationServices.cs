@@ -3,10 +3,12 @@ using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Users.Usuario;
 using SGHR.Application.Interfaces;
+using SGHR.Domain.Entities.Configuration.Sesiones;
 using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Enum.Usuario;
 using SGHR.Domain.Enum.Usuarios;
 using SGHR.Domain.Repository;
+using SGHR.Persistence.Interfaces.Sesiones;
 
 namespace SGHR.Application.Services
 {
@@ -14,12 +16,15 @@ namespace SGHR.Application.Services
     {
         public readonly ILogger<AuthenticationServices> _logger;
         public readonly IUsuarioRepository _usuarioRepository;
+        public readonly ISesionRepository _sesionRepository;
 
         public AuthenticationServices(ILogger<AuthenticationServices> logger, 
-                                      IUsuarioRepository usuarioRepository)
+                                      IUsuarioRepository usuarioRepository,
+                                      ISesionRepository sesionRepository)
         {
             _logger = logger;
             _usuarioRepository = usuarioRepository;
+            _sesionRepository = sesionRepository;
         }
 
         public async Task<ServiceResult> RegistrarUsuarioAsync(CreateUsuarioDto createUsuarioDto)
@@ -120,6 +125,21 @@ namespace SGHR.Application.Services
                         Estado = existUser.Data.Estado
                     };
 
+                    var sesion = new SGHR.Domain.Entities.Configuration.Sesiones.Sesion
+                    {
+                        IdUsuario = usuario.Id,
+                        Estado = true,
+                        FechaInicio = DateTime.Now,
+                        UltimaActividad = DateTime.Now
+                    };
+                    
+                    var opSesion = await _sesionRepository.SaveAsync(sesion);
+                    if (!opSesion.Success)
+                    {
+                        result.Message = opSesion.Message;
+                        return result;
+                    }
+
                     result.Success = true;
                     result.Message = $"Usuario {existUser.Data.Nombre} Logeado correctamente.";
                     result.Data = usuario;
@@ -135,7 +155,7 @@ namespace SGHR.Application.Services
             }
             return result;
         }  
-        public async Task<ServiceResult> CloseSerionAsync(int idusuario)
+        public async Task<ServiceResult> CloseSesionAsync(int idusuario)
         {
             ServiceResult result = new ServiceResult();
             if (idusuario < 0)
@@ -160,13 +180,18 @@ namespace SGHR.Application.Services
                         return result;
                     }
 
-                    existUser.Data.Estado = EstadoUsuario.Inactivo;
+                    if(existUser.Data.Estado != EstadoUsuario.Suspendido && existUser.Data.Estado != EstadoUsuario.Eliminado)
+                    {
+                        existUser.Data.Estado = EstadoUsuario.Inactivo;
+                    }
+                    
                     var OpResult = await _usuarioRepository.UpdateAsync(existUser.Data);
                     if (!OpResult.Success)
                     {
                         result.Message = OpResult.Message;
                         return result;
                     }
+
 
                     var usuario = new UsuarioDto
                     {
@@ -186,7 +211,7 @@ namespace SGHR.Application.Services
             }
             catch (Exception ex)
             {
-
+                result.Message = "Ocurrio un error al cerrar la sesion";
             }
             return result;
         }

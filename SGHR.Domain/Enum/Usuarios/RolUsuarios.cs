@@ -2,8 +2,8 @@
 {
     public enum RolUsuarios
     {
-        Cliente,
-        Recepcionista,
-        Administrador
+        Cliente = 1,
+        Recepcionista = 2,
+        Administrador = 3
     }
 }

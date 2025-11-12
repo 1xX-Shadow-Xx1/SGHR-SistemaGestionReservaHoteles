@@ -4,20 +4,25 @@ using SGHR.Application.Dtos.Configuration.Users.Usuario;
 using SGHR.Application.Interfaces.Usuarios;
 using SGHR.Application.ValidatorServices.Usuarios;
 using SGHR.Domain.Entities.Configuration.Usuers;
+using SGHR.Domain.Enum.Usuario;
 using SGHR.Domain.Repository;
+using SGHR.Persistence.Interfaces.Sesiones;
 
 namespace SGHR.Application.Services.Usuarios
 {
     public class UsuarioServices : IUsuarioServices
     {
-        public readonly ILogger<UsuarioServices> _logger;
-        public readonly IUsuarioRepository _usuarioRepository;
+        private readonly ILogger<UsuarioServices> _logger;
+        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly ISesionRepository _sesionRepository;
 
         public UsuarioServices(ILogger<UsuarioServices> logger,
-                               IUsuarioRepository usuarioRepository)
+                               IUsuarioRepository usuarioRepository,
+                               ISesionRepository sesionRepository)
         {
             _logger = logger;
             _usuarioRepository = usuarioRepository;
+            _sesionRepository = sesionRepository;
         }
 
         public async Task<ServiceResult> CreateAsync(CreateUsuarioDto CreateDto)
@@ -193,6 +198,22 @@ namespace SGHR.Application.Services.Usuarios
                 usuario.Data.Estado = UpdateDto.Estado;
                 usuario.Data.Rol = UpdateDto.Rol;
                 
+                if(UpdateDto.Estado == EstadoUsuario.Inactivo ||
+                   UpdateDto.Estado == EstadoUsuario.Suspendido ||
+                   UpdateDto.Estado == EstadoUsuario.Eliminado)
+                {
+                    var sesionResult = await _sesionRepository.GetActiveSesionByUserAsync(usuario.Data.Id);
+                    if (sesionResult.Success && sesionResult.Data != null)
+                    {
+                        sesionResult.Data.Estado = false;
+                        var sesion = await _sesionRepository.UpdateAsync(sesionResult.Data);
+                        if (!sesion.Success)
+                        {
+                            result.Message = sesion.Message;
+                            return result;
+                        }
+                    }
+                }
 
                 var OpResult = await _usuarioRepository.UpdateAsync(usuario.Data);
                 if (!OpResult.Success)

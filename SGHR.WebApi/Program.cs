@@ -18,6 +18,8 @@ namespace SGHR.Web
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddSession();
+            builder.Services.AddHttpContextAccessor();
 
             var app = builder.Build();
 
@@ -36,7 +38,9 @@ namespace SGHR.Web
 
             app.UseAuthorization();
 
-            app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+            app.UseSession();
+
+            app.MapControllerRoute(name: "default", pattern: "{controller=Authentication}/{action=Login}/{id?}");
 
             app.Run();
         }
