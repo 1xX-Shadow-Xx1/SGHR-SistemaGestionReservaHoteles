@@ -12,6 +12,7 @@ namespace SGHR.Application.Interfaces.Operaciones
         Task<ServiceResult> ObtenerPagosAsync();
         Task<ServiceResult> GetPagoByCliente(int idcliente);
         Task<ServiceResult> GetPagoByIdAsync(int idPago);
+        Task<ServiceResult> GetAllNoRechazados();
 
     }
 }

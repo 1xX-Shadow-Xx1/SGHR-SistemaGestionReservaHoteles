@@ -1,0 +1,157 @@
+﻿a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-all;
+}
+
+a {
+    color: #0077cc;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.border-top {
+    border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+    font-size: 1rem;
+    line-height: inherit;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    margin: 0;
+}
+
+/* === SIDEBAR CON GRADIENTE VERDE === */
+.sidebar {
+    width: 250px;
+    background: linear-gradient(135deg, #0f9d58 0%, #34c38f 100%);
+    border-right: none;
+    padding-top: 20px;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    overflow-y: auto;
+    color: #fff;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+}
+
+    /* === TITULO SGHR === */
+    .sidebar .navbar-brand {
+        font-size: 1.4rem; /* Un poco más grande */
+        font-weight: 700; /* Negrita */
+        color: #ffffff !important; /* Blanco puro */
+        text-align: center;
+        letter-spacing: 1px; /* Espaciado sutil */
+        text-transform: uppercase; /* Mayúsculas para estilo corporativo */
+        margin-bottom: 20px;
+        font-family: "Segoe UI", Arial, sans-serif;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* === LINKS COMO BOTONES COMPACTOS Y ELEGANTES === */
+    .sidebar .nav-link {
+        display: block;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.0); /* Transparente con leve contraste */
+        margin: 3px 10px; /* Más juntos */
+        padding: 7px 12px; /* Más pequeños */
+        border-radius: 5px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        box-shadow: none;
+    }
+
+
+
+/* === CONTENIDO PRINCIPAL === */
+.content {
+    margin-left: 250px;
+    flex-grow: 1;
+    padding: 20px;
+    background-color: #f8f9fa;
+}
+
+/* === EFECTO DE BOTÓN ACTIVO === */
+.sidebar .nav-link.active {
+    background: #ffffff;
+    color: #0f9d58 !important;
+    font-weight: 600;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+    /* ✨ Brillo animado diagonal */
+    .sidebar .nav-link.active::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -75%;
+        width: 50%;
+        height: 100%;
+        background: rgba(52, 195, 143, 0.3);
+        transform: skewX(-20deg);
+        animation: shine 2.5s infinite ease-in-out;
+        border-radius: 5px;
+    }
+
+/* 🔁 Animación suave del brillo */
+@keyframes shine {
+    0% {
+        left: -75%;
+    }
+
+    50% {
+        left: 125%;
+    }
+
+    100% {
+        left: 125%;
+    }
+}
+
+/* === Hover para mantener coherencia === */
+.sidebar .nav-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+.footer {
+    border-top: none !important;
+    background: transparent; /* por si acaso hay color de fondo */
+}

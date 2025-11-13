@@ -423,5 +423,40 @@ namespace SGHR.Application.Services.Operaciones
             }
             return result;
         }
+        public async Task<ServiceResult> GetAllNoRechazados()
+        {
+            ServiceResult result = new ServiceResult();
+            try
+            {
+                var pagosResult = await _pagoRepository.GetAllAsync();
+                if (!pagosResult.Success || pagosResult.Data == null)
+                {
+                    result.Message = pagosResult.Message ?? "No se pudieron obtener los pagos.";
+                    return result;
+                }
+                var pagosDto = pagosResult.Data
+                    .Where(p => p.Estado != EstadoPago.Rechazado)
+                    .OrderByDescending(p => p.FechaPago)
+                    .Select(p => new PagoDto
+                    {
+                        Id = p.Id,
+                        IdReserva = p.IdReserva,
+                        Monto = p.Monto,
+                        MetodoPago = p.MetodoPago,
+                        FechaPago = p.FechaPago,
+                        Estado = p.Estado.ToString()
+                    })
+                    .ToList();
+                result.Success = true;
+                result.Data = pagosDto;
+                result.Message = "Pagos obtenidos correctamente.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error en GetAllNoRechaced de PagoServices");
+                result.Message = $"Error al obtener los pagos: {ex.Message}";
+            }
+            return result;
+        }
     }
 }
