@@ -66,7 +66,6 @@ namespace SGHR.Application.Services.Sesion
             }
             return result;
         }
-
         public async Task<ServiceResult> CloseSesionAsync(int idUsuario)
         {
             ServiceResult result = new ServiceResult();
@@ -99,7 +98,6 @@ namespace SGHR.Application.Services.Sesion
             }
             return result;
         }
-
         public async Task<ServiceResult> CheckActivitySesionGlobalAsync()
         {
             ServiceResult result = new ServiceResult();
@@ -132,7 +130,6 @@ namespace SGHR.Application.Services.Sesion
             }
             return result;
         }
-
         public async Task<ServiceResult> CheckActivitySesionByUserAsync(int idUsuario)
         {
             ServiceResult result = new ServiceResult();
