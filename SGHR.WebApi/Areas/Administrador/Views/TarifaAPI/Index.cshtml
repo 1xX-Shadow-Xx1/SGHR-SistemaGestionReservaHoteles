@@ -36,7 +36,7 @@
 
             // --- Botón Crear ---
              $('#btnCrear').click(function () {
-                window.location.href = '@Url.Action("Create", "Tarifa")';
+                window.location.href = '@Url.Action("Create", "TarifaAPI")';
             });
 
 
@@ -54,7 +54,7 @@
                 }
 
                 // Llamada AJAX a la acción _List pasando el ID
-                $.get('@Url.Action("_List", "Tarifa")', { id: id }, function(data) {
+                $.get('@Url.Action("_List", "TarifaAPI")', { id: id }, function(data) {
                     $('#contenidoTarifas').html(data);
                 }).fail(function() {
                     alert("Tarifa no encontrada");
@@ -72,7 +72,7 @@
 
             // --- Función para cargar lista ---
             function cargarLista() {
-                $.get('@Url.Action("_List", "Tarifa")', function(data) {
+                $.get('@Url.Action("_List", "TarifaAPI")', function(data) {
                     $('#contenidoTarifas').html(data);
                 });
             }
@@ -81,7 +81,7 @@
             $('#contenidoTarifas').on('click', '.btn-eliminar', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                $.get('@Url.Action("_Delete", "Tarifa")', { id: id }, function(data) {
+                $.get('@Url.Action("_Delete", "TarifaAPI")', { id: id }, function(data) {
                     $('#contenidoTarifas').html(data);
                 });
             });
@@ -90,7 +90,7 @@
             $('#contenidoTarifas').on('dblclick', '.fila-tarifa', function() {
                 var id = $(this).data('id');
                 // Redirige a la vista completa de Details
-                window.location.href = '@Url.Action("Details", "Tarifa")/' + id;
+                window.location.href = '@Url.Action("Details", "TarifaAPI")/' + id;
             });
 
              // Botón cancelar en la vista de eliminación → vuelve a la lista
@@ -107,7 +107,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: '@Url.Action("_DeleteConfirmed", "Tarifa")', // Acción que devuelve JSON { success, message, data }
+                    url: '@Url.Action("_DeleteConfirmed", "TarifaAPI")', // Acción que devuelve JSON { success, message, data }
                     data: $(this).serialize(),
                     success: function (response) {
                         if (response.success) {
@@ -146,7 +146,7 @@
             // Botón “Aceptar” → vuelve a la lista
             $('#contenidoTarifas').on('click', '#btnVolverIndex', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Tarifa")', function (data) {
+                $.get('@Url.Action("_List", "TarifaAPI")', function (data) {
                     $('#contenidoTarifas').html(data);
                 });
             });
@@ -154,7 +154,7 @@
             // Botón “Cancelar” dentro de la vista Delete
             $('#contenidoTarifas').on('click', '.btnCancelDelete', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Tarifa")', function (data) {
+                $.get('@Url.Action("_List", "TarifaAPI")', function (data) {
                     $('#contenidoTarifas').html(data);
                 });
             });

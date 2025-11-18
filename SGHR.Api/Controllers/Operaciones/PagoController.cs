@@ -42,6 +42,18 @@ namespace SGHR.Api.Controllers.Operaciones
             return Ok(result);
         }
 
+        // GET api/<PagoController>/5
+        [HttpGet("Get-PagosByID")]
+        public async Task<IActionResult> GetPagobyIDAsync(int id)
+        {
+            ServiceResult result = await _pagoservices.GetPagoByIdAsync(id);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
         // POST api/<PagoController>
         [HttpPost("Realizar-Pago")]
         public async Task<IActionResult> PostPagoAsync([FromBody] RealizarPagoDto realizarPagoDto)

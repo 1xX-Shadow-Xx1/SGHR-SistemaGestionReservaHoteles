@@ -36,7 +36,7 @@
 
             // --- Botón Crear ---
              $('#btnCrear').click(function () {
-                window.location.href = '@Url.Action("Create", "Mantenimiento")';
+                window.location.href = '@Url.Action("Create", "MantenimientoAPI")';
             });
 
 
@@ -54,7 +54,7 @@
                 }
 
                 // Llamada AJAX a la acción _List pasando el ID
-                $.get('@Url.Action("_List", "Mantenimiento")', { id: id }, function(data) {
+                $.get('@Url.Action("_List", "MantenimientoAPI")', { id: id }, function(data) {
                     $('#contenidoMantenimientos').html(data);
                 }).fail(function() {
                     alert("Mantenimiento no encontrado");
@@ -72,7 +72,7 @@
 
             // --- Función para cargar lista ---
             function cargarLista() {
-                $.get('@Url.Action("_List", "Mantenimiento")', function(data) {
+                $.get('@Url.Action("_List", "MantenimientoAPI")', function(data) {
                     $('#contenidoMantenimientos').html(data);
                 });
             }
@@ -81,7 +81,7 @@
             $('#contenidoMantenimientos').on('click', '.btn-eliminar', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                $.get('@Url.Action("_Delete", "Mantenimiento")', { id: id }, function(data) {
+                $.get('@Url.Action("_Delete", "MantenimientoAPI")', { id: id }, function(data) {
                     $('#contenidoMantenimientos').html(data);
                 });
             });
@@ -90,7 +90,7 @@
             $('#contenidoMantenimientos').on('dblclick', '.fila-mantenimiento', function() {
                 var id = $(this).data('id');
                 // Redirige a la vista completa de Details
-                window.location.href = '@Url.Action("Details", "Mantenimiento")/' + id;
+                window.location.href = '@Url.Action("Details", "MantenimientoAPI")/' + id;
             });
 
              // Botón cancelar en la vista de eliminación → vuelve a la lista
@@ -107,7 +107,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: '@Url.Action("_DeleteConfirmed", "Mantenimiento")', // Acción que devuelve JSON { success, message, data }
+                    url: '@Url.Action("_DeleteConfirmed", "MantenimientoAPI")', // Acción que devuelve JSON { success, message, data }
                     data: $(this).serialize(),
                     success: function (response) {
                         if (response.success) {
@@ -146,7 +146,7 @@
             // Botón “Aceptar” → vuelve a la lista
             $('#contenidoMantenimientos').on('click', '#btnVolverIndex', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Mantenimiento")', function (data) {
+                $.get('@Url.Action("_List", "MantenimientoAPI")', function (data) {
                     $('#contenidoMantenimientos').html(data);
                 });
             });
@@ -154,7 +154,7 @@
             // Botón “Cancelar” dentro de la vista Delete
             $('#contenidoMantenimientos').on('click', '.btn-btnCancelDelete', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Mantenimiento")', function (data) {
+                $.get('@Url.Action("_List", "MantenimientoAPI")', function (data) {
                     $('#contenidoMantenimientos').html(data);
                 });
             });

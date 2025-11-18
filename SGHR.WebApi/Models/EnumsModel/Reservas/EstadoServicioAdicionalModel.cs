@@ -2,7 +2,7 @@
 {
     public enum EstadoServicioAdicionalModel
     {
-        Activo,             
-        Inactivo            
+        Activo = 1,             
+        Inactivo = 2            
     }
 }

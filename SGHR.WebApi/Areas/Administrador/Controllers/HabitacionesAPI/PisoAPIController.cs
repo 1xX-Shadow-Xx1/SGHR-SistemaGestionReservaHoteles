@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Habitaciones.Piso;
-using SGHR.Application.Interfaces.Habitaciones;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using SGHR.Web.Models;
 using SGHR.Web.Models.Habitaciones.Piso;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
@@ -10,7 +8,366 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
     [Area("Administrador")]
     public class PisoAPIController : Controller
     {
-        private readonly IPisoServices _pisoServices;
+
+        public PisoAPIController()
+        {
+        }
+
+        // Página principal
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        // --- Partial para listar pisos ---
+        public async Task<IActionResult> _List(int? id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+
+                    if (id.HasValue && id > 0)
+                    {
+                        var endpointPiso = await httpclient.GetAsync($"Piso/Get-Piso-ByID?id={id}");
+
+                        if (endpointPiso.IsSuccessStatusCode)
+                        {
+                            string response = await endpointPiso.Content.ReadAsStringAsync();
+                            var resultPiso = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
+
+                            if (resultPiso != null && resultPiso.Success)
+                            {
+                                TempData["Success"] = resultPiso.Message;
+                                return PartialView("_List", new List<PisoModel> { resultPiso.Data });
+                            }
+                            else
+                            {
+                                TempData["Error"] = resultPiso.Message;
+                                return PartialView("_List", new List<PisoModel>());
+                            }
+
+                        }
+                        else
+                        {
+                            TempData["Error"] = $"Error {endpointPiso.StatusCode}";
+                            return PartialView("_List", new List<PisoModel>());
+                        }
+                    }
+                    else
+                    {
+                        var endpointList = await httpclient.GetAsync("Piso/Get-Pisos");
+
+                        if (endpointList.IsSuccessStatusCode)
+                        {
+                            string responseList = await endpointList.Content.ReadAsStringAsync();
+                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<PisoModel>>>(responseList);
+
+                            if (resultList != null && resultList.Success)
+                            {
+                                TempData["Success"] = resultList.Message;
+                                return PartialView("_List", resultList.Data);
+                            }
+                            else
+                            {
+                                TempData["Error"] = resultList.Message;
+                                return PartialView("_List", new List<PisoModel>());
+                            }
+                        }
+                        else
+                        {
+                            TempData["Error"] = $"Error {endpointList.StatusCode}";
+                            return PartialView("_List", new List<PisoModel>());
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al obtener los pisos.";
+                return PartialView("Error", ex.Message);
+            }
+        }
+
+        // --- Vista completa de detalles de Piso ---
+        public async Task<IActionResult> Details(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointDetail = await httpclient.GetAsync($"Piso/Get-Piso-ByID?id={id}");
+
+                    if (endpointDetail.IsSuccessStatusCode)
+                    {
+                        string response = await endpointDetail.Content.ReadAsStringAsync();
+                        var resultDetail = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
+
+                        if (resultDetail != null && resultDetail.Success)
+                        {
+                            TempData["Success"] = resultDetail.Message;
+                            return View(resultDetail.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultDetail.Message;
+                            return RedirectToAction("Index");
+                        }
+
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointDetail.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al obtener los pisos.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // GET: Crear Piso
+        public IActionResult Create()
+        {
+            var model = new CreatePisoModel();
+            return View(model);
+        }
+
+        // POST: Crear Piso
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreatePisoModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointCreate = await httpclient.PostAsJsonAsync("Piso/Create-Piso", model);
+
+                    if (endpointCreate.IsSuccessStatusCode)
+                    {
+                        string response = await endpointCreate.Content.ReadAsStringAsync();
+                        var resultPiso = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
+
+                        if (resultPiso != null && resultPiso.Success)
+                        {
+                            TempData["Success"] = resultPiso.Message;
+                            return RedirectToAction("Index");
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultPiso.Message;
+                            return View(model);
+                        }
+
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointCreate.StatusCode}";
+                        return View(model);
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al crear el piso.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // GET: Edit Piso
+        public async Task<IActionResult> Edit(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointEdit = await httpclient.GetAsync($"Piso/Get-Piso-ByID?id={id}");
+
+                    if (endpointEdit.IsSuccessStatusCode)
+                    {
+                        string responseEdit = await endpointEdit.Content.ReadAsStringAsync();
+                        var resultPiso = JsonConvert.DeserializeObject<ServicesResultModel<UpdatePisoModel>>(responseEdit);
+
+                        if (resultPiso != null && resultPiso.Success)
+                        {
+                            TempData["Success"] = resultPiso.Message;
+                            return View(resultPiso.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultPiso.Message;
+                            return RedirectToAction("Index");
+                        }
+
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al mostrar la vista de editar.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // POST: Edit Piso
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(UpdatePisoModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointEdit = await httpclient.PutAsJsonAsync("Piso/Update-Piso", model);
+
+                    if (endpointEdit.IsSuccessStatusCode)
+                    {
+                        string response = await endpointEdit.Content.ReadAsStringAsync();
+                        var ResultPiso = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
+
+                        if (ResultPiso != null && ResultPiso.Success)
+                        {
+                            TempData["Success"] = ResultPiso.Message;
+                            return RedirectToAction("Index");
+                        }
+                        else
+                        {
+                            TempData["Error"] = ResultPiso.Message;
+                            return View(model);
+                        }
+
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        return View(model);
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error interno al actualizar el piso.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // --- Partial para eliminar ---
+        public async Task<IActionResult> _Delete(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpoint = await httpclient.GetAsync($"Piso/Get-Piso-ByID?id={id}");
+
+                    if (endpoint.IsSuccessStatusCode)
+                    {
+                        string response = await endpoint.Content.ReadAsStringAsync();
+                        var resultPiso = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
+
+                        if (resultPiso != null && resultPiso.Success)
+                        {
+                            TempData["Success"] = resultPiso.Message;
+                            return PartialView("_Delete", resultPiso.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultPiso.Message;
+                            return RedirectToAction("Index");
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al eliminar el piso.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // POST: Delete Confirmed
+        [HttpPost, ActionName("_DeleteConfirmed")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> _DeleteConfirmed(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointRemove = await httpclient.PutAsync($"Piso/Remove-Piso?id={id}", null);
+
+                    if (endpointRemove.IsSuccessStatusCode)
+                    {
+                        string response = await endpointRemove.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
+                        return Json(new { success = true, message = result.Message, data = result.Data });
+                    }
+                    else
+                    {
+                        string response = await endpointRemove.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
+                        return Json(new { success = false, message = $"Error {result.Message}" });
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error interno al eliminar el piso.";
+                return View("Error", ex.Message);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /*private readonly IPisoServices _pisoServices;
 
         public PisoAPIController(IPisoServices pisoServices)
         {
@@ -166,6 +523,6 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
             }
             TempData["Success"] = result.Message;
             return Json(new { success = true, message = result.Message, data = result.Data });
-        }
+        }*/
     }
 }

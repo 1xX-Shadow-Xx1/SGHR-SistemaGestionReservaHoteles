@@ -1,23 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Users.Cliente;
-using SGHR.Application.Interfaces.Usuarios;
+using Newtonsoft.Json;
+using SGHR.Web.Models;
+using SGHR.Web.Models.Usuarios.Cliente;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
 {
     [Area("Administrador")]
     public class ClienteAPIController : Controller
     {
-        private readonly IClienteServices _clienteServices;
-
-        public ClienteAPIController(IClienteServices clienteServices)
+        public ClienteAPIController()
         {
-            _clienteServices = clienteServices;
         }
 
-
-        // GET: ClienteController1
-        public async Task<IActionResult> Index()
+        // Página principal
+        public IActionResult Index()
         {
             return View();
         }
@@ -25,149 +21,323 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
         // --- Partial para listar clientes ---
         public async Task<IActionResult> _List(string? cedula)
         {
-            if (!string.IsNullOrEmpty(cedula))
+            try
             {
-                var result = await _clienteServices.GetByCedulaAsync(cedula);
-                if (!result.Success || result.Data == null)
+                using (var httpclient = new HttpClient())
                 {
-                    
-                    return PartialView("_List", new List<ClienteDto>()); // lista vacía si no se encuentra
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+
+                    if (!string.IsNullOrEmpty(cedula))
+                    {
+                        var endpointClient = await httpclient.GetAsync($"Cliente/Get-Cliente-by-cedula?cedula={cedula}");
+
+                        if (endpointClient.IsSuccessStatusCode)
+                        {
+                            string response = await endpointClient.Content.ReadAsStringAsync();
+                            var resultClient = JsonConvert.DeserializeObject<ServicesResultModel<ClienteModel>>(response);
+
+                            if (resultClient != null && resultClient.Success)
+                            {
+                                TempData["Success"] = resultClient.Message;
+                                return PartialView("_List", new List<ClienteModel> { resultClient.Data });
+                            }
+                            else
+                            {
+                                TempData["Error"] = resultClient.Message;
+                                return PartialView("_List", new List<ClienteModel>());
+                            }
+                        }
+                        else
+                        {
+                            TempData["Error"] = $"Error {endpointClient.StatusCode}";
+                            return PartialView("_List", new List<ClienteModel>());
+                        }
+                    }
+                    else
+                    {
+                        var endpointClients = await httpclient.GetAsync("Cliente/Get-Clientes");
+
+                        if (endpointClients.IsSuccessStatusCode)
+                        {
+                            string responseList = await endpointClients.Content.ReadAsStringAsync();
+                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<ClienteModel>>>(responseList);
+
+                            if (resultList != null && resultList.Success)
+                            {
+                                TempData["Success"] = resultList.Message;
+                                return PartialView("_List", resultList.Data);
+                            }
+                            else
+                            {
+                                TempData["Error"] = resultList.Message;
+                                return PartialView("_List", new List<ClienteModel>());
+                            }
+                        }
+                        else
+                        {
+                            TempData["Error"] = $"Error {endpointClients.StatusCode}";
+                            return PartialView("_List", new List<ClienteModel>());
+                        }
+                    }
                 }
-                
-                return PartialView("_List", new List<ClienteDto> { (ClienteDto)result.Data });
             }
-            else
+            catch (Exception ex)
             {
-                var result = await _clienteServices.GetAllAsync();
-                if (!result.Success)
-                {
-                    
-                    return PartialView("_Error", result.Message);
-                }
-                var listaClientes = result.Data as IEnumerable<ClienteDto>;
-                return PartialView("_List", listaClientes);
+                ViewBag.Error = "Ocurrió un error interno al obtener los clientes.";
+                return PartialView("Error", ex.Message);
             }
         }
 
-        // GET: ClienteController1/Details/5
+        // --- Vista completa de detalles ---
         public async Task<IActionResult> Details(int id)
         {
-            ServiceResult result = await _clienteServices.GetByIdAsync(id);
-            if (!result.Success)
+            try
             {
-                // Puedes redirigir a un error general o mostrar mensaje
-                TempData["Error"] = result.Message;
-                return RedirectToAction("Index");
-            }
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointDetail = await httpclient.GetAsync($"Cliente/Get-Cliente-ByID?id={id}");
 
-            var cliente = result.Data as ClienteDto;
-            return View(cliente); // Vista completa
+                    if (endpointDetail.IsSuccessStatusCode)
+                    {
+                        string response = await endpointDetail.Content.ReadAsStringAsync();
+                        var resultDetail = JsonConvert.DeserializeObject<ServicesResultModel<ClienteModel>>(response);
+
+                        if (resultDetail != null && resultDetail.Success)
+                        {
+                            TempData["Success"] = resultDetail.Message;
+                            return View(resultDetail.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultDetail.Message;
+                            return RedirectToAction("Index");
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointDetail.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al obtener el cliente.";
+                return View("Error", ex.Message);
+            }
         }
 
-        // GET: ClienteController1/Create
+        // GET: Crear cliente
         public IActionResult Create()
         {
-            var model = new CreateClienteDto();
-            return View(model); // Vista completa
+            var model = new CreateClienteModel();
+            return View(model);
         }
 
-        // POST: ClienteController1/Create
+        // POST: Crear cliente
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateClienteDto dto)
+        public async Task<IActionResult> Create(CreateClienteModel dto)
         {
             if (!ModelState.IsValid)
-            {
-                // Si hay errores de validación, devolver la misma vista con mensajes
                 return View(dto);
-            }
 
-            var result = await _clienteServices.CreateAsync(dto);
-            if (!result.Success)
+            try
             {
-                // Si hay error en el servicio, mostrarlo en la vista
-                TempData["Error"] = result.Message;
-                return View(dto);
-            }
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointCreate = await httpclient.PostAsJsonAsync("Cliente/Create-Cliente", dto);
 
-            // Redirigir a la lista de usuarios o al detalle recién creado
-            TempData["Success"] = result.Message;
-            return RedirectToAction("Index");
+                    if (endpointCreate.IsSuccessStatusCode)
+                    {
+                        string response = await endpointCreate.Content.ReadAsStringAsync();
+                        var resultClient = JsonConvert.DeserializeObject<ServicesResultModel<ClienteModel>>(response);
+
+                        if (resultClient != null && resultClient.Success)
+                        {
+                            TempData["Success"] = resultClient.Message;
+                            return RedirectToAction("Index");
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultClient.Message;
+                            return View(dto);
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointCreate.StatusCode}";
+                        return View(dto);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al crear el cliente.";
+                return View("Error", ex.Message);
+            }
         }
 
-        // GET: ClienteController1/Edit/5
+        // GET: Editar cliente
         public async Task<IActionResult> Edit(int id)
         {
-            var result = await _clienteServices.GetByIdAsync(id);
-            if (!result.Success)
+            try
             {
-                TempData["Error"] = result.Message;
-                return View("_Error");
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointEdit = await httpclient.GetAsync($"Cliente/Get-Cliente-ByID?id={id}");
+
+                    if (endpointEdit.IsSuccessStatusCode)
+                    {
+                        string responseEdit = await endpointEdit.Content.ReadAsStringAsync();
+                        var resultClient = JsonConvert.DeserializeObject<ServicesResultModel<UpdateClienteModel>>(responseEdit);
+
+                        if (resultClient != null && resultClient.Success)
+                        {
+                            TempData["Success"] = resultClient.Message;
+                            return View(resultClient.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultClient.Message;
+                            return RedirectToAction("Index");
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
             }
-            UpdateClienteDto cliente = new UpdateClienteDto
+            catch (Exception ex)
             {
-                Id = result.Data.Id,
-                Correo = result.Data.Correo,
-                Nombre = result.Data.Nombre,
-                Apellido = result.Data.Apellido,
-                Cedula = result.Data.Cedula,
-                Direccion = result.Data.Direccion,
-                Telefono = result.Data.Telefono
-            };
-            return View(cliente); // Vista completa
+                ViewBag.Error = "Error interno al mostrar la vista de editar.";
+                return View("Error", ex.Message);
+            }
         }
 
-        // POST: ClienteController1/Edit/5
+        // POST: Editar cliente
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdateClienteDto dto)
+        public async Task<IActionResult> Edit(UpdateClienteModel dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
-            var result = await _clienteServices.UpdateAsync(dto);
-            if (!result.Success)
+            try
             {
-                TempData["Error"] = result.Message;
-                return View(dto);
-            }
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointEdit = await httpclient.PutAsJsonAsync("Cliente/Update-Cliente", dto);
 
-            // Redirigir a la lista después de guardar
-            TempData["Success"] = result.Message;
-            return RedirectToAction("Index");
+                    if (endpointEdit.IsSuccessStatusCode)
+                    {
+                        string response = await endpointEdit.Content.ReadAsStringAsync();
+                        var resultClient = JsonConvert.DeserializeObject<ServicesResultModel<ClienteModel>>(response);
+
+                        if (resultClient != null && resultClient.Success)
+                        {
+                            TempData["Success"] = resultClient.Message;
+                            return RedirectToAction("Index");
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultClient.Message;
+                            return View(dto);
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        return View(dto);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error interno al actualizar el cliente.";
+                return View("Error", ex.Message);
+            }
         }
 
-        // GET: ClienteController1/Delete/5
+        // --- Partial Delete ---
         public async Task<IActionResult> _Delete(int id)
         {
-            var result = await _clienteServices.GetByIdAsync(id);
-            if (!result.Success)
+            try
             {
-                TempData["Error"] = result.Message;
-                return PartialView("_Error");
-            }
-            if (result.Data == null)
-            {
-                TempData["Error"] = "Cliente no encontrado.";
-                return PartialView("_Error");
-            }
-            return PartialView("_Delete", (ClienteDto)result.Data);
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpoint = await httpclient.GetAsync($"Cliente/Get-Cliente-ByID?id={id}");
 
+                    if (endpoint.IsSuccessStatusCode)
+                    {
+                        string response = await endpoint.Content.ReadAsStringAsync();
+                        var resultClient = JsonConvert.DeserializeObject<ServicesResultModel<ClienteModel>>(response);
+
+                        if (resultClient != null && resultClient.Success)
+                        {
+                            TempData["Success"] = resultClient.Message;
+                            return PartialView("_Delete", resultClient.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultClient.Message;
+                            return RedirectToAction("Index");
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al eliminar el cliente.";
+                return View("Error", ex.Message);
+            }
         }
 
-        // POST: ClienteController1/Delete/5
-        [HttpPost]
+        // POST: Confirm Delete
+        [HttpPost, ActionName("_DeleteConfirmed")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> _DeleteConfirmed(int id)
         {
-            var result = await _clienteServices.DeleteAsync(id);
-            if (!result.Success)
+            try
             {
-                TempData["Error"] = result.Message;
-                return Json(new { success = false, message = result.Message, data = result.Data });
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointRemove = await httpclient.PutAsync($"Cliente/Remove-Cliente?id={id}", null);
+
+                    if (endpointRemove.IsSuccessStatusCode)
+                    {
+                        string response = await endpointRemove.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ClienteModel>>(response);
+                        return Json(new { success = true, message = result.Message, data = result.Data });
+                    }
+                    else
+                    {
+                        string response = await endpointRemove.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ClienteModel>>(response);
+                        return Json(new { success = false, message = $"Error {result.Message}" });
+                    }
+                }
             }
-            TempData["Success"] = result.Message;
-            return Json(new { success = true, message = result.Message, data = result.Data });
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error interno al eliminar el cliente.";
+                return View("Error", ex.Message);
+            }
         }
+
+
     }
 }

@@ -55,7 +55,11 @@
                 <a class="nav-link" asp-area="Administrador" asp-controller="ServicioAdicionalAPI" asp-action="Index">Servicio Adicional</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link CloseSesion" style="position: absolute; bottom: 20px;" asp-area="" asp-controller="AuthenticationAPI" asp-action="Logout">Cerrar Sesion</a>
+                <form id="logoutForm" method="post" asp-controller="AuthenticationAPI" asp-action="Logout" asp-area="">
+                    <button type="submit" class="nav-link" style="position: absolute; bottom: 20px; background:none; border:none; cursor:pointer;">
+                        Cerrar Sesión
+                    </button>
+                </form>
             </li>
         </ul>
     </nav>

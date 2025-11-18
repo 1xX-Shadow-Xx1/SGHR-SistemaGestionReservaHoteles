@@ -44,7 +44,7 @@ namespace SGHR.Web
 
             app.MapControllerRoute(
                 name: "areas",
-                pattern: "{area:exists}/{controller=HomeAPI}/{action=Index}/{id?}");
+                pattern: "{area:exists}/{controller}/{action}/{id?}");
 
             app.MapControllerRoute(
                 name: "default",

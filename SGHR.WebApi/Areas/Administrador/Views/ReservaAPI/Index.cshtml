@@ -36,7 +36,7 @@
 
             // --- Botón Crear ---
              $('#btnCrear').click(function () {
-                window.location.href = '@Url.Action("Create", "Reserva")';
+                window.location.href = '@Url.Action("Create", "ReservaAPI")';
             });
 
 
@@ -54,7 +54,7 @@
                 }
 
                 // Llamada AJAX a la acción _List pasando el ID
-                $.get('@Url.Action("_List", "Reserva")', { id: id }, function(data) {
+                $.get('@Url.Action("_List", "ReservaAPI")', { id: id }, function(data) {
                     $('#contenidoReservas').html(data);
                 }).fail(function() {
                     alert("Reserva no encontrada");
@@ -72,7 +72,7 @@
 
             // --- Función para cargar lista ---
             function cargarLista() {
-                $.get('@Url.Action("_List", "Reserva")', function(data) {
+                $.get('@Url.Action("_List", "ReservaAPI")', function(data) {
                     $('#contenidoReservas').html(data);
                 });
             }
@@ -81,7 +81,7 @@
             $('#contenidoReservas').on('click', '.btn-eliminar', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                $.get('@Url.Action("_Delete", "Reserva")', { id: id }, function(data) {
+                $.get('@Url.Action("_Delete", "ReservaAPI")', { id: id }, function(data) {
                     $('#contenidoReservas').html(data);
                 });
             });
@@ -90,7 +90,7 @@
             $('#contenidoReservas').on('dblclick', '.fila-reserva', function() {
                 var id = $(this).data('id');
                 // Redirige a la vista completa de Details
-                window.location.href = '@Url.Action("Details", "Reserva")/' + id;
+                window.location.href = '@Url.Action("Details", "ReservaAPI")/' + id;
             });
 
              // Botón cancelar en la vista de eliminación → vuelve a la lista
@@ -107,7 +107,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: '@Url.Action("_DeleteConfirmed", "Reserva")', // Acción que devuelve JSON { success, message, data }
+                    url: '@Url.Action("_DeleteConfirmed", "ReservaAPI")', // Acción que devuelve JSON { success, message, data }
                     data: $(this).serialize(),
                     success: function (response) {
                         if (response.success) {
@@ -146,7 +146,7 @@
             // Botón “Aceptar” → vuelve a la lista
             $('#contenidoReservas').on('click', '#btnVolverIndex', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Reserva")', function (data) {
+                $.get('@Url.Action("_List", "ReservaAPI")', function (data) {
                     $('#contenidoReservas').html(data);
                 });
             });
@@ -154,7 +154,7 @@
             // Botón “Cancelar” dentro de la vista Delete
             $('#contenidoReservas').on('click', '.btn-btnCancelDelete', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Reserva")', function (data) {
+                $.get('@Url.Action("_List", "ReservaAPI")', function (data) {
                     $('#contenidoReservas').html(data);
                 });
             });

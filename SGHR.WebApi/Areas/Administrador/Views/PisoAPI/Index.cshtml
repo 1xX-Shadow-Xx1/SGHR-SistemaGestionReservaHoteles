@@ -36,7 +36,7 @@
 
             // --- Botón Crear ---
              $('#btnCrear').click(function () {
-                window.location.href = '@Url.Action("Create", "Piso")';
+                window.location.href = '@Url.Action("Create", "PisoAPI")';
             });
 
 
@@ -54,7 +54,7 @@
                 }
 
                 // Llamada AJAX a la acción _List pasando el ID
-                $.get('@Url.Action("_List", "Piso")', { id: id }, function(data) {
+                $.get('@Url.Action("_List", "PisoAPI")', { id: id }, function(data) {
                     $('#contenidoPisos').html(data);
                 }).fail(function() {
                     alert("Piso no encontrado");
@@ -72,7 +72,7 @@
 
             // --- Función para cargar lista ---
             function cargarLista() {
-                $.get('@Url.Action("_List", "Piso")', function(data) {
+                $.get('@Url.Action("_List", "PisoAPI")', function(data) {
                     $('#contenidoPisos').html(data);
                 });
             }
@@ -81,7 +81,7 @@
             $('#contenidoPisos').on('click', '.btn-eliminar', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                $.get('@Url.Action("_Delete", "Piso")', { id: id }, function(data) {
+                $.get('@Url.Action("_Delete", "PisoAPI")', { id: id }, function(data) {
                     $('#contenidoPisos').html(data);
                 });
             });
@@ -90,7 +90,7 @@
             $('#contenidoPisos').on('dblclick', '.fila-piso', function() {
                 var id = $(this).data('id');
                 // Redirige a la vista completa de Details
-                window.location.href = '@Url.Action("Details", "Piso")/' + id;
+                window.location.href = '@Url.Action("Details", "PisoAPI")/' + id;
             });
 
              // Botón cancelar en la vista de eliminación → vuelve a la lista
@@ -107,7 +107,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: '@Url.Action("_DeleteConfirmed", "Piso")', // Acción que devuelve JSON { success, message, data }
+                    url: '@Url.Action("_DeleteConfirmed", "PisoAPI")', // Acción que devuelve JSON { success, message, data }
                     data: $(this).serialize(),
                     success: function (response) {
                         if (response.success) {
@@ -146,7 +146,7 @@
             // Botón “Aceptar” → vuelve a la lista
             $('#contenidoPisos').on('click', '#btnVolverIndex', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Piso")', function (data) {
+                $.get('@Url.Action("_List", "PisoAPI")', function (data) {
                     $('#contenidoPisos').html(data);
                 });
             });
@@ -154,7 +154,7 @@
             // Botón “Cancelar” dentro de la vista Delete
             $('#contenidoPisos').on('click', '.btnCancelDelete', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Piso")', function (data) {
+                $.get('@Url.Action("_List", "PisoAPI")', function (data) {
                     $('#contenidoPisos').html(data);
                 });
             });

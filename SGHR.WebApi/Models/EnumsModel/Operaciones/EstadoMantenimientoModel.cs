@@ -4,10 +4,10 @@ namespace SGHR.Web.Models.EnumsModel.Operaciones
 {
     public enum EstadoMantenimientoModel
     {
-        Pendiente,
+        Pendiente = 1,
         [Display(Name = "En proceso")]
-        EnProceso,          
-        Completado,         
-        Cancelado          
+        EnProceso = 2,          
+        Completado = 3,         
+        Cancelado = 4          
     }
 }

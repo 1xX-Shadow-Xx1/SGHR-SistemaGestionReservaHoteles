@@ -172,7 +172,7 @@ namespace SGHR.Web.Controllers
                 using (var httpclient = new HttpClient())
                 {
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.PutAsJsonAsync("Sesion/PutCloseSesionByUserID?userId", userId.Value);
+                    var endpoint = await httpclient.PutAsync($"Authentication/Authentication-CloseSesion?id={userId.Value}", null);
                     if (endpoint.IsSuccessStatusCode)
                     {
                         string response = await endpoint.Content.ReadAsStringAsync();
@@ -192,8 +192,8 @@ namespace SGHR.Web.Controllers
                     {
                         string res = await endpoint.Content.ReadAsStringAsync();
                         var resul = JsonConvert.DeserializeObject<ServicesResultModel<SesionModel>>(res);
-                        TempData["Error"] = resul.Message;
-                        return RedirectToAction("Index");
+                        ViewBag.Error = resul.Message;
+                        return RedirectToAction("Login");
                     }
                 }
             }
@@ -215,7 +215,7 @@ namespace SGHR.Web.Controllers
                     using (var httpclient = new HttpClient())
                     {
                         httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                        var endpoint = await httpclient.PutAsJsonAsync("Sesion/PutCloseSesionByUserID?userId=", userId.Value);
+                        var endpoint = await httpclient.PutAsync($"Sesion/PutCloseSesionByUserID?userId={userId.Value}", null);
                         if (endpoint.IsSuccessStatusCode)
                         {
                             string response = await endpoint.Content.ReadAsStringAsync();
@@ -300,7 +300,7 @@ namespace SGHR.Web.Controllers
                 using (var httpclient = new HttpClient())
                 {
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.PutAsJsonAsync($"Sesion/UpdateActivitySesionByUser?userId=", sesionid.Value);
+                    var endpoint = await httpclient.PutAsync($"Sesion/UpdateActivitySesionByUser?userId={sesionid.Value}", null);
 
                     if (endpoint.IsSuccessStatusCode)
                     {

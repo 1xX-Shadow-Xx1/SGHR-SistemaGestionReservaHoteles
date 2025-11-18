@@ -24,7 +24,7 @@
         <dd class="col-sm-9">@Model.Estado</dd>
     </dl>
 
-    <form id="formDelete" method="post" action="@Url.Action("AnularConfirmed", "Pago")" class="d-flex gap-2">
+    <form id="formDelete" method="post" action="@Url.Action("AnularConfirmed", "PagoAPI")" class="d-flex gap-2">
         @Html.AntiForgeryToken()
         <input type="hidden" name="id" value="@Model.Id" />
 

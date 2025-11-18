@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using SGHR.Application.Dtos.Configuration.Users.Usuario;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Usuarios.Usuario;
 
@@ -33,7 +32,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
                     if (id.HasValue && id > 0)
                     {
 
-                        var endpointUser = await httpclient.GetAsync($"Usuario/Get-Usuario-By-Id={id}");
+                        var endpointUser = await httpclient.GetAsync($"Usuario/Get-Usuario-By-Id?id={id}");
 
                         if (endpointUser.IsSuccessStatusCode)
                         {
@@ -43,7 +42,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
                             if (resulUser != null && resulUser.Success)
                             {
                                 TempData["Success"] = resulUser.Message;
-                                return PartialView("_List", resulUser.Data);
+                                return PartialView("_List", new List<UsuarioModel> { resulUser.Data });
                             }
                             else
                             {
@@ -65,7 +64,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
                         if (endpointlista.IsSuccessStatusCode)
                         {
                             string responseList = await endpointlista.Content.ReadAsStringAsync();
-                            var resulList = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(responseList);
+                            var resulList = JsonConvert.DeserializeObject<ServicesResultModel<List<UsuarioModel>>> (responseList);
 
                             if (resulList != null && resulList.Success)
                             {
@@ -105,7 +104,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
                 using(var httpclient = new HttpClient())
                 {
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointDetail = await httpclient.GetAsync($"Usuario/Get-Usuario-By-Id={id}");
+                    var endpointDetail = await httpclient.GetAsync($"Usuario/Get-Usuario-By-Id?id={id}");
 
                     if (endpointDetail.IsSuccessStatusCode)
                     {
@@ -204,11 +203,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
                 using( var httpclient = new HttpClient())
                 {
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointEdit = await httpclient.GetAsync($"Usuario/Get-Usuario-By-Id={id}");
+                    var endpointEdit = await httpclient.GetAsync($"Usuario/Get-Usuario-By-Id?id={id}");
                     if (endpointEdit.IsSuccessStatusCode)
                     {
                         string responseEdit = await endpointEdit.Content.ReadAsStringAsync();
-                        var resultUser = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(responseEdit);
+                        var resultUser = JsonConvert.DeserializeObject<ServicesResultModel<UpdateUsuarioModel>>(responseEdit);
 
                         if(resultUser != null && resultUser.Success)
                         {
@@ -239,7 +238,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
         // POST: Guardar cambios
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdateUsuarioDto dto)
+        public async Task<IActionResult> Edit(UpdateUsuarioModel dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
@@ -292,7 +291,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
                 using (var httpclient = new HttpClient())
                 {
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.GetAsync($"Usuario/Get-Usuario-By-Id={id}");
+                    var endpoint = await httpclient.GetAsync($"Usuario/Get-Usuario-By-Id?id={id}");
 
                     if(endpoint.IsSuccessStatusCode)
                     {
@@ -334,16 +333,19 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
                 using (var httpclient = new HttpClient())
                 {
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointRemove = await httpclient.PutAsJsonAsync($"Usuario/Remove-Usuario?id", id);
+                    var endpointRemove = await httpclient.PutAsync($"Usuario/Remove-Usuario?id={id}", null);
 
                     if (endpointRemove.IsSuccessStatusCode)
                     {
                         string response = await endpointRemove.Content.ReadAsStringAsync();
-                        return Json(response);
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(response);
+                        return Json(new { success = true, message = result.Message, data = result.Data});
                     }
                     else
                     {
-                        return Json(new { success = false, message = $"Error {endpointRemove.StatusCode}"});
+                        string response = await endpointRemove.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(response);
+                        return Json(new { success = false, message = $"Error {result.Message}"});
                     }
                 }
 

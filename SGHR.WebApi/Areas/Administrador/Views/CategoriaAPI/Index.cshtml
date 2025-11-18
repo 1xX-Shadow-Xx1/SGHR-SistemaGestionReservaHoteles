@@ -37,7 +37,7 @@
 
             // --- Botón Crear ---
              $('#btnCrear').click(function () {
-                window.location.href = '@Url.Action("Create", "Categoria")';
+                window.location.href = '@Url.Action("Create", "CategoriaAPI")';
             });
 
 
@@ -55,7 +55,7 @@
                 }
 
                 // Llamada AJAX a la acción _List pasando el ID
-                $.get('@Url.Action("_List", "Categoria")', { id: id }, function(data) {
+                $.get('@Url.Action("_List", "CategoriaAPI")', { id: id }, function(data) {
                     $('#contenidoCategorias').html(data);
                 }).fail(function() {
                     alert("Categoria no encontrada");
@@ -73,7 +73,7 @@
 
             // --- Función para cargar lista ---
             function cargarLista() {
-                $.get('@Url.Action("_List", "Categoria")', function(data) {
+                $.get('@Url.Action("_List", "CategoriaAPI")', function(data) {
                     $('#contenidoCategorias').html(data);
                 });
             }
@@ -82,7 +82,7 @@
             $('#contenidoCategorias').on('click', '.btn-eliminar', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                $.get('@Url.Action("_Delete", "Categoria")', { id: id }, function(data) {
+                $.get('@Url.Action("_Delete", "CategoriaAPI")', { id: id }, function(data) {
                     $('#contenidoCategorias').html(data);
                 });
             });
@@ -91,7 +91,7 @@
             $('#contenidoCategorias').on('dblclick', '.fila-categoria', function() {
                 var id = $(this).data('id');
                 // Redirige a la vista completa de Details
-                window.location.href = '@Url.Action("Details", "Categoria")/' + id;
+                window.location.href = '@Url.Action("Details", "CategoriaAPI")/' + id;
             });
 
              // Botón cancelar en la vista de eliminación → vuelve a la lista
@@ -108,7 +108,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: '@Url.Action("_DeleteConfirmed", "Categoria")', // Acción que devuelve JSON { success, message, data }
+                    url: '@Url.Action("_DeleteConfirmed", "CategoriaAPI")', // Acción que devuelve JSON { success, message, data }
                     data: $(this).serialize(),
                     success: function (response) {
                         if (response.success) {
@@ -147,7 +147,7 @@
             // Botón “Aceptar” → vuelve a la lista
             $('#contenidoCategorias').on('click', '#btnVolverIndex', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Categoria")', function (data) {
+                $.get('@Url.Action("_List", "CategoriaAPI")', function (data) {
                     $('#contenidoCategorias').html(data);
                 });
             });
@@ -155,7 +155,7 @@
             // Botón “Cancelar” dentro de la vista Delete
             $('#contenidoCategorias').on('click', '.btn-btnCancelDelete', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Categoria")', function (data) {
+                $.get('@Url.Action("_List", "CategoriaAPI")', function (data) {
                     $('#contenidoCategorias').html(data);
                 });
             });

@@ -224,6 +224,8 @@ namespace SGHR.Application.Services.Habitaciones
 
                 amenity.Data.Nombre = UpdateDto.Nombre;
                 amenity.Data.Descripcion = UpdateDto.Descripcion;
+                amenity.Data.Precio = UpdateDto.Precio;
+                amenity.Data.PorCapacidad = UpdateDto.PorCapacidad;
 
                 var OpResult = await _amenityRepository.UpdateAsync(amenity.Data);
                 if (!OpResult.Success)

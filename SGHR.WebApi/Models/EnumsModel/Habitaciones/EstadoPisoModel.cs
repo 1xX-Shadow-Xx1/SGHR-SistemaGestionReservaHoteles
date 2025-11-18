@@ -2,8 +2,8 @@
 {
     public enum EstadoPisoModel
     {
-        Habilitado,
-        Deshabilitado,
-        EnMantenimiento
+        Habilitado = 1,
+        Deshabilitado = 2,
+        EnMantenimiento = 3
     }
 }

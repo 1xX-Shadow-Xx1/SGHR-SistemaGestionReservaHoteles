@@ -46,7 +46,7 @@
 
             // --- Botón Realizar Pago ---
              $('#btnRealizar').click(function () {
-                window.location.href = '@Url.Action("RealizarPago", "Pago")';
+                window.location.href = '@Url.Action("RealizarPago", "PagoAPI")';
             });
 
 
@@ -64,7 +64,7 @@
                 }
 
                 // Llamada AJAX a la acción _List pasando el ID
-                $.get('@Url.Action("_List", "Pago")', { id: id }, function(data) {
+                $.get('@Url.Action("_List", "PagoAPI")', { id: id }, function(data) {
                     $('#contenidoPagos').html(data);
                 }).fail(function() {
                     alert("Pago no encontrado");
@@ -82,7 +82,7 @@
             $(".btn-anular").click(function () {
                 var id = $(this).data("id");
 
-                $.get('@Url.Action("_AnularPago", "Pago")', { id: id }, function (data) {
+                $.get('@Url.Action("_AnularPago", "PagoAPI")', { id: id }, function (data) {
                     $("#contenidoPago").html(data);
                 });
             });
@@ -90,14 +90,14 @@
             
             // --- Función para cargar lista ---
             function cargarLista() {
-                $.get('@Url.Action("_List", "Pago")', function(data) {
+                $.get('@Url.Action("_List", "PagoAPI")', function(data) {
                     $('#contenidoPagos').html(data);
                 });
             }
 
             // --- Función para cargar Resumen ---
             function cargarResumen() {
-                $.get('@Url.Action("_resumenPagos", "Pago")', function(data) {
+                $.get('@Url.Action("_resumenPagos", "PagoAPI")', function(data) {
                     $('#contenidoResumenPagos').html(data);
                 });
             }
@@ -106,7 +106,7 @@
             $('#contenidoPagos').on('click', '.btn-anular', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                $.get('@Url.Action("_AnularPago", "Pago")', { id: id }, function(data) {
+                $.get('@Url.Action("_AnularPago", "PagoAPI")', { id: id }, function(data) {
                     $('#contenidoPagos').html(data);
                 });
             });
@@ -115,7 +115,7 @@
             $('#contenidoPagos').on('dblclick', '.fila-pago', function() {
                 var id = $(this).data('id');
                 // Redirige a la vista completa de Details
-                window.location.href = '@Url.Action("Details", "Pago")/' + id;
+                window.location.href = '@Url.Action("Details", "PagoAPI")/' + id;
             });
 
              // Botón cancelar en la vista de eliminación → vuelve a la lista
@@ -132,7 +132,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: '@Url.Action("AnularConfirmed", "Pago")', // Acción que devuelve JSON { success, message, data }
+                    url: '@Url.Action("AnularConfirmed", "PagoAPI")', // Acción que devuelve JSON { success, message, data }
                     data: $(this).serialize(),
                     success: function (response) {
                         if (response.success) {
@@ -171,7 +171,7 @@
             // Botón “Aceptar” → vuelve a la lista
             $('#contenidoPagos').on('click', '#btnVolverIndex', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Pago")', function (data) {
+                $.get('@Url.Action("_List", "PagoAPI")', function (data) {
                     $('#contenidoPagos').html(data);
                 });
             });
@@ -179,7 +179,7 @@
             // Botón “Cancelar” dentro de la vista AnularPago
             $('#contenidoPagos').on('click', '.btnCancelDelete', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Pago")', function (data) {
+                $.get('@Url.Action("_List", "PagoAPI")', function (data) {
                     $('#contenidoPagos').html(data);
                 });
             });

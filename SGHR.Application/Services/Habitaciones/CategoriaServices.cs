@@ -233,6 +233,7 @@ namespace SGHR.Application.Services.Habitaciones
 
                 Categoria.Nombre = UpdateDto.Nombre;
                 Categoria.Descripcion = UpdateDto.Descripcion;
+                Categoria.Precio = UpdateDto.Precio;
 
                 var opResult = await _categoriaRepository.UpdateAsync(Categoria);
                 if (!opResult.Success)

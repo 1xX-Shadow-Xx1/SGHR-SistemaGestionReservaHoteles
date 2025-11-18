@@ -83,7 +83,7 @@
                                         <td>@pago.Id</td>
                                         <td>@pago.Monto.ToString("C")</td>
                                         <td>
-                                            <span class="badge @(pago.Estado == EstadoPagoModel.Completado ? "bg-success" : pago.Estado == EstadoPagoModel.Rechazado ? "bg-warning" : "bg-danger")">
+                                            <span class="badge @(pago.Estado == EstadoPagoModel.Completado ? "bg-success" : pago.Estado == EstadoPagoModel.Pendiente ? "bg-warning" : "bg-danger")">
                                                 @pago.Estado
                                             </span>
                                         </td>

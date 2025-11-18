@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Reservas.ServicioAdicional;
-using SGHR.Application.Interfaces.Reservas;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using SGHR.Web.Models;
 using SGHR.Web.Models.Reservas.ServicioAdicional;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
@@ -10,7 +8,350 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
     [Area("Administrador")]
     public class ServicioAdicionalAPIController : Controller
     {
-        private readonly IServicioAdicionalServices _servicioAdicionalServices;
+        public ServicioAdicionalAPIController()
+        {
+        }
+
+        // Página principal
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        // --- Vista completa de detalles del servicio adicional ---
+        public async Task<IActionResult> Details(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointDetail = await httpclient.GetAsync($"ServicioAdicional/Get-Servicio-Adicional-By-ID?id={id}");
+
+                    if (endpointDetail.IsSuccessStatusCode)
+                    {
+                        string response = await endpointDetail.Content.ReadAsStringAsync();
+                        var resultDetail = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
+
+                        if (resultDetail != null && resultDetail.Success)
+                        {
+                            TempData["Success"] = resultDetail.Message;
+                            return View(resultDetail.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultDetail.Message;
+                            return RedirectToAction("Index");
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointDetail.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al obtener el servicio adicional.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // --- Partial para listar servicios adicionales ---
+        public async Task<IActionResult> _List(int? id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+
+                    if (id.HasValue && id > 0)
+                    {
+                        var endpoint = await httpclient.GetAsync($"ServicioAdicional/Get-Servicio-Adicional-By-ID?id={id}");
+
+                        if (endpoint.IsSuccessStatusCode)
+                        {
+                            string response = await endpoint.Content.ReadAsStringAsync();
+                            var result = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
+
+                            if (result != null && result.Success)
+                            {
+                                TempData["Success"] = result.Message;
+                                return PartialView("_List", new List<ServicioAdicionalModel> { result.Data });
+                            }
+                            else
+                            {
+                                TempData["Error"] = result.Message;
+                                return PartialView("_List", new List<ServicioAdicionalModel>());
+                            }
+                        }
+                        else
+                        {
+                            TempData["Error"] = $"Error {endpoint.StatusCode}";
+                            return PartialView("_List", new List<ServicioAdicionalModel>());
+                        }
+                    }
+                    else
+                    {
+                        var endpointList = await httpclient.GetAsync("ServicioAdicional/Get-Servicio-Adicional");
+
+                        if (endpointList.IsSuccessStatusCode)
+                        {
+                            string responseList = await endpointList.Content.ReadAsStringAsync();
+                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<ServicioAdicionalModel>>>(responseList);
+
+                            if (resultList != null && resultList.Success)
+                            {
+                                TempData["Success"] = resultList.Message;
+                                return PartialView("_List", resultList.Data);
+                            }
+                            else
+                            {
+                                TempData["Error"] = resultList.Message;
+                                return PartialView("_List", new List<ServicioAdicionalModel>());
+                            }
+                        }
+                        else
+                        {
+                            TempData["Error"] = $"Error {endpointList.StatusCode}";
+                            return PartialView("_List", new List<ServicioAdicionalModel>());
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al obtener la lista.";
+                return PartialView("Error", ex.Message);
+            }
+        }
+
+        // --- Vista completa para crear un servicio adicional ---
+        public IActionResult Create()
+        {
+            var model = new CreateServicioAdicionalModel();
+            return View(model);
+        }
+
+        // --- POST crear servicio adicional ---
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateServicioAdicionalModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointCreate = await httpclient.PostAsJsonAsync("ServicioAdicional/Create-Servicio-Adicional", model);
+
+                    if (endpointCreate.IsSuccessStatusCode)
+                    {
+                        string response = await endpointCreate.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
+
+                        if (result != null && result.Success)
+                        {
+                            TempData["Success"] = result.Message;
+                            return RedirectToAction("Index");
+                        }
+                        else
+                        {
+                            TempData["Error"] = result.Message;
+                            return View(model);
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointCreate.StatusCode}";
+                        return View(model);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al crear el servicio adicional.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // --- Vista completa editar servicio adicional ---
+        public async Task<IActionResult> Edit(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpoint = await httpclient.GetAsync($"ServicioAdicional/Get-Servicio-Adicional-By-ID?id={id}");
+
+                    if (endpoint.IsSuccessStatusCode)
+                    {
+                        string response = await endpoint.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<UpdateServicioAdicionalModel>>(response);
+
+                        if (result != null && result.Success)
+                        {
+                            TempData["Success"] = result.Message;
+                            return View(result.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = result.Message;
+                            return RedirectToAction("Index");
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error interno al mostrar la vista de edición.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // --- POST actualizar servicio adicional ---
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(UpdateServicioAdicionalModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpoint = await httpclient.PutAsJsonAsync("ServicioAdicional/Update-Servicio-Adicional", model);
+
+                    if (endpoint.IsSuccessStatusCode)
+                    {
+                        string response = await endpoint.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
+
+                        if (result != null && result.Success)
+                        {
+                            TempData["Success"] = result.Message;
+                            return RedirectToAction("Index");
+                        }
+                        else
+                        {
+                            TempData["Error"] = result.Message;
+                            return View(model);
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        return View(model);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error interno al actualizar el servicio adicional.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // --- Partial eliminar ---
+        public async Task<IActionResult> _Delete(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpoint = await httpclient.GetAsync($"ServicioAdicional/Get-Servicio-Adicional-By-ID?id={id}");
+
+                    if (endpoint.IsSuccessStatusCode)
+                    {
+                        string response = await endpoint.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
+
+                        if (result != null && result.Success)
+                        {
+                            TempData["Success"] = result.Message;
+                            return PartialView("_Delete", result.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = result.Message;
+                            return RedirectToAction("Index");
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al eliminar el servicio adicional.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // --- POST eliminar registro ---
+        [HttpPost, ActionName("_DeleteConfirmed")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> _DeleteConfirmed(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpoint = await httpclient.PutAsync($"ServicioAdicional/Remove-Servicio-Adicional?id={id}", null);
+
+                    if (endpoint.IsSuccessStatusCode)
+                    {
+                        string response = await endpoint.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
+                        return Json(new { success = true, message = result.Message, data = result.Data });
+                    }
+                    else
+                    {
+                        string response = await endpoint.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
+                        return Json(new { success = false, message = $"Error {result.Message}" });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error interno al eliminar el servicio adicional.";
+                return View("Error", ex.Message);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /*private readonly IServicioAdicionalServices _servicioAdicionalServices;
 
         public ServicioAdicionalAPIController(IServicioAdicionalServices servicioAdicionalServices)
         {
@@ -167,6 +508,6 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             }
             TempData["Success"] = result.Message;
             return Json(new { success = true, message = result.Message, data = result.Data });
-        }
+        }*/
     }
 }

@@ -37,7 +37,7 @@
 
             // --- Botón Crear ---
             $('#btnCrear').click(function () {
-                window.location.href = '@Url.Action("Create", "Habitacion")';
+                window.location.href = '@Url.Action("Create", "HabitacionAPI")';
             });
 
 
@@ -59,7 +59,7 @@
                 }
 
                 // Llamada AJAX a la acción _List pasando el número de habitación
-                $.get('@Url.Action("_List", "Habitacion")', { numeroHabitacion: habitacion }, function(data) {
+                $.get('@Url.Action("_List", "HabitacionAPI")', { numeroHabitacion: habitacion }, function(data) {
                     $('#contenidoHabitaciones').html(data);
                 }).fail(function() {
                     alert("Habitación no encontrada");
@@ -80,7 +80,7 @@
 
             // --- Función para cargar lista ---
             function cargarLista() {
-                $.get('@Url.Action("_List", "Habitacion")', function(data) {
+                $.get('@Url.Action("_List", "HabitacionAPI")', function(data) {
                     $('#contenidoHabitaciones').html(data);
                 });
             }
@@ -89,7 +89,7 @@
             $('#contenidoHabitaciones').on('click', '.btn-eliminar', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                $.get('@Url.Action("_Delete", "Habitacion")', { id: id }, function(data) {
+                $.get('@Url.Action("_Delete", "HabitacionAPI")', { id: id }, function(data) {
                     $('#contenidoHabitaciones').html(data);
                 });
             });
@@ -98,7 +98,7 @@
             $('#contenidoHabitaciones').on('dblclick', '.fila-habitacion', function() {
                 var id = $(this).data('id');
                 // Redirige a la vista completa de Details
-                window.location.href = '@Url.Action("Details", "Habitacion")/' + id;
+                window.location.href = '@Url.Action("Details", "HabitacionAPI")/' + id;
             });
 
              // Botón cancelar en la vista de eliminación → vuelve a la lista
@@ -115,7 +115,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: '@Url.Action("_DeleteConfirmed", "Habitacion")', // Acción que devuelve JSON { success, message, data }
+                    url: '@Url.Action("_DeleteConfirmed", "HabitacionAPI")', // Acción que devuelve JSON { success, message, data }
                     data: $(this).serialize(),
                     success: function (response) {
                         if (response.success) {
@@ -154,7 +154,7 @@
             // Botón “Aceptar” → vuelve a la lista
             $('#contenidoHabitaciones').on('click', '#btnVolverIndex', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Habitacion")', function (data) {
+                $.get('@Url.Action("_List", "HabitacionAPI")', function (data) {
                     $('#contenidoHabitaciones').html(data);
                 });
             });
@@ -162,7 +162,7 @@
             // Botón “Cancelar” dentro de la vista Delete
             $('#contenidoHabitaciones').on('click', '.btn-btnCancelDelete', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Habitacion")', function (data) {
+                $.get('@Url.Action("_List", "HabitacionAPI")', function (data) {
                     $('#contenidoHabitaciones').html(data);
                 });
             });

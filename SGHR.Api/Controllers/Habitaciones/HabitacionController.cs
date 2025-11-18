@@ -65,6 +65,18 @@ namespace SGHR.Api.Controllers.Habitaciones
             return Ok(result);
         }
 
+        // GET api/<HabitacionController>/5
+        [HttpGet("Get-Habitacion-By-NumeroHabitacion")]
+        public async Task<IActionResult> GetByNumeroHabitacionAsync(string numeroHabitacion)
+        {
+            ServiceResult result = await _habitacionService.GetByNumero(numeroHabitacion);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
         // POST api/<HabitacionController>
         [HttpPost("Create-Habitacion")]
         public async Task<IActionResult> PostAsync([FromBody] CreateHabitacionDto createDto)

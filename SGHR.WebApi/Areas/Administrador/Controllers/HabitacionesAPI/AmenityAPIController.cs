@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Habitaciones.Amenity;
-using SGHR.Application.Interfaces.Habitaciones;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using SGHR.Web.Models;
 using SGHR.Web.Models.Habitaciones.Amenity;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
@@ -10,7 +8,347 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
     [Area("Administrador")]
     public class AmenityAPIController : Controller
     {
-        private readonly IAmenityServices _amenityServices;
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        // --- Partial para listar amenities ---
+        public async Task<IActionResult> _List(int? id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+
+                    if (id.HasValue && id > 0)
+                    {
+                        var endpointAmenity = await httpclient.GetAsync($"Amenity/Get-By-ID?id={id}");
+
+                        if (endpointAmenity.IsSuccessStatusCode)
+                        {
+                            string response = await endpointAmenity.Content.ReadAsStringAsync();
+                            var resultAmenity = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
+
+                            if (resultAmenity != null && resultAmenity.Success)
+                            {
+                                TempData["Success"] = resultAmenity.Message;
+                                return PartialView("_List", new List<AmenityModel> { resultAmenity.Data });
+                            }
+                            else
+                            {
+                                TempData["Error"] = resultAmenity.Message;
+                                return PartialView("_List", new List<AmenityModel>());
+                            }
+
+                        }
+                        else
+                        {
+                            TempData["Error"] = $"Error {endpointAmenity.StatusCode}";
+                            return PartialView("_List", new List<AmenityModel>());
+                        }
+                    }
+                    else
+                    {
+                        var endpointList = await httpclient.GetAsync("Amenity/Get-Amenity");
+
+                        if (endpointList.IsSuccessStatusCode)
+                        {
+                            string responseList = await endpointList.Content.ReadAsStringAsync();
+                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<AmenityModel>>>(responseList);
+
+                            if (resultList != null && resultList.Success)
+                            {
+                                TempData["Success"] = resultList.Message;
+                                return PartialView("_List", resultList.Data);
+                            }
+                            else
+                            {
+                                TempData["Error"] = resultList.Message;
+                                return PartialView("_List", new List<AmenityModel>());
+                            }
+                        }
+                        else
+                        {
+                            TempData["Error"] = $"Error {endpointList.StatusCode}";
+                            return PartialView("_List", new List<AmenityModel>());
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al obtener los amenities.";
+                return PartialView("Error", ex.Message);
+            }
+        }
+
+        // --- Vista completa de detalles ---
+        public async Task<IActionResult> Details(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpoint = await httpclient.GetAsync($"Amenity/Get-By-ID?id={id}");
+
+                    if (endpoint.IsSuccessStatusCode)
+                    {
+                        string response = await endpoint.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
+
+                        if (result != null && result.Success)
+                        {
+                            TempData["Success"] = result.Message;
+                            return View(result.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = result.Message;
+                            return RedirectToAction("Index");
+                        }
+
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al obtener el amenity.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // GET: Vista completa de creación
+        public IActionResult Create()
+        {
+            var model = new CreateAmenityModel();
+            return View(model);
+        }
+
+        // POST: Crear amenity
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateAmenityModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointCreate = await httpclient.PostAsJsonAsync("Amenity/Create-Amenity", model);
+
+                    if (endpointCreate.IsSuccessStatusCode)
+                    {
+                        string response = await endpointCreate.Content.ReadAsStringAsync();
+                        var resultAmenity = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
+
+                        if (resultAmenity != null && resultAmenity.Success)
+                        {
+                            TempData["Success"] = resultAmenity.Message;
+                            return RedirectToAction("Index");
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultAmenity.Message;
+                            return View(model);
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointCreate.StatusCode}";
+                        return View(model);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al crear el amenity.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // GET: Editar amenity
+        public async Task<IActionResult> Edit(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpoint = await httpclient.GetAsync($"Amenity/Get-By-ID?id={id}");
+
+                    if (endpoint.IsSuccessStatusCode)
+                    {
+                        string response = await endpoint.Content.ReadAsStringAsync();
+                        var resultAmenity = JsonConvert.DeserializeObject<ServicesResultModel<UpdateAmenityModel>>(response);
+
+                        if (resultAmenity != null && resultAmenity.Success)
+                        {
+                            TempData["Success"] = resultAmenity.Message;
+                            return View(resultAmenity.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultAmenity.Message;
+                            return RedirectToAction("Index");
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error interno al mostrar la vista de editar.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // POST: Actualizar amenity
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(UpdateAmenityModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointEdit = await httpclient.PutAsJsonAsync("Amenity/Update-Amenity", model);
+
+                    if (endpointEdit.IsSuccessStatusCode)
+                    {
+                        string response = await endpointEdit.Content.ReadAsStringAsync();
+                        var resultAmenity = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
+
+                        if (resultAmenity != null && resultAmenity.Success)
+                        {
+                            TempData["Success"] = resultAmenity.Message;
+                            return RedirectToAction("Index");
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultAmenity.Message;
+                            return View(model);
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        return View(model);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error interno al actualizar el amenity.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // --- Partial para eliminar ---
+        public async Task<IActionResult> _Delete(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpoint = await httpclient.GetAsync($"Amenity/Get-By-ID?id={id}");
+
+                    if (endpoint.IsSuccessStatusCode)
+                    {
+                        string response = await endpoint.Content.ReadAsStringAsync();
+                        var resultAmenity = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
+
+                        if (resultAmenity != null && resultAmenity.Success)
+                        {
+                            TempData["Success"] = resultAmenity.Message;
+                            return PartialView("_Delete", resultAmenity.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultAmenity.Message;
+                            return RedirectToAction("Index");
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al eliminar el amenity.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // POST: Confirmar eliminación
+        [HttpPost, ActionName("_DeleteConfirmed")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> _DeleteConfirmed(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointRemove = await httpclient.PutAsync($"Amenity/Remove-Amenity?id={id}", null);
+
+                    if (endpointRemove.IsSuccessStatusCode)
+                    {
+                        string response = await endpointRemove.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
+
+                        return Json(new { success = true, message = result.Message, data = result.Data });
+                    }
+                    else
+                    {
+                        string response = await endpointRemove.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
+
+                        return Json(new { success = false, message = $"Error {result.Message}" });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error interno al eliminar el amenity.";
+                return View("Error", ex.Message);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+        /*private readonly IAmenityServices _amenityServices;
 
         public AmenityAPIController(IAmenityServices amenityServices)
         {
@@ -169,6 +507,6 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
             }
             TempData["Success"] = result.Message;
             return Json(new { success = true, data = result.Data, message = result.Message });
-        }
+        }*/
     }
 }

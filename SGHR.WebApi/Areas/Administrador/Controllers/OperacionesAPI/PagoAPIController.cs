@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using SGHR.Application.Base;
-using SGHR.Application.Dtos.Configuration.Operaciones.Pago;
-using SGHR.Application.Interfaces.Operaciones;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using SGHR.Web.Models;
+using SGHR.Web.Models.Operaciones.Pago;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
 {
@@ -10,7 +9,304 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
     public class PagoAPIController : Controller
     {
 
-        private readonly IPagoServices _pagoServices;
+        public PagoAPIController()
+        {
+        }
+
+        // Página principal
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        // --- Partial para listar pagos ---
+        public async Task<IActionResult> _List(int? id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+
+                    if (id.HasValue && id > 0)
+                    {
+                        // Suponiendo que quieres filtrar por cliente
+                        var endpointPagoCliente = await httpclient.GetAsync($"Pago/Get-Pagos?idCliente={id}");
+
+                        if (endpointPagoCliente.IsSuccessStatusCode)
+                        {
+                            string response = await endpointPagoCliente.Content.ReadAsStringAsync();
+                            var resultPago = JsonConvert.DeserializeObject<ServicesResultModel<List<PagoModel>>>(response);
+
+                            if (resultPago != null && resultPago.Success)
+                            {
+                                TempData["Success"] = resultPago.Message;
+                                return PartialView("_List", resultPago.Data);
+                            }
+                            else
+                            {
+                                TempData["Error"] = resultPago.Message;
+                                return PartialView("_List", new List<PagoModel>());
+                            }
+                        }
+                        else
+                        {
+                            TempData["Error"] = $"Error {endpointPagoCliente.StatusCode}";
+                            return PartialView("_List", new List<PagoModel>());
+                        }
+                    }
+                    else
+                    {
+                        var endpointLista = await httpclient.GetAsync("Pago/Get-Pagos");
+
+                        if (endpointLista.IsSuccessStatusCode)
+                        {
+                            string responseList = await endpointLista.Content.ReadAsStringAsync();
+                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<PagoModel>>>(responseList);
+
+                            if (resultList != null && resultList.Success)
+                            {
+                                TempData["Success"] = resultList.Message;
+                                return PartialView("_List", resultList.Data);
+                            }
+                            else
+                            {
+                                TempData["Error"] = resultList.Message;
+                                return PartialView("_List", new List<PagoModel>());
+                            }
+                        }
+                        else
+                        {
+                            TempData["Error"] = $"Error {endpointLista.StatusCode}";
+                            return PartialView("_List", new List<PagoModel>());
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al obtener los pagos.";
+                return PartialView("Error", ex.Message);
+            }
+        }
+
+        // GET: Vista completa para realizar pago
+        public IActionResult RealizarPago()
+        {
+            var model = new RealizarPagoModel();
+            return View(model);
+        }
+
+        // POST: Realizar pago
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PagoConfirmed(RealizarPagoModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointCreate = await httpclient.PostAsJsonAsync("Pago/Realizar-Pago", model);
+
+                    if (endpointCreate.IsSuccessStatusCode)
+                    {
+                        string response = await endpointCreate.Content.ReadAsStringAsync();
+                        var resultPago = JsonConvert.DeserializeObject<ServicesResultModel<PagoModel>>(response);
+
+                        if (resultPago != null && resultPago.Success)
+                        {
+                            TempData["Success"] = resultPago.Message;
+                            return RedirectToAction("Index");
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultPago.Message;
+                            return View(model);
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointCreate.StatusCode}";
+                        return View(model);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al realizar el pago.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // GET: Detalles de pago
+        public async Task<IActionResult> Details(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointDetail = await httpclient.GetAsync($"Pago/Get-Pagos?id={id}");
+
+                    if (endpointDetail.IsSuccessStatusCode)
+                    {
+                        string response = await endpointDetail.Content.ReadAsStringAsync();
+                        var resultDetail = JsonConvert.DeserializeObject<ServicesResultModel<PagoModel>>(response);
+
+                        if (resultDetail != null && resultDetail.Success)
+                        {
+                            TempData["Success"] = resultDetail.Message;
+                            return View(resultDetail.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultDetail.Message;
+                            return RedirectToAction("Index");
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointDetail.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al obtener los detalles del pago.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // GET: Partial para anular pago
+        public async Task<IActionResult> _AnularPago(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpoint = await httpclient.GetAsync($"Pago/Get-PagosByID?id={id}");
+
+                    if (endpoint.IsSuccessStatusCode)
+                    {
+                        string response = await endpoint.Content.ReadAsStringAsync();
+                        var resultPago = JsonConvert.DeserializeObject<ServicesResultModel<PagoModel>>(response);
+
+                        if (resultPago != null && resultPago.Success)
+                        {
+                            TempData["Success"] = resultPago.Message;
+                            return PartialView("_AnularPago", resultPago.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultPago.Message;
+                            return RedirectToAction("Index");
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al mostrar el pago a anular.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // POST: Confirmar anulación
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AnularConfirmed(int id)
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointRemove = await httpclient.PutAsync($"Pago/Anular-Pago?idPago={id}", null);
+
+                    if (endpointRemove.IsSuccessStatusCode)
+                    {
+                        string response = await endpointRemove.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<PagoModel>>(response);
+                        return Json(new { success = true, message = result.Message, data = result.Data });
+                    }
+                    else
+                    {
+                        string response = await endpointRemove.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ServicesResultModel<PagoModel>>(response);
+                        return Json(new { success = false, message = $"Error {result.Message}" });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error interno al anular el pago.";
+                return View("Error", ex.Message);
+            }
+        }
+
+        // GET: Partial Resumen de pagos
+        public async Task<IActionResult> _resumenPagos()
+        {
+            try
+            {
+                using (var httpclient = new HttpClient())
+                {
+                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var endpointResumen = await httpclient.GetAsync("Pago/Get-Resumen-Pagos");
+
+                    if (endpointResumen.IsSuccessStatusCode)
+                    {
+                        string response = await endpointResumen.Content.ReadAsStringAsync();
+                        var resultResumen = JsonConvert.DeserializeObject<ServicesResultModel<ResumenPagoModel>>(response);
+
+                        if (resultResumen != null && resultResumen.Success)
+                        {
+                            TempData["Success"] = resultResumen.Message;
+                            return PartialView(resultResumen.Data);
+                        }
+                        else
+                        {
+                            TempData["Error"] = resultResumen.Message;
+                            return RedirectToAction("Index");
+                        }
+                    }
+                    else
+                    {
+                        TempData["Error"] = $"Error {endpointResumen.StatusCode}";
+                        return RedirectToAction("Index");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Ocurrió un error interno al obtener el resumen de pagos.";
+                return View("Error", ex.Message);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+        /*private readonly IPagoServices _pagoServices;
 
         public PagoAPIController(IPagoServices pagoServices)
         {
@@ -148,6 +444,6 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
 
             var resumenPagos = result.Data as ResumenPagoDto;
             return PartialView(resumenPagos); // Vista completa
-        }
+        }*/
     }
 }

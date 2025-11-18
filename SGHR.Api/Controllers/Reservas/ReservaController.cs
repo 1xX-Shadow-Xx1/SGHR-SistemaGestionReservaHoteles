@@ -41,6 +41,18 @@ namespace SGHR.Api.Controllers.Reservas
             return Ok(result);
         }
 
+        // GET api/<ReservaController>/5
+        [HttpGet("Get-Servicios-By-ReservaID")]
+        public async Task<IActionResult> GetServicioByReservaIDAsync(int id)
+        {
+            ServiceResult result = await _reservaService.GetServiciosByReservaId(id);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
         // POST api/<ReservaController>
         [HttpPost("Create-Reserva")]
         public async Task<IActionResult> PostAsync([FromBody] CreateReservaDto createDto)
@@ -70,6 +82,18 @@ namespace SGHR.Api.Controllers.Reservas
         public async Task<IActionResult> AddServicioAdicional(int id, string nameServicio)
         {
             ServiceResult result = await _reservaService.AddServicioAdicional(id, nameServicio);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        // Remove api/<ReservaController>/5
+        [HttpPut("Remove-Servicio-Adicional-to-Reserva")]
+        public async Task<IActionResult> RemoveServicioAdicional(int id, string nombreServicio)
+        {
+            ServiceResult result = await _reservaService.RemoveServicioAdicional(id, nombreServicio);
             if (!result.Success)
             {
                 return BadRequest(result);

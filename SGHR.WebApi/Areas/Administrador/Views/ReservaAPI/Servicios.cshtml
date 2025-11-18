@@ -85,7 +85,7 @@
             $("#modalConfirmarServicios").modal("show");
 
             $("#btnNoAgregar").on("click", function () {
-                window.location.href = '@Url.Action("Index", "Reserva")';
+                window.location.href = '@Url.Action("Index", "ReservaAPI")';
             });
 
             $("#btnSiAgregar").on("click", function () {
@@ -102,7 +102,7 @@
 
         // 🔹 Cargar servicios disponibles
         function cargarServiciosDisponibles() {
-            $.get('@Url.Action("GetServiciosDisponibles", "Reserva")', function (response) {
+            $.get('@Url.Action("GetServiciosDisponibles", "ReservaAPI")', function (response) {
                 if (response.success) {
                     const tbody = $("#tablaDisponibles tbody");
                     tbody.empty();
@@ -126,7 +126,7 @@
 
         // 🔹 Cargar servicios agregados (con botón remover)
         function cargarServiciosReserva() {
-            $.get('@Url.Action("GetServiciosPorReserva", "Reserva")', { id: idReserva }, function (response) {
+            $.get('@Url.Action("GetServiciosPorReserva", "ReservaAPI")', { id: idReserva }, function (response) {
                 if (response.success) {
                     const tbody = $("#tablaAgregados tbody");
                     tbody.empty();
@@ -154,7 +154,7 @@
 
             if (!confirm(`¿Desea agregar el servicio "${nombre}" a la reserva?`)) return;
 
-            $.post('@Url.Action("AgregarServicio", "Reserva")',
+            $.post('@Url.Action("AgregarServicio", "ReservaAPI")',
                 { idReserva: idReserva, nombreServicio: nombre },
                 function (response) {
                     if (response.success) {
@@ -172,7 +172,7 @@
 
             if (!confirm(`¿Desea remover el servicio "${nombre}" de la reserva?`)) return;
 
-            $.post('@Url.Action("RemoverServicio", "Reserva")',
+            $.post('@Url.Action("RemoverServicio", "ReservaAPI")',
                 { idReserva: idReserva, nombreServicio: nombre },
                 function (response) {
                     if (response.success) {

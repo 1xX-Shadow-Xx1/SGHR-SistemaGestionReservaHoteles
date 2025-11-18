@@ -36,7 +36,7 @@
 
             // --- Botón Crear ---
              $('#btnCrear').click(function () {
-                window.location.href = '@Url.Action("Create", "Amenity")';
+                window.location.href = '@Url.Action("Create", "AmenityAPI")';
             });
 
 
@@ -54,7 +54,7 @@
                 }
 
                 // Llamada AJAX a la acción _List pasando el ID
-                $.get('@Url.Action("_List", "Amenity")', { id: id }, function(data) {
+                $.get('@Url.Action("_List", "AmenityAPI")', { id: id }, function(data) {
                     $('#contenidoAmenities').html(data);
                 }).fail(function() {
                     alert("Amenity no encontrado");
@@ -72,7 +72,7 @@
 
             // --- Función para cargar lista ---
             function cargarLista() {
-                $.get('@Url.Action("_List", "Amenity")', function(data) {
+                $.get('@Url.Action("_List", "AmenityAPI")', function(data) {
                     $('#contenidoAmenities').html(data);
                 });
             }
@@ -81,7 +81,7 @@
             $('#contenidoAmenities').on('click', '.btn-eliminar', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                $.get('@Url.Action("_Delete", "Amenity")', { id: id }, function(data) {
+                $.get('@Url.Action("_Delete", "AmenityAPI")', { id: id }, function(data) {
                     $('#contenidoAmenities').html(data);
                 });
             });
@@ -90,7 +90,7 @@
             $('#contenidoAmenities').on('dblclick', '.fila-amenity', function() {
                 var id = $(this).data('id');
                 // Redirige a la vista completa de Details
-                window.location.href = '@Url.Action("Details", "Amenity")/' + id;
+                window.location.href = '@Url.Action("Details", "AmenityAPI")/' + id;
             });
 
              // Botón cancelar en la vista de eliminación → vuelve a la lista
@@ -107,7 +107,7 @@
 
                 $.ajax({
                     type: 'POST',
-                    url: '@Url.Action("_DeleteConfirmed", "Amenity")', // Acción que devuelve JSON { success, message, data }
+                    url: '@Url.Action("_DeleteConfirmed", "AmenityAPI")', // Acción que devuelve JSON { success, message, data }
                     data: $(this).serialize(),
                     success: function (response) {
                         if (response.success) {
@@ -146,7 +146,7 @@
             // Botón “Aceptar” → vuelve a la lista
             $('#contenidoAmenities').on('click', '#btnVolverIndex', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Amenity")', function (data) {
+                $.get('@Url.Action("_List", "AmenityAPI")', function (data) {
                     $('#contenidoAmenities').html(data);
                 });
             });
@@ -154,7 +154,7 @@
             // Botón “Cancelar” dentro de la vista Delete
             $('#contenidoAmenities').on('click', '.btn-btnCancelDelete', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "Amenity")', function (data) {
+                $.get('@Url.Action("_List", "AmenityAPI")', function (data) {
                     $('#contenidoAmenities').html(data);
                 });
             });
