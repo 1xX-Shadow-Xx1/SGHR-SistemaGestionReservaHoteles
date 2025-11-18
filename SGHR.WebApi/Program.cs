@@ -20,6 +20,8 @@ namespace SGHR.Web
             builder.Services.AddControllersWithViews();
             builder.Services.AddSession();
             builder.Services.AddHttpContextAccessor();
+   
+
 
             var app = builder.Build();
 
@@ -42,11 +44,11 @@ namespace SGHR.Web
 
             app.MapControllerRoute(
                 name: "areas",
-                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+                pattern: "{area:exists}/{controller=HomeAPI}/{action=Index}/{id?}");
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Authentication}/{action=Login}/{id?}");
+                pattern: "{controller=AuthenticationAPI}/{action=Login}/{id?}");
 
             app.Run();
         }

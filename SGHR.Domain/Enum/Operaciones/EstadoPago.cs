@@ -2,9 +2,9 @@
 {
     public enum EstadoPago
     {
-        Pendiente,          
-        Completado,         
-        Rechazado,          
-        Parcial             
+        Pendiente = 1,          
+        Completado = 2,         
+        Rechazado = 3,          
+        Parcial = 4            
     }
 }

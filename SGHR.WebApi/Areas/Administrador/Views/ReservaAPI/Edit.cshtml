@@ -1,0 +1,72 @@
+﻿@using SGHR.Web.Models.EnumsModel.Reserva
+@using SGHR.Web.Models.Reservas.Reserva
+@model UpdateReservaModel
+
+@{
+    ViewData["Title"] = "Editar Reserva";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm mx-auto" style="max-width: 500px;">
+        <div class="card-header bg-primary text-white">
+            <h4>Editar Reserva</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label asp-for="NumeroHabitacion" class="form-label"></label>
+                    <input asp-for="NumeroHabitacion" class="form-control" />
+                    <span asp-validation-for="NumeroHabitacion" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CedulaCliente" class="form-label"></label>
+                    <input asp-for="CedulaCliente" class="form-control" />
+                    <span asp-validation-for="CedulaCliente" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CorreoCliente" class="form-label"></label>
+                    <input asp-for="CorreoCliente" class="form-control" />
+                    <span asp-validation-for="CorreoCliente" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="FechaInicio" class="form-label"></label>
+                    <input asp-for="FechaInicio" class="form-control" type="date" />
+                    <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="FechaFin" class="form-label"></label>
+                    <input asp-for="FechaFin" class="form-control" type="date" />
+                    <span asp-validation-for="FechaFin" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Estado" class="form-label"></label>
+                    <select asp-for="Estado" class="form-select" asp-items="Html.GetEnumSelectList<EstadoReservaModel>()"></select>
+                    <span asp-validation-for="Estado" class="text-danger"></span>
+                    </select>
+                    <span asp-validation-for="Estado" class="text-danger"></span>
+                </div>
+
+                <div class="text-center">
+                    <a asp-action="Servicios" asp-route-id="@Model.Id" class="btn btn-primary">
+                        Ver Servicios
+                    </a>
+
+                    <button type="submit" class="btn btn-primary me-2">Guardar Cambios</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

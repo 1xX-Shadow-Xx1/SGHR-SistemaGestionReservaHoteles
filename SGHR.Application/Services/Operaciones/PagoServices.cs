@@ -3,13 +3,11 @@ using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Operaciones.Pago;
 using SGHR.Application.Interfaces.Operaciones;
 using SGHR.Domain.Entities.Configuration.Operaciones;
-using SGHR.Domain.Entities.Configuration.Reservas;
 using SGHR.Domain.Enum.Operaciones;
 using SGHR.Domain.Enum.Reservas;
 using SGHR.Domain.Repository;
 using SGHR.Persistence.Interfaces.Reportes;
 using SGHR.Persistence.Interfaces.Users;
-using System.Linq.Expressions;
 
 namespace SGHR.Application.Services.Operaciones
 {
@@ -19,8 +17,6 @@ namespace SGHR.Application.Services.Operaciones
         private readonly IPagoRepository _pagoRepository;
         private readonly IReservaRepository _reservaRepository;
         private readonly IClienteRepository _clienteRepository;
-        private readonly IHabitacionRepository _habitacionRepository;
-        private readonly IUsuarioRepository _usuarioRepository;
 
         public PagoServices(ILogger<PagoServices> logger, 
                             IPagoRepository pagoRepository,
@@ -32,8 +28,6 @@ namespace SGHR.Application.Services.Operaciones
             _logger = logger;
             _pagoRepository = pagoRepository;
             _reservaRepository = reservaRepository;
-            _habitacionRepository = habitacionRepository;
-            _usuarioRepository = usuarioRepository;
             _clienteRepository = clienteRepository;
         }
 

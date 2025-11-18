@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Reservas.Tarifa;
 using SGHR.Application.Interfaces.Reservas;
+using SGHR.Web.Models.Reservas.Tarifa;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.Reservas
 {

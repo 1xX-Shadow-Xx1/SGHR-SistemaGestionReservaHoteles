@@ -18,10 +18,6 @@
 
 
   <ItemGroup>
-    <Folder Include="Areas\AdministradorAPI\Controllers\" />
-    <Folder Include="Areas\AdministradorAPI\Data\" />
-    <Folder Include="Areas\AdministradorAPI\Models\" />
-    <Folder Include="Areas\AdministradorAPI\Views\" />
     <Folder Include="Areas\Administrador\Data\" />
     <Folder Include="Areas\Cliente\Data\" />
     <Folder Include="Areas\Cliente\Models\" />

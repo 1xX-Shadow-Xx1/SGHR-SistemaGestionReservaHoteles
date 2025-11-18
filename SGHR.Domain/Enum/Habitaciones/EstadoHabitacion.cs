@@ -2,11 +2,11 @@
 {
     public enum EstadoHabitacion
     {
-        Disponible,             
-        Ocupada,            
-        Mantenimiento,    
-        Limpieza,          
-        Reservada           
+        Disponible = 1,             
+        Ocupada = 2,            
+        Mantenimiento = 3,    
+        Limpieza = 4,          
+        Reservada = 5          
     }
 
 }

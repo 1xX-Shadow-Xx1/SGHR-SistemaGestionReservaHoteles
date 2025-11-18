@@ -13,46 +13,49 @@
 
     <!-- Sidebar -->
     <nav class="sidebar d-flex flex-column">
-        <a class="navbar-brand px-3 mb-3" asp-area="" asp-controller="Home" asp-action="Index">SGHR.Web</a>
+        <a class="navbar-brand px-3 mb-3" asp-area="Administrador" asp-controller="HomeAPI" asp-action="Index">SGHR.Web</a>
         <ul class="nav nav-pills flex-column">
             <li class="nav-item">
-                <a class="nav-link" asp-area="Administrador" asp-controller="Home" asp-action="Index">Home</a>
+                <a class="nav-link" asp-area="Administrador" asp-controller="HomeAPI" asp-action="Index">Home</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-area="Administrador" asp-controller="Reserva" asp-action="Index">Reserva</a>
+                <a class="nav-link" asp-area="Administrador" asp-controller="ReservaAPI" asp-action="Index">Reserva</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-area="Administrador" asp-controller="Pago" asp-action="Index">Pago</a>
+                <a class="nav-link" asp-area="Administrador" asp-controller="PagoAPI" asp-action="Index">Pago</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-area="Administrador" asp-controller="Usuario" asp-action="Index">Usuario</a>
+                <a class="nav-link" asp-area="Administrador" asp-controller="UsuarioAPI" asp-action="Index">Usuario</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-area="Administrador" asp-controller="Cliente" asp-action="Index">Cliente</a>
+                <a class="nav-link" asp-area="Administrador" asp-controller="ClienteAPI" asp-action="Index">Cliente</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-area="Administrador" asp-controller="Categoria" asp-action="Index">Categoria</a>
+                <a class="nav-link" asp-area="Administrador" asp-controller="CategoriaAPI" asp-action="Index">Categoria</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-area="Administrador" asp-controller="Piso" asp-action="Index">Piso</a>
+                <a class="nav-link" asp-area="Administrador" asp-controller="PisoAPI" asp-action="Index">Piso</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-area="Administrador" asp-controller="Amenity" asp-action="Index">Amenity</a>
+                <a class="nav-link" asp-area="Administrador" asp-controller="AmenityAPI" asp-action="Index">Amenity</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-area="Administrador" asp-controller="Habitacion" asp-action="Index">Habitacion</a>
+                <a class="nav-link" asp-area="Administrador" asp-controller="HabitacionAPI" asp-action="Index">Habitacion</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-area="Administrador" asp-controller="Tarifa" asp-action="Index">Tarifa</a>
+                <a class="nav-link" asp-area="Administrador" asp-controller="TarifaAPI" asp-action="Index">Tarifa</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-area="Administrador" asp-controller="Mantenimiento" asp-action="Index">Mantenimiento</a>
+                <a class="nav-link" asp-area="Administrador" asp-controller="MantenimientoAPI" asp-action="Index">Mantenimiento</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-area="Administrador" asp-controller="Reporte" asp-action="Index">Reporte</a>
+                <a class="nav-link" asp-area="Administrador" asp-controller="ReporteAPI" asp-action="Index">Reporte</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" asp-area="Administrador" asp-controller="ServicioAdicional" asp-action="Index">Servicio Adicional</a>
+                <a class="nav-link" asp-area="Administrador" asp-controller="ServicioAdicionalAPI" asp-action="Index">Servicio Adicional</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link CloseSesion" style="position: absolute; bottom: 20px;" asp-area="" asp-controller="AuthenticationAPI" asp-action="Logout">Cerrar Sesion</a>
             </li>
         </ul>
     </nav>
@@ -121,8 +124,7 @@
     <script>
         // ID del usuario en sesión (establecido en Razor desde el backend)
         const userId = @Context.Session.GetInt32("UserId") ?? 0;
-        const TIEMPO_PING = 30000; // 30 segundos entre cada verificación
-
+        const TIEMPO_PING = 15000; // 15 segundos entre cada verificación
 
 
         if (userId) {
@@ -130,7 +132,7 @@
             // Función para notificar al backend que hubo actividad
             async function pingSession() {
                 try {
-                    const response = await fetch('/Authentication/CheckSession', {
+                    const response = await fetch('/AuthenticationAPI/CheckSession', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ idUsuario: userId })
@@ -141,7 +143,7 @@
                     if (!result.active) {
                         console.log("A expirado la sesion");
                         alert('Su sesión ha expirado.');
-                        window.location.href = '/Authentication/Logout';
+                        window.location.href = '/AuthenticationAPI/Logout';
                     }
                 } catch (err) {
                     console.error('Error al verificar sesión:', err);
@@ -164,7 +166,7 @@
                 if (ahora - ultimaActualizacion < INTERVALO_UPDATE) return; // actualizar solo cada cierto tiempo
                 ultimaActualizacion = ahora;
 
-                fetch('/Authentication/UpdateActivity', {
+                fetch('/AuthenticationAPI/UpdateActivity', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(sessionId) // enviar solo el ID de la sesión

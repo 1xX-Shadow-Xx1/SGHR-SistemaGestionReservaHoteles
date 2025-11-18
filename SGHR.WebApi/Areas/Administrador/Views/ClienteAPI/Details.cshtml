@@ -1,0 +1,28 @@
+﻿@using SGHR.Web.Models.Usuarios.Cliente
+@model ClienteModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm mx-auto" style="max-width:600px;">
+        <div class="card-header bg-primary text-white">
+            <h4>Detalles del Cliente</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>ID:</strong> @Model.Id</p>
+            <p><strong>Nombre:</strong> @Model.Nombre</p>
+            <p><strong>Apellido:</strong> @Model.Apellido</p>
+            <p><strong>Cedula:</strong> @Model.Cedula</p>
+            <p><strong>Correo:</strong> @Model.Correo</p>
+            <p><strong>Direccion:</strong> @Model.Direccion</p>
+            <p><strong>Telefono:</strong> @Model.Telefono</p>
+        </div>
+        <div class="card-footer text-center">
+            <a href="@Url.Action("Index", "Cliente")" class="btn btn-secondary">Volver a la Lista</a>
+        </div>
+    </div>
+</div>
+
+

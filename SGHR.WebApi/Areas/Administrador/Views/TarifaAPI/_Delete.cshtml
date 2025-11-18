@@ -1,0 +1,36 @@
+﻿
+@using SGHR.Web.Models.Reservas.Tarifa
+@model TarifaModel
+
+<div class="container mt-3">
+    <h4>¿Estás seguro de que deseas eliminar esta tarifa?</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">ID</dt>
+        <dd class="col-sm-10">@Model.Id</dd>
+
+        <dt class="col-sm-2">Categoria</dt>
+        <dd class="col-sm-10">@Model.NombreCategoria</dd>
+
+        <dt class="col-sm-2">Fecha de inicio</dt>
+        <dd class="col-sm-10">@Model.Fecha_inicio</dd>
+
+        <dt class="col-sm-2">Fecha de finalizacion</dt>
+        <dd class="col-sm-10">@Model.Fecha_fin</dd>
+
+        <dt class="col-sm-2">Precio</dt>
+        <dd class="col-sm-10">@Model.Precio</dd>
+        
+    </dl>
+
+    <form id="formDelete" method="post" class="d-flex gap-2">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+
+        <!-- Botón Eliminar: rojo -->
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+
+        <!-- Botón Cancelar: gris -->
+        <button type="button" class="btn btn-secondary btn-btnCancelDelete btnCancelDelete">Cancelar</button>
+    </form>
+</div>

@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Dtos.Configuration.Sesiones.Sesion;
 using SGHR.Application.Dtos.Configuration.Users.Usuario;
 using SGHR.Application.Interfaces;
 using SGHR.Application.Interfaces.Sesion;
-
 namespace SGHR.Web.Controllers
 {
     public class AuthenticationController : Controller
@@ -72,11 +70,11 @@ namespace SGHR.Web.Controllers
             switch (usuario.Rol.ToString())
             {
                 case "Cliente":
-                    return RedirectToAction("Index", "Home", new { area = "Cliente" });
+                    return RedirectToAction("Index", "HomeAPI", new { area = "Cliente" });
                 case "Recepcionista":
-                    return RedirectToAction("Index", "Home", new { area = "Recepcionista" });
+                    return RedirectToAction("Index", "HomeAPI", new { area = "Recepcionista" });
                 case "Administrador":
-                    return RedirectToAction("Index", "Home", new { area = "Administrador" });
+                    return RedirectToAction("Index", "HomeAPI", new { area = "Administrador" });
                 default:
                     return RedirectToAction("Login");
             }

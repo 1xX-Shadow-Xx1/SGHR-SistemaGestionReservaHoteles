@@ -1,0 +1,25 @@
+﻿
+@using SGHR.Web.Models.Reservas.Tarifa
+@model TarifaModel
+
+@{
+    ViewData["Title"] = "Detalles de la tarifa";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm mx-auto" style="max-width:600px;">
+        <div class="card-header bg-primary text-white">
+            <h4>Detalles de la Tarifa</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>ID:</strong> @Model.Id</p>
+            <p><strong>Categoria:</strong> @Model.NombreCategoria</p>
+            <p><strong>Fecha de inicio:</strong> @Model.Fecha_inicio</p>
+            <p><strong>Fecha de finalizacion:</strong> @Model.Fecha_fin</p>
+            <p><strong>Precio:</strong> @Model.Precio</p>
+        </div>
+        <div class="card-footer text-center">
+            <a href="@Url.Action("Index", "Tarifa")" class="btn btn-secondary">Volver a la Lista</a>
+        </div>
+    </div>
+</div>

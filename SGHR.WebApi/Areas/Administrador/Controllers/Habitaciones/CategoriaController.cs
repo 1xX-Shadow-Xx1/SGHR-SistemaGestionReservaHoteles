@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Habitaciones.Categoria;
 using SGHR.Application.Interfaces.Habitaciones;
+using SGHR.Web.Models.Habitaciones.Categoria;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.Habitaciones
 {

@@ -1,0 +1,46 @@
+﻿@using SGHR.Web.Models.Operaciones.Pago
+@using SGHR.Web.Models.EnumsModel.Operaciones
+@model RealizarPagoModel
+
+@{
+    ViewData["Title"] = "Realizar Pago";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm mx-auto" style="max-width: 500px;">
+        <div class="card-header bg-primary text-white">
+            <h4>Realizar Pago</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="PagoConfirmed" method="post">
+                <div class="mb-3">
+                    <label asp-for="IdReserva" class="form-label"></label>
+                    <input asp-for="IdReserva" class="form-control" />
+                    <span asp-validation-for="IdReserva" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MetodoPago" class="form-label"></label>
+                    <select asp-for="MetodoPago" class="form-control" asp-items="Html.GetEnumSelectList<MetodoPagoModel>()"></select>
+                    <span asp-validation-for="MetodoPago" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Monto" class="form-label"></label>
+                    <input asp-for="Monto" class="form-control" />
+                    <span asp-validation-for="Monto" class="text-danger"></span>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary me-2">Realizar pago</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

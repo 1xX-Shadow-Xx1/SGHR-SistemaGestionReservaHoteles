@@ -140,8 +140,9 @@ namespace SGHR.Application.Services
                         return result;
                     }
 
+
                     result.Success = true;
-                    result.Message = $"Usuario {existUser.Data.Nombre} Logeado correctamente.";
+                    result.Message = $"Usuario Logeado correctamente.";
                     result.Data = usuario;
                 }
                 else

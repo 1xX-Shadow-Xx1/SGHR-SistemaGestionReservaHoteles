@@ -3,9 +3,9 @@ namespace SGHR.Domain.Enum.Operaciones
 {
     public enum MetodoPago
     {
-        Efectivo,
-        TarjetaCredito,
-        TarjetaDebito,
-        TransferenciaBancaria
+        Efectivo = 1,
+        TarjetaCredito = 2,
+        TarjetaDebito = 3,
+        TransferenciaBancaria = 4
     }
 }

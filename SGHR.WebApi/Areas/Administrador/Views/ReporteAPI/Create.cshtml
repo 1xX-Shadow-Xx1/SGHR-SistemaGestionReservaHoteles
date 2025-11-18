@@ -1,0 +1,44 @@
+﻿@using SGHR.Web.Models.Operaciones.Reporte
+@model CreateReporteModel
+
+@{
+    ViewData["Title"] = "Crear Reporte";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm mx-auto" style="max-width: 500px;">
+        <div class="card-header bg-primary text-white">
+            <h4>Crear Nuevo Reporte</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <div class="mb-3">
+                    <label asp-for="TipoReporte" class="form-label"></label>
+                    <input asp-for="TipoReporte" class="form-control" />
+                    <span asp-validation-for="TipoReporte" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="GeneradoPor" class="form-label"></label>
+                    <input asp-for="GeneradoPor" class="form-control" />
+                    <span asp-validation-for="GeneradoPor" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="RutaArchivo" class="form-label"></label>
+                    <input asp-for="RutaArchivo" class="form-control" />
+                    <span asp-validation-for="RutaArchivo" class="text-danger"></span>
+                </div>
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary me-2">Crear</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

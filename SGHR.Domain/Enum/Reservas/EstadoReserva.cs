@@ -2,11 +2,11 @@
 {
     public enum EstadoReserva
     {
-        Pendiente,          
-        Confirmada,         
-        Activa,             
-        Finalizada,         
-        Cancelada,
-        PagoParcial
+        Pendiente = 1,          
+        Confirmada = 2,         
+        Activa = 3,             
+        Finalizada = 4,         
+        Cancelada = 5,
+        PagoParcial = 6
     }
 }

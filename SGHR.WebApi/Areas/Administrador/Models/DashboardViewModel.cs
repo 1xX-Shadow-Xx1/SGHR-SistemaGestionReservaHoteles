@@ -1,12 +1,17 @@
-﻿using SGHR.Application.Dtos.Configuration.Operaciones.Pago;
-using SGHR.Application.Dtos.Configuration.Reservas.Reserva;
+﻿
+using SGHR.Web.Models.Operaciones.Pago;
+using SGHR.Web.Models.Reservas.Reserva;
+using System.Text.Json.Serialization;
 
 namespace SGHR.Web.Areas.Administrador.Models
 {
     public class DashboardViewModel
     {
-        public ResumenPagoDto Resumen { get; set; } = new();
-        public IEnumerable<PagoDto> Pagos { get; set; } = new List<PagoDto>();
-        public IEnumerable<ReservaDto> Reservas { get; set; } = new List<ReservaDto>();
+        [JsonPropertyName("resumenPago")]
+        public ResumenPagoModel ResumenPago { get; set; } = new();
+        [JsonPropertyName("pago")]
+        public List<PagoModel> Pago { get; set; }
+        [JsonPropertyName("reserva")]
+        public List<ReservaModel> Reserva { get; set; }
     }
 }

@@ -4,6 +4,8 @@ using SGHR.IOC.Dependencia.Reservas;
 using SGHR.IOC.Dependencia.Sesion;
 using SGHR.IOC.Dependencia.Users;
 using Microsoft.Extensions.DependencyInjection;
+using SGHR.Application.Interfaces;
+using SGHR.Application.Services;
 
 namespace SGHR.IOC.Builders
 {
@@ -38,6 +40,8 @@ namespace SGHR.IOC.Builders
             //Sesion
             services = services.AddSesionDependences();
             services = services.AddAuthenticationDependences();
+
+            services.AddScoped<IDashboardServices, DashboardServices>();
 
 
             return services;

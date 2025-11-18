@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SGHR.Application.Base;
 using SGHR.Application.Dtos.Configuration.Operaciones.Mantenimiento;
 using SGHR.Application.Interfaces.Operaciones;
+using SGHR.Web.Models.Operaciones.Mantenimiento;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.Operaciones
 {
