@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SGHR.Web.Data;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Operaciones.Pago;
+using SGHR.Web.Models.Operaciones.Reporte;
+using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
 {
@@ -33,25 +36,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                         // Suponiendo que quieres filtrar por cliente
                         var endpointPagoCliente = await httpclient.GetAsync($"Pago/Get-Pagos?idCliente={id}");
 
-                        if (endpointPagoCliente.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointPagoCliente.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string response = await endpointPagoCliente.Content.ReadAsStringAsync();
-                            var resultPago = JsonConvert.DeserializeObject<ServicesResultModel<List<PagoModel>>>(response);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointPagoCliente.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultPago != null && resultPago.Success)
-                            {
-                                TempData["Success"] = resultPago.Message;
-                                return PartialView("_List", resultPago.Data);
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultPago.Message;
-                                return PartialView("_List", new List<PagoModel>());
-                            }
+                        var resultPago = await new JsonConvertidor<PagoModel>().Deserializar(endpointPagoCliente);
+
+                        if (resultPago != null && resultPago.Success)
+                        {
+                            TempData["Success"] = resultPago.Message;
+                            return PartialView("_List", new List<PagoModel> { resultPago.Data });
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointPagoCliente.StatusCode}";
+                            TempData["Error"] = resultPago.Message;
                             return PartialView("_List", new List<PagoModel>());
                         }
                     }
@@ -59,25 +60,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     {
                         var endpointLista = await httpclient.GetAsync("Pago/Get-Pagos");
 
-                        if (endpointLista.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointLista.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string responseList = await endpointLista.Content.ReadAsStringAsync();
-                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<PagoModel>>>(responseList);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointLista.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultList != null && resultList.Success)
-                            {
-                                TempData["Success"] = resultList.Message;
-                                return PartialView("_List", resultList.Data);
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultList.Message;
-                                return PartialView("_List", new List<PagoModel>());
-                            }
+                        var resultList = await new JsonConvertidor<PagoModel>().DeserializarList(endpointLista);
+
+                        if (resultList != null && resultList.Success)
+                        {
+                            TempData["Success"] = resultList.Message;
+                            return PartialView("_List", resultList.Data);
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointLista.StatusCode}";
+                            TempData["Error"] = resultList.Message;
                             return PartialView("_List", new List<PagoModel>());
                         }
                     }
@@ -114,25 +113,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointCreate = await httpclient.PostAsJsonAsync("Pago/Realizar-Pago", model);
 
-                    if (endpointCreate.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointCreate.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointCreate.Content.ReadAsStringAsync();
-                        var resultPago = JsonConvert.DeserializeObject<ServicesResultModel<PagoModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointCreate.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultPago != null && resultPago.Success)
-                        {
-                            TempData["Success"] = resultPago.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultPago.Message;
-                            return View(model);
-                        }
+                    var resultPago = await new JsonConvertidor<PagoModel>().Deserializar(endpointCreate);
+
+                    if (resultPago != null && resultPago.Success)
+                    {
+                        TempData["Success"] = resultPago.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointCreate.StatusCode}";
+                        TempData["Error"] = resultPago.Message;
                         return View(model);
                     }
                 }
@@ -154,25 +151,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointDetail = await httpclient.GetAsync($"Pago/Get-Pagos?id={id}");
 
-                    if (endpointDetail.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointDetail.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointDetail.Content.ReadAsStringAsync();
-                        var resultDetail = JsonConvert.DeserializeObject<ServicesResultModel<PagoModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointDetail.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultDetail != null && resultDetail.Success)
-                        {
-                            TempData["Success"] = resultDetail.Message;
-                            return View(resultDetail.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultDetail.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultDetail = await new JsonConvertidor<PagoModel>().Deserializar(endpointDetail);
+
+                    if (resultDetail != null && resultDetail.Success)
+                    {
+                        TempData["Success"] = resultDetail.Message;
+                        return View(resultDetail.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointDetail.StatusCode}";
+                        TempData["Error"] = resultDetail.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -194,25 +189,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Pago/Get-PagosByID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var resultPago = JsonConvert.DeserializeObject<ServicesResultModel<PagoModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultPago != null && resultPago.Success)
-                        {
-                            TempData["Success"] = resultPago.Message;
-                            return PartialView("_AnularPago", resultPago.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultPago.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultPago = await new JsonConvertidor<PagoModel>().Deserializar(endpoint);
+
+                    if (resultPago != null && resultPago.Success)
+                    {
+                        TempData["Success"] = resultPago.Message;
+                        return PartialView("_AnularPago", resultPago.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = resultPago.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -236,16 +229,21 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointRemove = await httpclient.PutAsync($"Pago/Anular-Pago?idPago={id}", null);
 
-                    if (endpointRemove.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointRemove.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<PagoModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointRemove.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var result = await new JsonConvertidor<PagoModel>().Deserializar(endpointRemove);
+
+                    if (result != null && result.Success)
+                    {
                         return Json(new { success = true, message = result.Message, data = result.Data });
                     }
                     else
                     {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<PagoModel>>(response);
                         return Json(new { success = false, message = $"Error {result.Message}" });
                     }
                 }
@@ -267,25 +265,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointResumen = await httpclient.GetAsync("Pago/Get-Resumen-Pagos");
 
-                    if (endpointResumen.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointResumen.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointResumen.Content.ReadAsStringAsync();
-                        var resultResumen = JsonConvert.DeserializeObject<ServicesResultModel<ResumenPagoModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointResumen.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultResumen != null && resultResumen.Success)
-                        {
-                            TempData["Success"] = resultResumen.Message;
-                            return PartialView(resultResumen.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultResumen.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultResumen = await new JsonConvertidor<ResumenPagoModel>().Deserializar(endpointResumen);
+
+                    if (resultResumen != null && resultResumen.Success)
+                    {
+                        TempData["Success"] = resultResumen.Message;
+                        return PartialView(resultResumen.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointResumen.StatusCode}";
+                        TempData["Error"] = resultResumen.Message;
                         return RedirectToAction("Index");
                     }
                 }

@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.Extensions.Logging;
 using SGHR.Application.Base;
+using SGHR.Application.Dtos.Configuration.Sesiones.Sesion;
 using SGHR.Application.Dtos.Configuration.Users.Usuario;
 using SGHR.Application.Interfaces;
 using SGHR.Domain.Entities.Configuration.Sesiones;
@@ -51,6 +52,7 @@ namespace SGHR.Application.Services
                         Correo = createUsuarioDto.Correo,
                         Contraseña = createUsuarioDto.Contraseña,
                         Rol = RolUsuarios.Cliente,
+                        Estado = EstadoUsuario.Activo
                     };
 
                     var OpResult = await _usuarioRepository.SaveAsync(usuario);
@@ -60,16 +62,31 @@ namespace SGHR.Application.Services
                         return result;
                     }
 
-                    var getusuario = new UsuarioDto()
+                    var sesion = new SGHR.Domain.Entities.Configuration.Sesiones.Sesion
                     {
-                        Id = OpResult.Data.Id,
-                        Nombre = OpResult.Data.Nombre,
-                        Correo = OpResult.Data.Correo,
-                        Rol = OpResult.Data.Rol
+                        IdUsuario = OpResult.Data.Id,
+                        Estado = true,
+                        FechaInicio = DateTime.Now,
+                        UltimaActividad = DateTime.Now
+                    };
+
+                    var opSesion = await _sesionRepository.SaveAsync(sesion);
+                    if (!opSesion.Success)
+                    {
+                        result.Message = opSesion.Message;
+                        return result;
+                    }
+
+                    var sesionDto = new SesionLoginDto
+                    {
+                        IdUser = OpResult.Data.Id,
+                        Idsesion = opSesion.Data.Id,
+                        UserName = OpResult.Data.Nombre,
+                        RolUser = OpResult.Data.Rol
                     };
 
                     result.Success = true;
-                    result.Data = getusuario;
+                    result.Data = sesionDto;
                     result.Message = "Usuario registrado correctamente.";
                 }
 
@@ -116,18 +133,9 @@ namespace SGHR.Application.Services
                         return result;
                     }
 
-                    var usuario = new UsuarioDto
-                    {
-                        Id = existUser.Data.Id,
-                        Nombre = existUser.Data.Nombre,
-                        Correo = existUser.Data.Correo,
-                        Rol = existUser.Data.Rol,
-                        Estado = existUser.Data.Estado
-                    };
-
                     var sesion = new SGHR.Domain.Entities.Configuration.Sesiones.Sesion
                     {
-                        IdUsuario = usuario.Id,
+                        IdUsuario = existUser.Data.Id,
                         Estado = true,
                         FechaInicio = DateTime.Now,
                         UltimaActividad = DateTime.Now
@@ -140,10 +148,18 @@ namespace SGHR.Application.Services
                         return result;
                     }
 
+                    var sesionDto = new SesionLoginDto
+                    {
+                        IdUser = existUser.Data.Id,
+                        Idsesion = opSesion.Data.Id,
+                        UserName = existUser.Data.Nombre,
+                        RolUser = existUser.Data.Rol
+                    };
+
 
                     result.Success = true;
                     result.Message = $"Usuario Logeado correctamente.";
-                    result.Data = usuario;
+                    result.Data = sesionDto;
                 }
                 else
                 {
@@ -193,19 +209,25 @@ namespace SGHR.Application.Services
                         return result;
                     }
 
-
-                    var usuario = new UsuarioDto
+                    var existSesion = await _sesionRepository.GetActiveSesionByUserAsync(idusuario);
+                    if (!existSesion.Success)
                     {
-                        Id = OpResult.Data.Id,
-                        Nombre = OpResult.Data.Nombre,
-                        Correo = OpResult.Data.Correo,
-                        Rol = OpResult.Data.Rol,
-                        Estado = OpResult.Data.Estado
-                    };
+                        result.Message = existSesion.Message;
+                        return result;
+                    }
+
+                    var sesion = existSesion.Data;
+                    sesion.Estado = false;
+
+                    var opSesion = await _sesionRepository.UpdateAsync(sesion);
+                    if (!opSesion.Success)
+                    {
+                        result.Message = opSesion.Message;
+                        return result;
+                    }
 
                     result.Success = true;
                     result.Message = $"Sesion cerrada correctamente.";
-                    result.Data = usuario;
                 }
 
 

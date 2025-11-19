@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SGHR.IOC.Builders;
 using SGHR.Persistence.Context;
+using SGHR.Web.Data;
 
 namespace SGHR.Web
 {
@@ -20,7 +21,8 @@ namespace SGHR.Web
             builder.Services.AddControllersWithViews();
             builder.Services.AddSession();
             builder.Services.AddHttpContextAccessor();
-   
+            builder.Services.AddSingleton<HttpSesion>();
+
 
 
             var app = builder.Build();

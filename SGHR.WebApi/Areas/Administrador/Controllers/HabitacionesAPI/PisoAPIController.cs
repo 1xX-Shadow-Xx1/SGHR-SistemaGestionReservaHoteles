@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SGHR.Web.Data;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Habitaciones.Piso;
+using SGHR.Web.Models.Operaciones.Mantenimiento;
+using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
 {
@@ -32,26 +35,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     {
                         var endpointPiso = await httpclient.GetAsync($"Piso/Get-Piso-ByID?id={id}");
 
-                        if (endpointPiso.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointPiso.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string response = await endpointPiso.Content.ReadAsStringAsync();
-                            var resultPiso = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointPiso.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultPiso != null && resultPiso.Success)
-                            {
-                                TempData["Success"] = resultPiso.Message;
-                                return PartialView("_List", new List<PisoModel> { resultPiso.Data });
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultPiso.Message;
-                                return PartialView("_List", new List<PisoModel>());
-                            }
+                        var resultPiso = await new JsonConvertidor<PisoModel>().Deserializar(endpointPiso);
 
+                        if (resultPiso != null && resultPiso.Success)
+                        {
+                            TempData["Success"] = resultPiso.Message;
+                            return PartialView("_List", new List<PisoModel> { resultPiso.Data });
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointPiso.StatusCode}";
+                            TempData["Error"] = resultPiso.Message;
                             return PartialView("_List", new List<PisoModel>());
                         }
                     }
@@ -59,25 +59,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     {
                         var endpointList = await httpclient.GetAsync("Piso/Get-Pisos");
 
-                        if (endpointList.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointList.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string responseList = await endpointList.Content.ReadAsStringAsync();
-                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<PisoModel>>>(responseList);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointList.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultList != null && resultList.Success)
-                            {
-                                TempData["Success"] = resultList.Message;
-                                return PartialView("_List", resultList.Data);
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultList.Message;
-                                return PartialView("_List", new List<PisoModel>());
-                            }
+                        var resultList = await new JsonConvertidor<PisoModel>().DeserializarList(endpointList);
+
+                        if (resultList != null && resultList.Success)
+                        {
+                            TempData["Success"] = resultList.Message;
+                            return PartialView("_List", resultList.Data);
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointList.StatusCode}";
+                            TempData["Error"] = resultList.Message;
                             return PartialView("_List", new List<PisoModel>());
                         }
                     }
@@ -100,26 +98,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointDetail = await httpclient.GetAsync($"Piso/Get-Piso-ByID?id={id}");
 
-                    if (endpointDetail.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointDetail.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointDetail.Content.ReadAsStringAsync();
-                        var resultDetail = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointDetail.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultDetail != null && resultDetail.Success)
-                        {
-                            TempData["Success"] = resultDetail.Message;
-                            return View(resultDetail.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultDetail.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultDetail = await new JsonConvertidor<PisoModel>().Deserializar(endpointDetail);
 
+                    if (resultDetail != null && resultDetail.Success)
+                    {
+                        TempData["Success"] = resultDetail.Message;
+                        return View(resultDetail.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointDetail.StatusCode}";
+                        TempData["Error"] = resultDetail.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -156,26 +151,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointCreate = await httpclient.PostAsJsonAsync("Piso/Create-Piso", model);
 
-                    if (endpointCreate.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointCreate.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointCreate.Content.ReadAsStringAsync();
-                        var resultPiso = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointCreate.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultPiso != null && resultPiso.Success)
-                        {
-                            TempData["Success"] = resultPiso.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultPiso.Message;
-                            return View(model);
-                        }
+                    var resultPiso = await new JsonConvertidor<PisoModel>().Deserializar(endpointCreate);
 
+                    if (resultPiso != null && resultPiso.Success)
+                    {
+                        TempData["Success"] = resultPiso.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointCreate.StatusCode}";
+                        TempData["Error"] = resultPiso.Message;
                         return View(model);
                     }
                 }
@@ -198,26 +190,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointEdit = await httpclient.GetAsync($"Piso/Get-Piso-ByID?id={id}");
 
-                    if (endpointEdit.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string responseEdit = await endpointEdit.Content.ReadAsStringAsync();
-                        var resultPiso = JsonConvert.DeserializeObject<ServicesResultModel<UpdatePisoModel>>(responseEdit);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultPiso != null && resultPiso.Success)
-                        {
-                            TempData["Success"] = resultPiso.Message;
-                            return View(resultPiso.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultPiso.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultPiso = await new JsonConvertidor<UpdatePisoModel>().Deserializar(endpointEdit);
 
+                    if (resultPiso != null && resultPiso.Success)
+                    {
+                        TempData["Success"] = resultPiso.Message;
+                        return View(resultPiso.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        TempData["Error"] = resultPiso.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -245,26 +234,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointEdit = await httpclient.PutAsJsonAsync("Piso/Update-Piso", model);
 
-                    if (endpointEdit.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointEdit.Content.ReadAsStringAsync();
-                        var ResultPiso = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (ResultPiso != null && ResultPiso.Success)
-                        {
-                            TempData["Success"] = ResultPiso.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = ResultPiso.Message;
-                            return View(model);
-                        }
+                    var ResultPiso = await new JsonConvertidor<PisoModel>().Deserializar(endpointEdit);
 
+                    if (ResultPiso != null && ResultPiso.Success)
+                    {
+                        TempData["Success"] = ResultPiso.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        TempData["Error"] = ResultPiso.Message;
                         return View(model);
                     }
                 }
@@ -287,25 +273,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Piso/Get-Piso-ByID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var resultPiso = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultPiso != null && resultPiso.Success)
-                        {
-                            TempData["Success"] = resultPiso.Message;
-                            return PartialView("_Delete", resultPiso.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultPiso.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultPiso = await new JsonConvertidor<PisoModel>().Deserializar(endpoint);
+
+                    if (resultPiso != null && resultPiso.Success)
+                    {
+                        TempData["Success"] = resultPiso.Message;
+                        return PartialView("_Delete", resultPiso.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = resultPiso.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -330,16 +314,21 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointRemove = await httpclient.PutAsync($"Piso/Remove-Piso?id={id}", null);
 
-                    if (endpointRemove.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointRemove.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointRemove.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var result = await new JsonConvertidor<PisoModel>().Deserializar(endpointRemove);
+
+                    if (result != null && result.Success)
+                    {
                         return Json(new { success = true, message = result.Message, data = result.Data });
                     }
                     else
                     {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<PisoModel>>(response);
                         return Json(new { success = false, message = $"Error {result.Message}" });
                     }
                 }

@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SGHR.Web.Data;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Habitaciones.Habitacion;
+using SGHR.Web.Models.Habitaciones.Piso;
+using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
 {
@@ -28,25 +31,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointDetail = await httpclient.GetAsync($"Habitacion/Get-Habitacion-ByID?id={id}");
 
-                    if (endpointDetail.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointDetail.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointDetail.Content.ReadAsStringAsync();
-                        var resultDetail = JsonConvert.DeserializeObject<ServicesResultModel<HabitacionModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointDetail.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultDetail != null && resultDetail.Success)
-                        {
-                            TempData["Success"] = resultDetail.Message;
-                            return View(resultDetail.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultDetail.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultDetail = await new JsonConvertidor<HabitacionModel>().Deserializar(endpointDetail);
+
+                    if (resultDetail != null && resultDetail.Success)
+                    {
+                        TempData["Success"] = resultDetail.Message;
+                        return View(resultDetail.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointDetail.StatusCode}";
+                        TempData["Error"] = resultDetail.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -71,25 +72,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     {
                         var endpoint = await httpclient.GetAsync($"Habitacion/Get-Habitacion-By-NumeroHabitacion?numeroHabitacion={numeroHabitacion}");
 
-                        if (endpoint.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string response = await endpoint.Content.ReadAsStringAsync();
-                            var resultRoom = JsonConvert.DeserializeObject<ServicesResultModel<HabitacionModel>>(response);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultRoom != null && resultRoom.Success)
-                            {
-                                TempData["Success"] = resultRoom.Message;
-                                return PartialView("_List", new List<HabitacionModel> { resultRoom.Data });
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultRoom.Message;
-                                return PartialView("_List", new List<HabitacionModel>());
-                            }
+                        var resultRoom = await new JsonConvertidor<HabitacionModel>().Deserializar(endpoint);
+
+                        if (resultRoom != null && resultRoom.Success)
+                        {
+                            TempData["Success"] = resultRoom.Message;
+                            return PartialView("_List", new List<HabitacionModel> { resultRoom.Data });
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpoint.StatusCode}";
+                            TempData["Error"] = resultRoom.Message;
                             return PartialView("_List", new List<HabitacionModel>());
                         }
                     }
@@ -97,25 +96,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     {
                         var endpointList = await httpclient.GetAsync("Habitacion/Get-Habitaciones");
 
-                        if (endpointList.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointList.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string resList = await endpointList.Content.ReadAsStringAsync();
-                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<HabitacionModel>>>(resList);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointList.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultList != null && resultList.Success)
-                            {
-                                TempData["Success"] = resultList.Message;
-                                return PartialView("_List", resultList.Data);
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultList.Message;
-                                return PartialView("_List", new List<HabitacionModel>());
-                            }
+                        var resultList = await new JsonConvertidor<HabitacionModel>().DeserializarList(endpointList);
+
+                        if (resultList != null && resultList.Success)
+                        {
+                            TempData["Success"] = resultList.Message;
+                            return PartialView("_List", resultList.Data);
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointList.StatusCode}";
+                            TempData["Error"] = resultList.Message;
                             return PartialView("_List", new List<HabitacionModel>());
                         }
                     }
@@ -150,25 +147,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PostAsJsonAsync("Habitacion/Create-Habitacion", model);
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var resultRoom = JsonConvert.DeserializeObject<ServicesResultModel<HabitacionModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultRoom != null && resultRoom.Success)
-                        {
-                            TempData["Success"] = resultRoom.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultRoom.Message;
-                            return View(model);
-                        }
+                    var resultRoom = await new JsonConvertidor<HabitacionModel>().Deserializar(endpoint);
+
+                    if (resultRoom != null && resultRoom.Success)
+                    {
+                        TempData["Success"] = resultRoom.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = resultRoom.Message;
                         return View(model);
                     }
                 }
@@ -190,25 +185,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Habitacion/Get-Habitacion-ByID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var resultRoom = JsonConvert.DeserializeObject<ServicesResultModel<UpdateHabitacionModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultRoom != null && resultRoom.Success)
-                        {
-                            TempData["Success"] = resultRoom.Message;
-                            return View(resultRoom.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultRoom.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultRoom = await new JsonConvertidor<UpdateHabitacionModel>().Deserializar(endpoint);
+
+                    if (resultRoom != null && resultRoom.Success)
+                    {
+                        TempData["Success"] = resultRoom.Message;
+                        return View(resultRoom.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = resultRoom.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -235,25 +228,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PutAsJsonAsync("Habitacion/Update-Habitacion", model);
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var resultRoom = JsonConvert.DeserializeObject<ServicesResultModel<HabitacionModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultRoom != null && resultRoom.Success)
-                        {
-                            TempData["Success"] = resultRoom.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultRoom.Message;
-                            return View(model);
-                        }
+                    var resultRoom = await new JsonConvertidor<HabitacionModel>().Deserializar(endpoint);
+
+                    if (resultRoom != null && resultRoom.Success)
+                    {
+                        TempData["Success"] = resultRoom.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = resultRoom.Message;
                         return View(model);
                     }
                 }
@@ -275,25 +266,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Habitacion/Get-Habitacion-ByID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var resultRoom = JsonConvert.DeserializeObject<ServicesResultModel<HabitacionModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultRoom != null && resultRoom.Success)
-                        {
-                            TempData["Success"] = resultRoom.Message;
-                            return PartialView("_Delete", resultRoom.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultRoom.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultRoom = await new JsonConvertidor<HabitacionModel>().Deserializar(endpoint);
+
+                    if (resultRoom != null && resultRoom.Success)
+                    {
+                        TempData["Success"] = resultRoom.Message;
+                        return PartialView("_Delete", resultRoom.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = resultRoom.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -317,16 +306,21 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointRemove = await httpclient.PutAsync($"Habitacion/Remove-Habitacion?id={id}", null);
 
-                    if (endpointRemove.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointRemove.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<HabitacionModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointRemove.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var result = await new JsonConvertidor<HabitacionModel>().Deserializar(endpointRemove);
+
+                    if (result != null && result.Success)
+                    {
                         return Json(new { success = true, message = result.Message, data = result.Data });
                     }
                     else
                     {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<HabitacionModel>>(response);
                         return Json(new { success = false, message = $"Error {result.Message}" });
                     }
                 }

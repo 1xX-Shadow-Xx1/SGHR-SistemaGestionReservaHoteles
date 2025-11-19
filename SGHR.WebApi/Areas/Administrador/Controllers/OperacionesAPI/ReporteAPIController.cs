@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SGHR.Web.Data;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Operaciones.Reporte;
+using SGHR.Web.Models.Reservas.Reserva;
+using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
 {
@@ -31,25 +34,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     {
                         var endpointReporte = await httpclient.GetAsync($"Reporte/get-Reporte-ById?id={id}");
 
-                        if (endpointReporte.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointReporte.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string response = await endpointReporte.Content.ReadAsStringAsync();
-                            var resultReporte = JsonConvert.DeserializeObject<ServicesResultModel<ReporteModel>>(response);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointReporte.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultReporte != null && resultReporte.Success)
-                            {
-                                TempData["Success"] = resultReporte.Message;
-                                return PartialView("_List", new List<ReporteModel> { resultReporte.Data });
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultReporte.Message;
-                                return PartialView("_List", new List<ReporteModel>());
-                            }
+                        var resultReporte = await new JsonConvertidor<ReporteModel>().Deserializar(endpointReporte);
+
+                        if (resultReporte != null && resultReporte.Success)
+                        {
+                            TempData["Success"] = resultReporte.Message;
+                            return PartialView("_List", new List<ReporteModel> { resultReporte.Data });
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointReporte.StatusCode}";
+                            TempData["Error"] = resultReporte.Message;
                             return PartialView("_List", new List<ReporteModel>());
                         }
                     }
@@ -57,25 +58,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     {
                         var endpointList = await httpclient.GetAsync("Reporte/get-Reportes");
 
-                        if (endpointList.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointList.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string response = await endpointList.Content.ReadAsStringAsync();
-                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<ReporteModel>>>(response);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointList.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultList != null && resultList.Success)
-                            {
-                                TempData["Success"] = resultList.Message;
-                                return PartialView("_List", resultList.Data);
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultList.Message;
-                                return PartialView("_List", new List<ReporteModel>());
-                            }
+                        var resultList = await new JsonConvertidor<ReporteModel>().DeserializarList(endpointList);
+
+                        if (resultList != null && resultList.Success)
+                        {
+                            TempData["Success"] = resultList.Message;
+                            return PartialView("_List", resultList.Data);
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointList.StatusCode}";
+                            TempData["Error"] = resultList.Message;
                             return PartialView("_List", new List<ReporteModel>());
                         }
                     }
@@ -98,25 +97,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointDetail = await httpclient.GetAsync($"Reporte/get-Reporte-ById?id={id}");
 
-                    if (endpointDetail.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointDetail.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointDetail.Content.ReadAsStringAsync();
-                        var resultDetail = JsonConvert.DeserializeObject<ServicesResultModel<ReporteModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointDetail.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultDetail != null && resultDetail.Success)
-                        {
-                            TempData["Success"] = resultDetail.Message;
-                            return View(resultDetail.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultDetail.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultDetail = await new JsonConvertidor<ReporteModel>().Deserializar(endpointDetail);
+
+                    if (resultDetail != null && resultDetail.Success)
+                    {
+                        TempData["Success"] = resultDetail.Message;
+                        return View(resultDetail.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointDetail.StatusCode}";
+                        TempData["Error"] = resultDetail.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -150,25 +147,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointCreate = await httpclient.PostAsJsonAsync("Reporte/create-Reporte", model);
 
-                    if (endpointCreate.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointCreate.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointCreate.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ReporteModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointCreate.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return View(model);
-                        }
+                    var result = await new JsonConvertidor<ReporteModel>().Deserializar(endpointCreate);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointCreate.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return View(model);
                     }
                 }
@@ -190,25 +185,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Reporte/get-Reporte-ById?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<UpdateReporteModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return View(result.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var result = await new JsonConvertidor<UpdateReporteModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return View(result.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -235,25 +228,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PutAsJsonAsync("Reporte/update-Reporte", model);
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ReporteModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return View(model);
-                        }
+                    var result = await new JsonConvertidor<ReporteModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return View(model);
                     }
                 }
@@ -275,25 +266,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Reporte/get-Reporte-ById?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ReporteModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return PartialView("_Delete", result.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var result = await new JsonConvertidor<ReporteModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return PartialView("_Delete", result.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -317,16 +306,21 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PutAsync($"Reporte/Remove-Reporte?id={id}", null);
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ReporteModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var result = await new JsonConvertidor<ReporteModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
                         return Json(new { success = true, message = result.Message, data = result.Data });
                     }
                     else
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ReporteModel>>(response);
                         return Json(new { success = false, message = $"Error {result.Message}" });
                     }
                 }

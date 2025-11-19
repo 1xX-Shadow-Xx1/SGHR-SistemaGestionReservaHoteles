@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SGHR.Web.Areas.Administrador.Models;
+using SGHR.Web.Data;
 using SGHR.Web.Models;
+using SGHR.Web.Models.Habitaciones.Amenity;
+using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.DashBoardAPI
 {
@@ -24,22 +27,22 @@ namespace SGHR.Web.Areas.Administrador.Controllers.DashBoardAPI
 
                     var endpoint = await httpclient.GetAsync("DashBoard/GetDataDashBoard");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<DashboardViewModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            return View("Index", result.Data);
-                        }
-                        else
-                        {
-                            return View("Error");
-                        }
+                    var result = await new JsonConvertidor<DashboardViewModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
+                        return View("Index", result.Data);
                     }
                     else
                     {
+                        TempData["Error"] = result.Message;
                         return View("Error");
                     }
 

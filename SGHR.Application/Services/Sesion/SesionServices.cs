@@ -45,7 +45,12 @@ namespace SGHR.Application.Services.Sesion
 
                 var sesion = new SesionDto
                 {
-                    Id = opResult.Data.Id
+                    Idsesion = opResult.Data.Id,
+                    IdUser = opResult.Data.IdUsuario,
+                    Estado = opResult.Data.Estado,
+                    FechaInicio = opResult.Data.FechaInicio,
+                    FechaFin = opResult.Data.FechaFin,
+                    UltimaActividad = opResult.Data.UltimaActividad
                 };
 
 

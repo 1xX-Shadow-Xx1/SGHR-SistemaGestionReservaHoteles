@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SGHR.Web.Data;
 using SGHR.Web.Models;
+using SGHR.Web.Models.Sesion;
 using SGHR.Web.Models.Usuarios.Usuario;
+using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
 {
@@ -22,7 +25,6 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
         // --- Partial para listar usuarios ---
         public async Task<IActionResult> _List(int? id)
         {
-
             try
             {
                 using (var httpclient = new HttpClient())
@@ -31,29 +33,25 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
 
                     if (id.HasValue && id > 0)
                     {
-
                         var endpointUser = await httpclient.GetAsync($"Usuario/Get-Usuario-By-Id?id={id}");
 
-                        if (endpointUser.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointUser.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string response = await endpointUser.Content.ReadAsStringAsync();
-                            var resulUser = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(response);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointUser.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resulUser != null && resulUser.Success)
-                            {
-                                TempData["Success"] = resulUser.Message;
-                                return PartialView("_List", new List<UsuarioModel> { resulUser.Data });
-                            }
-                            else
-                            {
-                                TempData["Error"] = resulUser.Message;
-                                return PartialView("_List", new List<UsuarioModel>());
-                            }
+                        var resulUser = await new JsonConvertidor<UsuarioModel>().Deserializar(endpointUser);
 
+                        if (resulUser != null && resulUser.Success)
+                        {
+                            TempData["Success"] = resulUser.Message;
+                            return PartialView("_List", new List<UsuarioModel> { resulUser.Data });
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointUser.StatusCode}";
+                            TempData["Error"] = resulUser.Message;
                             return PartialView("_List", new List<UsuarioModel>());
                         }
                     }
@@ -61,33 +59,27 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
                     {
                         var endpointlista = await httpclient.GetAsync("Usuario/Get-Usuarios");
 
-                        if (endpointlista.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointlista.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string responseList = await endpointlista.Content.ReadAsStringAsync();
-                            var resulList = JsonConvert.DeserializeObject<ServicesResultModel<List<UsuarioModel>>> (responseList);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointlista.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resulList != null && resulList.Success)
-                            {
-                                TempData["Success"] = resulList.Message;
-                                return PartialView("_List", resulList.Data);
-                            }
-                            else
-                            {
-                                TempData["Error"] = resulList.Message;
-                                return PartialView("_List", new List<UsuarioModel>());
-                            }
+                        var resulList = await new JsonConvertidor<UsuarioModel>().DeserializarList(endpointlista);
 
+                        if (resulList != null && resulList.Success)
+                        {
+                            TempData["Success"] = resulList.Message;
+                            return PartialView("_List", resulList.Data);
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointlista.StatusCode}";
+                            TempData["Error"] = resulList.Message;
                             return PartialView("_List", new List<UsuarioModel>());
                         }
-
                     }
-
                 }
-
             }
             catch (Exception ex)
             {
@@ -101,34 +93,32 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
         {
             try
             {
-                using(var httpclient = new HttpClient())
+                using (var httpclient = new HttpClient())
                 {
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointDetail = await httpclient.GetAsync($"Usuario/Get-Usuario-By-Id?id={id}");
 
-                    if (endpointDetail.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointDetail.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointDetail.Content.ReadAsStringAsync();
-                        var resultDetail = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointDetail.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultDetail != null && resultDetail.Success)
-                        {
-                            TempData["Success"] = resultDetail.Message;
-                            return View(resultDetail.Data);
+                    var resultDetail = await new JsonConvertidor<UsuarioModel>().Deserializar(endpointDetail);
 
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultDetail.Message;
-                            return RedirectToAction("Index");
-                        }
+                    if (resultDetail != null && resultDetail.Success)
+                    {
+                        TempData["Success"] = resultDetail.Message;
+                        return View(resultDetail.Data);
 
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointDetail.StatusCode}";
+                        TempData["Error"] = resultDetail.Message;
                         return RedirectToAction("Index");
                     }
+
                 }
 
 
@@ -159,31 +149,28 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
 
             try
             {
-                using(var httpclient = new HttpClient())
+                using (var httpclient = new HttpClient())
                 {
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointcreate = await httpclient.PostAsJsonAsync("Usuario/create-Usuario", dto);
 
-                    if (endpointcreate.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointcreate.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointcreate.Content.ReadAsStringAsync();
-                        var resultUser = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointcreate.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultUser != null && resultUser.Success)
-                        {
-                            TempData["Success"] = resultUser.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultUser.Message;
-                            return View(dto);
-                        }
+                    var resultUser = await new JsonConvertidor<UsuarioModel>().Deserializar(endpointcreate);
 
+                    if (resultUser != null && resultUser.Success)
+                    {
+                        TempData["Success"] = resultUser.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointcreate.StatusCode}";
+                        TempData["Error"] = resultUser.Message;
                         return View(dto);
                     }
                 }
@@ -200,30 +187,28 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
         {
             try
             {
-                using( var httpclient = new HttpClient())
+                using (var httpclient = new HttpClient())
                 {
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointEdit = await httpclient.GetAsync($"Usuario/Get-Usuario-By-Id?id={id}");
-                    if (endpointEdit.IsSuccessStatusCode)
+
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string responseEdit = await endpointEdit.Content.ReadAsStringAsync();
-                        var resultUser = JsonConvert.DeserializeObject<ServicesResultModel<UpdateUsuarioModel>>(responseEdit);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if(resultUser != null && resultUser.Success)
-                        {
-                            TempData["Success"] = resultUser.Message;
-                            return View(resultUser.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultUser.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultUser = await new JsonConvertidor<UpdateUsuarioModel>().Deserializar(endpointEdit);
 
+                    if (resultUser != null && resultUser.Success)
+                    {
+                        TempData["Success"] = resultUser.Message;
+                        return View(resultUser.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        TempData["Error"] = resultUser.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -250,27 +235,24 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointEdit = await httpclient.PutAsJsonAsync("Usuario/update-Usuario", dto);
 
-                    if (endpointEdit.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointEdit.Content.ReadAsStringAsync();
-                        var ResultUser = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (ResultUser != null && ResultUser.Success)
-                        {
-                            TempData["Success"] = ResultUser.Message;
-                            return RedirectToAction("Index");
+                    var ResultUser = await new JsonConvertidor<UsuarioModel>().Deserializar(endpointEdit);
 
-                        }
-                        else
-                        {
-                            TempData["Error"] = ResultUser.Message;
-                            return View(dto);
-                        }
+                    if (ResultUser != null && ResultUser.Success)
+                    {
+                        TempData["Success"] = ResultUser.Message;
+                        return RedirectToAction("Index");
 
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        TempData["Error"] = ResultUser.Message;
                         return View(dto);
                     }
                 }
@@ -293,26 +275,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Usuario/Get-Usuario-By-Id?id={id}");
 
-                    if(endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var resultUser = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if(resultUser != null && resultUser.Success)
-                        {
-                            TempData["Success"] = resultUser.Message;
-                            return PartialView("_Delete", resultUser.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultUser.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultUser = await new JsonConvertidor<UsuarioModel>().Deserializar(endpoint);
 
+                    if (resultUser != null && resultUser.Success)
+                    {
+                        TempData["Success"] = resultUser.Message;
+                        return PartialView("_Delete", resultUser.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = resultUser.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -335,18 +314,17 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointRemove = await httpclient.PutAsync($"Usuario/Remove-Usuario?id={id}", null);
 
-                    if (endpointRemove.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointRemove.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(response);
-                        return Json(new { success = true, message = result.Message, data = result.Data});
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointRemove.StatusCode, ErrorMessage = errorMessage });
                     }
-                    else
-                    {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(response);
-                        return Json(new { success = false, message = $"Error {result.Message}"});
-                    }
+
+                    var result = await new JsonConvertidor<UsuarioModel>().Deserializar(endpointRemove);
+
+                    return Json(new { success = true, message = result.Message, data = result.Data });
+
                 }
 
             }catch (Exception ex)

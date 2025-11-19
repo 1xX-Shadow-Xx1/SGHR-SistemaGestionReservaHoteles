@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SGHR.Web.Data;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Reservas.ServicioAdicional;
+using SGHR.Web.Models.Reservas.Tarifa;
+using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
 {
@@ -28,25 +31,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointDetail = await httpclient.GetAsync($"ServicioAdicional/Get-Servicio-Adicional-By-ID?id={id}");
 
-                    if (endpointDetail.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointDetail.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointDetail.Content.ReadAsStringAsync();
-                        var resultDetail = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointDetail.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultDetail != null && resultDetail.Success)
-                        {
-                            TempData["Success"] = resultDetail.Message;
-                            return View(resultDetail.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultDetail.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultDetail = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpointDetail);
+
+                    if (resultDetail != null && resultDetail.Success)
+                    {
+                        TempData["Success"] = resultDetail.Message;
+                        return View(resultDetail.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointDetail.StatusCode}";
+                        TempData["Error"] = resultDetail.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -71,25 +72,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     {
                         var endpoint = await httpclient.GetAsync($"ServicioAdicional/Get-Servicio-Adicional-By-ID?id={id}");
 
-                        if (endpoint.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string response = await endpoint.Content.ReadAsStringAsync();
-                            var result = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (result != null && result.Success)
-                            {
-                                TempData["Success"] = result.Message;
-                                return PartialView("_List", new List<ServicioAdicionalModel> { result.Data });
-                            }
-                            else
-                            {
-                                TempData["Error"] = result.Message;
-                                return PartialView("_List", new List<ServicioAdicionalModel>());
-                            }
+                        var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpoint);
+
+                        if (result != null && result.Success)
+                        {
+                            TempData["Success"] = result.Message;
+                            return PartialView("_List", new List<ServicioAdicionalModel> { result.Data });
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpoint.StatusCode}";
+                            TempData["Error"] = result.Message;
                             return PartialView("_List", new List<ServicioAdicionalModel>());
                         }
                     }
@@ -97,25 +96,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     {
                         var endpointList = await httpclient.GetAsync("ServicioAdicional/Get-Servicio-Adicional");
 
-                        if (endpointList.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointList.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string responseList = await endpointList.Content.ReadAsStringAsync();
-                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<ServicioAdicionalModel>>>(responseList);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointList.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultList != null && resultList.Success)
-                            {
-                                TempData["Success"] = resultList.Message;
-                                return PartialView("_List", resultList.Data);
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultList.Message;
-                                return PartialView("_List", new List<ServicioAdicionalModel>());
-                            }
+                        var resultList = await new JsonConvertidor<ServicioAdicionalModel>().DeserializarList(endpointList);
+
+                        if (resultList != null && resultList.Success)
+                        {
+                            TempData["Success"] = resultList.Message;
+                            return PartialView("_List", resultList.Data);
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointList.StatusCode}";
+                            TempData["Error"] = resultList.Message;
                             return PartialView("_List", new List<ServicioAdicionalModel>());
                         }
                     }
@@ -150,25 +147,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointCreate = await httpclient.PostAsJsonAsync("ServicioAdicional/Create-Servicio-Adicional", model);
 
-                    if (endpointCreate.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointCreate.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointCreate.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointCreate.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return View(model);
-                        }
+                    var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpointCreate);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointCreate.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return View(model);
                     }
                 }
@@ -190,25 +185,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"ServicioAdicional/Get-Servicio-Adicional-By-ID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<UpdateServicioAdicionalModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return View(result.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var result = await new JsonConvertidor<UpdateServicioAdicionalModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return View(result.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -235,25 +228,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PutAsJsonAsync("ServicioAdicional/Update-Servicio-Adicional", model);
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return View(model);
-                        }
+                    var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return View(model);
                     }
                 }
@@ -275,25 +266,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"ServicioAdicional/Get-Servicio-Adicional-By-ID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return PartialView("_Delete", result.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return PartialView("_Delete", result.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -317,16 +306,21 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PutAsync($"ServicioAdicional/Remove-Servicio-Adicional?id={id}", null);
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
                         return Json(new { success = true, message = result.Message, data = result.Data });
                     }
                     else
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ServicioAdicionalModel>>(response);
                         return Json(new { success = false, message = $"Error {result.Message}" });
                     }
                 }

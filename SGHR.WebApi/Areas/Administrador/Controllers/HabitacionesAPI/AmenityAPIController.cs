@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SGHR.Web.Data;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Habitaciones.Amenity;
+using SGHR.Web.Models.Habitaciones.Categoria;
+using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
 {
@@ -26,26 +29,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     {
                         var endpointAmenity = await httpclient.GetAsync($"Amenity/Get-By-ID?id={id}");
 
-                        if (endpointAmenity.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointAmenity.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string response = await endpointAmenity.Content.ReadAsStringAsync();
-                            var resultAmenity = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointAmenity.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultAmenity != null && resultAmenity.Success)
-                            {
-                                TempData["Success"] = resultAmenity.Message;
-                                return PartialView("_List", new List<AmenityModel> { resultAmenity.Data });
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultAmenity.Message;
-                                return PartialView("_List", new List<AmenityModel>());
-                            }
+                        var resultAmenity = await new JsonConvertidor<AmenityModel>().Deserializar(endpointAmenity);
 
+                        if (resultAmenity != null && resultAmenity.Success)
+                        {
+                            TempData["Success"] = resultAmenity.Message;
+                            return PartialView("_List", new List<AmenityModel> { resultAmenity.Data });
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointAmenity.StatusCode}";
+                            TempData["Error"] = resultAmenity.Message;
                             return PartialView("_List", new List<AmenityModel>());
                         }
                     }
@@ -53,25 +53,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     {
                         var endpointList = await httpclient.GetAsync("Amenity/Get-Amenity");
 
-                        if (endpointList.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointList.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string responseList = await endpointList.Content.ReadAsStringAsync();
-                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<AmenityModel>>>(responseList);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointList.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultList != null && resultList.Success)
-                            {
-                                TempData["Success"] = resultList.Message;
-                                return PartialView("_List", resultList.Data);
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultList.Message;
-                                return PartialView("_List", new List<AmenityModel>());
-                            }
+                        var resultList = await new JsonConvertidor<AmenityModel>().DeserializarList(endpointList);
+
+                        if (resultList != null && resultList.Success)
+                        {
+                            TempData["Success"] = resultList.Message;
+                            return PartialView("_List", resultList.Data);
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointList.StatusCode}";
+                            TempData["Error"] = resultList.Message;
                             return PartialView("_List", new List<AmenityModel>());
                         }
                     }
@@ -94,26 +92,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Amenity/Get-By-ID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return View(result.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var result = await new JsonConvertidor<AmenityModel>().Deserializar(endpoint);
 
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return View(result.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -147,25 +142,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointCreate = await httpclient.PostAsJsonAsync("Amenity/Create-Amenity", model);
 
-                    if (endpointCreate.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointCreate.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointCreate.Content.ReadAsStringAsync();
-                        var resultAmenity = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointCreate.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultAmenity != null && resultAmenity.Success)
-                        {
-                            TempData["Success"] = resultAmenity.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultAmenity.Message;
-                            return View(model);
-                        }
+                    var resultAmenity = await new JsonConvertidor<AmenityModel>().Deserializar(endpointCreate);
+
+                    if (resultAmenity != null && resultAmenity.Success)
+                    {
+                        TempData["Success"] = resultAmenity.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointCreate.StatusCode}";
+                        TempData["Error"] = resultAmenity.Message;
                         return View(model);
                     }
                 }
@@ -187,25 +180,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Amenity/Get-By-ID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var resultAmenity = JsonConvert.DeserializeObject<ServicesResultModel<UpdateAmenityModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultAmenity != null && resultAmenity.Success)
-                        {
-                            TempData["Success"] = resultAmenity.Message;
-                            return View(resultAmenity.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultAmenity.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultAmenity = await new JsonConvertidor<UpdateAmenityModel>().Deserializar(endpoint);
+
+                    if (resultAmenity != null && resultAmenity.Success)
+                    {
+                        TempData["Success"] = resultAmenity.Message;
+                        return View(resultAmenity.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = resultAmenity.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -232,25 +223,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointEdit = await httpclient.PutAsJsonAsync("Amenity/Update-Amenity", model);
 
-                    if (endpointEdit.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointEdit.Content.ReadAsStringAsync();
-                        var resultAmenity = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultAmenity != null && resultAmenity.Success)
-                        {
-                            TempData["Success"] = resultAmenity.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultAmenity.Message;
-                            return View(model);
-                        }
+                    var resultAmenity = await new JsonConvertidor<AmenityModel>().Deserializar(endpointEdit);
+
+                    if (resultAmenity != null && resultAmenity.Success)
+                    {
+                        TempData["Success"] = resultAmenity.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        TempData["Error"] = resultAmenity.Message;
                         return View(model);
                     }
                 }
@@ -272,25 +261,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Amenity/Get-By-ID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var resultAmenity = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultAmenity != null && resultAmenity.Success)
-                        {
-                            TempData["Success"] = resultAmenity.Message;
-                            return PartialView("_Delete", resultAmenity.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultAmenity.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultAmenity = await new JsonConvertidor<AmenityModel>().Deserializar(endpoint);
+
+                    if (resultAmenity != null && resultAmenity.Success)
+                    {
+                        TempData["Success"] = resultAmenity.Message;
+                        return PartialView("_Delete", resultAmenity.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = resultAmenity.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -314,18 +301,21 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointRemove = await httpclient.PutAsync($"Amenity/Remove-Amenity?id={id}", null);
 
-                    if (endpointRemove.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointRemove.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointRemove.StatusCode, ErrorMessage = errorMessage });
+                    }
 
+                    var result = await new JsonConvertidor<AmenityModel>().Deserializar(endpointRemove);
+
+                    if (result != null && result.Success)
+                    {
                         return Json(new { success = true, message = result.Message, data = result.Data });
                     }
                     else
                     {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<AmenityModel>>(response);
-
                         return Json(new { success = false, message = $"Error {result.Message}" });
                     }
                 }

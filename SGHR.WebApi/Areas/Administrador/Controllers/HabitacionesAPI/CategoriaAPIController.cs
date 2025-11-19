@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SGHR.Web.Data;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Habitaciones.Categoria;
+using SGHR.Web.Models.Habitaciones.Habitacion;
+using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
 {
@@ -32,25 +35,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     {
                         var endpoint = await httpclient.GetAsync($"Categoria/Get-Categoria-By-ID?id={id}");
 
-                        if (endpoint.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string response = await endpoint.Content.ReadAsStringAsync();
-                            var result = JsonConvert.DeserializeObject<ServicesResultModel<CategoriaModel>>(response);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (result != null && result.Success)
-                            {
-                                TempData["Success"] = result.Message;
-                                return PartialView("_List", new List<CategoriaModel> { result.Data });
-                            }
-                            else
-                            {
-                                TempData["Error"] = result.Message;
-                                return PartialView("_List", new List<CategoriaModel>());
-                            }
+                        var result = await new JsonConvertidor<CategoriaModel>().Deserializar(endpoint);
+
+                        if (result != null && result.Success)
+                        {
+                            TempData["Success"] = result.Message;
+                            return PartialView("_List", new List<CategoriaModel> { result.Data });
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpoint.StatusCode}";
+                            TempData["Error"] = result.Message;
                             return PartialView("_List", new List<CategoriaModel>());
                         }
                     }
@@ -58,25 +59,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     {
                         var endpointList = await httpclient.GetAsync("Categoria/Get-Categorias");
 
-                        if (endpointList.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointList.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string response = await endpointList.Content.ReadAsStringAsync();
-                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<CategoriaModel>>>(response);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointList.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultList != null && resultList.Success)
-                            {
-                                TempData["Success"] = resultList.Message;
-                                return PartialView("_List", resultList.Data);
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultList.Message;
-                                return PartialView("_List", new List<CategoriaModel>());
-                            }
+                        var resultList = await new JsonConvertidor<CategoriaModel>().DeserializarList(endpointList);
+
+                        if (resultList != null && resultList.Success)
+                        {
+                            TempData["Success"] = resultList.Message;
+                            return PartialView("_List", resultList.Data);
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointList.StatusCode}";
+                            TempData["Error"] = resultList.Message;
                             return PartialView("_List", new List<CategoriaModel>());
                         }
                     }
@@ -99,25 +98,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Categoria/Get-Categoria-By-ID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<CategoriaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return View(result.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var result = await new JsonConvertidor<CategoriaModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return View(result.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -153,25 +150,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PostAsJsonAsync("Categoria/Create-Categoria", model);
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<CategoriaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return View(model);
-                        }
+                    var result = await new JsonConvertidor<CategoriaModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return View(model);
                     }
                 }
@@ -193,25 +188,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Categoria/Get-Categoria-By-ID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<UpdateCategoriaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return View(result.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var result = await new JsonConvertidor<UpdateCategoriaModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return View(result.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -238,25 +231,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PutAsJsonAsync("Categoria/Update-Categoria", model);
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<CategoriaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return View(model);
-                        }
+                    var result = await new JsonConvertidor<CategoriaModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return View(model);
                     }
                 }
@@ -278,25 +269,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Categoria/Get-Categoria-By-ID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<CategoriaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return PartialView("_Delete", result.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var result = await new JsonConvertidor<CategoriaModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return PartialView("_Delete", result.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -320,18 +309,21 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PutAsync($"Categoria/Remove-Categoria?id={id}", null);
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<CategoriaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
+                    var result = await new JsonConvertidor<CategoriaModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
                         return Json(new { success = true, message = result.Message, data = result.Data });
                     }
                     else
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<CategoriaModel>>(response);
-
                         return Json(new { success = false, message = $"Error {result.Message}" });
                     }
                 }

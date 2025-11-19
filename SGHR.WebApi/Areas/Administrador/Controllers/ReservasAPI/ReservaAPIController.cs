@@ -1,9 +1,11 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SGHR.Web.Data;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Reservas.Reserva;
 using SGHR.Web.Models.Reservas.ServicioAdicional;
+using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
 {
@@ -33,25 +35,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     {
                         var endpointReserva = await httpclient.GetAsync($"Reserva/Get-Reserva-ByID?id={id}");
 
-                        if (endpointReserva.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointReserva.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string response = await endpointReserva.Content.ReadAsStringAsync();
-                            var resultReserva = JsonConvert.DeserializeObject<ServicesResultModel<ReservaModel>>(response);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointReserva.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultReserva != null && resultReserva.Success)
-                            {
-                                TempData["Success"] = resultReserva.Message;
-                                return PartialView("_List", new List<ReservaModel> { resultReserva.Data });
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultReserva.Message;
-                                return PartialView("_List", new List<ReservaModel>());
-                            }
+                        var resultReserva = await new JsonConvertidor<ReservaModel>().Deserializar(endpointReserva);
+
+                        if (resultReserva != null && resultReserva.Success)
+                        {
+                            TempData["Success"] = resultReserva.Message;
+                            return PartialView("_List", new List<ReservaModel> { resultReserva.Data });
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointReserva.StatusCode}";
+                            TempData["Error"] = resultReserva.Message;
                             return PartialView("_List", new List<ReservaModel>());
                         }
                     }
@@ -59,25 +59,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     {
                         var endpointLista = await httpclient.GetAsync("Reserva/Get-Reservas");
 
-                        if (endpointLista.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointLista.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string responseList = await endpointLista.Content.ReadAsStringAsync();
-                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<ReservaModel>>>(responseList);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointLista.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultList != null && resultList.Success)
-                            {
-                                TempData["Success"] = resultList.Message;
-                                return PartialView("_List", resultList.Data);
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultList.Message;
-                                return PartialView("_List", new List<ReservaModel>());
-                            }
+                        var resultList = await new JsonConvertidor<ReservaModel>().DeserializarList(endpointLista);
+
+                        if (resultList != null && resultList.Success)
+                        {
+                            TempData["Success"] = resultList.Message;
+                            return PartialView("_List", resultList.Data);
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointLista.StatusCode}";
+                            TempData["Error"] = resultList.Message;
                             return PartialView("_List", new List<ReservaModel>());
                         }
                     }
@@ -100,25 +98,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointDetail = await httpclient.GetAsync($"Reserva/Get-Reserva-ByID?id={id}");
 
-                    if (endpointDetail.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointDetail.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointDetail.Content.ReadAsStringAsync();
-                        var resultDetail = JsonConvert.DeserializeObject<ServicesResultModel<ReservaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointDetail.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultDetail != null && resultDetail.Success)
-                        {
-                            TempData["Success"] = resultDetail.Message;
-                            return View(resultDetail.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultDetail.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultDetail = await new JsonConvertidor<ReservaModel>().Deserializar(endpointDetail);
+
+                    if (resultDetail != null && resultDetail.Success)
+                    {
+                        TempData["Success"] = resultDetail.Message;
+                        return View(resultDetail.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointDetail.StatusCode}";
+                        TempData["Error"] = resultDetail.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -152,25 +148,24 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointCreate = await httpclient.PostAsJsonAsync("Reserva/Create-Reserva", model);
 
-                    if (endpointCreate.IsSuccessStatusCode)
-                    {
-                        string response = await endpointCreate.Content.ReadAsStringAsync();
-                        var resultReserva = JsonConvert.DeserializeObject<ServicesResultModel<ReservaModel>>(response);
 
-                        if (resultReserva != null && resultReserva.Success)
-                        {
-                            TempData["Success"] = resultReserva.Message;
-                            return RedirectToAction("Servicios", new { id = resultReserva.Data.Id });
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultReserva.Message;
-                            return View(model);
-                        }
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointCreate.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
+                    {
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointCreate.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var resultReserva = await new JsonConvertidor<ReservaModel>().Deserializar(endpointCreate);
+
+                    if (resultReserva != null && resultReserva.Success)
+                    {
+                        TempData["Success"] = resultReserva.Message;
+                        return RedirectToAction("Servicios", new { id = resultReserva.Data.Id });
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointCreate.StatusCode}";
+                        TempData["Error"] = resultReserva.Message;
                         return View(model);
                     }
                 }
@@ -192,25 +187,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointEdit = await httpclient.GetAsync($"Reserva/Get-Reserva-ByID?id={id}");
 
-                    if (endpointEdit.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointEdit.Content.ReadAsStringAsync();
-                        var resultReserva = JsonConvert.DeserializeObject<ServicesResultModel<UpdateReservaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultReserva != null && resultReserva.Success)
-                        {
-                            TempData["Success"] = resultReserva.Message;
-                            return View(resultReserva.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultReserva.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultReserva = await new JsonConvertidor<UpdateReservaModel>().Deserializar(endpointEdit);
+
+                    if (resultReserva != null && resultReserva.Success)
+                    {
+                        TempData["Success"] = resultReserva.Message;
+                        return View(resultReserva.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        TempData["Error"] = resultReserva.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -237,25 +230,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointEdit = await httpclient.PutAsJsonAsync("Reserva/Update-Reserva", model);
 
-                    if (endpointEdit.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointEdit.Content.ReadAsStringAsync();
-                        var resultReserva = JsonConvert.DeserializeObject<ServicesResultModel<ReservaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultReserva != null && resultReserva.Success)
-                        {
-                            TempData["Success"] = resultReserva.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultReserva.Message;
-                            return View(model);
-                        }
+                    var resultReserva = await new JsonConvertidor<ReservaModel>().Deserializar(endpointEdit);
+
+                    if (resultReserva != null && resultReserva.Success)
+                    {
+                        TempData["Success"] = resultReserva.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        TempData["Error"] = resultReserva.Message;
                         return View(model);
                     }
                 }
@@ -277,25 +268,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Reserva/Get-Reserva-ByID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var resultReserva = JsonConvert.DeserializeObject<ServicesResultModel<ReservaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultReserva != null && resultReserva.Success)
-                        {
-                            TempData["Success"] = resultReserva.Message;
-                            return PartialView("_Delete", resultReserva.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultReserva.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultReserva = await new JsonConvertidor<ReservaModel>().Deserializar(endpoint);
+
+                    if (resultReserva != null && resultReserva.Success)
+                    {
+                        TempData["Success"] = resultReserva.Message;
+                        return PartialView("_Delete", resultReserva.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = resultReserva.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -318,16 +307,21 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointRemove = await httpclient.PutAsync($"Reserva/Remove-Reserva?id={id}", null);
 
-                    if (endpointRemove.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointRemove.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ReservaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointRemove.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var result = await new JsonConvertidor<ReservaModel>().Deserializar(endpointRemove);
+
+                    if (result != null && result.Success)
+                    {
                         return Json(new { success = true, message = result.Message, data = result.Data });
                     }
                     else
                     {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ReservaModel>>(response);
                         return Json(new { success = false, message = $"Error {result.Message}" });
                     }
                 }
@@ -358,10 +352,17 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Reserva/Get-Servicios-By-ReservaID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<List<ServicioAdicionalModel>>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
                         TempData["Success"] = result.Message;
                         return Json(new { success = true, data = result.Data });
                     }
@@ -390,10 +391,17 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync("ServicioAdicional/Get-Servicio-Adicional");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<List<ServicioAdicionalModel>>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
                         TempData["Success"] = result.Message;
                         return Json(new { success = true, data = result.Data });
                     }
@@ -422,17 +430,22 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PutAsync($"Reserva/Add-Servicio-Adicional-to-Reserva?id={idReserva}&nameServicio={nombreServicio}", null);
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ReservaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var result = await new JsonConvertidor<ReservaModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
                         TempData["Success"] = result.Message;
                         return Json(new { success = true, message = result.Message });
                     }
                     else
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ReservaModel>>(response);
                         TempData["Error"] = result.Message;
                         return Json(new { success = false, message = result.Message });
                     }
@@ -456,17 +469,22 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PutAsync($"Reserva/Remove-Servicio-Adicional-to-Reserva?id={idReserva}&nombreServicio={nombreServicio}", null);
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ReservaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var result = await new JsonConvertidor<ReservaModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
                         TempData["Success"] = result.Message;
                         return Json(new { success = true, message = result.Message });
                     }
                     else
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<ReservaModel>>(response);
                         TempData["Error"] = result.Message;
                         return Json(new { success = false, message = result.Message });
                     }

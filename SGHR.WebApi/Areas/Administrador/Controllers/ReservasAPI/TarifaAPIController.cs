@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SGHR.Web.Data;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Reservas.Tarifa;
+using SGHR.Web.Models.Usuarios.Cliente;
+using SGHR.Web.Validador;
+using System.Net;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
 {
@@ -33,25 +37,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     {
                         var endpointTarifa = await httpclient.GetAsync($"Tarifa/Get-Tarifa-ByID?id={id}");
 
-                        if (endpointTarifa.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointTarifa.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string response = await endpointTarifa.Content.ReadAsStringAsync();
-                            var result = JsonConvert.DeserializeObject<ServicesResultModel<TarifaModel>>(response);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointTarifa.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (result != null && result.Success)
-                            {
-                                TempData["Success"] = result.Message;
-                                return PartialView("_List", new List<TarifaModel> { result.Data });
-                            }
-                            else
-                            {
-                                TempData["Error"] = result.Message;
-                                return PartialView("_List", new List<TarifaModel>());
-                            }
+                        var result = await new JsonConvertidor<TarifaModel>().Deserializar(endpointTarifa);
+
+                        if (result != null && result.Success)
+                        {
+                            TempData["Success"] = result.Message;
+                            return PartialView("_List", new List<TarifaModel> { result.Data });
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointTarifa.StatusCode}";
+                            TempData["Error"] = result.Message;
                             return PartialView("_List", new List<TarifaModel>());
                         }
                     }
@@ -60,25 +62,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                         // --- Listado completo ---
                         var endpointList = await httpclient.GetAsync("Tarifa/Get-Tarifas");
 
-                        if (endpointList.IsSuccessStatusCode)
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointList.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string responseList = await endpointList.Content.ReadAsStringAsync();
-                            var resultList = JsonConvert.DeserializeObject<ServicesResultModel<List<TarifaModel>>>(responseList);
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointList.StatusCode, ErrorMessage = errorMessage });
+                        }
 
-                            if (resultList != null && resultList.Success)
-                            {
-                                TempData["Success"] = resultList.Message;
-                                return PartialView("_List", resultList.Data);
-                            }
-                            else
-                            {
-                                TempData["Error"] = resultList.Message;
-                                return PartialView("_List", new List<TarifaModel>());
-                            }
+                        var resultList = await new JsonConvertidor<TarifaModel>().DeserializarList(endpointList);
+
+                        if (resultList != null && resultList.Success)
+                        {
+                            TempData["Success"] = resultList.Message;
+                            return PartialView("_List", resultList.Data);
                         }
                         else
                         {
-                            TempData["Error"] = $"Error {endpointList.StatusCode}";
+                            TempData["Error"] = resultList.Message;
                             return PartialView("_List", new List<TarifaModel>());
                         }
                     }
@@ -102,25 +102,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointDetail = await httpclient.GetAsync($"Tarifa/Get-Tarifa-ByID?id={id}");
 
-                    if (endpointDetail.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointDetail.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointDetail.Content.ReadAsStringAsync();
-                        var resultDetail = JsonConvert.DeserializeObject<ServicesResultModel<TarifaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointDetail.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (resultDetail != null && resultDetail.Success)
-                        {
-                            TempData["Success"] = resultDetail.Message;
-                            return View(resultDetail.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultDetail.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var resultDetail = await new JsonConvertidor<TarifaModel>().Deserializar(endpointDetail);
+
+                    if (resultDetail != null && resultDetail.Success)
+                    {
+                        TempData["Success"] = resultDetail.Message;
+                        return View(resultDetail.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointDetail.StatusCode}";
+                        TempData["Error"] = resultDetail.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -156,25 +154,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointCreate = await httpclient.PostAsJsonAsync("Tarifa/Create-Tarifa", model);
 
-                    if (endpointCreate.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointCreate.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointCreate.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<TarifaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointCreate.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return View(model);
-                        }
+                    var result = await new JsonConvertidor<TarifaModel>().Deserializar(endpointCreate);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointCreate.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return View(model);
                     }
                 }
@@ -196,25 +192,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointEdit = await httpclient.GetAsync($"Tarifa/Get-Tarifa-ByID?id={id}");
 
-                    if (endpointEdit.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointEdit.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<UpdateTarifaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return View(result.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var result = await new JsonConvertidor<UpdateTarifaModel>().Deserializar(endpointEdit);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return View(result.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -241,25 +235,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointEdit = await httpclient.PutAsJsonAsync("Tarifa/Update-Tarifa", model);
 
-                    if (endpointEdit.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointEdit.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<TarifaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return View(model);
-                        }
+                    var result = await new JsonConvertidor<TarifaModel>().Deserializar(endpointEdit);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return RedirectToAction("Index");
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpointEdit.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return View(model);
                     }
                 }
@@ -281,25 +273,23 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Tarifa/Get-Tarifa-ByID?id={id}");
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<TarifaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return PartialView("_Delete", result.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return RedirectToAction("Index");
-                        }
+                    var result = await new JsonConvertidor<TarifaModel>().Deserializar(endpoint);
+
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return PartialView("_Delete", result.Data);
                     }
                     else
                     {
-                        TempData["Error"] = $"Error {endpoint.StatusCode}";
+                        TempData["Error"] = result.Message;
                         return RedirectToAction("Index");
                     }
                 }
@@ -322,18 +312,21 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpointRemove = await httpclient.PutAsync($"Tarifa/Remove-Tarifa?id={id}", null);
 
-                    if (endpointRemove.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointRemove.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<TarifaModel>>(response);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointRemove.StatusCode, ErrorMessage = errorMessage });
+                    }
 
+                    var result = await new JsonConvertidor<TarifaModel>().Deserializar(endpointRemove);
+
+                    if (result != null && result.Success)
+                    {
                         return Json(new { success = true, message = result.Message, data = result.Data });
                     }
                     else
                     {
-                        string response = await endpointRemove.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<ServicesResultModel<TarifaModel>>(response);
-
                         return Json(new { success = false, message = $"Error {result.Message}" });
                     }
                 }

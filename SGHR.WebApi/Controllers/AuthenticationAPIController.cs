@@ -1,18 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SGHR.Web.Data;
 using SGHR.Web.Models;
 using SGHR.Web.Models.EnumsModel.Usuario;
 using SGHR.Web.Models.Sesion;
 using SGHR.Web.Models.Usuarios.Usuario;
+using SGHR.Web.Validador;
 
 namespace SGHR.Web.Controllers
 {
     public class AuthenticationAPIController : Controller
     {
+        private readonly HttpSesion _contexSesion;
         
-        public AuthenticationAPIController()
+        public AuthenticationAPIController(HttpSesion httpSesion)
         {
-            
+            _contexSesion = httpSesion;
         }
 
         // En un controlador
@@ -45,63 +48,45 @@ namespace SGHR.Web.Controllers
                 {
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PutAsync($"Authentication/Authentication-Login?correo={Uri.EscapeDataString(correo)}&contraseña={Uri.EscapeDataString(contraseña)}", null);
-                    if (endpoint.IsSuccessStatusCode)
+
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var userService = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(response);
-                        if (userService != null && userService.Data != null && userService.Success)
-                        {
-                            var endpoint2 = await httpclient.GetAsync($"Sesion/GetSesionByUser?userId={userService.Data.Id}");
-                            if (endpoint2.IsSuccessStatusCode)
-                            {
-                                string response2 = await endpoint2.Content.ReadAsStringAsync();
-                                var sesionService = JsonConvert.DeserializeObject<ServicesResultModel<SesionModel>>(response2);
-                                if (sesionService != null && sesionService.Data != null && sesionService.Success)
-                                {
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
 
-                                    HttpContext.Session.SetInt32("UserId", userService.Data.Id);
-                                    HttpContext.Session.SetInt32("SesionId", sesionService.Data.Idsesion);
-                                    HttpContext.Session.SetString("UserName", userService.Data.Nombre);
-                                    HttpContext.Session.SetString("UserRole", (userService.Data.Rol).ToString());
-                                    TempData["Success"] = userService.Message;
-                                    switch (userService.Data.Rol)
-                                    {
-                                        case RolUsuarioModel.Cliente:
-                                            return RedirectToAction("Index", "HomeAPI", new { area = "Cliente" });
-                                        case RolUsuarioModel.Recepcionista:
-                                            return RedirectToAction("Index", "HomeAPI", new { area = "Recepcionista" });
-                                        case RolUsuarioModel.Administrador:
-                                            return RedirectToAction("Index", "HomeAPI", new { area = "Administrador" });
-                                        default:
-                                            return RedirectToAction("Login");
-                                    }
-                                }
-                            }
-                            string res = await endpoint.Content.ReadAsStringAsync();
-                            var resul = JsonConvert.DeserializeObject<ServicesResultModel<SesionModel>>(res);
-                            TempData["Error"] = resul.Message;
-                            return RedirectToAction("Login");
+                    var sesionModel = await new JsonConvertidor<SesionLoginModel>().Deserializar(endpoint);
 
-                        }
-                        else
+                    if (sesionModel != null && sesionModel.Data != null && sesionModel.Success)
+                    {
+                        _contexSesion.SaveSesion(sesionModel.Data);
+
+                        TempData["Success"] = sesionModel.Message;
+                        switch (sesionModel.Data.RolUser)
                         {
-                            TempData["Error"] = userService.Message;
-                            return RedirectToAction("Login");
+                            case RolUsuarioModel.Cliente:
+                                return RedirectToAction("Index", "HomeAPI", new { area = "Cliente" });
+                            case RolUsuarioModel.Recepcionista:
+                                return RedirectToAction("Index", "HomeAPI", new { area = "Recepcionista" });
+                            case RolUsuarioModel.Administrador:
+                                return RedirectToAction("Index", "HomeAPI", new { area = "Administrador" });
+                            default:
+                                return RedirectToAction("Login");
                         }
+
                     }
                     else
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var resul = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(response);
-                        TempData["Error"] = resul.Message;
+                        TempData["Error"] = sesionModel.Message;
                         return RedirectToAction("Login");
+
                     }
                 }
-
             }catch(Exception ex)
             {
                 ViewBag.Error = "Error interno al conectar con el servicio de autenticación.";
-                return View("Error");
+                return View("Error", ex);
             }
 
         }
@@ -126,34 +111,28 @@ namespace SGHR.Web.Controllers
                 {
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PostAsJsonAsync("Authentication/Authentication-Register", dto);
-                    if (endpoint.IsSuccessStatusCode)
-                    {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var userService = JsonConvert.DeserializeObject<ServicesResultModel<CreateUsuarioModel>>(response);
-                        if (userService != null && userService.Success)
-                        {
-                            TempData["Success"] = userService.Message;
-                            return RedirectToAction("Login");
 
-                        }
-                        
-                        ViewBag.Error = userService.Message;
-                        return View(dto);
-                    }
-                    else if (400 == (int)endpoint.StatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var resul = JsonConvert.DeserializeObject<ServicesResultModel<UsuarioModel>>(response);
-                        ViewBag.Error = resul.Message;
-                        return View(dto);
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var sesionModel = await new JsonConvertidor<SesionLoginModel>().Deserializar(endpoint);
+
+                    if (sesionModel != null && sesionModel.Data != null && sesionModel.Success)
+                    {
+                        _contexSesion.SaveSesion(sesionModel.Data);
+                        TempData["Success"] = sesionModel.Message;
+                        return RedirectToAction("Index", "HomeAPI", new { area = "Cliente" });
                     }
                     else
                     {
-                        ViewBag.Error = $"Error Code: {(int)endpoint.StatusCode}";
-                        return View(dto);
-                    }
+                        TempData["Error"] = sesionModel.Message;
+                        return RedirectToAction("Login");
+                    }       
                 }
-
             }
             catch(Exception ex)
             {
@@ -173,26 +152,26 @@ namespace SGHR.Web.Controllers
                 {
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PutAsync($"Authentication/Authentication-CloseSesion?id={userId.Value}", null);
-                    if (endpoint.IsSuccessStatusCode)
-                    {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var sesionService = JsonConvert.DeserializeObject<ServicesResultModel<CheckSesionModel>>(response);
-                        if (sesionService != null && sesionService.Success)
-                        {
-                            HttpContext.Session.Clear();
-                            TempData["Success"] = "Sesión cerrada correctamente.";
-                            return RedirectToAction("Login");
 
-                        }
-                        TempData["Error"] = sesionService.Message;
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
+                    {
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var sesionService = await new JsonConvertidor<object>().Deserializar(endpoint);
+
+                    if (sesionService != null && sesionService.Success)
+                    {
+                        HttpContext.Session.Clear();
+                        TempData["Success"] = sesionService.Message;
                         return RedirectToAction("Login");
 
                     }
                     else
                     {
-                        string res = await endpoint.Content.ReadAsStringAsync();
-                        var resul = JsonConvert.DeserializeObject<ServicesResultModel<SesionModel>>(res);
-                        ViewBag.Error = resul.Message;
+                        TempData["Error"] = sesionService.Message;
                         return RedirectToAction("Login");
                     }
                 }
@@ -216,26 +195,27 @@ namespace SGHR.Web.Controllers
                     {
                         httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                         var endpoint = await httpclient.PutAsync($"Sesion/PutCloseSesionByUserID?userId={userId.Value}", null);
-                        if (endpoint.IsSuccessStatusCode)
+
+                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                        if (!validate && errorMessage != string.Empty)
                         {
-                            string response = await endpoint.Content.ReadAsStringAsync();
-                            var sesionService = JsonConvert.DeserializeObject<ServicesResultModel<CheckSesionModel>>(response);
-                            if (sesionService != null && sesionService.Success)
-                            {
-                                HttpContext.Session.Clear();
-                                TempData["Success"] = sesionService.Message;
-                                return RedirectToAction("Login");
-                            }
-                            else
-                            {
-                                TempData["Error"] = sesionService.Message;
-                                return RedirectToAction("Login");
-                            }
+                            ViewBag.Error = errorMessage;
+                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
                         }
-                        string res = await endpoint.Content.ReadAsStringAsync();
-                        var resul = JsonConvert.DeserializeObject<ServicesResultModel<SesionModel>>(res);
-                        TempData["Error"] = resul.Message;
-                        return RedirectToAction("Login");
+
+                        var sesionService = await new JsonConvertidor<object>().Deserializar(endpoint);
+
+                        if (sesionService != null && sesionService.Success)
+                        {
+                            HttpContext.Session.Clear();
+                            TempData["Success"] = sesionService.Message;
+                            return RedirectToAction("Login");
+                        }
+                        else
+                        {
+                            TempData["Error"] = sesionService.Message;
+                            return RedirectToAction("Login");
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -258,26 +238,26 @@ namespace SGHR.Web.Controllers
 
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.GetAsync($"Sesion/CheckSesionActivityByUserID?userId={Dto.IdUsuario}");
-                    if (endpoint.IsSuccessStatusCode)
+
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        string response = await endpoint.Content.ReadAsStringAsync();
-                        var sesionService = JsonConvert.DeserializeObject<ServicesResultModel<CheckSesionModel>>(response);
-                        if (sesionService != null && sesionService.Success && sesionService.Data != null)
-                        {
-                            active = sesionService.Data.Estado; // true = activa, false = inactiva
-                            return Ok(new { active });
-                        }
-                        else
-                        {
-                            return Ok(new { active });
-                        }
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                    }
+
+                    var sesionService = await new JsonConvertidor<CheckSesionModel>().Deserializar(endpoint);
+
+                    if (sesionService != null && sesionService.Success && sesionService.Data != null)
+                    {
+                        active = sesionService.Data.Estado;
+                        return Ok(new { active });
                     }
                     else
                     {
-                        string res = await endpoint.Content.ReadAsStringAsync();
-                        var resul = JsonConvert.DeserializeObject<ServicesResultModel<SesionModel>>(res);
-                        return View("Error", resul.Message);
+                        return Ok(new { active });
                     }
+
                 }
 
             }
@@ -302,23 +282,22 @@ namespace SGHR.Web.Controllers
                     httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
                     var endpoint = await httpclient.PutAsync($"Sesion/UpdateActivitySesionByUser?userId={sesionid.Value}", null);
 
-                    if (endpoint.IsSuccessStatusCode)
+                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        var response = await endpoint.Content.ReadAsStringAsync();
-                        var sesionService = JsonConvert.DeserializeObject<ServicesResultModel<CheckSesionModel>>(response);
-                        if (sesionService != null && sesionService.Success && sesionService.Data != null)
-                        {
-                            active = sesionService.Data.Estado;
-                            return Ok(new { active });// true = activa, false = inactiva
-                        }else
-                            return Ok(new { active = false });
-
-
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
                     }
-                    string res = await endpoint.Content.ReadAsStringAsync();
-                    var resul = JsonConvert.DeserializeObject<ServicesResultModel<SesionModel>>(res);
-                    TempData["Error"] = resul.Message;
-                    return Ok(new { active = false });
+
+                    var sesionService = await new JsonConvertidor<CheckSesionModel>().Deserializar(endpoint);
+
+                    if (sesionService != null && sesionService.Success && sesionService.Data != null)
+                    {
+                        active = sesionService.Data.Estado;
+                        return Ok(new { active });// true = activa, false = inactiva
+                    }
+                    else
+                        return Ok(new { active = false });
                 }
 
             }catch (Exception ex)
