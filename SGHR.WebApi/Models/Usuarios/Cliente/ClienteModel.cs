@@ -1,11 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using SGHR.Web.Models.Base;
+using System.Text.Json.Serialization;
 
 namespace SGHR.Web.Models.Usuarios.Cliente
 {
-    public class ClienteModel
+    public class ClienteModel : GetBaseModel
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
         [JsonPropertyName("correo")]
         public string? Correo { get; set; }
         [JsonPropertyName("nombre")]

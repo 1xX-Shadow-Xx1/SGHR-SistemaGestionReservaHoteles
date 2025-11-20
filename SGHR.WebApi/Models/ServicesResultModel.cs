@@ -11,5 +11,6 @@ namespace SGHR.Web.Models
         public string? Message { get; set; }
         [JsonPropertyName("data")]
         public TModel? Data { get; set; }
+
     }
 }

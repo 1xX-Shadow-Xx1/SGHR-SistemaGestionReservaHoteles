@@ -1,11 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using SGHR.Web.Models.Base;
+using System.Text.Json.Serialization;
 
 namespace SGHR.Web.Models.Habitaciones.Categoria
 {
-    public class CategoriaModel
+    public class CategoriaModel : GetBaseModel
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
         [JsonPropertyName("nombre")]
         public string Nombre { get; set; }
         [JsonPropertyName("descripcion")]

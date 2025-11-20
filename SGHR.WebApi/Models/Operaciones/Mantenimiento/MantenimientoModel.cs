@@ -1,12 +1,11 @@
-﻿using SGHR.Web.Models.EnumsModel.Operaciones;
+﻿using SGHR.Web.Models.Base;
+using SGHR.Web.Models.EnumsModel.Operaciones;
 using System.Text.Json.Serialization;
 
 namespace SGHR.Web.Models.Operaciones.Mantenimiento
 {
-    public class MantenimientoModel
+    public class MantenimientoModel : GetBaseModel
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
         [JsonPropertyName("numeroPiso")]
         public int? NumeroPiso { get; set; }
         [JsonPropertyName("numeroHabitacion")]

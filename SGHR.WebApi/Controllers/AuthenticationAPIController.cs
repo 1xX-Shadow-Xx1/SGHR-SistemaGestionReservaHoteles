@@ -83,7 +83,12 @@ namespace SGHR.Web.Controllers
 
                     }
                 }
-            }catch(Exception ex)
+            }catch(HttpRequestException ex)
+            {
+                var validate = new ValidateStatusCode().ValidatorStatus(503, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 503, errorMessage = errorMessage });
+            }
+            catch(Exception ex)
             {
                 ViewBag.Error = "Error interno al conectar con el servicio de autenticación.";
                 return View("Error", ex);

@@ -1,14 +1,12 @@
 ﻿using Newtonsoft.Json;
+using SGHR.Web.Models.Base;
 using SGHR.Web.Models.EnumsModel.Reserva;
 using System.Text.Json.Serialization;
 
 namespace SGHR.Web.Models.Reservas.Reserva
 {
-    public class ReservaModel 
+    public class ReservaModel : GetBaseModel
     {
-        [JsonProperty("id")]
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
         [JsonProperty("cedulaCliente")]
         [JsonPropertyName("cedulaCliente")]
         public string CedulaCliente { get; set; }

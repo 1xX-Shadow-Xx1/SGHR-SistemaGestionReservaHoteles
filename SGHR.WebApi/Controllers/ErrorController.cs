@@ -3,14 +3,14 @@ using SGHR.Web.Models.Error;
 
 namespace SGHR.Web.Controllers
 {
-    public abstract class ErrorController : Controller
+    public class ErrorController : Controller
     {
-        public virtual IActionResult ErrorPage(int statusCode, string message)
+        public IActionResult ErrorPage(int statusCode, string errorMessage)
         {
-            return View("Error", new ErrorViewModel
+            return View("ErrorPage", new ErrorViewModel
             {
                 StatusCode = statusCode,
-                ErrorMessage = message
+                ErrorMessage = errorMessage
             });
         }
     }

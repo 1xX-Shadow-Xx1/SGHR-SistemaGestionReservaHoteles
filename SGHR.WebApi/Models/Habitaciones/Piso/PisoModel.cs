@@ -1,13 +1,12 @@
 ﻿
+using SGHR.Web.Models.Base;
 using SGHR.Web.Models.EnumsModel.Habitaciones;
 using System.Text.Json.Serialization;
 
 namespace SGHR.Web.Models.Habitaciones.Piso
 {
-    public class PisoModel
+    public class PisoModel : GetBaseModel
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
         [JsonPropertyName("numeroPiso")]
         public int NumeroPiso { get; set; }
         [JsonPropertyName("descripcion")]

@@ -359,7 +359,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                         return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
                     }
 
-                    var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpoint);
+                    var result = await new JsonConvertidor<ServicioAdicionalModel>().DeserializarList(endpoint);
 
                     if (result != null && result.Success)
                     {
@@ -398,7 +398,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                         return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
                     }
 
-                    var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpoint);
+                    var result = await new JsonConvertidor<ServicioAdicionalModel>().DeserializarList(endpoint);
 
                     if (result != null && result.Success)
                     {
@@ -437,7 +437,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                         return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
                     }
 
-                    var result = await new JsonConvertidor<ReservaModel>().Deserializar(endpoint);
+                    var result = await new JsonConvertidor<ReservaModel>().DeserializarList(endpoint);
 
                     if (result != null && result.Success)
                     {
@@ -476,7 +476,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                         return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
                     }
 
-                    var result = await new JsonConvertidor<ReservaModel>().Deserializar(endpoint);
+                    var result = await new JsonConvertidor<ReservaModel>().DeserializarList(endpoint);
 
                     if (result != null && result.Success)
                     {

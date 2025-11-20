@@ -1,14 +1,12 @@
 ﻿using Newtonsoft.Json;
+using SGHR.Web.Models.Base;
 using SGHR.Web.Models.EnumsModel.Operaciones;
 using System.Text.Json.Serialization;
 
 namespace SGHR.Web.Models.Operaciones.Pago
 {
-    public class PagoModel 
+    public class PagoModel : GetBaseModel
     {
-        [JsonProperty("id")]
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
         [JsonProperty("idReserva")]
         [JsonPropertyName("idReserva")]
         public int IdReserva { get; set; }

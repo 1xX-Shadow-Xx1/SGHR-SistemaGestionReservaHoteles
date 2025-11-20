@@ -1,11 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using SGHR.Web.Models.Base;
+using System.Text.Json.Serialization;
 
 namespace SGHR.Web.Models.Reservas.Tarifa
 {
-    public class TarifaModel
+    public class TarifaModel : GetBaseModel
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
         [JsonPropertyName("nombreCategoria")]
         public string NombreCategoria { get; set; }
         [JsonPropertyName("fecha_inicio")]

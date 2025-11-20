@@ -1,12 +1,11 @@
-﻿using SGHR.Web.Models.EnumsModel.Usuario;
+﻿using SGHR.Web.Models.Base;
+using SGHR.Web.Models.EnumsModel.Usuario;
 using System.Text.Json.Serialization;
 
 namespace SGHR.Web.Models.Usuarios.Usuario
 {
-    public class UsuarioModel 
+    public class UsuarioModel : GetBaseModel
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
         [JsonPropertyName("nombre")]
         public string Nombre { get; set; } = null!;
         [JsonPropertyName("correo")]

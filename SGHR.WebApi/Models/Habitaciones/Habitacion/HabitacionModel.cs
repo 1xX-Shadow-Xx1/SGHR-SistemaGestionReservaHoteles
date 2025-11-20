@@ -1,12 +1,11 @@
-﻿using SGHR.Web.Models.EnumsModel.Habitaciones;
+﻿using SGHR.Web.Models.Base;
+using SGHR.Web.Models.EnumsModel.Habitaciones;
 using System.Text.Json.Serialization;
 
 namespace SGHR.Web.Models.Habitaciones.Habitacion
 {
-    public class HabitacionModel
+    public class HabitacionModel : GetBaseModel
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
         [JsonPropertyName("categoriaName")]
         public string CategoriaName { get; set; }
         [JsonPropertyName("numeroPiso")]

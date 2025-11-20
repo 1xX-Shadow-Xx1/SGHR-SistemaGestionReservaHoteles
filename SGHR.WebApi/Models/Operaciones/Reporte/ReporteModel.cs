@@ -1,11 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using SGHR.Web.Models.Base;
+using System.Text.Json.Serialization;
 
 namespace SGHR.Web.Models.Operaciones.Reporte
 {
-    public class ReporteModel
+    public class ReporteModel : GetBaseModel
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
         [JsonPropertyName("tipoReporte")]
         public string TipoReporte { get; set; }
         [JsonPropertyName("fechaGeneracion")]
