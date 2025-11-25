@@ -23,6 +23,20 @@
     <Folder Include="Areas\Cliente\Models\" />
     <Folder Include="Areas\Recepcionista\Data\" />
     <Folder Include="Areas\Recepcionista\Models\" />
+    <Folder Include="Data\Interfaces\Habitaciones\" />
+    <Folder Include="Data\Interfaces\Operaciones\" />
+    <Folder Include="Data\Repositories\Habitaciones\" />
+    <Folder Include="Data\Repositories\Operaciones\" />
+    <Folder Include="Dependences\Habitaciones\" />
+    <Folder Include="Dependences\Operaciones\" />
+    <Folder Include="Services\Interfaces\Authentification\" />
+    <Folder Include="Services\Interfaces\Habitaciones\" />
+    <Folder Include="Services\Interfaces\Operaciones\" />
+    <Folder Include="Services\Interfaces\Sesion\" />
+    <Folder Include="Services\ServiceAPI\Habitaciones\" />
+    <Folder Include="Services\ServiceAPI\Authentification\" />
+    <Folder Include="Services\ServiceAPI\Sesion\" />
+    <Folder Include="Services\ServiceAPI\Operaciones\" />
   </ItemGroup>
 
 </Project>

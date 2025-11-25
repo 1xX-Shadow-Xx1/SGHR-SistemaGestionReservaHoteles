@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using SGHR.IOC.Builders;
 using SGHR.Persistence.Context;
 using SGHR.Web.Data;
+using SGHR.Web.Dependences;
+using SGHR.Web.Services.ClienteAPIService;
 
 namespace SGHR.Web
 {
@@ -16,12 +18,21 @@ namespace SGHR.Web
 
             // Add services to the container.
             builder.Services.AddDependeces();
+            builder.Services.AddDependences();
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddSession();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddSingleton<HttpSesion>();
+
+            var apiBaseUrl = builder.Configuration["ApiSettings:SGHRAPI"];
+
+
+            builder.Services.AddHttpClient("SGHRAPI", client =>
+            {
+                client.BaseAddress = new Uri(apiBaseUrl);
+            });
 
 
 

@@ -10,50 +10,46 @@ namespace SGHR.Web.Data
         {
         }
 
-        public async Task<ServicesResultModel<TObjet>> Deserializar(HttpResponseMessage httpResponse)
+        public async Task<ServicesResultModel> Deserializar(HttpResponseMessage httpResponse)
         {
-            var result = new ServicesResultModel<TObjet>();
 
             try
             {
                 string json = await httpResponse.Content.ReadAsStringAsync();
 
-                result = JsonConvert.DeserializeObject<ServicesResultModel<TObjet>>(json);
+                var resultModel = JsonConvert.DeserializeObject<ServicesResultModel<TObjet>>(json);
+
+                if(resultModel != null && resultModel.Success)
+                    return ServicesResultModel.Ok((int)httpResponse.StatusCode, resultModel.Data, resultModel.Message);
+                else
+                    return ServicesResultModel.Fail((int)httpResponse.StatusCode, resultModel.Message);
+
             }
             catch (Exception ex)
             {
-                return new ServicesResultModel<TObjet>
-                {
-                    Success = false,
-                    Message = $"Error al deserializar: {ex.Message}",
-                    Data = default
-                };
+                return ServicesResultModel.Fail(500, $"Error al deserializar: {ex.Message}");
             }
-
-            return result;
         }
 
-        public async Task<ServicesResultModel<List<TObjet>>> DeserializarList(HttpResponseMessage httpResponse)
+        public async Task<ServicesResultModel> DeserializarList(HttpResponseMessage httpResponse)
         {
-            var result = new ServicesResultModel<List<TObjet>>();
-
             try
             {
                 string json = await httpResponse.Content.ReadAsStringAsync();
 
-                result = JsonConvert.DeserializeObject<ServicesResultModel<List<TObjet>>>(json);
+                var resultModel = JsonConvert.DeserializeObject<ServicesResultModel<List<TObjet>>>(json);
+
+                if (resultModel != null && resultModel.Success)
+                    return ServicesResultModel.Ok((int)httpResponse.StatusCode, resultModel.Data, resultModel.Message);
+                else
+                    return ServicesResultModel.Fail((int)httpResponse.StatusCode, resultModel.Message);
+
             }
             catch (Exception ex)
             {
-                return new ServicesResultModel<List<TObjet>>
-                {
-                    Success = false,
-                    Message = $"Error al deserializar: {ex.Message}",
-                    Data = default
-                };
+                return ServicesResultModel.Fail(500, $"Error al deserializar: {ex.Message}");
             }
 
-            return result;
         }
 
     }

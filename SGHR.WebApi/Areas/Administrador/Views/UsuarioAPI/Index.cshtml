@@ -100,49 +100,6 @@
                  cargarLista();
             });
 
-            // Boton Confirmar eliminar
-            // Envío del formulario de eliminación por AJAX
-            $('#contenidoUsuarios').on('submit', '#formDelete', function (e) {
-                e.preventDefault();
-
-                $.ajax({
-                    type: 'POST',
-                    url: '@Url.Action("_DeleteConfirmed", "UsuarioAPI")', // Acción que devuelve JSON { success, message, data }
-                    data: $(this).serialize(),
-                    success: function (response) {
-                        if (response.success) {
-                            $('#contenidoUsuarios').html(`
-                                <div class="alert alert-success" role="alert">
-                                    ✅ Usuario eliminado correctamente.
-                                </div>
-                                <button id="btnVolverIndex" class="btn btn-primary mt-3">
-                                    Aceptar
-                                </button>
-                            `);
-                        } else {
-                            $('#contenidoUsuarios').html(`
-                                <div class="alert alert-danger" role="alert">
-                                    ⚠️ No se pudo eliminar el usuario: ${response.message ?? ''}.
-                                </div>
-                                <button id="btnVolverIndex" class="btn btn-primary mt-3">
-                                    Aceptar
-                                </button>
-                            `);
-                        }
-                    },
-                    error: function () {
-                        $('#contenidoUsuarios').html(`
-                            <div class="alert alert-danger" role="alert">
-                                ❌ Error inesperado al eliminar el usuario.
-                            </div>
-                            <button id="btnVolverIndex" class="btn btn-primary mt-3">
-                                Aceptar
-                            </button>
-                        `);
-                    }
-                });
-            });
-
             // Botón “Aceptar” → vuelve a la lista
             $('#contenidoUsuarios').on('click', '#btnVolverIndex', function (e) {
                 e.preventDefault();
@@ -151,15 +108,26 @@
                 });
             });
 
-            // Botón “Cancelar” dentro de la vista Delete
-            $('#contenidoUsuarios').on('click', '.btn-btnCancelDelete', function (e) {
+
+            // Evento Submit del Delete (delegado, funciona con partials)
+            $('#contenidoUsuarios').on('submit', '#formDeleteUser', function (e) {
                 e.preventDefault();
-                $.get('@Url.Action("_List", "UsuarioAPI")', function (data) {
-                    $('#contenidoUsuarios').html(data);
+
+                var form = $(this);
+
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: form.serialize(),
+                    success: function (result) {
+                        $('#deleteContainer').html(result);
+                    }
                 });
             });
 
+
         });
+       
 
     </script>
 }

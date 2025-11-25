@@ -1,20 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Mvc;
 using SGHR.Web.Data;
-using SGHR.Web.Models;
 using SGHR.Web.Models.Reservas.Tarifa;
-using SGHR.Web.Models.Usuarios.Cliente;
+using SGHR.Web.Services.Interfaces.Reservas;
 using SGHR.Web.Validador;
-using System.Net;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
 {
     [Area("Administrador")]
     public class TarifaAPIController : Controller
     {
-        public TarifaAPIController()
+        private readonly ITarifaServiceAPI _tarifaServiceAPI;
+        public TarifaAPIController(ITarifaServiceAPI tarifaServiceAPI)
         {
+            _tarifaServiceAPI = tarifaServiceAPI;
         }
 
         // Página principal
@@ -24,109 +22,81 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
         }
 
         // --- Partial para listar tarifas ---
-        public async Task<IActionResult> _List(int? id)
+        public IActionResult _List(int? id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+
+                // --- Buscar por ID ---
+                if (id.HasValue && id > 0)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var result = _tarifaServiceAPI.GetByIDServices((int)id);
 
-                    // --- Buscar por ID ---
-                    if (id.HasValue && id > 0)
+                    var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        var endpointTarifa = await httpclient.GetAsync($"Tarifa/Get-Tarifa-ByID?id={id}");
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    }
 
-                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointTarifa.StatusCode, out string errorMessage);
-                        if (!validate && errorMessage != string.Empty)
-                        {
-                            ViewBag.Error = errorMessage;
-                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointTarifa.StatusCode, ErrorMessage = errorMessage });
-                        }
-
-                        var result = await new JsonConvertidor<TarifaModel>().Deserializar(endpointTarifa);
-
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return PartialView("_List", new List<TarifaModel> { result.Data });
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return PartialView("_List", new List<TarifaModel>());
-                        }
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return PartialView("_List", new List<TarifaModel> { result.Data });
                     }
                     else
                     {
-                        // --- Listado completo ---
-                        var endpointList = await httpclient.GetAsync("Tarifa/Get-Tarifas");
-
-                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointList.StatusCode, out string errorMessage);
-                        if (!validate && errorMessage != string.Empty)
-                        {
-                            ViewBag.Error = errorMessage;
-                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointList.StatusCode, ErrorMessage = errorMessage });
-                        }
-
-                        var resultList = await new JsonConvertidor<TarifaModel>().DeserializarList(endpointList);
-
-                        if (resultList != null && resultList.Success)
-                        {
-                            TempData["Success"] = resultList.Message;
-                            return PartialView("_List", resultList.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultList.Message;
-                            return PartialView("_List", new List<TarifaModel>());
-                        }
+                        TempData["Error"] = result.Message;
+                        return PartialView("_List", new List<TarifaModel>());
                     }
                 }
+                else
+                {
+                    // --- Listado completo ---
+                    var result = _tarifaServiceAPI.GetServices();
+                    TempData["Success"] = "Lista cargada correctamente.";
+                    return PartialView("_List", result);
+                }
+
 
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al obtener las tarifas.";
-                return PartialView("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // --- Vista completa de detalles ---
-        public async Task<IActionResult> Details(int id)
+        public IActionResult Details(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = _tarifaServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointDetail = await httpclient.GetAsync($"Tarifa/Get-Tarifa-ByID?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointDetail.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointDetail.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var resultDetail = await new JsonConvertidor<TarifaModel>().Deserializar(endpointDetail);
-
-                    if (resultDetail != null && resultDetail.Success)
-                    {
-                        TempData["Success"] = resultDetail.Message;
-                        return View(resultDetail.Data);
-                    }
-                    else
-                    {
-                        TempData["Error"] = resultDetail.Message;
-                        return RedirectToAction("Index");
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return View(result.Data);
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al obtener la tarifa.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -149,74 +119,71 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
 
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _tarifaServiceAPI.SaveServicesPut(model);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointCreate = await httpclient.PostAsJsonAsync("Tarifa/Create-Tarifa", model);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointCreate.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointCreate.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<TarifaModel>().Deserializar(endpointCreate);
-
-                    if (result != null && result.Success)
-                    {
-                        TempData["Success"] = result.Message;
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        TempData["Error"] = result.Message;
-                        return View(model);
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return View(model);
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al crear la tarifa.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // GET: Editar tarifa
-        public async Task<IActionResult> Edit(int id)
+        public IActionResult Edit(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = _tarifaServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointEdit = await httpclient.GetAsync($"Tarifa/Get-Tarifa-ByID?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<UpdateTarifaModel>().Deserializar(endpointEdit);
-
-                    if (result != null && result.Success)
-                    {
-                        TempData["Success"] = result.Message;
-                        return View(result.Data);
-                    }
-                    else
-                    {
-                        TempData["Error"] = result.Message;
-                        return RedirectToAction("Index");
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return View(new UpdateTarifaModel
+                    {
+                        Id = result.Data.Id,
+                        NombreCategoria = result.Data.NombreCategoria,
+                        Precio = result.Data.Precio,
+                        Fecha_fin = result.Data.Fecha_fin,
+                        Fecha_inicio = result.Data.Fecha_inicio
+                    });
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al mostrar la vista de editar.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -230,74 +197,64 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
 
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _tarifaServiceAPI.UpdateServicesPost(model);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointEdit = await httpclient.PutAsJsonAsync("Tarifa/Update-Tarifa", model);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<TarifaModel>().Deserializar(endpointEdit);
-
-                    if (result != null && result.Success)
-                    {
-                        TempData["Success"] = result.Message;
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        TempData["Error"] = result.Message;
-                        return View(model);
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return View(model);
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al actualizar la tarifa.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // --- Partial para eliminar ---
-        public async Task<IActionResult> _Delete(int id)
+        public IActionResult _Delete(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = _tarifaServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.GetAsync($"Tarifa/Get-Tarifa-ByID?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<TarifaModel>().Deserializar(endpoint);
-
-                    if (result != null && result.Success)
-                    {
-                        TempData["Success"] = result.Message;
-                        return PartialView("_Delete", result.Data);
-                    }
-                    else
-                    {
-                        TempData["Error"] = result.Message;
-                        return RedirectToAction("Index");
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return PartialView("_Delete", result.Data);
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al eliminar la tarifa.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -307,34 +264,29 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _tarifaServiceAPI.RemoveServicesPost(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointRemove = await httpclient.PutAsync($"Tarifa/Remove-Tarifa?id={id}", null);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointRemove.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointRemove.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<TarifaModel>().Deserializar(endpointRemove);
-
-                    if (result != null && result.Success)
-                    {
-                        return Json(new { success = true, message = result.Message, data = result.Data });
-                    }
-                    else
-                    {
-                        return Json(new { success = false, message = $"Error {result.Message}" });
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    return PartialView("_DeleteSuccess", result.Message);
+                }
+                else
+                {
+                    return PartialView("_DeleteError", result.Message);
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al eliminar la tarifa.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 

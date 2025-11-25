@@ -4,6 +4,7 @@ using SGHR.Web.Data;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Reservas.ServicioAdicional;
 using SGHR.Web.Models.Reservas.Tarifa;
+using SGHR.Web.Services.Interfaces.Reservas;
 using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
@@ -11,8 +12,10 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
     [Area("Administrador")]
     public class ServicioAdicionalAPIController : Controller
     {
-        public ServicioAdicionalAPIController()
+        private readonly IServicioAdicionalServiceAPI _servicioAdicionalServiceAPI;
+        public ServicioAdicionalAPIController(IServicioAdicionalServiceAPI servicioAdicionalServiceAPI)
         {
+            _servicioAdicionalServiceAPI = servicioAdicionalServiceAPI;
         }
 
         // Página principal
@@ -22,106 +25,79 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
         }
 
         // --- Vista completa de detalles del servicio adicional ---
-        public async Task<IActionResult> Details(int id)
+        public IActionResult Details(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = _servicioAdicionalServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointDetail = await httpclient.GetAsync($"ServicioAdicional/Get-Servicio-Adicional-By-ID?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointDetail.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointDetail.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var resultDetail = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpointDetail);
-
-                    if (resultDetail != null && resultDetail.Success)
-                    {
-                        TempData["Success"] = resultDetail.Message;
-                        return View(resultDetail.Data);
-                    }
-                    else
-                    {
-                        TempData["Error"] = resultDetail.Message;
-                        return RedirectToAction("Index");
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return View(result.Data);
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al obtener el servicio adicional.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // --- Partial para listar servicios adicionales ---
-        public async Task<IActionResult> _List(int? id)
+        public IActionResult _List(int? id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+
+                if (id.HasValue && id > 0)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var result = _servicioAdicionalServiceAPI.GetByIDServices((int)id);
 
-                    if (id.HasValue && id > 0)
+                    var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        var endpoint = await httpclient.GetAsync($"ServicioAdicional/Get-Servicio-Adicional-By-ID?id={id}");
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    }
 
-                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
-                        if (!validate && errorMessage != string.Empty)
-                        {
-                            ViewBag.Error = errorMessage;
-                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
-                        }
-
-                        var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpoint);
-
-                        if (result != null && result.Success)
-                        {
-                            TempData["Success"] = result.Message;
-                            return PartialView("_List", new List<ServicioAdicionalModel> { result.Data });
-                        }
-                        else
-                        {
-                            TempData["Error"] = result.Message;
-                            return PartialView("_List", new List<ServicioAdicionalModel>());
-                        }
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return PartialView("_List", new List<ServicioAdicionalModel> { result.Data });
                     }
                     else
                     {
-                        var endpointList = await httpclient.GetAsync("ServicioAdicional/Get-Servicio-Adicional");
-
-                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointList.StatusCode, out string errorMessage);
-                        if (!validate && errorMessage != string.Empty)
-                        {
-                            ViewBag.Error = errorMessage;
-                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointList.StatusCode, ErrorMessage = errorMessage });
-                        }
-
-                        var resultList = await new JsonConvertidor<ServicioAdicionalModel>().DeserializarList(endpointList);
-
-                        if (resultList != null && resultList.Success)
-                        {
-                            TempData["Success"] = resultList.Message;
-                            return PartialView("_List", resultList.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultList.Message;
-                            return PartialView("_List", new List<ServicioAdicionalModel>());
-                        }
+                        TempData["Error"] = result.Message;
+                        return PartialView("_List", new List<ServicioAdicionalModel>());
                     }
                 }
+                else
+                {
+                    var result = _servicioAdicionalServiceAPI.GetServices();
+                    TempData["Success"] = "Lista cargada correctamente.";
+                    return PartialView("_List", result);
+                   
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al obtener la lista.";
-                return PartialView("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -142,74 +118,71 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
 
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _servicioAdicionalServiceAPI.SaveServicesPut(model);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointCreate = await httpclient.PostAsJsonAsync("ServicioAdicional/Create-Servicio-Adicional", model);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointCreate.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointCreate.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpointCreate);
-
-                    if (result != null && result.Success)
-                    {
-                        TempData["Success"] = result.Message;
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        TempData["Error"] = result.Message;
-                        return View(model);
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return View(model);
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al crear el servicio adicional.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // --- Vista completa editar servicio adicional ---
-        public async Task<IActionResult> Edit(int id)
+        public IActionResult Edit(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = _servicioAdicionalServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.GetAsync($"ServicioAdicional/Get-Servicio-Adicional-By-ID?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<UpdateServicioAdicionalModel>().Deserializar(endpoint);
-
-                    if (result != null && result.Success)
-                    {
-                        TempData["Success"] = result.Message;
-                        return View(result.Data);
-                    }
-                    else
-                    {
-                        TempData["Error"] = result.Message;
-                        return RedirectToAction("Index");
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return View(new UpdateServicioAdicionalModel
+                    {
+                        Id = result.Data.Id,
+                        Nombre = result.Data.Nombre,
+                        Descripcion = result.Data.Descripcion,
+                        Precio = result.Data.Precio,
+                        Estado = result.Data.Estado
+                    });
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al mostrar la vista de edición.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -223,74 +196,64 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
 
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _servicioAdicionalServiceAPI.UpdateServicesPost(model);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.PutAsJsonAsync("ServicioAdicional/Update-Servicio-Adicional", model);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpoint);
-
-                    if (result != null && result.Success)
-                    {
-                        TempData["Success"] = result.Message;
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        TempData["Error"] = result.Message;
-                        return View(model);
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return View(model);
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al actualizar el servicio adicional.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // --- Partial eliminar ---
-        public async Task<IActionResult> _Delete(int id)
+        public IActionResult _Delete(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = _servicioAdicionalServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.GetAsync($"ServicioAdicional/Get-Servicio-Adicional-By-ID?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpoint);
-
-                    if (result != null && result.Success)
-                    {
-                        TempData["Success"] = result.Message;
-                        return PartialView("_Delete", result.Data);
-                    }
-                    else
-                    {
-                        TempData["Error"] = result.Message;
-                        return RedirectToAction("Index");
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return PartialView("_Delete", result.Data);
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al eliminar el servicio adicional.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -301,34 +264,29 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _servicioAdicionalServiceAPI.RemoveServicesPost(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.PutAsync($"ServicioAdicional/Remove-Servicio-Adicional?id={id}", null);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<ServicioAdicionalModel>().Deserializar(endpoint);
-
-                    if (result != null && result.Success)
-                    {
-                        return Json(new { success = true, message = result.Message, data = result.Data });
-                    }
-                    else
-                    {
-                        return Json(new { success = false, message = $"Error {result.Message}" });
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    return PartialView("_DeleteSuccess", result.Message);
+                }
+                else
+                {
+                    return PartialView("_DeleteError", result.Message);
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al eliminar el servicio adicional.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 

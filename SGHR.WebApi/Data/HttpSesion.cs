@@ -19,7 +19,9 @@ namespace SGHR.Web.Data
             session.SetInt32("SesionId", sesion.Idsesion);
             session.SetString("UserName", sesion.UserName);
             session.SetString("UserRole", sesion.RolUser.ToString());
+
         }
+
     }
 
 }
