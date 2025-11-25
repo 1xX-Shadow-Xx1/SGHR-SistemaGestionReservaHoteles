@@ -39,10 +39,19 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
                 $(document).ready(function() {
-        
+
             // --- Cargar lista automáticamente al iniciar ---
             cargarLista();
             cargarResumen();
+
+            // --- NUEVA FUNCIÓN: Detectar redirección a ErrorPage ---
+            function manejarPosibleError(response) {
+                if (response && response.redirectToError) {
+                    window.location.href = '/Error/ErrorPage?StatusCode=' + response.statusCode + '&ErrorMessage=' + encodeURIComponent(response.errorMessage);
+                    return true;
+                }
+                return false;
+            }
 
             // --- Botón Realizar Pago ---
              $('#btnRealizar').click(function () {
@@ -63,34 +72,34 @@
                     return;
                 }
 
-                // Llamada AJAX a la acción _List pasando el ID
                 $.get('@Url.Action("_List", "PagoAPI")', { id: id }, function(data) {
+                    if (manejarPosibleError(data)) return;
                     $('#contenidoPagos').html(data);
                 }).fail(function() {
                     alert("Pago no encontrado");
                 });
             });
             $('#buscarId').keypress(function(e) {
-                if(e.which == 13) { // Enter
+                if(e.which == 13) {
                     $('#btnBuscar').click();
                     e.preventDefault();
                 }
             });
 
-               
             // Botón Anular - carga la vista parcial
             $(".btn-anular").click(function () {
                 var id = $(this).data("id");
 
                 $.get('@Url.Action("_AnularPago", "PagoAPI")', { id: id }, function (data) {
+                    if (manejarPosibleError(data)) return;
                     $("#contenidoPago").html(data);
                 });
             });
 
-            
             // --- Función para cargar lista ---
             function cargarLista() {
                 $.get('@Url.Action("_List", "PagoAPI")', function(data) {
+                    if (manejarPosibleError(data)) return;
                     $('#contenidoPagos').html(data);
                 });
             }
@@ -98,6 +107,7 @@
             // --- Función para cargar Resumen ---
             function cargarResumen() {
                 $.get('@Url.Action("_resumenPagos", "PagoAPI")', function(data) {
+                    if (manejarPosibleError(data)) return;
                     $('#contenidoResumenPagos').html(data);
                 });
             }
@@ -107,64 +117,30 @@
                 e.preventDefault();
                 var id = $(this).data('id');
                 $.get('@Url.Action("_AnularPago", "PagoAPI")', { id: id }, function(data) {
+                    if (manejarPosibleError(data)) return;
                     $('#contenidoPagos').html(data);
                 });
             });
 
-           // --- DOBLE CLICK y CLICK DERECHO sobre filas (delegación) ---
+           // --- DOBLE CLICK ---
             $('#contenidoPagos').on('dblclick', '.fila-pago', function() {
                 var id = $(this).data('id');
-                // Redirige a la vista completa de Details
                 window.location.href = '@Url.Action("Details", "PagoAPI")/' + id;
             });
 
-             // Botón cancelar en la vista de eliminación → vuelve a la lista
+             // Botón cancelar
             $('#contenidoPagos').on('dblclick', '.btnCancelDelete', function(e) {
-                // Redirige a la vista completa de Details
                 e.preventDefault();
                  cargarLista();
             });
 
             // Boton Confirmar eliminar
-            // Envío del formulario de eliminación por AJAX
-            $('#contenidoPagos').on('submit', '#formDelete', function (e) {
+            $('#contenidoPagos').on('click', '.btn-eliminar', function(e) {
                 e.preventDefault();
-
-                $.ajax({
-                    type: 'POST',
-                    url: '@Url.Action("AnularConfirmed", "PagoAPI")', // Acción que devuelve JSON { success, message, data }
-                    data: $(this).serialize(),
-                    success: function (response) {
-                        if (response.success) {
-                            $('#contenidoPagos').html(`
-                                <div class="alert alert-success" role="alert">
-                                    ✅ Pago eliminado correctamente.
-                                </div>
-                                <button id="btnVolverIndex" class="btn btn-primary mt-3">
-                                    Aceptar
-                                </button>
-                            `);
-                        } else {
-                            $('#contenidoPagos').html(`
-                                <div class="alert alert-danger" role="alert">
-                                    ⚠️ No se pudo eliminar el pago: ${response.message ?? ''}.
-                                </div>
-                                <button id="btnVolverIndex" class="btn btn-primary mt-3">
-                                    Aceptar
-                                </button>
-                            `);
-                        }
-                    },
-                    error: function () {
-                        $('#contenidoPagos').html(`
-                            <div class="alert alert-danger" role="alert">
-                                ❌ Error inesperado al eliminar el pago.
-                            </div>
-                            <button id="btnVolverIndex" class="btn btn-primary mt-3">
-                                Aceptar
-                            </button>
-                        `);
-                    }
+                var id = $(this).data('id');
+                $.get('@Url.Action("AnularConfirmed", "PagoAPI")', { id: id }, function(data) {
+                    if (manejarPosibleError(data)) return;
+                    $('#contenidoPagos').html(data);
                 });
             });
 
@@ -172,6 +148,7 @@
             $('#contenidoPagos').on('click', '#btnVolverIndex', function (e) {
                 e.preventDefault();
                 $.get('@Url.Action("_List", "PagoAPI")', function (data) {
+                    if (manejarPosibleError(data)) return;
                     $('#contenidoPagos').html(data);
                 });
             });
@@ -180,7 +157,24 @@
             $('#contenidoPagos').on('click', '.btnCancelDelete', function (e) {
                 e.preventDefault();
                 $.get('@Url.Action("_List", "PagoAPI")', function (data) {
+                    if (manejarPosibleError(data)) return;
                     $('#contenidoPagos').html(data);
+                });
+            });
+
+            // Evento Submit del Delete (delegado)
+            $('#contenidoPagos').on('submit', '#formDelete', function (e) {
+                e.preventDefault();
+                var form = $(this);
+
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: form.serialize(),
+                    success: function (result) {
+                        if (manejarPosibleError(result)) return;
+                        $('#deleteContainer').html(result);
+                    }
                 });
             });
 
@@ -188,3 +182,4 @@
 
     </script>
 }
+

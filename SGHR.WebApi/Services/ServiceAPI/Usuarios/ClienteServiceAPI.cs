@@ -33,17 +33,17 @@ namespace SGHR.Web.Services.ServiceAPI.Usuarios
             return _clienteMemory.GetByCedulaModel(cedula);
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPost(int id)
+        public async Task<ServicesResultModel> RemoveServicesPut(int id)
         {
             return await _httpAPI.DeleteAsync($"Cliente/Remove-Cliente?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPut(CreateClienteModel model)
+        public async Task<ServicesResultModel> SaveServicesPost(CreateClienteModel model)
         {
             return await _httpAPI.PostAsync("Cliente/Create-Cliente", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPost(UpdateClienteModel model)
+        public async Task<ServicesResultModel> UpdateServicesPut(UpdateClienteModel model)
         {
             return await _httpAPI.PutAsync($"Cliente/Update-Cliente", model);
         }

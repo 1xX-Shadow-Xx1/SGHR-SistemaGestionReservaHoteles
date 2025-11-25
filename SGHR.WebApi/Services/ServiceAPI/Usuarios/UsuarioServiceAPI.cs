@@ -28,17 +28,17 @@ namespace SGHR.Web.Services.ServiceAPI.Usuarios
             return _usuarioMemory.GetModels();
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPost(int id)
+        public async Task<ServicesResultModel> RemoveServicesPut(int id)
         {
             return await _httpAPI.DeleteAsync($"Usuario/Remove-Usuario?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPut(CreateUsuarioModel model)
+        public async Task<ServicesResultModel> SaveServicesPost(CreateUsuarioModel model)
         {
             return await _httpAPI.PostAsync($"Usuario/create-Usuario", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPost(UpdateUsuarioModel model)
+        public async Task<ServicesResultModel> UpdateServicesPut(UpdateUsuarioModel model)
         {
             return await _httpAPI.PutAsync($"Usuario/update-Usuario", model);
         }

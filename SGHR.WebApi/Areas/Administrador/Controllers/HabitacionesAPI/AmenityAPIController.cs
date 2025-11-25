@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using SGHR.Web.Data;
-using SGHR.Web.Models;
 using SGHR.Web.Models.Habitaciones.Amenity;
-using SGHR.Web.Models.Habitaciones.Categoria;
+using SGHR.Web.Services.Interfaces.Habitaciones;
 using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
@@ -11,112 +8,92 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
     [Area("Administrador")]
     public class AmenityAPIController : Controller
     {
+        private readonly IAmenityServiceAPI _amenityServiceAPI;
+
+        public AmenityAPIController(IAmenityServiceAPI amenityServiceAPI)
+        {
+            _amenityServiceAPI = amenityServiceAPI;
+        }
+
         public IActionResult Index()
         {
             return View();
         }
 
         // --- Partial para listar amenities ---
-        public async Task<IActionResult> _List(int? id)
+        public IActionResult _List(int? id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+
+                if (id.HasValue && id > 0)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var result = _amenityServiceAPI.GetByIDServices(id.Value);
 
-                    if (id.HasValue && id > 0)
-                    {
-                        var endpointAmenity = await httpclient.GetAsync($"Amenity/Get-By-ID?id={id}");
-
-                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointAmenity.StatusCode, out string errorMessage);
-                        if (!validate && errorMessage != string.Empty)
-                        {
-                            ViewBag.Error = errorMessage;
-                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointAmenity.StatusCode, ErrorMessage = errorMessage });
-                        }
-
-                        var resultAmenity = await new JsonConvertidor<AmenityModel>().Deserializar(endpointAmenity);
-
-                        if (resultAmenity != null && resultAmenity.Success)
-                        {
-                            TempData["Success"] = resultAmenity.Message;
-                            return PartialView("_List", new List<AmenityModel> { resultAmenity.Data });
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultAmenity.Message;
-                            return PartialView("_List", new List<AmenityModel>());
-                        }
-                    }
-                    else
-                    {
-                        var endpointList = await httpclient.GetAsync("Amenity/Get-Amenity");
-
-                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointList.StatusCode, out string errorMessage);
-                        if (!validate && errorMessage != string.Empty)
-                        {
-                            ViewBag.Error = errorMessage;
-                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointList.StatusCode, ErrorMessage = errorMessage });
-                        }
-
-                        var resultList = await new JsonConvertidor<AmenityModel>().DeserializarList(endpointList);
-
-                        if (resultList != null && resultList.Success)
-                        {
-                            TempData["Success"] = resultList.Message;
-                            return PartialView("_List", resultList.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultList.Message;
-                            return PartialView("_List", new List<AmenityModel>());
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ViewBag.Error = "Ocurrió un error interno al obtener los amenities.";
-                return PartialView("Error", ex.Message);
-            }
-        }
-
-        // --- Vista completa de detalles ---
-        public async Task<IActionResult> Details(int id)
-        {
-            try
-            {
-                using (var httpclient = new HttpClient())
-                {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.GetAsync($"Amenity/Get-By-ID?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
                     if (!validate && errorMessage != string.Empty)
                     {
                         ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                     }
-
-                    var result = await new JsonConvertidor<AmenityModel>().Deserializar(endpoint);
 
                     if (result != null && result.Success)
                     {
                         TempData["Success"] = result.Message;
-                        return View(result.Data);
+                        return PartialView("_List", new List<AmenityModel> { result.Data });
                     }
                     else
                     {
                         TempData["Error"] = result.Message;
-                        return RedirectToAction("Index");
+                        return PartialView("_List", new List<AmenityModel>());
                     }
                 }
+                else
+                {
+                    var result = _amenityServiceAPI.GetServices();
+                    TempData["Success"] = "Lista cargada correctamente.";
+                    return PartialView("_List", result);
+
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al obtener el amenity.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
+            }
+        }
+
+        // --- Vista completa de detalles ---
+        public IActionResult Details(int id)
+        {
+            try
+            {
+                var result = _amenityServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
+                {
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return View(result.Data);
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -137,74 +114,63 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
 
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _amenityServiceAPI.SaveServicesPost(model);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointCreate = await httpclient.PostAsJsonAsync("Amenity/Create-Amenity", model);
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                }
 
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointCreate.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointCreate.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var resultAmenity = await new JsonConvertidor<AmenityModel>().Deserializar(endpointCreate);
-
-                    if (resultAmenity != null && resultAmenity.Success)
-                    {
-                        TempData["Success"] = resultAmenity.Message;
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        TempData["Error"] = resultAmenity.Message;
-                        return View(model);
-                    }
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return View(model);
                 }
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al crear el amenity.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // GET: Editar amenity
-        public async Task<IActionResult> Edit(int id)
+        public IActionResult Edit(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
-                {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.GetAsync($"Amenity/Get-By-ID?id={id}");
+                var result = _amenityServiceAPI.GetByIDServices(id);
 
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
+                    var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
                     if (!validate && errorMessage != string.Empty)
                     {
                         ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                     }
 
-                    var resultAmenity = await new JsonConvertidor<UpdateAmenityModel>().Deserializar(endpoint);
-
-                    if (resultAmenity != null && resultAmenity.Success)
+                    if (result != null && result.Success)
                     {
-                        TempData["Success"] = resultAmenity.Message;
-                        return View(resultAmenity.Data);
+                        TempData["Success"] = result.Message;
+                        return View(result.Data);
                     }
                     else
                     {
-                        TempData["Error"] = resultAmenity.Message;
+                        TempData["Error"] = result.Message;
                         return RedirectToAction("Index");
                     }
-                }
+                
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al mostrar la vista de editar.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -218,74 +184,64 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
 
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _amenityServiceAPI.UpdateServicesPut(model);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointEdit = await httpclient.PutAsJsonAsync("Amenity/Update-Amenity", model);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var resultAmenity = await new JsonConvertidor<AmenityModel>().Deserializar(endpointEdit);
-
-                    if (resultAmenity != null && resultAmenity.Success)
-                    {
-                        TempData["Success"] = resultAmenity.Message;
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        TempData["Error"] = resultAmenity.Message;
-                        return View(model);
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return View(model);
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al actualizar el amenity.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // --- Partial para eliminar ---
-        public async Task<IActionResult> _Delete(int id)
+        public IActionResult _Delete(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = _amenityServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.GetAsync($"Amenity/Get-By-ID?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var resultAmenity = await new JsonConvertidor<AmenityModel>().Deserializar(endpoint);
-
-                    if (resultAmenity != null && resultAmenity.Success)
-                    {
-                        TempData["Success"] = resultAmenity.Message;
-                        return PartialView("_Delete", resultAmenity.Data);
-                    }
-                    else
-                    {
-                        TempData["Error"] = resultAmenity.Message;
-                        return RedirectToAction("Index");
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return PartialView("_Delete", result.Data);
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al eliminar el amenity.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -296,34 +252,29 @@ namespace SGHR.Web.Areas.Administrador.Controllers.HabitacionesAPI
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _amenityServiceAPI.RemoveServicesPut(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointRemove = await httpclient.PutAsync($"Amenity/Remove-Amenity?id={id}", null);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointRemove.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointRemove.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<AmenityModel>().Deserializar(endpointRemove);
-
-                    if (result != null && result.Success)
-                    {
-                        return Json(new { success = true, message = result.Message, data = result.Data });
-                    }
-                    else
-                    {
-                        return Json(new { success = false, message = $"Error {result.Message}" });
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    return PartialView("_DeleteSuccess", result.Message);
+                }
+                else
+                {
+                    return PartialView("_DeleteError", result.Message);
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al eliminar el amenity.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 

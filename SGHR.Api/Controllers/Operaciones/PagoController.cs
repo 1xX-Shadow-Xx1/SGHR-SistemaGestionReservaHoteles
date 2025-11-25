@@ -68,7 +68,7 @@ namespace SGHR.Api.Controllers.Operaciones
 
         // PUT api/<PagoController>/5
         [HttpPut("Anular-Pago")]
-        public async Task<IActionResult> PutPagoAsync(int idPago)
+        public async Task<IActionResult> PutAnularPagoAsync(int idPago)
         {
             ServiceResult result = await _pagoservices.AnularPagoAsync(idPago);
             if (!result.Success)

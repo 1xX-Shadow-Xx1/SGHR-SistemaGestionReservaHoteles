@@ -6,8 +6,8 @@ namespace SGHR.Web.Services.Interfaces.Base
     {
         List<TModel> GetServices();
         ServicesResultModel GetByIDServices(int id);
-        Task<ServicesResultModel> SaveServicesPut(TSaveModel model);
-        Task<ServicesResultModel> UpdateServicesPost(TUpdateModel model);
-        Task<ServicesResultModel> RemoveServicesPost(int id);
+        Task<ServicesResultModel> SaveServicesPost(TSaveModel model);
+        Task<ServicesResultModel> UpdateServicesPut(TUpdateModel model);
+        Task<ServicesResultModel> RemoveServicesPut(int id);
     }
 }

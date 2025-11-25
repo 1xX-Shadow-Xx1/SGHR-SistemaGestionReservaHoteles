@@ -28,17 +28,17 @@ namespace SGHR.Web.Services.ServiceAPI.Reservas
             return _tarifaMemory.GetModels();
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPost(int id)
+        public async Task<ServicesResultModel> RemoveServicesPut(int id)
         {
             return await _httpAPI.DeleteAsync($"Tarifa/Remove-Tarifa?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPut(CreateTarifaModel model)
+        public async Task<ServicesResultModel> SaveServicesPost(CreateTarifaModel model)
         {
             return await _httpAPI.PostAsync("Tarifa/Create-Tarifa", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPost(UpdateTarifaModel model)
+        public async Task<ServicesResultModel> UpdateServicesPut(UpdateTarifaModel model)
         {
             return await _httpAPI.PutAsync("Tarifa/Update-Tarifa", model);
         }

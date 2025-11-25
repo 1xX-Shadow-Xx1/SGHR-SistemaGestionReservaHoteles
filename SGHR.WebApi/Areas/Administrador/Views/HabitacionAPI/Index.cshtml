@@ -109,45 +109,11 @@
             });
 
             // Boton Confirmar eliminar
-            // Envío del formulario de eliminación por AJAX
-            $('#contenidoHabitaciones').on('submit', '#formDelete', function (e) {
+            $('#contenidoHabitaciones').on('click', '.btn-eliminar', function(e) {
                 e.preventDefault();
-
-                $.ajax({
-                    type: 'POST',
-                    url: '@Url.Action("_DeleteConfirmed", "HabitacionAPI")', // Acción que devuelve JSON { success, message, data }
-                    data: $(this).serialize(),
-                    success: function (response) {
-                        if (response.success) {
-                            $('#contenidoHabitaciones').html(`
-                                <div class="alert alert-success" role="alert">
-                                    ✅ Habitación eliminada correctamente.
-                                </div>
-                                <button id="btnVolverIndex" class="btn btn-primary mt-3">
-                                    Aceptar
-                                </button>
-                            `);
-                        } else {
-                            $('#contenidoHabitaciones').html(`
-                                <div class="alert alert-danger" role="alert">
-                                    ⚠️ No se pudo eliminar la habitación: ${response.message ?? ''}.
-                                </div>
-                                <button id="btnVolverIndex" class="btn btn-primary mt-3">
-                                    Aceptar
-                                </button>
-                            `);
-                        }
-                    },
-                    error: function () {
-                        $('#contenidoHabitaciones').html(`
-                            <div class="alert alert-danger" role="alert">
-                                ❌ Error inesperado al eliminar la habitación.
-                            </div>
-                            <button id="btnVolverIndex" class="btn btn-primary mt-3">
-                                Aceptar
-                            </button>
-                        `);
-                    }
+                var id = $(this).data('id');
+                $.get('@Url.Action("_Delete", "HabitacionAPI")', { id: id }, function(data) {
+                    $('#contenidoHabitaciones').html(data);
                 });
             });
 
@@ -164,6 +130,22 @@
                 e.preventDefault();
                 $.get('@Url.Action("_List", "HabitacionAPI")', function (data) {
                     $('#contenidoHabitaciones').html(data);
+                });
+            });
+
+            // Evento Submit del Delete (delegado, funciona con partials)
+            $('#contenidoHabitaciones').on('submit', '#formDelete', function (e) {
+                e.preventDefault();
+
+                var form = $(this);
+
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: form.serialize(),
+                    success: function (result) {
+                        $('#deleteContainer').html(result);
+                    }
                 });
             });
 

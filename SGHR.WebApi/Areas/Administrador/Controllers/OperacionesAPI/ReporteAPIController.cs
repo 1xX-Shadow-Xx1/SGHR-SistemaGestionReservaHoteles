@@ -4,6 +4,7 @@ using SGHR.Web.Data;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Operaciones.Reporte;
 using SGHR.Web.Models.Reservas.Reserva;
+using SGHR.Web.Services.Interfaces.Operaciones;
 using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
@@ -11,8 +12,10 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
     [Area("Administrador")]
     public class ReporteAPIController : Controller
     {
-        public ReporteAPIController()
+        private readonly IReporteServiceAPI _reporteServiceAPI;
+        public ReporteAPIController(IReporteServiceAPI reporteServiceAPI)
         {
+            _reporteServiceAPI = reporteServiceAPI;
         }
 
         // Página principal
@@ -22,106 +25,79 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
         }
 
         // --- Partial para listar reportes ---
-        public async Task<IActionResult> _List(int? id)
+        public IActionResult _List(int? id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+
+                if (id.HasValue && id > 0)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var result = _reporteServiceAPI.GetByIDServices(id.Value);
 
-                    if (id.HasValue && id > 0)
+                    var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        var endpointReporte = await httpclient.GetAsync($"Reporte/get-Reporte-ById?id={id}");
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    }
 
-                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointReporte.StatusCode, out string errorMessage);
-                        if (!validate && errorMessage != string.Empty)
-                        {
-                            ViewBag.Error = errorMessage;
-                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointReporte.StatusCode, ErrorMessage = errorMessage });
-                        }
-
-                        var resultReporte = await new JsonConvertidor<ReporteModel>().Deserializar(endpointReporte);
-
-                        if (resultReporte != null && resultReporte.Success)
-                        {
-                            TempData["Success"] = resultReporte.Message;
-                            return PartialView("_List", new List<ReporteModel> { resultReporte.Data });
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultReporte.Message;
-                            return PartialView("_List", new List<ReporteModel>());
-                        }
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return PartialView("_List", new List<ReporteModel> { result.Data });
                     }
                     else
                     {
-                        var endpointList = await httpclient.GetAsync("Reporte/get-Reportes");
-
-                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointList.StatusCode, out string errorMessage);
-                        if (!validate && errorMessage != string.Empty)
-                        {
-                            ViewBag.Error = errorMessage;
-                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointList.StatusCode, ErrorMessage = errorMessage });
-                        }
-
-                        var resultList = await new JsonConvertidor<ReporteModel>().DeserializarList(endpointList);
-
-                        if (resultList != null && resultList.Success)
-                        {
-                            TempData["Success"] = resultList.Message;
-                            return PartialView("_List", resultList.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultList.Message;
-                            return PartialView("_List", new List<ReporteModel>());
-                        }
+                        TempData["Error"] = result.Message;
+                        return PartialView("_List", new List<ReporteModel>());
                     }
                 }
+                else
+                {
+                    var result = _reporteServiceAPI.GetServices();
+                    TempData["Success"] = "Lista cargada correctamente.";
+                    return PartialView("_List", result);
+
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al obtener los reportes.";
-                return PartialView("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // --- Vista completa de detalles ---
-        public async Task<IActionResult> Details(int id)
+        public IActionResult Details(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = _reporteServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointDetail = await httpclient.GetAsync($"Reporte/get-Reporte-ById?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointDetail.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointDetail.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var resultDetail = await new JsonConvertidor<ReporteModel>().Deserializar(endpointDetail);
-
-                    if (resultDetail != null && resultDetail.Success)
-                    {
-                        TempData["Success"] = resultDetail.Message;
-                        return View(resultDetail.Data);
-                    }
-                    else
-                    {
-                        TempData["Error"] = resultDetail.Message;
-                        return RedirectToAction("Index");
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return View(result.Data);
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al obtener los reportes.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -142,74 +118,70 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
 
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _reporteServiceAPI.SaveServicesPost(model);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointCreate = await httpclient.PostAsJsonAsync("Reporte/create-Reporte", model);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointCreate.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointCreate.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<ReporteModel>().Deserializar(endpointCreate);
-
-                    if (result != null && result.Success)
-                    {
-                        TempData["Success"] = result.Message;
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        TempData["Error"] = result.Message;
-                        return View(model);
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return View(model);
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al crear el reporte.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // GET: Editar reporte
-        public async Task<IActionResult> Edit(int id)
+        public IActionResult Edit(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = _reporteServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.GetAsync($"Reporte/get-Reporte-ById?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<UpdateReporteModel>().Deserializar(endpoint);
-
-                    if (result != null && result.Success)
-                    {
-                        TempData["Success"] = result.Message;
-                        return View(result.Data);
-                    }
-                    else
-                    {
-                        TempData["Error"] = result.Message;
-                        return RedirectToAction("Index");
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return View(new UpdateReporteModel
+                    {
+                        Id = result.Data.Id,
+                        GeneradoPor = result.Data.GeneradoPor,
+                        RutaArchivo = result.Data.RutaArchivo,
+                        TipoReporte = result.Data.TipoReporte
+                    });
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al cargar la vista de edición.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -223,74 +195,64 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
 
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _reporteServiceAPI.UpdateServicesPut(model);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.PutAsJsonAsync("Reporte/update-Reporte", model);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<ReporteModel>().Deserializar(endpoint);
-
-                    if (result != null && result.Success)
-                    {
-                        TempData["Success"] = result.Message;
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        TempData["Error"] = result.Message;
-                        return View(model);
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return View(model);
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al actualizar el reporte.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // --- Partial para eliminar ---
-        public async Task<IActionResult> _Delete(int id)
+        public IActionResult _Delete(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = _reporteServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.GetAsync($"Reporte/get-Reporte-ById?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<ReporteModel>().Deserializar(endpoint);
-
-                    if (result != null && result.Success)
-                    {
-                        TempData["Success"] = result.Message;
-                        return PartialView("_Delete", result.Data);
-                    }
-                    else
-                    {
-                        TempData["Error"] = result.Message;
-                        return RedirectToAction("Index");
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return PartialView("_Delete", result.Data);
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al eliminar el reporte.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -301,34 +263,29 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _reporteServiceAPI.RemoveServicesPut(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.PutAsync($"Reporte/Remove-Reporte?id={id}", null);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<ReporteModel>().Deserializar(endpoint);
-
-                    if (result != null && result.Success)
-                    {
-                        return Json(new { success = true, message = result.Message, data = result.Data });
-                    }
-                    else
-                    {
-                        return Json(new { success = false, message = $"Error {result.Message}" });
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    return PartialView("_DeleteSuccess", result.Message);
+                }
+                else
+                {
+                    return PartialView("_DeleteError", result.Message);
+                }
+
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al eliminar el reporte.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 

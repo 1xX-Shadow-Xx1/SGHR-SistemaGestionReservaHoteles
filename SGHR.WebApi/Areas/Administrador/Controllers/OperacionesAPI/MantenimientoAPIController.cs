@@ -4,6 +4,7 @@ using SGHR.Web.Data;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Operaciones.Mantenimiento;
 using SGHR.Web.Models.Operaciones.Pago;
+using SGHR.Web.Services.Interfaces.Operaciones;
 using SGHR.Web.Validador;
 
 namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
@@ -11,8 +12,10 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
     [Area("Administrador")]
     public class MantenimientoAPIController : Controller
     {
-        public MantenimientoAPIController()
+        private readonly IMantenimientoServiceAPI _mantenimientoServiceAPI;
+        public MantenimientoAPIController(IMantenimientoServiceAPI mantenimientoServiceAPI)
         {
+            _mantenimientoServiceAPI = mantenimientoServiceAPI;
         }
 
         // Página principal
@@ -22,110 +25,77 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
         }
 
         // --- Partial para listar mantenimientos ---
-        public async Task<IActionResult> _List(int? id)
+        public IActionResult _List(int? id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+
+                if (id.HasValue && id > 0)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
+                    var result = _mantenimientoServiceAPI.GetByIDServices(id.Value);
 
-                    if (id.HasValue && id > 0)
+                    var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                    if (!validate && errorMessage != string.Empty)
                     {
-                        var endpointMant = await httpclient.GetAsync($"Mantenimiento/Get-By-Id?id={id}");
+                        ViewBag.Error = errorMessage;
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    }
 
-                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointMant.StatusCode, out string errorMessage);
-                        if (!validate && errorMessage != string.Empty)
-                        {
-                            ViewBag.Error = errorMessage;
-                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointMant.StatusCode, ErrorMessage = errorMessage });
-                        }
-
-                        var resultMant = await new JsonConvertidor<MantenimientoModel>().Deserializar(endpointMant);
-
-                        if (resultMant != null && resultMant.Success)
-                        {
-                            TempData["Success"] = resultMant.Message;
-                            return PartialView("_List", new List<MantenimientoModel> { resultMant.Data });
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultMant.Message;
-                            return PartialView("_List", new List<MantenimientoModel>());
-                        }
+                    if (result != null && result.Success)
+                    {
+                        TempData["Success"] = result.Message;
+                        return PartialView("_List", new List<MantenimientoModel> { result.Data });
                     }
                     else
                     {
-                        var endpointList = await httpclient.GetAsync("Mantenimiento/Get-All");
-
-                        var validate = new ValidateStatusCode().ValidatorStatus((int)endpointList.StatusCode, out string errorMessage);
-                        if (!validate && errorMessage != string.Empty)
-                        {
-                            ViewBag.Error = errorMessage;
-                            return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointList.StatusCode, ErrorMessage = errorMessage });
-                        }
-
-                        var resultList = await new JsonConvertidor<MantenimientoModel>().DeserializarList(endpointList);
-
-                        if (resultList != null && resultList.Success)
-                        {
-                            TempData["Success"] = resultList.Message;
-                            return PartialView("_List", resultList.Data);
-                        }
-                        else
-                        {
-                            TempData["Error"] = resultList.Message;
-                            return PartialView("_List", new List<MantenimientoModel>());
-                        }
-
+                        TempData["Error"] = result.Message;
+                        return PartialView("_List", new List<MantenimientoModel>());
                     }
+                }
+                else
+                {
+                    var result = _mantenimientoServiceAPI.GetServices();
+                    TempData["Success"] = "Lista cargada correctamente.";
+                    return PartialView("_List", result);
 
                 }
-
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al obtener los mantenimientos.";
-                return PartialView("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // --- Vista completa de detalles ---
-        public async Task<IActionResult> Details(int id)
+        public IActionResult Details(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = _mantenimientoServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointDetail = await httpclient.GetAsync($"Mantenimiento/Get-By-Id?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointDetail.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointDetail.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var resultDetail = await new JsonConvertidor<MantenimientoModel>().Deserializar(endpointDetail);
-
-                    if (resultDetail != null && resultDetail.Success)
-                    {
-                        TempData["Success"] = resultDetail.Message;
-                        return View(resultDetail.Data);
-                    }
-                    else
-                    {
-                        TempData["Error"] = resultDetail.Message;
-                        return RedirectToAction("Index");
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
 
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return View(result.Data);
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al obtener el mantenimiento.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -148,76 +118,76 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
 
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _mantenimientoServiceAPI.SaveServicesPost(model);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointCreate = await httpclient.PostAsJsonAsync("Mantenimiento/Create-Mantenimiento", model);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointCreate.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointCreate.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var resultMant = await new JsonConvertidor<MantenimientoModel>().Deserializar(endpointCreate);
-
-                    if (resultMant != null && resultMant.Success)
-                    {
-                        TempData["Success"] = resultMant.Message;
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        TempData["Error"] = resultMant.Message;
-                        return View(model);
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return View(model);
+                }
+
 
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al crear el mantenimiento.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // GET: Editar mantenimiento
-        public async Task<IActionResult> Edit(int id)
+        public IActionResult Edit(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = _mantenimientoServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointEdit = await httpclient.GetAsync($"Mantenimiento/Get-By-Id?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var resultMant = await new JsonConvertidor<UpdateMantenimientoModel>().Deserializar(endpointEdit);
-
-                    if (resultMant != null && resultMant.Success)
-                    {
-                        TempData["Success"] = resultMant.Message;
-                        return View(resultMant.Data);
-                    }
-                    else
-                    {
-                        TempData["Error"] = resultMant.Message;
-                        return RedirectToAction("Index");
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return View(new UpdateMantenimientoModel
+                    {
+                        Id = result.Data.Id,
+                        RealizadoPor = result.Data.RealizadoPor,
+                        Descripcion = result.Data.Descripcion,
+                        NumeroHabitacion = result.Data.NumeroHabitacion,
+                        NumeroPiso = result.Data.NumeroPiso,
+                        Estado = result.Data.Estado,
+                        FechaInicio = result.Data.FechaInicio,
+                        FechaFin = result.Data.FechaFin
+                    });
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+
 
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al mostrar la vista de editar.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -231,76 +201,66 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
 
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _mantenimientoServiceAPI.UpdateServicesPut(model);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointEdit = await httpclient.PutAsJsonAsync("Mantenimiento/Update-Mantenimiento", model);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointEdit.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointEdit.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var resultMant = await new JsonConvertidor<MantenimientoModel>().Deserializar(endpointEdit);
-
-                    if (resultMant != null && resultMant.Success)
-                    {
-                        TempData["Success"] = resultMant.Message;
-                        return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        TempData["Error"] = resultMant.Message;
-                        return View(model);
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return View(model);
+                }
+
 
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al actualizar el mantenimiento.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
         // --- Partial para eliminar ---
-        public async Task<IActionResult> _Delete(int id)
+        public IActionResult _Delete(int id)
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = _mantenimientoServiceAPI.GetByIDServices(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpoint = await httpclient.GetAsync($"Mantenimiento/Get-By-Id?id={id}");
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpoint.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpoint.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var resultMant = await new JsonConvertidor<MantenimientoModel>().Deserializar(endpoint);
-
-                    if (resultMant != null && resultMant.Success)
-                    {
-                        TempData["Success"] = resultMant.Message;
-                        return PartialView("_Delete", resultMant.Data);
-                    }
-                    else
-                    {
-                        TempData["Error"] = resultMant.Message;
-                        return RedirectToAction("Index");
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    TempData["Success"] = result.Message;
+                    return PartialView("_Delete", result.Data);
+                }
+                else
+                {
+                    TempData["Error"] = result.Message;
+                    return RedirectToAction("Index");
+                }
+
 
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Ocurrió un error interno al eliminar el mantenimiento.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 
@@ -310,35 +270,30 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
         {
             try
             {
-                using (var httpclient = new HttpClient())
+                var result = await _mantenimientoServiceAPI.RemoveServicesPut(id);
+
+                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                if (!validate && errorMessage != string.Empty)
                 {
-                    httpclient.BaseAddress = new Uri("http://localhost:5020/api/");
-                    var endpointRemove = await httpclient.PutAsync($"Mantenimiento/Remove-Mantenimiento?id={id}", null);
-
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)endpointRemove.StatusCode, out string errorMessage);
-                    if (!validate && errorMessage != string.Empty)
-                    {
-                        ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = (int)endpointRemove.StatusCode, ErrorMessage = errorMessage });
-                    }
-
-                    var result = await new JsonConvertidor<MantenimientoModel>().Deserializar(endpointRemove);
-
-                    if (result != null && result.Success)
-                    {
-                        return Json(new { success = true, message = result.Message, data = result.Data });
-                    }
-                    else
-                    {
-                        return Json(new { success = false, message = $"Error {result.Message}" });
-                    }
+                    ViewBag.Error = errorMessage;
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
                 }
+
+                if (result != null && result.Success)
+                {
+                    return PartialView("_DeleteSuccess", result.Message);
+                }
+                else
+                {
+                    return PartialView("_DeleteError", result.Message);
+                }
+
 
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno al eliminar el mantenimiento.";
-                return View("Error", ex.Message);
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
             }
         }
 

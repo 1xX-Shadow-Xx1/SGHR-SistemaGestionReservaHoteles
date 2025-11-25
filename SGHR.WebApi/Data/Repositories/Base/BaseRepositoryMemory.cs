@@ -38,7 +38,7 @@ namespace SGHR.Web.Data.Repositories.Base
         {
             try
             {
-                var result = await _clienteAPI.GetAsync(endpoint);
+                var result = await _clienteAPI.GetListAsync(endpoint);
 
                 if (result == null)
                     return ServicesResultModel.Fail(500, "No hubo respuesta de la API.");

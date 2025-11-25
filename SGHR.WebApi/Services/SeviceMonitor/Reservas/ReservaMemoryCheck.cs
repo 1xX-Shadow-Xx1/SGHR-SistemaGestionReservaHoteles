@@ -7,11 +7,9 @@ namespace SGHR.Web.Services.SeviceMonitor.Reservas
     public class ReservaMemoryCheck : IReservaMemoryCheck
     {
         private readonly IReservaRepositoryMemory _memory;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        public ReservaMemoryCheck(IReservaRepositoryMemory memory, IHttpContextAccessor httpContextAccessor)
+        public ReservaMemoryCheck(IReservaRepositoryMemory memory)
         {
             _memory = memory;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<ServicesResultModel> CheckData()

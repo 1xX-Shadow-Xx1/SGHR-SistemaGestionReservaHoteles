@@ -27,17 +27,17 @@ namespace SGHR.Web.Services.ServiceAPI.Reservas
             return _memory.GetModels();
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPost(int id)
+        public async Task<ServicesResultModel> RemoveServicesPut(int id)
         {
             return await _httpAPI.DeleteAsync($"ServicioAdicional/Remove-Servicio-Adicional?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPut(CreateServicioAdicionalModel model)
+        public async Task<ServicesResultModel> SaveServicesPost(CreateServicioAdicionalModel model)
         {
             return await _httpAPI.PostAsync("ServicioAdicional/Create-Servicio-Adicional", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPost(UpdateServicioAdicionalModel model)
+        public async Task<ServicesResultModel> UpdateServicesPut(UpdateServicioAdicionalModel model)
         {
             return await _httpAPI.PutAsync("ServicioAdicional/Update-Servicio-Adicional", model);
         }

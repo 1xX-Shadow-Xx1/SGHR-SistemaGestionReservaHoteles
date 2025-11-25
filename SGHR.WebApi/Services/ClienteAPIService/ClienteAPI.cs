@@ -1,5 +1,6 @@
 ﻿using SGHR.Web.Data;
 using SGHR.Web.Models;
+using SGHR.Web.Models.Operaciones.Pago;
 using SGHR.Web.Services.ClienteAPIService.Interface;
 using SGHR.Web.Validador;
 
@@ -19,6 +20,9 @@ namespace SGHR.Web.Services.ClienteAPIService
             try
             {
                 var responsive = await _httpClient.PutAsync(endpoint, null);
+                var validate = new ValidateStatusCode().ValidatorStatus((int)responsive.StatusCode, out string errorMessage);
+                if(!validate)
+                    return ServicesResultModel.Fail((int)responsive.StatusCode, errorMessage);
 
                 var result = await new JsonConvertidor<T>().Deserializar(responsive);
 
@@ -37,7 +41,30 @@ namespace SGHR.Web.Services.ClienteAPIService
             }
         }
 
-        public async Task<ServicesResultModel> GetAsync(string endpoint)
+        public async Task<ServicesResultModel> GetResumenPagoAsync(string endpoint)
+        {
+            try
+            {
+                var responsive = await _httpClient.GetAsync(endpoint);
+
+                var result = await new JsonConvertidor<ResumenPagoModel>().Deserializar(responsive);
+
+                return result;
+            }
+            catch (HttpRequestException ex)
+            {
+                var validate = new ValidateStatusCode().ValidatorStatus(503, out string errorMessage);
+                return ServicesResultModel.Fail(503, errorMessage);
+
+            }
+            catch (Exception ex)
+            {
+                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
+                return ServicesResultModel.Fail(500, errorMessage);
+            }
+        }
+
+        public async Task<ServicesResultModel> GetListAsync(string endpoint)
         {
             try
             {
@@ -106,6 +133,7 @@ namespace SGHR.Web.Services.ClienteAPIService
                 return ServicesResultModel.Fail(500, errorMessage);
             }
         }
+
     }
 
 }

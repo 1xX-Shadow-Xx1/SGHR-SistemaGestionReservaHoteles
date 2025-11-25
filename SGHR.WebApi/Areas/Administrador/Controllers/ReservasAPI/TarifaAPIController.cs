@@ -119,7 +119,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
 
             try
             {
-                var result = await _tarifaServiceAPI.SaveServicesPut(model);
+                var result = await _tarifaServiceAPI.SaveServicesPost(model);
 
                 var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
@@ -197,7 +197,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
 
             try
             {
-                var result = await _tarifaServiceAPI.UpdateServicesPost(model);
+                var result = await _tarifaServiceAPI.UpdateServicesPut(model);
 
                 var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
@@ -264,7 +264,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
         {
             try
             {
-                var result = await _tarifaServiceAPI.RemoveServicesPost(id);
+                var result = await _tarifaServiceAPI.RemoveServicesPut(id);
 
                 var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)

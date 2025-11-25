@@ -118,7 +118,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
 
             try
             {
-                var result = await _servicioAdicionalServiceAPI.SaveServicesPut(model);
+                var result = await _servicioAdicionalServiceAPI.SaveServicesPost(model);
 
                 var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
@@ -196,7 +196,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
 
             try
             {
-                var result = await _servicioAdicionalServiceAPI.UpdateServicesPost(model);
+                var result = await _servicioAdicionalServiceAPI.UpdateServicesPut(model);
 
                 var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
@@ -264,7 +264,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
         {
             try
             {
-                var result = await _servicioAdicionalServiceAPI.RemoveServicesPost(id);
+                var result = await _servicioAdicionalServiceAPI.RemoveServicesPut(id);
 
                 var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)

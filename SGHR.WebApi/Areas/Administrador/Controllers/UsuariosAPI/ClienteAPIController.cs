@@ -111,7 +111,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
 
             try
             {
-                var result = await _clientServiceAPI.SaveServicesPut(dto);
+                var result = await _clientServiceAPI.SaveServicesPost(dto);
 
                 var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
@@ -193,7 +193,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
 
             try
             {
-                var result = await _clientServiceAPI.UpdateServicesPost(dto);
+                var result = await _clientServiceAPI.UpdateServicesPut(dto);
 
                 var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
@@ -262,7 +262,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
         {
             try
             {
-                var result = await _clientServiceAPI.RemoveServicesPost(id);
+                var result = await _clientServiceAPI.RemoveServicesPut(id);
 
                 var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
