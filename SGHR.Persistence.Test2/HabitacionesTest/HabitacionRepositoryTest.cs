@@ -73,7 +73,7 @@ namespace SGHR.Persistence.Test.HabitacionesTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Contains("IdCategoria", result.Message);
+            Assert.Contains("id de la categoria debe ser mayor a 0.", result.Message);
         }
 
         [Fact]
@@ -87,21 +87,21 @@ namespace SGHR.Persistence.Test.HabitacionesTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Contains("IdPiso", result.Message);
+            Assert.Contains("id del piso debe ser mayor a 0.", result.Message);
         }
 
         [Fact]
         public async Task SaveHabitacion_When_Numero_Is_NullOrEmpty()
         {
             //Arrange
-            var habitacion = new Habitacion { IdCategoria = 1, IdPiso = 1, Numero = "", Capacidad = 2 };
+            var habitacion = new Habitacion { IdCategoria = 1, IdPiso = 1, Numero = "", Capacidad = 2, IdAmenity = 1 };
 
             //Act
             var result = await _habitacionRepository.SaveAsync(habitacion);
 
             //Assert
             Assert.False(result.Success);
-            Assert.Contains("Número", result.Message);
+            Assert.Contains("Número de la habitacion es obligatorio.", result.Message);
         }
 
         [Fact]
@@ -113,7 +113,8 @@ namespace SGHR.Persistence.Test.HabitacionesTest
                 IdCategoria = 1,
                 IdPiso = 1,
                 Numero = new string('A', 21),
-                Capacidad = 2
+                Capacidad = 2,
+                IdAmenity = 1
             };
 
             //Act
@@ -128,7 +129,7 @@ namespace SGHR.Persistence.Test.HabitacionesTest
         public async Task SaveHabitacion_When_Capacidad_Is_Zero()
         {
             //Arrange
-            var habitacion = new Habitacion { IdCategoria = 1, IdPiso = 1, Numero = "103", Capacidad = 0 };
+            var habitacion = new Habitacion { IdCategoria = 1, IdPiso = 1, Numero = "103", Capacidad = 0, IdAmenity = 1 };
 
             //Act
             var result = await _habitacionRepository.SaveAsync(habitacion);
@@ -149,7 +150,7 @@ namespace SGHR.Persistence.Test.HabitacionesTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Contains("IdAmenity", result.Message);
+            Assert.Contains("id del amenity debe ser mayor a 0.", result.Message);
         }
 
         [Fact]
@@ -162,6 +163,7 @@ namespace SGHR.Persistence.Test.HabitacionesTest
                 IdPiso = 1,
                 Numero = "105",
                 Capacidad = 2,
+                IdAmenity = 1,
                 Estado = (EstadoHabitacion)999
             };
 
@@ -183,6 +185,7 @@ namespace SGHR.Persistence.Test.HabitacionesTest
                 IdPiso = 1,
                 Numero = "106",
                 Capacidad = 3,
+                IdAmenity = 1,
                 Estado = EstadoHabitacion.Disponible
             };
 
@@ -210,7 +213,7 @@ namespace SGHR.Persistence.Test.HabitacionesTest
 
             //Assert
             Assert.False(result.Success);
-            Assert.Contains("IdCategoria", result.Message);
+            Assert.Contains("id de la categoria debe ser mayor a 0.", result.Message);
         }
 
         [Fact]
@@ -222,7 +225,8 @@ namespace SGHR.Persistence.Test.HabitacionesTest
                 IdCategoria = 1,
                 IdPiso = 2,
                 Numero = "201",
-                Capacidad = 2
+                Capacidad = 2,
+                IdAmenity = 1
             };
 
             var saved = await _habitacionRepository.SaveAsync(habitacion);
@@ -244,7 +248,7 @@ namespace SGHR.Persistence.Test.HabitacionesTest
         public async Task DeleteHabitacion_Should_Succeed()
         {
             //Arrange
-            var habitacion = new Habitacion { IdCategoria = 1, IdPiso = 1, Numero = "301", Capacidad = 4 };
+            var habitacion = new Habitacion { IdCategoria = 1, IdPiso = 1, Numero = "301", Capacidad = 4, IdAmenity = 1 };
             var saved = await _habitacionRepository.SaveAsync(habitacion);
 
             //Act
@@ -278,7 +282,8 @@ namespace SGHR.Persistence.Test.HabitacionesTest
                 IdCategoria = 2,
                 IdPiso = 2,
                 Numero = "401",
-                Capacidad = 3
+                Capacidad = 3,
+                IdAmenity = 2,
             };
             var saved = await _habitacionRepository.SaveAsync(habitacion);
 
@@ -294,8 +299,8 @@ namespace SGHR.Persistence.Test.HabitacionesTest
         public async Task GetAll_Should_Return_List()
         {
             //Arrange
-            await _habitacionRepository.SaveAsync(new Habitacion { IdCategoria = 1, IdPiso = 1, Numero = "501", Capacidad = 2 });
-            await _habitacionRepository.SaveAsync(new Habitacion { IdCategoria = 2, IdPiso = 1, Numero = "502", Capacidad = 2 });
+            await _habitacionRepository.SaveAsync(new Habitacion { IdCategoria = 1, IdPiso = 1, Numero = "501", Capacidad = 2, IdAmenity = 1 });
+            await _habitacionRepository.SaveAsync(new Habitacion { IdCategoria = 2, IdPiso = 1, Numero = "502", Capacidad = 2, IdAmenity = 2 });
 
             //Act
             var result = await _habitacionRepository.GetAllAsync();
@@ -313,8 +318,8 @@ namespace SGHR.Persistence.Test.HabitacionesTest
         public async Task GetByCategoria_Should_Return_Matching_Habitaciones()
         {
             //Arrange
-            await _habitacionRepository.SaveAsync(new Habitacion { IdCategoria = 10, IdPiso = 1, Numero = "601", Capacidad = 2 });
-            await _habitacionRepository.SaveAsync(new Habitacion { IdCategoria = 11, IdPiso = 1, Numero = "602", Capacidad = 2 });
+            await _habitacionRepository.SaveAsync(new Habitacion { IdCategoria = 10, IdPiso = 1, Numero = "601", Capacidad = 2, IdAmenity = 1 });
+            await _habitacionRepository.SaveAsync(new Habitacion { IdCategoria = 11, IdPiso = 1, Numero = "602", Capacidad = 2, IdAmenity = 2 });
 
             //Act
             var result = await _habitacionRepository.GetByCategoriaAsync(10);
@@ -333,8 +338,8 @@ namespace SGHR.Persistence.Test.HabitacionesTest
         public async Task GetByPiso_Should_Return_Matching_Habitaciones()
         {
             //Arrange
-            await _habitacionRepository.SaveAsync(new Habitacion { IdCategoria = 1, IdPiso = 20, Numero = "701", Capacidad = 2 });
-            await _habitacionRepository.SaveAsync(new Habitacion { IdCategoria = 1, IdPiso = 21, Numero = "702", Capacidad = 2 });
+            await _habitacionRepository.SaveAsync(new Habitacion { IdCategoria = 1, IdPiso = 20, Numero = "701", Capacidad = 2, IdAmenity = 1 });
+            await _habitacionRepository.SaveAsync(new Habitacion { IdCategoria = 1, IdPiso = 21, Numero = "702", Capacidad = 2, IdAmenity = 2 });
 
             //Act
             var result = await _habitacionRepository.GetByPisoAsync(20);

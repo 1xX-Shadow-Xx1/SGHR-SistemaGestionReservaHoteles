@@ -284,7 +284,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
             catch (Exception ex)
             {
                 var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
-                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, errorMessage = errorMessage });
+                return RedirectToAction("ErrorPage", "Error", new { StatusCode = 500, ErrorMessage = errorMessage });
             }
         }
     }

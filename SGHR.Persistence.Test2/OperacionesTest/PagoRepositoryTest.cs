@@ -68,7 +68,6 @@ namespace SGHR.Persistence.Test.OperacionesTest
             {
                 IdReserva = 0,
                 Monto = 0,
-                MetodoPago = "",
                 FechaPago = DateTime.MinValue
             };
 
@@ -88,7 +87,7 @@ namespace SGHR.Persistence.Test.OperacionesTest
             {
                 IdReserva = 1,
                 Monto = 500,
-                MetodoPago = "Tarjeta",
+                MetodoPago = MetodoPago.Efectivo,
                 FechaPago = DateTime.Now,
                 Estado = EstadoPago.Pendiente
             };
@@ -113,7 +112,6 @@ namespace SGHR.Persistence.Test.OperacionesTest
             {
                 IdReserva = 0,
                 Monto = 0,
-                MetodoPago = "",
                 FechaPago = DateTime.MinValue
             };
 
@@ -134,7 +132,7 @@ namespace SGHR.Persistence.Test.OperacionesTest
                 Id = 999, // No existe en la DB
                 IdReserva = 1,
                 Monto = 100,
-                MetodoPago = "Efectivo",
+                MetodoPago = MetodoPago.Efectivo,
                 FechaPago = DateTime.Now
             };
 
@@ -153,7 +151,7 @@ namespace SGHR.Persistence.Test.OperacionesTest
             {
                 IdReserva = 1,
                 Monto = 100,
-                MetodoPago = "Efectivo",
+                MetodoPago = MetodoPago.Efectivo,
                 FechaPago = DateTime.Now
             };
             var saveResult = await _pagoRepository.SaveAsync(pago);
@@ -174,7 +172,7 @@ namespace SGHR.Persistence.Test.OperacionesTest
         public async Task DeletePago_WhenNotSaved_ShouldFail()
         {
             //Arrange
-            var pago = new Pago { Id = 999, IdReserva = 1, Monto = 100, MetodoPago = "Efectivo" };
+            var pago = new Pago { Id = 999, IdReserva = 1, Monto = 100, MetodoPago = MetodoPago.Efectivo };
 
             //Act
             var result = await _pagoRepository.DeleteAsync(pago);
@@ -188,7 +186,7 @@ namespace SGHR.Persistence.Test.OperacionesTest
         public async Task DeletePago_WhenSaved_ShouldSucceed()
         {
             //Arrange
-            var pago = new Pago { IdReserva = 1, Monto = 100, MetodoPago = "Efectivo" };
+            var pago = new Pago { IdReserva = 1, Monto = 100, MetodoPago = MetodoPago.Efectivo };
             var saveResult = await _pagoRepository.SaveAsync(pago);
 
             //Act
@@ -215,7 +213,7 @@ namespace SGHR.Persistence.Test.OperacionesTest
         public async Task GetById_WhenExist_ShouldSucceed()
         {
             //Arrange
-            var pago = new Pago { IdReserva = 1, Monto = 200, MetodoPago = "Efectivo" };
+            var pago = new Pago { IdReserva = 1, Monto = 200, MetodoPago = MetodoPago.Efectivo };
             var saveResult = await _pagoRepository.SaveAsync(pago);
 
             //Act
@@ -244,8 +242,8 @@ namespace SGHR.Persistence.Test.OperacionesTest
         public async Task GetAll_WhenHaveData_ShouldReturnAll()
         {
             //Arrange
-            await _pagoRepository.SaveAsync(new Pago { IdReserva = 1, Monto = 100, MetodoPago = "Efectivo" });
-            await _pagoRepository.SaveAsync(new Pago { IdReserva = 2, Monto = 200, MetodoPago = "Tarjeta" });
+            await _pagoRepository.SaveAsync(new Pago { IdReserva = 1, Monto = 100, MetodoPago = MetodoPago.Efectivo });
+            await _pagoRepository.SaveAsync(new Pago { IdReserva = 2, Monto = 200, MetodoPago = MetodoPago.TarjetaCredito });
 
             //Act
             var result = await _pagoRepository.GetAllAsync();
@@ -262,7 +260,7 @@ namespace SGHR.Persistence.Test.OperacionesTest
         public async Task GetByReserva_WhenExist_ShouldReturnList()
         {
             //Arrange
-            await _pagoRepository.SaveAsync(new Pago { IdReserva = 10, Monto = 100, MetodoPago = "Efectivo" });
+            await _pagoRepository.SaveAsync(new Pago { IdReserva = 10, Monto = 100, MetodoPago = MetodoPago.Efectivo });
 
             //Act
             var result = await _pagoRepository.GetByReservaAsync(10);
@@ -291,7 +289,7 @@ namespace SGHR.Persistence.Test.OperacionesTest
         {
             //Arrange
             var today = DateTime.Today;
-            await _pagoRepository.SaveAsync(new Pago { IdReserva = 1, Monto = 100, MetodoPago = "Efectivo", FechaPago = today });
+            await _pagoRepository.SaveAsync(new Pago { IdReserva = 1, Monto = 100, MetodoPago = MetodoPago.Efectivo, FechaPago = today });
 
             //Act
             var result = await _pagoRepository.GetByFechaAsync(today);

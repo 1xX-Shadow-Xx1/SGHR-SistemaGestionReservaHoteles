@@ -79,7 +79,8 @@ namespace SGHR.Application.Test.ReservasTest
             //Arrange
             var dto = new CreateTarifaDto
             {
-                Temporada = "Alta",
+                Fecha_inicio = DateTime.Now,
+                Fecha_fin = DateTime.Now.AddDays(1),
                 Precio = 100m,
                 NombreCategoria = "NoExiste"
             };
@@ -99,12 +100,13 @@ namespace SGHR.Application.Test.ReservasTest
             var categoria = new Categoria { Nombre = "Suite", Descripcion = "Categoria Test" };
             await _categoriaRepository.SaveAsync(categoria);
 
-            var existing = new Tarifa { IdCategoria = categoria.Id, Temporada = "Alta", Precio = 200m };
+            var existing = new Tarifa { IdCategoria = categoria.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now, Precio = 200m };
             await _tarifaRepository.SaveAsync(existing);
 
             var dto = new CreateTarifaDto
             {
-                Temporada = "Alta",
+                Fecha_inicio = DateTime.Now,
+                Fecha_fin = DateTime.Now.AddDays(1),
                 Precio = 300m,
                 NombreCategoria = "Suite"
             };
@@ -126,7 +128,8 @@ namespace SGHR.Application.Test.ReservasTest
 
             var dto = new CreateTarifaDto
             {
-                Temporada = "Baja",
+                Fecha_inicio = DateTime.Now,
+                Fecha_fin = DateTime.Now.AddDays(1),
                 Precio = 150m,
                 NombreCategoria = "Estandar"
             };
@@ -179,7 +182,7 @@ namespace SGHR.Application.Test.ReservasTest
             var categoria = new Categoria { Nombre = "Temporal", Descripcion = "Categoria Test" };
             await _categoriaRepository.SaveAsync(categoria);
 
-            var tarifa = new Tarifa { IdCategoria = categoria.Id, Temporada = "Media", Precio = 300m };
+            var tarifa = new Tarifa { IdCategoria = categoria.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now.AddDays(1), Precio = 300m };
             var saved = await _tarifaRepository.SaveAsync(tarifa);
 
             
@@ -199,7 +202,7 @@ namespace SGHR.Application.Test.ReservasTest
             var categoria = new Categoria { Nombre = "Premium", Descripcion = "Categoria Test" };
             await _categoriaRepository.SaveAsync(categoria);
 
-            var tarifa = new Tarifa { IdCategoria = categoria.Id, Temporada = "Alta", Precio = 700m };
+            var tarifa = new Tarifa { IdCategoria = categoria.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now.AddDays(1), Precio = 700m };
             var saved = await _tarifaRepository.SaveAsync(tarifa);
 
             //Act
@@ -235,8 +238,8 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Basic", Descripcion = "Categoria Test" };
             await _categoriaRepository.SaveAsync(cat);
 
-            await _tarifaRepository.SaveAsync(new Tarifa { IdCategoria = cat.Id, Temporada = "Baja", Precio = 100m });
-            await _tarifaRepository.SaveAsync(new Tarifa { IdCategoria = cat.Id, Temporada = "Alta", Precio = 200m });
+            await _tarifaRepository.SaveAsync(new Tarifa { IdCategoria = cat.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now.AddDays(1), Precio = 100m });
+            await _tarifaRepository.SaveAsync(new Tarifa { IdCategoria = cat.Id, Fecha_inicio = DateTime.Now.AddDays(2), Fecha_fin = DateTime.Now.AddDays(3), Precio = 200m });
 
             //Act
             var result = await _tarifaServices.GetAllAsync();
@@ -267,7 +270,7 @@ namespace SGHR.Application.Test.ReservasTest
             
             var cat = new Categoria { Nombre = "SoloTarifa", Descripcion = "Soy messi" };
             await _categoriaRepository.SaveAsync(cat);
-            await _tarifaRepository.SaveAsync(new Tarifa { IdCategoria = cat.Id, Temporada = "Test", Precio = 50m });
+            await _tarifaRepository.SaveAsync(new Tarifa { IdCategoria = cat.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now.AddDays(1), Precio = 50m });
 
             // Act (normal) - debería pasar
             var resultNormal = await _tarifaServices.GetAllAsync();
@@ -313,7 +316,7 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Negocios", Descripcion = "Categoria Test" };
             await _categoriaRepository.SaveAsync(cat);
 
-            var tarifa = new Tarifa { IdCategoria = cat.Id, Temporada = "Alta", Precio = 250m };
+            var tarifa = new Tarifa { IdCategoria = cat.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now.AddDays(1), Precio = 250m };
             var saved = await _tarifaRepository.SaveAsync(tarifa);
 
 
@@ -333,7 +336,7 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Negocios2", Descripcion = "Soy messi" };
             await _categoriaRepository.SaveAsync(cat);
 
-            var tarifa = new Tarifa { IdCategoria = cat.Id, Temporada = "TemporadaX", Precio = 500m };
+            var tarifa = new Tarifa { IdCategoria = cat.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now.AddDays(1), Precio = 500m };
             var saved = await _tarifaRepository.SaveAsync(tarifa);
 
             //Act
@@ -368,7 +371,8 @@ namespace SGHR.Application.Test.ReservasTest
             {
                 Id = 0,
                 NombreCategoria = "Estandar",
-                Temporada = "Alta",
+                Fecha_inicio = DateTime.Now,
+                Fecha_fin = DateTime.Now.AddDays(1),
                 Precio = 100m
             };
 
@@ -387,14 +391,15 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Economica", Descripcion = "Categoria Test" };
             await _categoriaRepository.SaveAsync(cat);
 
-            var tarifa = new Tarifa { IdCategoria = cat.Id, Temporada = "Media", Precio = 200m };
+            var tarifa = new Tarifa { IdCategoria = cat.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now.AddDays(1), Precio = 200m };
             var saved = await _tarifaRepository.SaveAsync(tarifa);
 
             var dto = new UpdateTarifaDto
             {
                 Id = saved.Data.Id,
                 NombreCategoria = "NoExiste",
-                Temporada = "Baja",
+                Fecha_inicio = DateTime.Now,
+                Fecha_fin = DateTime.Now.AddDays(1),
                 Precio = 300m
             };
 
@@ -415,14 +420,15 @@ namespace SGHR.Application.Test.ReservasTest
             await _categoriaRepository.SaveAsync(catA);
             await _categoriaRepository.SaveAsync(catB);
 
-            var tarifa1 = (await _tarifaRepository.SaveAsync(new Tarifa { IdCategoria = catA.Id, Temporada = "Alta", Precio = 100m })).Data;
-            var tarifa2 = (await _tarifaRepository.SaveAsync(new Tarifa { IdCategoria = catB.Id, Temporada = "Baja", Precio = 200m })).Data;
+            var tarifa1 = (await _tarifaRepository.SaveAsync(new Tarifa { IdCategoria = catA.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now.AddDays(1), Precio = 100m })).Data;
+            var tarifa2 = (await _tarifaRepository.SaveAsync(new Tarifa { IdCategoria = catB.Id, Fecha_inicio = DateTime.Now.AddDays(2), Fecha_fin = DateTime.Now.AddDays(3), Precio = 200m })).Data;
 
             var dto = new UpdateTarifaDto
             {
                 Id = tarifa2.Id,
                 NombreCategoria = "A", // intenta cambiar a categoria A con temporada "Alta" ya existente en tarifa1
-                Temporada = "Alta",
+                Fecha_inicio = DateTime.Now,
+                Fecha_fin = DateTime.Now.AddDays(1),
                 Precio = 300m
             };
 
@@ -441,14 +447,15 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Lujo", Descripcion = "Categoria Test" };
             await _categoriaRepository.SaveAsync(cat);
 
-            var tarifa = new Tarifa { IdCategoria = cat.Id, Temporada = "Media", Precio = 450m };
+            var tarifa = new Tarifa { IdCategoria = cat.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now.AddDays(1), Precio = 450m };
             await _tarifaRepository.SaveAsync(tarifa);
 
             var dto = new UpdateTarifaDto
             {
                 Id = tarifa.Id,
                 NombreCategoria = "Lujo",
-                Temporada = "Alta",
+                Fecha_inicio = DateTime.Now,
+                Fecha_fin = DateTime.Now.AddDays(1),
                 Precio = 600m
             };
 

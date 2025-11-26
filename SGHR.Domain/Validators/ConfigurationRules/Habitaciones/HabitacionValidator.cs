@@ -24,7 +24,7 @@ namespace SGHR.Domain.Validators.ConfigurationRules.Habitaciones
             if (!ValidationHelper.GreaterThanZero(habitacion.IdAmenity, "id del amenity", out errorMessage)) return false;
 
             // Número
-            if (!ValidationHelper.Required(habitacion.Numero, "Número", out errorMessage)) return false;
+            if (!ValidationHelper.Required(habitacion.Numero, "Número de la habitacion", out errorMessage)) return false;
             if (!ValidationHelper.MaxLength(habitacion.Numero, 20, "Número", out errorMessage)) return false;
 
             // Capacidad

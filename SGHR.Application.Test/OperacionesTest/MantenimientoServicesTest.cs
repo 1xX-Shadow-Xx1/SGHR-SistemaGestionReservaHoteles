@@ -38,6 +38,7 @@ namespace SGHR.Application.Test.OperacionesTest
         private readonly IPisoRepository _pisoRepo;
         private readonly ICategoriaRepository _categoriaRepo;
         private readonly IClienteRepository _clienteRepo;
+        private readonly IAmenityRepository _amenityRepository;
 
         public MantenimientoServicesTest()
         {
@@ -57,6 +58,7 @@ namespace SGHR.Application.Test.OperacionesTest
             var loggerCliente = loggerFactory.CreateLogger<ClienteRepository>();
             var loggerCategoria = loggerFactory.CreateLogger<CategoriaRepository>();
             var loggerPiso = loggerFactory.CreateLogger<PisoRepository>();
+            var loggerAmenity = loggerFactory.CreateLogger<AmenityRepository>();
 
            
             _mantenimientoRepo = new MantenimientoRepository(_context, new MantenimientoValidator(), loggerMantenimiento);
@@ -66,17 +68,17 @@ namespace SGHR.Application.Test.OperacionesTest
             _pisoRepo = new PisoRepository(_context, new PisoValidator(), loggerPiso);
             _categoriaRepo = new CategoriaRepository(_context, new CategoriaValidator(), loggerCategoria);
             _clienteRepo = new ClienteRepository(_context, new ClienteValidator(), loggerCliente);
-
+            _amenityRepository = new AmenityRepository(_context, new AmenitiesValidator(), loggerAmenity);
            
             _service = new MantenimientoServcices(loggerservice, _mantenimientoRepo, _habitacionRepo, _reservaRepo, _usuarioRepo, _pisoRepo);
 
-         
+            _amenityRepository.SaveAsync(new Amenity { Nombre = "wifi", Descripcion = "test1", Precio = 500, PorCapacidad = 200 });
             _clienteRepo.SaveAsync(new Cliente { Nombre = "carlos", Apellido = "test", Cedula = "123-4567897-8", Telefono = "849-887-8945", Direccion = "Auto.ven call test." }).Wait();
             _clienteRepo.SaveAsync(new Cliente { Nombre = "carlos", Apellido = "test", Cedula = "123-4577897-8", Telefono = "849-287-8945", Direccion = "Auto.ves call test." }).Wait();
             _usuarioRepo.SaveAsync(new Usuario { Nombre = "Admin", Correo = "admin@mail.com", Contraseña = "12345689", Rol = RolUsuarios.Administrador }).Wait();
             _categoriaRepo.SaveAsync(new Categoria { Nombre = "catego", Descripcion = "categoria" }).Wait();
             _pisoRepo.SaveAsync(new Piso { NumeroPiso = 1, Descripcion = "Piso 1" }).Wait();
-            _habitacionRepo.SaveAsync(new Habitacion { Numero = "H101", Estado = EstadoHabitacion.Disponible, Capacidad = 5, IdCategoria = 1, IdPiso = 1 }).Wait();
+            _habitacionRepo.SaveAsync(new Habitacion { Numero = "H-101", Estado = EstadoHabitacion.Disponible, Capacidad = 5, IdCategoria = 1, IdPiso = 1, IdAmenity = 1}).Wait();
         }
 
 
@@ -86,7 +88,7 @@ namespace SGHR.Application.Test.OperacionesTest
             //Arrange
             var dto = new CreateMantenimientoDto
             {
-                NumeroHabitacion = "H101",
+                NumeroHabitacion = "H-101",
                 NumeroPiso = 1,
                 RealizadoPor = "admin@mail.com",
                 Descripcion = "Revisión de aire acondicionado",
@@ -102,7 +104,7 @@ namespace SGHR.Application.Test.OperacionesTest
             Assert.NotNull(result.Data);
 
             var data = result.Data as MantenimientoDto;
-            Assert.Equal("H101", data.NumeroHabitacion);
+            Assert.Equal("H-101", data.NumeroHabitacion);
             Assert.Equal("admin@mail.com", data.RealizadoPor);
             Assert.Equal("Revisión de aire acondicionado", data.Descripcion);
         }
@@ -122,7 +124,7 @@ namespace SGHR.Application.Test.OperacionesTest
             //Act
             var dto = new CreateMantenimientoDto
             {
-                NumeroHabitacion = "H101",
+                NumeroHabitacion = "H-101",
                 NumeroPiso = 1,
                 RealizadoPor = "admin@mail.com",
                 Descripcion = "Cambio de cortinas"
@@ -141,7 +143,7 @@ namespace SGHR.Application.Test.OperacionesTest
             //Arrange
             await _service.CreateAsync(new CreateMantenimientoDto
             {
-                NumeroHabitacion = "H101",
+                NumeroHabitacion = "H-101",
                 NumeroPiso = 1,
                 RealizadoPor = "admin@mail.com",
                 Descripcion = "Limpieza profunda",
@@ -166,7 +168,7 @@ namespace SGHR.Application.Test.OperacionesTest
             //Arrange
             var createResult = await _service.CreateAsync(new CreateMantenimientoDto
             {
-                NumeroHabitacion = "H101",
+                NumeroHabitacion = "H-101",
                 NumeroPiso = 1,
                 RealizadoPor = "admin@mail.com",
                 Descripcion = "Pintura general"
@@ -190,7 +192,7 @@ namespace SGHR.Application.Test.OperacionesTest
             //Arrange
             var createResult = await _service.CreateAsync(new CreateMantenimientoDto
             {
-                NumeroHabitacion = "H101",
+                NumeroHabitacion = "H-101",
                 NumeroPiso = 1,
                 RealizadoPor = "admin@mail.com",
                 Descripcion = "Mantenimiento inicial"
@@ -203,7 +205,7 @@ namespace SGHR.Application.Test.OperacionesTest
             var updateDto = new UpdateMantenimientoDto
             {
                 Id = created.Id,
-                NumeroHabitacion = "H101",
+                NumeroHabitacion = "H-101",
                 NumeroPiso = 1,
                 RealizadoPor = "admin@mail.com",
                 Descripcion = "Cambio de bombillos",
@@ -218,7 +220,7 @@ namespace SGHR.Application.Test.OperacionesTest
             Assert.True(result.Success);
             var data = result.Data as MantenimientoDto;
             Assert.Equal("Cambio de bombillos", data.Descripcion);
-            Assert.Equal(EstadoMantenimiento.Completado.ToString(), data.Estado);
+            Assert.Equal(EstadoMantenimiento.Completado, data.Estado);
         }
 
         [Fact(DisplayName = "DeleteAsync debe eliminar el mantenimiento correctamente")]
@@ -227,7 +229,7 @@ namespace SGHR.Application.Test.OperacionesTest
             //Arrange
             var createResult = await _service.CreateAsync(new CreateMantenimientoDto
             {
-                NumeroHabitacion = "H101",
+                NumeroHabitacion = "H-101",
                 NumeroPiso = 1,
                 RealizadoPor = "admin@mail.com",
                 Descripcion = "Eliminar prueba"

@@ -10,6 +10,8 @@ namespace SGHR.Web.Services.ClienteAPIService.Interface
         Task<ServicesResultModel> PostAsync(string endpoint, object? data = null);
         Task<ServicesResultModel> PutAsync(string endpoint, object? data = null);
         Task<ServicesResultModel> DeleteAsync(string endpoint);
+        Task<ServicesResultModel> GetAsync(string endpoint);
+        Task<ServicesResultModel> GetSesionAsync(string endpoint);
         Task<ServicesResultModel> GetResumenPagoAsync(string endpoint);
     }
 

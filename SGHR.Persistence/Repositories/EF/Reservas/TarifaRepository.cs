@@ -98,7 +98,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             try
             {
                 var tarifa = await _context.Tarifa
-                    .FirstOrDefaultAsync(t => t.IdCategoria == idCategoria && t.Fecha_inicio == fecha_inicio && t.Fecha_fin == fecha_fin && !t.IsDeleted);
+                    .FirstOrDefaultAsync(t => t.IdCategoria == idCategoria && t.Fecha_inicio <= fecha_fin && t.Fecha_fin >= fecha_inicio && !t.IsDeleted);
 
                 if (tarifa == null)
                 {
@@ -120,7 +120,7 @@ namespace SGHR.Persistence.Repositories.EF.Reservas
             try
             {
                 var tarifas = await _context.Tarifa
-                    .Where(t => t.Fecha_inicio == fecha_inicio && t.Fecha_fin == fecha_fin && !t.IsDeleted)
+                    .Where(t => t.Fecha_inicio <= fecha_fin && t.Fecha_fin >= fecha_inicio && !t.IsDeleted)
                     .ToListAsync();
 
                 _logger.LogInformation("Se obtuvieron {Count} tarifas para la temporada {inicio}, {fin}", tarifas.Count, fecha_inicio.DayOfWeek, fecha_fin.DayOfWeek);

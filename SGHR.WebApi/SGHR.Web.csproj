@@ -23,9 +23,6 @@
     <Folder Include="Areas\Cliente\Models\" />
     <Folder Include="Areas\Recepcionista\Data\" />
     <Folder Include="Areas\Recepcionista\Models\" />
-    <Folder Include="Services\Interfaces\Authentification\" />
-    <Folder Include="Services\Interfaces\Sesion\" />
-    <Folder Include="Services\ServiceAPI\Authentification\" />
     <Folder Include="Services\ServiceAPI\Sesion\" />
   </ItemGroup>
 

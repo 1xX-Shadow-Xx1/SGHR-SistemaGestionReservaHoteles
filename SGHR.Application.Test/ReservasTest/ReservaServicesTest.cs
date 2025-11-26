@@ -32,6 +32,7 @@ namespace SGHR.Application.Test.ReservasTest
         private readonly ITarifaRepository _tarifaRepository;
         private readonly ICategoriaRepository _categoriaRepository;
         private readonly IPisoRepository _pisoRepository;
+        private readonly IAmenityRepository _amenityRepository;
         private readonly SGHRContext _context;
         private readonly ILogger<ReservaRepository> _loggerReservaRepo;
         private readonly ILogger<ClienteRepository> _loggerClienteRepo;
@@ -41,6 +42,7 @@ namespace SGHR.Application.Test.ReservasTest
         private readonly ILogger<UsuarioRepository> _loggerUsuarioRepo;
         private readonly ILogger<CategoriaRepository> _loggerCategoriaRepo;
         private readonly ILogger<PisoRepository> _loggerPisoRepo;
+        private readonly ILogger<AmenityRepository> _loggerAmenityRepo;
         private readonly ReservaValidator _reservaValidator;
         private readonly ClienteValidator _clienteValidator;
         private readonly HabitacionValidator _habitacionValidator;
@@ -49,6 +51,7 @@ namespace SGHR.Application.Test.ReservasTest
         private readonly TarifaValidator _tarifaValidator;
         private readonly CategoriaValidator _categoriaValidator;
         private readonly PisoValidator _pisoValidator;
+        private readonly AmenitiesValidator _amenitiesValidator;
         private readonly IConfiguration _configuration;
         private readonly IReservaServices _reservaServices;
         private readonly ILogger<ReservaServices> _loggerServices;
@@ -63,6 +66,7 @@ namespace SGHR.Application.Test.ReservasTest
             _tarifaValidator = new TarifaValidator();
             _categoriaValidator = new CategoriaValidator();
             _pisoValidator = new PisoValidator();
+            _amenitiesValidator = new AmenitiesValidator();
 
             var options = new DbContextOptionsBuilder<SGHRContext>()
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
@@ -84,6 +88,7 @@ namespace SGHR.Application.Test.ReservasTest
             _loggerTarifaRepo = loggerFactory.CreateLogger<TarifaRepository>();
             _loggerCategoriaRepo = loggerFactory.CreateLogger<CategoriaRepository>();
             _loggerPisoRepo = loggerFactory.CreateLogger<PisoRepository>();
+            _loggerAmenityRepo = loggerFactory.CreateLogger<AmenityRepository>();
             _configuration = new ConfigurationBuilder().Build();
 
             _reservaRepository = new ReservaRepository(_context, _reservaValidator, _loggerReservaRepo);
@@ -94,6 +99,7 @@ namespace SGHR.Application.Test.ReservasTest
             _tarifaRepository = new TarifaRepository(_context, _tarifaValidator, _loggerTarifaRepo);
             _categoriaRepository = new CategoriaRepository(_context, _categoriaValidator, _loggerCategoriaRepo);
             _pisoRepository = new PisoRepository(_context,_pisoValidator, _loggerPisoRepo);
+            _amenityRepository = new AmenityRepository(_context, _amenitiesValidator, _loggerAmenityRepo);
 
             _reservaServices = new ReservaServices(
                 _loggerServices,
@@ -103,7 +109,8 @@ namespace SGHR.Application.Test.ReservasTest
                 _clienteRepository,
                 _tarifaRepository,
                 _categoriaRepository,
-                _servicioAdicionalRepository                
+                _servicioAdicionalRepository,
+                _amenityRepository
             );
         }
 
@@ -133,7 +140,7 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Suite", Descripcion = "Categoria A" };
             var categoria = await _categoriaRepository.SaveAsync(cat);
 
-            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5 };
+            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5, IdAmenity = 1 };
             var habitacion = await _habitacionRepository.SaveAsync(hab);
 
             //Arrange
@@ -166,13 +173,13 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Suite", Descripcion = "Categoria A" };
             var categoria = await _categoriaRepository.SaveAsync(cat);
 
-            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Temporada = "ot", Precio = 2000 };
+            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now.AddDays(3), Precio = 2000 };
             var tarifa = await _tarifaRepository.SaveAsync(tar);
 
             var usu = new Usuario { Nombre = "Luis", Correo = "Luis@d.s", Contraseña = "123456798" };
             var usuario = await _usuarioRepository.SaveAsync(usu);
 
-            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5 };
+            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5, IdAmenity = 1 };
             var habitacion = await _habitacionRepository.SaveAsync(hab);
 
             var dto = new CreateReservaDto
@@ -221,13 +228,13 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Suite", Descripcion = "Categoria A" };
             var categoria = await _categoriaRepository.SaveAsync(cat);
 
-            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Temporada = "ot", Precio = 2000 };
+            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now.AddDays(1), Precio = 2000 };
             var tarifa = await _tarifaRepository.SaveAsync(tar);
 
             var usu = new Usuario { Nombre = "Luis", Correo = "Luis@d.s", Contraseña = "123456798" };
             var usuario = await _usuarioRepository.SaveAsync(usu);
 
-            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5 };
+            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5, IdAmenity = 1 };
             var habitacion = await _habitacionRepository.SaveAsync(hab);
 
             var reserva = new Reserva
@@ -262,13 +269,13 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Suite", Descripcion = "Categoria A" };
             var categoria = await _categoriaRepository.SaveAsync(cat);
 
-            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Temporada = "ot", Precio = 2000 };
+            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now, Precio = 2000 };
             var tarifa = await _tarifaRepository.SaveAsync(tar);
 
             var usu = new Usuario { Nombre = "Luis", Correo = "Luis@d.s", Contraseña = "123456798" };
             var usuario = await _usuarioRepository.SaveAsync(usu);
 
-            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5 };
+            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5, IdAmenity = 1  };
             var habitacion = await _habitacionRepository.SaveAsync(hab);
 
             var reserva = new Reserva
@@ -305,13 +312,13 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Suite", Descripcion = "Categoria A" };
             var categoria = await _categoriaRepository.SaveAsync(cat);
 
-            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Temporada = "ot", Precio = 2000 };
+            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now, Precio = 2000 };
             var tarifa = await _tarifaRepository.SaveAsync(tar);
 
             var usu = new Usuario { Nombre = "Luis", Correo = "Luis@d.s", Contraseña = "123456798" };
             var usuario = await _usuarioRepository.SaveAsync(usu);
 
-            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5 };
+            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5, IdAmenity = 1 };
             var habitacion = await _habitacionRepository.SaveAsync(hab);
 
             var reserva = new Reserva
@@ -348,13 +355,13 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Suite", Descripcion = "Categoria A" };
             var categoria = await _categoriaRepository.SaveAsync(cat);
 
-            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Temporada = "ot", Precio = 2000 };
+            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now, Precio = 2000 };
             var tarifa = await _tarifaRepository.SaveAsync(tar);
 
             var usu = new Usuario { Nombre = "Luis", Correo = "Luis@d.s", Contraseña = "123456798" };
             var usuario = await _usuarioRepository.SaveAsync(usu);
 
-            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5 };
+            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5, IdAmenity = 1};
             var habitacion = await _habitacionRepository.SaveAsync(hab);
 
             var reserva = new Reserva
@@ -403,13 +410,13 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Suite", Descripcion = "Categoria A" };
             var categoria = await _categoriaRepository.SaveAsync(cat);
 
-            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Temporada = "ot", Precio = 2000 };
+            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now, Precio = 2000 };
             var tarifa = await _tarifaRepository.SaveAsync(tar);
 
             var usu = new Usuario { Nombre = "Luis", Correo = "Luis@d.s", Contraseña = "123456798" };
             var usuario = await _usuarioRepository.SaveAsync(usu);
 
-            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5 };
+            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5, IdAmenity = 1 };
             var habitacion = await _habitacionRepository.SaveAsync(hab);
 
             var reserva = new Reserva
@@ -490,13 +497,13 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Suite", Descripcion = "Categoria A" };
             var categoria = await _categoriaRepository.SaveAsync(cat);
 
-            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Temporada = "ot", Precio = 2000 };
+            var tar = new Tarifa { IdCategoria = categoria.Data.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now, Precio = 2000 };
             var tarifa = await _tarifaRepository.SaveAsync(tar);
 
             var usu = new Usuario { Nombre = "Luis", Correo = "Luis@d.s", Contraseña = "123456798" };
             var usuario = await _usuarioRepository.SaveAsync(usu);
 
-            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5 };
+            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5, IdAmenity = 1 };
             var habitacion = await _habitacionRepository.SaveAsync(hab);
 
             var reserva = new Reserva
@@ -517,8 +524,8 @@ namespace SGHR.Application.Test.ReservasTest
                 FechaInicio = DateTime.Now.AddDays(2),
                 NumeroHabitacion = habitacion.Data.Numero,
                 CedulaCliente = cliente.Data.Cedula,
-                CostoTotal = 100,
                 CorreoCliente = usuario.Data.Correo
+                
             };
 
             //Act

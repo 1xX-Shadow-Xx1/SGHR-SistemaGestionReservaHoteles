@@ -3,12 +3,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SchoolPoliApp.Persistence.Base;
 using SGHR.Application.Dtos.Configuration.Users.Usuario;
 using SGHR.Application.Services.Usuarios;
+using SGHR.Domain.Entities.Configuration.Sesiones;
 using SGHR.Domain.Entities.Configuration.Usuers;
 using SGHR.Domain.Enum.Usuarios;
 using SGHR.Domain.Validators.ConfigurationRules.Users;
 using SGHR.Persistence.Context;
+using SGHR.Persistence.Interfaces.Sesiones;
+using SGHR.Persistence.Repositories.EF.Sesiones;
 using SGHR.Persistence.Repositories.EF.Users;
 
 namespace SGHR.Application.Test.UsuariosTest
@@ -16,12 +20,15 @@ namespace SGHR.Application.Test.UsuariosTest
     public class UsuarioServisTest
     {
         private readonly UsuarioRepository _usuarioRepository;
+        private readonly ISesionRepository _sesionRepository;
         private readonly SGHRContext _context;
         private readonly ILogger<UsuarioRepository> _loggerRepo;
         private readonly UsuarioValidator _usuarioValidator;
         private readonly IConfiguration _configuration;
         private readonly UsuarioServices _usuarioServices;
         private readonly ILogger<UsuarioServices> _loggerServices;
+        private readonly ILogger<SesionRepository> _loggerSesion;
+        private readonly ILogger<BaseRepository<Sesion>> _loggerbaseRepository;
 
         public UsuarioServisTest()
         {
@@ -41,8 +48,12 @@ namespace SGHR.Application.Test.UsuariosTest
 
             _loggerRepo = loggerFactory.CreateLogger<UsuarioRepository>();
             _loggerServices = loggerFactory.CreateLogger<UsuarioServices>();
+            _loggerSesion = loggerFactory.CreateLogger<SesionRepository>();
+            _loggerbaseRepository = loggerFactory.CreateLogger<BaseRepository<Sesion>>();
 
             _configuration = new ConfigurationBuilder().Build();
+
+            _sesionRepository = new SesionRepository(_context, _loggerSesion, _loggerbaseRepository);
 
             _usuarioRepository = new UsuarioRepository(
                 _context,
@@ -52,7 +63,8 @@ namespace SGHR.Application.Test.UsuariosTest
 
             _usuarioServices = new UsuarioServices(
                 _loggerServices,
-                _usuarioRepository
+                _usuarioRepository,
+                _sesionRepository
             );
 
         }

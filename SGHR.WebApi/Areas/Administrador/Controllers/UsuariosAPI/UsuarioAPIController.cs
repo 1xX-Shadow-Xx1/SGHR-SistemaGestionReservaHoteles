@@ -168,14 +168,14 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
         // POST: Guardar cambios
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdateUsuarioModel dto)
+        public async Task<IActionResult> Edit(UpdateUsuarioModel model)
         {
             if (!ModelState.IsValid)
-                return View(dto);
+                return View(model);
 
             try
             {
-                var result = await _usuarioServiceAPI.UpdateServicesPut(dto);
+                var result = await _usuarioServiceAPI.UpdateServicesPut(model);
 
                 var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
@@ -193,7 +193,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.UsuariosAPI
                 else
                 {
                     TempData["Error"] = result.Message;
-                    return View(dto);
+                    return View(model);
                 }
                 
 

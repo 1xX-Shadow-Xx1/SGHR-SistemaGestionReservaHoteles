@@ -49,8 +49,9 @@ namespace SGHR.Persistence.Test.ReservasTest
             var tarifa = new Tarifa
             {
                 IdCategoria = 1,
-                Temporada = "Alta",
-                Precio = 1000
+                Precio = 1000,
+                Fecha_inicio = DateTime.Now,
+                Fecha_fin = DateTime.Now.AddDays(1)
             };
 
             // Act
@@ -69,7 +70,8 @@ namespace SGHR.Persistence.Test.ReservasTest
             var tarifa = new Tarifa
             {
                 IdCategoria = 0, // Inválido
-                Temporada = "Alta",
+                Fecha_inicio = DateTime.Now,
+                Fecha_fin = DateTime.Now.AddDays(1),
                 Precio = 1000
             };
 
@@ -88,7 +90,8 @@ namespace SGHR.Persistence.Test.ReservasTest
             var tarifa = new Tarifa
             {
                 IdCategoria = 1,
-                Temporada = "Baja",
+                Fecha_inicio = DateTime.Now,
+                Fecha_fin = DateTime.Now.AddDays(1),
                 Precio = 500
             };
 
@@ -110,7 +113,8 @@ namespace SGHR.Persistence.Test.ReservasTest
             var tarifa = new Tarifa
             {
                 IdCategoria = 0,
-                Temporada = "Alta",
+                Fecha_inicio = DateTime.Now,
+                Fecha_fin = DateTime.Now.AddDays(1),
                 Precio = 100
             };
 
@@ -129,7 +133,8 @@ namespace SGHR.Persistence.Test.ReservasTest
             var tarifa = new Tarifa
             {
                 IdCategoria = 1,
-                Temporada = "Media",
+                Fecha_inicio = DateTime.Now,
+                Fecha_fin = DateTime.Now.AddDays(1),
                 Precio = 800
             };
 
@@ -147,7 +152,10 @@ namespace SGHR.Persistence.Test.ReservasTest
         public async Task GetByCategoriaAsync_WhenExists_ShouldReturnList()
         {
             // Arrange
-            var tarifa = new Tarifa { IdCategoria = 5, Temporada = "Alta", Precio = 1200 };
+            var tarifa = new Tarifa { IdCategoria = 5,
+                Fecha_inicio = DateTime.Now,
+                Fecha_fin = DateTime.Now.AddDays(1), 
+                Precio = 1200 };
             await _tarifaRepository.SaveAsync(tarifa);
 
             // Act
@@ -163,27 +171,27 @@ namespace SGHR.Persistence.Test.ReservasTest
         public async Task GetByTemporadaAsync_WhenExists_ShouldReturnList()
         {
             // Arrange
-            var tarifa = new Tarifa { IdCategoria = 2, Temporada = "Baja", Precio = 900 };
+            var tarifa = new Tarifa { IdCategoria = 2, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now.AddDays(1), Precio = 900 };
             await _tarifaRepository.SaveAsync(tarifa);
 
             // Act
-            var result = await _tarifaRepository.GetByTemporadaAsync("Baja");
+            var result = await _tarifaRepository.GetByTemporadaAsync(DateTime.Now,DateTime.Now.AddDays(1));
 
             // Assert
             Assert.True(result.Success);
             Assert.Single(result.Data);
-            Assert.Equal("Baja", result.Data[0].Temporada);
+            Assert.Equal(DateTime.Now.Date, result.Data[0].Fecha_inicio.Date);
         }
 
         [Fact]
         public async Task GetByCategoriaAndTemporadaAsync_WhenExists_ShouldReturnTarifa()
         {
             // Arrange
-            var tarifa = new Tarifa { IdCategoria = 3, Temporada = "Alta", Precio = 1500 };
+            var tarifa = new Tarifa { IdCategoria = 3, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now.AddDays(1), Precio = 1500 };
             await _tarifaRepository.SaveAsync(tarifa);
 
             // Act
-            var result = await _tarifaRepository.GetByCategoriaAndTemporadaAsync(3, "Alta");
+            var result = await _tarifaRepository.GetByCategoriaAndTemporadaAsync(3, DateTime.Now, DateTime.Now.AddDays(1));
 
             // Assert
             Assert.True(result.Success);
@@ -195,7 +203,7 @@ namespace SGHR.Persistence.Test.ReservasTest
         public async Task GetByCategoriaAndTemporadaAsync_WhenNotFound_ShouldReturnFail()
         {
             // Act
-            var result = await _tarifaRepository.GetByCategoriaAndTemporadaAsync(999, "NoExiste");
+            var result = await _tarifaRepository.GetByCategoriaAndTemporadaAsync(999, DateTime.Now, DateTime.Now);
 
             // Assert
             Assert.False(result.Success);

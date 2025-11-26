@@ -32,7 +32,7 @@
                 $(document).ready(function() {
 
             // --- Cargar lista automáticamente al iniciar ---
-            cargarLista();
+            //cargarLista();
 
             // --- Botón Crear ---
              $('#btnCrear').click(function () {
@@ -140,6 +140,13 @@
                     }
                 });
             });
+
+            autoRefreshList(
+            "Administrador/MantenimientoAPI", // controlador
+            "_List",                    // acción
+            "contenidoMantenimientos",        // ID del contenedor donde va el partial
+            5000                        // intervalo en milisegundos (5s)
+        );
 
         });
 

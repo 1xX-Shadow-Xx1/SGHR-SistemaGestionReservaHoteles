@@ -116,7 +116,7 @@ namespace SGHR.Application.Test.OperacionesTest
         public async Task RealizarPagoAsync_When_Reserva_Not_Found_Should_Return_Error()
         {
             // Arrange
-            var dto = new RealizarPagoDto { IdReserva = 999, Monto = 100, MetodoPago = "Efectivo" };
+            var dto = new RealizarPagoDto { IdReserva = 999, Monto = 100, MetodoPago = MetodoPago.Efectivo };
 
             // Act
             var result = await _pagoServices.RealizarPagoAsync(dto);
@@ -134,7 +134,7 @@ namespace SGHR.Application.Test.OperacionesTest
         public async Task ObtenerPagosAsync_When_Has_Data_Should_Return_List()
         {
             // Arrange
-            var pago = new Pago { IdReserva = 1, Monto = 500, MetodoPago = "Tarjeta", FechaPago = DateTime.Now, Estado = EstadoPago.Completado };
+            var pago = new Pago { IdReserva = 1, Monto = 500, MetodoPago = MetodoPago.TarjetaCredito, FechaPago = DateTime.Now, Estado = EstadoPago.Completado };
             await _pagoRepository.SaveAsync(pago);
 
             // Act
@@ -150,8 +150,8 @@ namespace SGHR.Application.Test.OperacionesTest
         public async Task ObtenerPagosAsync_Should_Return_Ordered_By_FechaPago()
         {
             // Arrange
-            await _pagoRepository.SaveAsync(new Pago { IdReserva = 1, Monto = 200, MetodoPago = "Efectivo", FechaPago = DateTime.Now.AddDays(-2), Estado = EstadoPago.Parcial });
-            await _pagoRepository.SaveAsync(new Pago { IdReserva = 2, Monto = 400, MetodoPago = "Tarjeta", FechaPago = DateTime.Now, Estado = EstadoPago.Completado });
+            await _pagoRepository.SaveAsync(new Pago { IdReserva = 1, Monto = 200, MetodoPago = MetodoPago.Efectivo, FechaPago = DateTime.Now.AddDays(-2), Estado = EstadoPago.Parcial });
+            await _pagoRepository.SaveAsync(new Pago { IdReserva = 2, Monto = 400, MetodoPago = MetodoPago.TarjetaCredito, FechaPago = DateTime.Now, Estado = EstadoPago.Completado });
 
             // Act
             var result = await _pagoServices.ObtenerPagosAsync();
@@ -191,8 +191,8 @@ namespace SGHR.Application.Test.OperacionesTest
             
             await _reservaRepository.SaveAsync(new Reserva { IdCliente = 1, IdHabitacion = 1, IdUsuario = 1, FechaInicio = DateTime.Now, FechaFin = DateTime.Now.AddDays(2), CostoTotal = 100 });
             await _reservaRepository.SaveAsync(new Reserva { IdCliente = 2, IdHabitacion = 2, IdUsuario = 1, FechaInicio = DateTime.Now, FechaFin = DateTime.Now.AddDays(2), CostoTotal = 100 });
-            await _pagoRepository.SaveAsync(new Pago { IdReserva = 1, Monto = 100, Estado = EstadoPago.Completado, FechaPago = DateTime.Now, MetodoPago = "Targeta" });
-            await _pagoRepository.SaveAsync(new Pago { IdReserva = 2, Monto = 50, Estado = EstadoPago.Parcial, FechaPago = DateTime.Now, MetodoPago = "Targeta" });
+            await _pagoRepository.SaveAsync(new Pago { IdReserva = 1, Monto = 100, Estado = EstadoPago.Completado, FechaPago = DateTime.Now, MetodoPago = MetodoPago.TarjetaCredito });
+            await _pagoRepository.SaveAsync(new Pago { IdReserva = 2, Monto = 50, Estado = EstadoPago.Parcial, FechaPago = DateTime.Now, MetodoPago = MetodoPago.TarjetaCredito });
 
             // Act
             var result = await _pagoServices.ObtenerResumenPagosAsync();
@@ -216,8 +216,8 @@ namespace SGHR.Application.Test.OperacionesTest
             await _reservaRepository.SaveAsync(new Reserva { IdCliente = 1, IdHabitacion = 1, IdUsuario = 1, FechaInicio = DateTime.Now, FechaFin = DateTime.Now.AddDays(2), CostoTotal = 100 });
             await _reservaRepository.SaveAsync(new Reserva { IdCliente = 2, IdHabitacion = 2, IdUsuario = 1, FechaInicio = DateTime.Now, FechaFin = DateTime.Now.AddDays(2), CostoTotal = 100 });
             // Arrange
-            await _pagoRepository.SaveAsync(new Pago { IdReserva = 1, Monto = 80, Estado = EstadoPago.Pendiente, MetodoPago = "Tarjeta" });
-            await _pagoRepository.SaveAsync(new Pago { IdReserva = 2, Monto = 200, Estado = EstadoPago.Rechazado, MetodoPago = "Tarjeta" });
+            await _pagoRepository.SaveAsync(new Pago { IdReserva = 1, Monto = 80, Estado = EstadoPago.Pendiente, MetodoPago = MetodoPago.TarjetaCredito });
+            await _pagoRepository.SaveAsync(new Pago { IdReserva = 2, Monto = 200, Estado = EstadoPago.Rechazado, MetodoPago = MetodoPago.TarjetaCredito });
 
             // Act
             var result = await _pagoServices.ObtenerResumenPagosAsync();
@@ -250,7 +250,7 @@ namespace SGHR.Application.Test.OperacionesTest
         public async Task AnularPagoAsync_When_Pago_Already_Rechazado_Should_Return_Message()
         {
             // Arrange
-            var pago = new Pago { IdReserva = 1, Monto = 200, MetodoPago = "Efectivo", Estado = EstadoPago.Rechazado, FechaPago = DateTime.Now };
+            var pago = new Pago { IdReserva = 1, Monto = 200, MetodoPago = MetodoPago.Efectivo, Estado = EstadoPago.Rechazado, FechaPago = DateTime.Now };
             await _pagoRepository.SaveAsync(pago);
 
             // Act
@@ -275,7 +275,7 @@ namespace SGHR.Application.Test.OperacionesTest
 
             var reserva = await _reservaRepository.SaveAsync(new Reserva { IdCliente = 1, IdHabitacion = 1, IdUsuario = 1, FechaInicio = DateTime.Now, FechaFin = DateTime.Now.AddDays(2), CostoTotal = 300, Estado = EstadoReserva.Confirmada });
 
-            var pago = new Pago { IdReserva = reserva.Data.Id, Monto = 300, MetodoPago = "Tarjeta", Estado = EstadoPago.Completado, FechaPago = DateTime.Now };
+            var pago = new Pago { IdReserva = reserva.Data.Id, Monto = 300, MetodoPago = MetodoPago.TarjetaCredito, Estado = EstadoPago.Completado, FechaPago = DateTime.Now };
             var pagoSaved = await _pagoRepository.SaveAsync(pago);
 
             // Act

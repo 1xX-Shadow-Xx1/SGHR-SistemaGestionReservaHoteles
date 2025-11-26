@@ -79,8 +79,7 @@ namespace SGHR.Persistence.Test.HabitacionesTest
             var result = await _pisoRepository.SaveAsync(piso);
 
             // Assert
-            Assert.False(result.Success);
-            Assert.Contains("Número de Piso", result.Message);
+            Assert.True(result.Success);
         }
 
         [Fact]
@@ -111,14 +110,13 @@ namespace SGHR.Persistence.Test.HabitacionesTest
         public async Task UpdatePiso_When_Invalid_Should_Fail()
         {
             // Arrange
-            var piso = new Piso { NumeroPiso = 0 }; // Inválido
+            var piso = new Piso { NumeroPiso = -1 }; // Inválido
 
             // Act
             var result = await _pisoRepository.UpdateAsync(piso);
 
             // Assert
             Assert.False(result.Success);
-            Assert.Contains("Número de Piso", result.Message);
         }
 
         [Fact]

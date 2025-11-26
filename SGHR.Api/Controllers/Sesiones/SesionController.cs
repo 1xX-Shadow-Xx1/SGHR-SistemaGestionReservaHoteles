@@ -22,7 +22,7 @@ namespace SGHR.Api.Controllers.Sesiones
         {
             var result = await _sesionServices.GetSesionByIdUser(userId);
             if (!result.Success)
-                return NotFound(result);
+                return BadRequest(result);
 
             return Ok(result);
         }
@@ -33,7 +33,7 @@ namespace SGHR.Api.Controllers.Sesiones
         {
             var result = await _sesionServices.CloseSesionAsync(userId);
             if (!result.Success)
-                return NotFound(result);
+                return BadRequest(result);
 
             return Ok(result);
         }
@@ -44,7 +44,7 @@ namespace SGHR.Api.Controllers.Sesiones
         {
             var result = await _sesionServices.CheckActivitySesionByUserAsync(userId);
             if (!result.Success)
-                return NotFound(result);
+                return BadRequest(result);
 
             return Ok(result);
         }
@@ -55,7 +55,7 @@ namespace SGHR.Api.Controllers.Sesiones
         {
             var result = await _sesionServices.UpdateActivitySesionByUserAsync(userId);
             if (!result.Success)
-                return NotFound(result);
+                return BadRequest(result);
 
             return Ok(result);
         }

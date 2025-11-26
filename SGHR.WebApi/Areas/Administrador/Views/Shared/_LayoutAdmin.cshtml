@@ -126,63 +126,92 @@
     
 
     <script>
-        // ID del usuario en sesión (establecido en Razor desde el backend)
+        // ID del usuario en sesión
         const userId = @Context.Session.GetInt32("UserId") ?? 0;
-        const TIEMPO_PING = 15000; // 15 segundos entre cada verificación
-
+        const TIEMPO_PING = 10000; // 10 segundos
 
         if (userId) {
 
-            // Función para notificar al backend que hubo actividad
+            // 🟦 1. --- Mantener sesión activa ---
             async function pingSession() {
-                try {
-                    const response = await fetch('/AuthenticationAPI/CheckSession', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ idUsuario: userId })
-                    });
+            try {
+                const response = await fetch('/AuthenticationAPI/CheckSession', {
+                    method: 'GET'
+                });
 
-                    const result = await response.json();
-
-                    if (!result.active) {
-                        console.log("A expirado la sesion");
-                        alert('Su sesión ha expirado.');
-                        window.location.href = '/AuthenticationAPI/Logout';
-                    }
-                } catch (err) {
-                    console.error('Error al verificar sesión:', err);
+                if (!response.ok) {
+                    console.warn("CheckSession respondió con:", response.status);
+                    return;
                 }
-            }
 
-            // Ejecutar ping cada cierto tiempo
+                const result = await response.json();
+
+                if (!result.active) {
+                    alert('Su sesión ha expirado.');
+                    window.location.href = '/AuthenticationAPI/AutoLogout';
+                }
+
+            } catch (err) {
+                console.error('Error al verificar sesión:', err);
+            }
+        }
+
             setInterval(pingSession, TIEMPO_PING);
 
+
+            // 🟦 2. --- Actualizar actividad del usuario ---
             let ultimaActualizacion = 0;
             const INTERVALO_UPDATE = 180000; // 3 minutos
-
-            // actualizar UltimaActividad cada vez que hay interacción del usuario
             const sessionId = @Context.Session.GetInt32("SesionId");
 
             function updateActivity() {
                 if (!sessionId) return;
 
                 const ahora = Date.now();
-                if (ahora - ultimaActualizacion < INTERVALO_UPDATE) return; // actualizar solo cada cierto tiempo
+                if (ahora - ultimaActualizacion < INTERVALO_UPDATE) return;
+
                 ultimaActualizacion = ahora;
 
                 fetch('/AuthenticationAPI/UpdateActivity', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(sessionId) // enviar solo el ID de la sesión
+                    method: 'GET'
                 }).catch(err => console.warn('Error al actualizar actividad', err));
             }
 
-            // Detectar eventos de interacción del usuario
             ['mousemove', 'keydown', 'click', 'scroll'].forEach(evt => {
                 document.addEventListener(evt, updateActivity);
             });
+
+
+            // 🟦 3. --- Función genérica para refrescar listas ---
+            function autoRefreshList(controller, action, containerId, intervalMs, extraParams = {}) {
+
+                function cargar() {
+                    $.ajax({
+                        url: `/${controller}/${action}`,
+                        type: "GET",
+                        data: extraParams,
+                        success: function (data) {
+                            $(`#${containerId}`).html(data);
+                        },
+                        error: function () {
+                            console.warn(`⚠ No se pudo cargar ${controller}/${action}`);
+                        }
+                    });
+                }
+
+                // Ejecutar una vez al inicio
+                cargar();
+
+                // Ejecutar cada X tiempo
+                setInterval(cargar, intervalMs);
+            }
+
+            // 🟦 4. --- EJEMPLO para usarlo ---
+            // autoRefreshList("ReservaAPI", "_List", "contenedorReservas", 5000);
+            // autoRefreshList("ClienteAPI", "_List", "clienteListContainer", 10000);
         }
     </script>
+
 
     @await RenderSectionAsync("Scripts", required: false)
 

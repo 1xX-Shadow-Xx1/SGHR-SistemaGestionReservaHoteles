@@ -122,7 +122,8 @@ namespace SGHR.Application.Services.Usuarios
                     Nombre = u.Nombre,
                     Correo = u.Correo,
                     Rol = u.Rol,
-                    Estado = u.Estado
+                    Estado = u.Estado,
+                    Contraseña = u.Contraseña
                 }).ToList();
 
                 result.Success = true;

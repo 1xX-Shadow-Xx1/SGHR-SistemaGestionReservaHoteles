@@ -2,7 +2,7 @@
 
 namespace SGHR.Web.Data
 {
-    public class HttpSesion
+    public class HttpSesion 
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -21,7 +21,7 @@ namespace SGHR.Web.Data
             session.SetString("UserRole", sesion.RolUser.ToString());
 
         }
-
+        
     }
 
 }

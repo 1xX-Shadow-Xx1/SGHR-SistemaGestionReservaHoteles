@@ -34,7 +34,7 @@
                 $(document).ready(function() {
 
             // --- Cargar lista automáticamente al iniciar ---
-            cargarLista();
+            //cargarLista();
 
             // --- Botón Crear ---
             $('#btnCrear').click(function () {
@@ -85,15 +85,6 @@
                     $('#contenidoClientes').html(data);
                 });
             }
-
-             // Eliminar
-            $('#contenidoClientes').on('click', '.btn-eliminar', function(e) {
-                e.preventDefault();
-                var id = $(this).data('id');
-                $.get('@Url.Action("_Delete", "ClienteAPI")', { id: id }, function(data) {
-                    $('#contenidoClientes').html(data);
-                });
-            });
 
            // --- DOBLE CLICK y CLICK DERECHO sobre filas (delegación) ---
             $('#contenidoClientes').on('dblclick', '.fila-cliente', function() {
@@ -149,6 +140,14 @@
                     }
                 });
             });
+
+            autoRefreshList(
+            "Administrador/ClienteAPI", // controlador
+            "_List",                    // acción
+            "contenidoClientes",        // ID del contenedor donde va el partial
+            5000                        // intervalo en milisegundos (5s)
+        );
+
 
         });
 
