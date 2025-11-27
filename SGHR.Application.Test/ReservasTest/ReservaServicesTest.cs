@@ -164,11 +164,12 @@ namespace SGHR.Application.Test.ReservasTest
         public async Task When_Reserva_is_valid_CreateAsync_Should_Succeed()
         {
             //Arrange
-            var cli = new Cliente { Nombre = "Luis", Apellido = "Morales", Cedula = "003-0000000-1", Direccion = "Holamudn.sdo sokd", Telefono = "849-878-7888" };
-            var cliente = await _clienteRepository.SaveAsync(cli);
-
+            
             var pi = new Piso { NumeroPiso = 1, Descripcion = "PisoTest" };
             var piso = await _pisoRepository.SaveAsync(pi);
+
+            var ame = new Amenity { Nombre = "wifi", Descripcion = "Internet 4g", Precio = 500, PorCapacidad = 200 };
+            var amenity = await _amenityRepository.SaveAsync(ame);
 
             var cat = new Categoria { Nombre = "Suite", Descripcion = "Categoria A" };
             var categoria = await _categoriaRepository.SaveAsync(cat);
@@ -181,6 +182,9 @@ namespace SGHR.Application.Test.ReservasTest
 
             var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5, IdAmenity = 1 };
             var habitacion = await _habitacionRepository.SaveAsync(hab);
+
+            var cli = new Cliente { Nombre = "Luis", Apellido = "Morales", IdUsuario = usuario.Data.Id, Cedula = "003-0000000-1", Direccion = "Holamudn.sdo sokd", Telefono = "849-878-7888" };
+            var cliente = await _clienteRepository.SaveAsync(cli);
 
             var dto = new CreateReservaDto
             {
@@ -401,8 +405,6 @@ namespace SGHR.Application.Test.ReservasTest
         public async Task When_GetByIdAsync_Found_Should_Succeed()
         {
             //Arrange
-            var cli = new Cliente { Nombre = "Luis", Apellido = "Morales", Cedula = "003-0000000-1", Direccion = "Holamudn.sdo sokd", Telefono = "849-878-7888" };
-            var cliente = await _clienteRepository.SaveAsync(cli);
 
             var pi = new Piso { NumeroPiso = 1, Descripcion = "PisoTest" };
             var piso = await _pisoRepository.SaveAsync(pi);
@@ -410,14 +412,20 @@ namespace SGHR.Application.Test.ReservasTest
             var cat = new Categoria { Nombre = "Suite", Descripcion = "Categoria A" };
             var categoria = await _categoriaRepository.SaveAsync(cat);
 
+            var ame = new Amenity { Nombre = "wifi", Descripcion = "Internet 4g", Precio = 500, PorCapacidad = 200 };
+            var amenity = await _amenityRepository.SaveAsync(ame);
+
             var tar = new Tarifa { IdCategoria = categoria.Data.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now, Precio = 2000 };
             var tarifa = await _tarifaRepository.SaveAsync(tar);
 
             var usu = new Usuario { Nombre = "Luis", Correo = "Luis@d.s", Contraseña = "123456798" };
             var usuario = await _usuarioRepository.SaveAsync(usu);
 
-            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5, IdAmenity = 1 };
+            var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5, IdAmenity = amenity.Data.Id };
             var habitacion = await _habitacionRepository.SaveAsync(hab);
+
+            var cli = new Cliente { Nombre = "Luis", Apellido = "Morales", IdUsuario = usuario.Data.Id, Cedula = "003-0000000-1", Direccion = "Holamudn.sdo sokd", Telefono = "849-878-7888" };
+            var cliente = await _clienteRepository.SaveAsync(cli);
 
             var reserva = new Reserva
             {
@@ -426,9 +434,9 @@ namespace SGHR.Application.Test.ReservasTest
                 IdUsuario = usuario.Data.Id,
                 FechaInicio = DateTime.Now,
                 FechaFin = DateTime.Now.AddDays(1),
-                CostoTotal = 100
+                CostoTotal = 1000
             };
-            await _reservaRepository.SaveAsync(reserva);
+            var re = await _reservaRepository.SaveAsync(reserva);
 
             //Act
             var result = await _reservaServices.GetByIdAsync(reserva.Id);
@@ -488,11 +496,11 @@ namespace SGHR.Application.Test.ReservasTest
         public async Task When_UpdateAsync_Invalid_Fechas_Should_Fail()
         {
             //Arrange
-            var cli = new Cliente { Nombre = "Luis", Apellido = "Morales", Cedula = "003-0000000-1", Direccion = "Holamudn.sdo sokd", Telefono = "849-878-7888" };
-            var cliente = await _clienteRepository.SaveAsync(cli);
-
             var pi = new Piso { NumeroPiso = 1, Descripcion = "PisoTest" };
             var piso = await _pisoRepository.SaveAsync(pi);
+
+            var ame = new Amenity { Nombre = "wifi", Descripcion = "Internet 4g", Precio = 500, PorCapacidad = 200 };
+            var amenity = await _amenityRepository.SaveAsync(ame);
 
             var cat = new Categoria { Nombre = "Suite", Descripcion = "Categoria A" };
             var categoria = await _categoriaRepository.SaveAsync(cat);
@@ -502,6 +510,9 @@ namespace SGHR.Application.Test.ReservasTest
 
             var usu = new Usuario { Nombre = "Luis", Correo = "Luis@d.s", Contraseña = "123456798" };
             var usuario = await _usuarioRepository.SaveAsync(usu);
+
+            var cli = new Cliente { Nombre = "Luis", Apellido = "Morales", IdUsuario = usuario.Data.Id, Cedula = "003-0000000-1", Direccion = "Holamudn.sdo sokd", Telefono = "849-878-7888" };
+            var cliente = await _clienteRepository.SaveAsync(cli);
 
             var hab = new Habitacion { Numero = "102", IdCategoria = categoria.Data.Id, IdPiso = piso.Data.Id, Capacidad = 5, IdAmenity = 1 };
             var habitacion = await _habitacionRepository.SaveAsync(hab);
@@ -524,7 +535,8 @@ namespace SGHR.Application.Test.ReservasTest
                 FechaInicio = DateTime.Now.AddDays(2),
                 NumeroHabitacion = habitacion.Data.Numero,
                 CedulaCliente = cliente.Data.Cedula,
-                CorreoCliente = usuario.Data.Correo
+                CorreoCliente = usuario.Data.Correo,
+                Estado = Domain.Enum.Reservas.EstadoReserva.Pendiente
                 
             };
 

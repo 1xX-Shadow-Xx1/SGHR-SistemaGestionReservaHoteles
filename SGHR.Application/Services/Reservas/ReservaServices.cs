@@ -402,6 +402,11 @@ namespace SGHR.Application.Services.Reservas
                 result.Message = "El id es invalido.";
                 return result;
             }
+            if(UpdateDto.FechaInicio < UpdateDto.FechaFin)
+            {
+                result.Message = "Las fechas de la reserva son inválidas.";
+                return result;
+            }
             try
             {
                 var reserva = await _reservarepository.GetByIdAsync(UpdateDto.Id);

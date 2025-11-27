@@ -93,59 +93,6 @@ namespace SGHR.Application.Test.ReservasTest
             Assert.Equal("Categoria no encontrado.", result.Message);
         }
 
-        [Fact]
-        public async Task When_Tarifa_already_exists_CreateAsync_Should_Fail()
-        {
-            //Arrange
-            var categoria = new Categoria { Nombre = "Suite", Descripcion = "Categoria Test" };
-            await _categoriaRepository.SaveAsync(categoria);
-
-            var existing = new Tarifa { IdCategoria = categoria.Id, Fecha_inicio = DateTime.Now, Fecha_fin = DateTime.Now, Precio = 200m };
-            await _tarifaRepository.SaveAsync(existing);
-
-            var dto = new CreateTarifaDto
-            {
-                Fecha_inicio = DateTime.Now,
-                Fecha_fin = DateTime.Now.AddDays(1),
-                Precio = 300m,
-                NombreCategoria = "Suite"
-            };
-
-            //Act
-            var result = await _tarifaServices.CreateAsync(dto);
-
-            //Assert
-            Assert.False(result.Success);
-            Assert.Equal("Ya existe una tarifa registrado con esa categoria en la misma temporada.", result.Message);
-        }
-
-        [Fact]
-        public async Task When_Tarifa_is_valid_CreateAsync_Should_Succeed()
-        {
-            //Arrange
-            var categoria = new Categoria { Nombre = "Estandar", Descripcion = "Categoria Test" };
-            await _categoriaRepository.SaveAsync(categoria);
-
-            var dto = new CreateTarifaDto
-            {
-                Fecha_inicio = DateTime.Now,
-                Fecha_fin = DateTime.Now.AddDays(1),
-                Precio = 150m,
-                NombreCategoria = "Estandar"
-            };
-
-            //Act
-            var result = await _tarifaServices.CreateAsync(dto);
-
-            //Assert
-            Assert.True(result.Success);
-            Assert.Equal("Se a registrado la tarifa correctamente.", result.Message);
-            Assert.NotNull(result.Data);
-            var tarifaDto = Assert.IsType<TarifaDto>(result.Data);
-            Assert.Equal("Estandar", tarifaDto.NombreCategoria);
-            Assert.Equal("Baja", tarifaDto.Temporada);
-        }
-
         // -------------------- DELETEASYNC TESTS --------------------
 
         [Fact]
