@@ -7,14 +7,14 @@ namespace SGHR.Web.Services.ServiceAPI
 {
     public class DashBoardServiceAPI : IDashBoardServiceAPI
     {
-        private readonly IClientAPI<DashboardViewModel> _clientAPI;
-        public DashBoardServiceAPI(IClientAPI<DashboardViewModel> clientAPI)
+        private readonly IClientAPI _clientAPI;
+        public DashBoardServiceAPI(IClientAPI clientAPI)
         {
             _clientAPI = clientAPI;
         }
-        public async Task<ServicesResultModel> GetDashBoard()
+        public async Task<ApiResult<DashboardViewModel>> GetDashBoard()
         {
-            return await _clientAPI.GetAsync("DashBoard/GetDataDashBoard");
+            return await _clientAPI.GetAsync<DashboardViewModel>("DashBoard/GetDataDashBoard");
         }
     }
 }

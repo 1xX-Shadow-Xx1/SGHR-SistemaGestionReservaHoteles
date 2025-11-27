@@ -8,17 +8,17 @@ namespace SGHR.Web.Data.Repositories.Reservas
 {
     public class ReservaRepositoryMemory : BaseRepositoryMemory<ReservaModel> , IReservaRepositoryMemory
     {
-        public ReservaRepositoryMemory(IClientAPI<ReservaModel> clienteAPI) : base(clienteAPI)
+        public ReservaRepositoryMemory(IClientAPI clienteAPI) : base(clienteAPI)
         {
         }
 
-        public override ServicesResultModel GetByIDModel(int id)
+        public override ApiResult<ReservaModel> GetByIDModel(int id)
         {
             var result = base.GetByIDModel(id);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, result.Data, "Reserva obtenida correctamente.");
+                return ApiResult<ReservaModel>.Ok( result.Data, "Reserva obtenida correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, "No se encontro una reserva con ese id");
+                return ApiResult<ReservaModel>.Fail(result.StatusCode, "No se encontro una reserva con ese id");
         }
 
         public override List<ReservaModel> GetModels()
@@ -26,13 +26,13 @@ namespace SGHR.Web.Data.Repositories.Reservas
             return base.GetModels();
         }
 
-        public override async Task<ServicesResultModel> CheckDataAPI(string endpoint)
+        public override async Task<ApiResult<List<ReservaModel>>> CheckDataAPI(string endpoint)
         {
             var result = await base.CheckDataAPI(endpoint);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, "Lista de reservas actualizada correctamente.");
+                return ApiResult<List<ReservaModel>>.Ok(result.Data, "Lista de reservas actualizada correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, result.Message);
+                return ApiResult<List<ReservaModel>>.Fail(result.StatusCode, result.Message);
         }
     }
 }

@@ -1,55 +1,42 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using SGHR.Web.Models;
+using System.Text.Json;
 
 namespace SGHR.Web.Data
 {
-    public class JsonConvertidor<TObjet> where TObjet : class
+    public class JsonConvertidor<TObjet> 
     {
-
+        private readonly JsonSerializerOptions _jsonOptions;
         public JsonConvertidor()
         {
+            _jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
         }
 
-        public async Task<ServicesResultModel> Deserializar(HttpResponseMessage httpResponse)
+
+        public async Task<ApiResult<TObjet>> Deserializar(HttpResponseMessage httpResponse)
         {
 
             try
             {
                 string json = await httpResponse.Content.ReadAsStringAsync();
 
-                var resultModel = JsonConvert.DeserializeObject<ServicesResultModel<TObjet>>(json);
+                var apiResult = System.Text.Json.JsonSerializer.Deserialize<ApiResult<TObjet>>(json, _jsonOptions);
 
-                if(resultModel != null && resultModel.Success)
-                    return ServicesResultModel.Ok((int)httpResponse.StatusCode, resultModel.Data, resultModel.Message);
+                if (apiResult != null && apiResult.Success)
+                    return ApiResult<TObjet>.Ok( apiResult.Data, apiResult.Message);
                 else
-                    return ServicesResultModel.Fail((int)httpResponse.StatusCode, resultModel.Message);
+                    return ApiResult<TObjet>.Fail((int)httpResponse.StatusCode, apiResult.Message);
 
             }
             catch (Exception ex)
             {
-                return ServicesResultModel.Fail(500, $"Error al deserializar: {ex.Message}");
+                throw new ApplicationException("Error interno.", ex);
             }
-        }
-
-        public async Task<ServicesResultModel> DeserializarList(HttpResponseMessage httpResponse)
-        {
-            try
-            {
-                string json = await httpResponse.Content.ReadAsStringAsync();
-
-                var resultModel = JsonConvert.DeserializeObject<ServicesResultModel<List<TObjet>>>(json);
-
-                if (resultModel != null && resultModel.Success)
-                    return ServicesResultModel.Ok((int)httpResponse.StatusCode, resultModel.Data, resultModel.Message);
-                else
-                    return ServicesResultModel.Fail((int)httpResponse.StatusCode, resultModel.Message);
-
-            }
-            catch (Exception ex)
-            {
-                return ServicesResultModel.Fail(500, $"Error al deserializar: {ex.Message}");
-            }
-
         }
 
     }

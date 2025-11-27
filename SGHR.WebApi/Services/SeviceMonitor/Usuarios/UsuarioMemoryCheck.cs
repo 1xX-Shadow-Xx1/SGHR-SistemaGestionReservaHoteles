@@ -1,5 +1,6 @@
 ﻿using SGHR.Web.Data.Interfaces.Usuarios;
 using SGHR.Web.Models;
+using SGHR.Web.Models.Usuarios.Usuario;
 using SGHR.Web.Services.SeviceMonitor.Interface.Usuarios;
 
 namespace SGHR.Web.Services.SeviceTwoPlane.Usuarios
@@ -15,7 +16,7 @@ namespace SGHR.Web.Services.SeviceTwoPlane.Usuarios
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<ServicesResultModel> CheckData()
+        public async Task<ApiResult<List<UsuarioModel>>> CheckData()
         {
             return await _memory.CheckDataAPI("Usuario/Get-Usuarios");
         }

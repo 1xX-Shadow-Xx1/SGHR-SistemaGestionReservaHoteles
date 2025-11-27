@@ -34,11 +34,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                 {
                     var result = _reporteServiceAPI.GetByIDServices(id.Value);
 
-                    var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                    var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                     if (!validate && errorMessage != string.Empty)
                     {
                         ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                     }
 
                     if (result != null && result.Success)
@@ -75,11 +75,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
             {
                 var result = _reporteServiceAPI.GetByIDServices(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -120,11 +120,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
             {
                 var result = await _reporteServiceAPI.SaveServicesPost(model);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -153,11 +153,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
             {
                 var result = _reporteServiceAPI.GetByIDServices(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -197,11 +197,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
             {
                 var result = await _reporteServiceAPI.UpdateServicesPut(model);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -230,11 +230,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
             {
                 var result = _reporteServiceAPI.GetByIDServices(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -265,11 +265,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
             {
                 var result = await _reporteServiceAPI.RemoveServicesPut(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)

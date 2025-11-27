@@ -9,15 +9,15 @@ namespace SGHR.Web.Services.ServiceAPI.Habitaciones
     public class AmenityServiceAPI : IAmenityServiceAPI
     {
         private readonly IAmenityRepositoryMemory _memory;
-        private readonly IClientAPI<AmenityModel> _clientAPI;
+        private readonly IClientAPI _clientAPI;
 
-        public AmenityServiceAPI(IAmenityRepositoryMemory memory, IClientAPI<AmenityModel> clientAPI)
+        public AmenityServiceAPI(IAmenityRepositoryMemory memory, IClientAPI clientAPI)
         {
             _memory = memory;
             _clientAPI = clientAPI;
         }
 
-        public ServicesResultModel GetByIDServices(int id)
+        public ApiResult<AmenityModel> GetByIDServices(int id)
         {
             return _memory.GetByIDModel(id);
         }
@@ -27,19 +27,19 @@ namespace SGHR.Web.Services.ServiceAPI.Habitaciones
             return _memory.GetModels();
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPut(int id)
+        public async Task<ApiResult<AmenityModel>> RemoveServicesPut(int id)
         {
-            return await _clientAPI.DeleteAsync($"Amenity/Remove-Amenity?id={id}");
+            return await _clientAPI.DeleteAsync<AmenityModel>($"Amenity/Remove-Amenity?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPost(CreateAmenityModel model)
+        public async Task<ApiResult<AmenityModel>> SaveServicesPost(CreateAmenityModel model)
         {
-            return await _clientAPI.PostAsync("Amenity/Create-Amenity", model);
+            return await _clientAPI.PostAsJsonAsync<CreateAmenityModel, AmenityModel>("Amenity/Create-Amenity", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPut(UpdateAmenityModel model)
+        public async Task<ApiResult<AmenityModel>> UpdateServicesPut(UpdateAmenityModel model)
         {
-            return await _clientAPI.PutAsync("Amenity/Update-Amenity", model);
+            return await _clientAPI.PutAsJsonAsync<UpdateAmenityModel, AmenityModel>("Amenity/Update-Amenity", model);
         }
     }
 }

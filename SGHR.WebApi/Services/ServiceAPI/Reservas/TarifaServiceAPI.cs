@@ -8,39 +8,39 @@ namespace SGHR.Web.Services.ServiceAPI.Reservas
 {
     public class TarifaServiceAPI : ITarifaServiceAPI
     {
-        private readonly IClientAPI<TarifaModel> _httpAPI;
-        private readonly ITarifaRepositoryMemory _tarifaMemory;
+        private readonly IClientAPI _httpAPI;
+        private readonly ITarifaRepositoryMemory _memory;
 
-        public TarifaServiceAPI(IClientAPI<TarifaModel> clientAP,
+        public TarifaServiceAPI(IClientAPI clientAP,
                                  ITarifaRepositoryMemory repositoryMemory)
         {
             _httpAPI = clientAP;
-            _tarifaMemory = repositoryMemory;
+            _memory = repositoryMemory;
         }
 
-        public ServicesResultModel GetByIDServices(int id)
+        public ApiResult<TarifaModel> GetByIDServices(int id)
         {
-            return _tarifaMemory.GetByIDModel(id);
+            return _memory.GetByIDModel(id);
         }
 
         public List<TarifaModel> GetServices()
         {
-            return _tarifaMemory.GetModels();
+            return _memory.GetModels();
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPut(int id)
+        public async Task<ApiResult<TarifaModel>> RemoveServicesPut(int id)
         {
-            return await _httpAPI.DeleteAsync($"Tarifa/Remove-Tarifa?id={id}");
+            return await _httpAPI.DeleteAsync<TarifaModel>($"Tarifa/Remove-Tarifa?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPost(CreateTarifaModel model)
+        public async Task<ApiResult<TarifaModel>> SaveServicesPost(CreateTarifaModel model)
         {
-            return await _httpAPI.PostAsync("Tarifa/Create-Tarifa", model);
+            return await _httpAPI.PostAsJsonAsync<CreateTarifaModel, TarifaModel>("Tarifa/Create-Tarifa", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPut(UpdateTarifaModel model)
+        public async Task<ApiResult<TarifaModel>> UpdateServicesPut(UpdateTarifaModel model)
         {
-            return await _httpAPI.PutAsync("Tarifa/Update-Tarifa", model);
+            return await _httpAPI.PutAsJsonAsync<UpdateTarifaModel, TarifaModel>("Tarifa/Update-Tarifa", model);
         }
     }
 }

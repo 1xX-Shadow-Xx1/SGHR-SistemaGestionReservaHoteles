@@ -5,10 +5,10 @@ namespace SGHR.Web.Services.Interfaces.Operaciones
 {
     public interface IPagoServiceAPI 
     {
-        ServicesResultModel getPagoById(int id);
+        ApiResult<PagoModel> getPagoById(int id);
         List<PagoModel> getPagoList();
-        Task<ServicesResultModel> RealizarPago(RealizarPagoModel realizarPago);
-        Task<ServicesResultModel> AnularPago(int idPago);
-        Task<ServicesResultModel> GetResumenDePagos();
+        Task<ApiResult<PagoModel>> RealizarPago(RealizarPagoModel realizarPago);
+        Task<ApiResult<PagoModel>> AnularPago(int idPago);
+        Task<ApiResult<ResumenPagoModel>> GetResumenDePagos();
     }
 }

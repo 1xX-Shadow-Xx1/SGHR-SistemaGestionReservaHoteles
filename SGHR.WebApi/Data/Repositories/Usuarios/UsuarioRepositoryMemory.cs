@@ -8,9 +8,12 @@ namespace SGHR.Web.Data.Repositories.Usuarios
 {
     public class UsuarioRepositoryMemory : BaseRepositoryMemory<UsuarioModel>,  IUsuarioRepositoryMemory
     {
-        public UsuarioRepositoryMemory(IClientAPI<UsuarioModel> clienteAPI) : base(clienteAPI) { }
 
-        public override ServicesResultModel GetByIDModel(int id)
+        public UsuarioRepositoryMemory(IClientAPI clienteAPI) : base(clienteAPI)
+        {
+        }
+
+        public override ApiResult<UsuarioModel> GetByIDModel(int id)
         {
             return base.GetByIDModel(id);
         }
@@ -18,17 +21,10 @@ namespace SGHR.Web.Data.Repositories.Usuarios
         {
             return base.GetModels();
         }
-        public override async Task<ServicesResultModel> CheckDataAPI(string endpoint)
+        public override async Task<ApiResult<List<UsuarioModel>>> CheckDataAPI(string endpoint)
         {
-            var result = await base.CheckDataAPI(endpoint);
-            if(result != null && result.Success)
-            {
-                return ServicesResultModel.Ok(result.Statuscode, result.Message);
-            }
-            else
-            {
-                return ServicesResultModel.Fail(result.Statuscode, result.Message);
-            }
+            return await base.CheckDataAPI(endpoint);
         }
+
     }
 }

@@ -15,13 +15,13 @@ namespace SGHR.Presentacion.Test.Operaciones
     public class MantenimientoServiceAPI_Tests
     {
         private readonly Mock<IMantenimientoRepositoryMemory> _memoryMock;
-        private readonly Mock<IClientAPI<MantenimientoModel>> _clientApiMock;
+        private readonly Mock<IClientAPI> _clientApiMock;
         private readonly MantenimientoServiceAPI _service;
 
         public MantenimientoServiceAPI_Tests()
         {
             _memoryMock = new Mock<IMantenimientoRepositoryMemory>();
-            _clientApiMock = new Mock<IClientAPI<MantenimientoModel>>();
+            _clientApiMock = new Mock<IClientAPI>();
 
             _service = new MantenimientoServiceAPI(
                 _memoryMock.Object,
@@ -35,7 +35,7 @@ namespace SGHR.Presentacion.Test.Operaciones
         [Fact]
         public void GetByIDServices_ReturnsValueFromMemory()
         {
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<MantenimientoModel> { Success = true };
 
             _memoryMock.Setup(m => m.GetByIDModel(1)).Returns(expected);
 
@@ -70,16 +70,16 @@ namespace SGHR.Presentacion.Test.Operaciones
         [Fact]
         public async Task RemoveServicesPut_CallsApiWithCorrectUrl()
         {
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<MantenimientoModel> { Success = true };
 
             _clientApiMock
-                .Setup(api => api.DeleteAsync("Mantenimiento/Remove-Mantenimiento?id=5"))
+                .Setup(api => api.DeleteAsync<MantenimientoModel>("Mantenimiento/Remove-Mantenimiento?id=5"))
                 .ReturnsAsync(expected);
 
             var result = await _service.RemoveServicesPut(5);
 
             Assert.Equal(expected, result);
-            _clientApiMock.Verify(api => api.DeleteAsync("Mantenimiento/Remove-Mantenimiento?id=5"), Times.Once);
+            _clientApiMock.Verify(api => api.DeleteAsync<MantenimientoModel>("Mantenimiento/Remove-Mantenimiento?id=5"), Times.Once);
         }
 
         // -----------------------------------------------------
@@ -93,17 +93,17 @@ namespace SGHR.Presentacion.Test.Operaciones
                 Descripcion = "Cambio de aire acondicionado"
             };
 
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<MantenimientoModel> { Success = true };
 
             _clientApiMock
-                .Setup(api => api.PostAsync("Mantenimiento/Create-Mantenimiento", input))
+                .Setup(api => api.PostAsJsonAsync<CreateMantenimientoModel, MantenimientoModel>("Mantenimiento/Create-Mantenimiento", input))
                 .ReturnsAsync(expected);
 
             var result = await _service.SaveServicesPost(input);
 
             Assert.Equal(expected, result);
 
-            _clientApiMock.Verify(api => api.PostAsync("Mantenimiento/Create-Mantenimiento", input), Times.Once);
+            _clientApiMock.Verify(api => api.PostAsJsonAsync<CreateMantenimientoModel, MantenimientoModel>("Mantenimiento/Create-Mantenimiento", input), Times.Once);
         }
 
         // -----------------------------------------------------
@@ -118,17 +118,17 @@ namespace SGHR.Presentacion.Test.Operaciones
                 Descripcion = "Actualización del sistema eléctrico"
             };
 
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<MantenimientoModel> { Success = true };
 
             _clientApiMock
-                .Setup(api => api.PutAsync("Mantenimiento/Update-Mantenimiento", input))
+                .Setup(api => api.PutAsJsonAsync<UpdateMantenimientoModel, MantenimientoModel>("Mantenimiento/Update-Mantenimiento", input))
                 .ReturnsAsync(expected);
 
             var result = await _service.UpdateServicesPut(input);
 
             Assert.Equal(expected, result);
 
-            _clientApiMock.Verify(api => api.PutAsync("Mantenimiento/Update-Mantenimiento", input), Times.Once);
+            _clientApiMock.Verify(api => api.PutAsJsonAsync<UpdateMantenimientoModel, MantenimientoModel>("Mantenimiento/Update-Mantenimiento", input), Times.Once);
         }
     }
 }

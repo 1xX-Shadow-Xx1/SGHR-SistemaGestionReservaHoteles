@@ -1,5 +1,6 @@
 ﻿using SGHR.Web.Data.Interfaces.Habitaciones;
 using SGHR.Web.Models;
+using SGHR.Web.Models.Habitaciones.Amenity;
 using SGHR.Web.Services.SeviceMonitor.Interface.Habitaciones;
 
 namespace SGHR.Web.Services.SeviceMonitor.Habitaciones
@@ -13,7 +14,7 @@ namespace SGHR.Web.Services.SeviceMonitor.Habitaciones
             _memory = memory;
         }
 
-        public async Task<ServicesResultModel> CheckData()
+        public async Task<ApiResult<List<AmenityModel>>> CheckData()
         {
             return await _memory.CheckDataAPI("Amenity/Get-Amenity");
         }

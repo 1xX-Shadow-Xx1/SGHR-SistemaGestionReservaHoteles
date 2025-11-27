@@ -9,15 +9,15 @@ namespace SGHR.Web.Services.ServiceAPI.Operaciones
     public class MantenimientoServiceAPI : IMantenimientoServiceAPI
     {
         private readonly IMantenimientoRepositoryMemory _memory;
-        private readonly IClientAPI<MantenimientoModel> _clientAPI;
+        private readonly IClientAPI _clientAPI;
 
-        public MantenimientoServiceAPI(IMantenimientoRepositoryMemory memory, IClientAPI<MantenimientoModel> clientAPI)
+        public MantenimientoServiceAPI(IMantenimientoRepositoryMemory memory, IClientAPI clientAPI)
         {
             _memory = memory;
             _clientAPI = clientAPI;
         }
 
-        public ServicesResultModel GetByIDServices(int id)
+        public ApiResult<MantenimientoModel> GetByIDServices(int id)
         {
             return _memory.GetByIDModel(id);
         }
@@ -27,19 +27,19 @@ namespace SGHR.Web.Services.ServiceAPI.Operaciones
             return _memory.GetModels();
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPut(int id)
+        public async Task<ApiResult<MantenimientoModel>> RemoveServicesPut(int id)
         {
-            return await _clientAPI.DeleteAsync($"Mantenimiento/Remove-Mantenimiento?id={id}");
+            return await _clientAPI.DeleteAsync<MantenimientoModel>($"Mantenimiento/Remove-Mantenimiento?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPost(CreateMantenimientoModel model)
+        public async Task<ApiResult<MantenimientoModel>> SaveServicesPost(CreateMantenimientoModel model)
         {
-            return await _clientAPI.PostAsync("Mantenimiento/Create-Mantenimiento", model);
+            return await _clientAPI.PostAsJsonAsync<CreateMantenimientoModel, MantenimientoModel>("Mantenimiento/Create-Mantenimiento", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPut(UpdateMantenimientoModel model)
+        public async Task<ApiResult<MantenimientoModel>> UpdateServicesPut(UpdateMantenimientoModel model)
         {
-            return await _clientAPI.PutAsync("Mantenimiento/Update-Mantenimiento", model);
+            return await _clientAPI.PutAsJsonAsync<UpdateMantenimientoModel, MantenimientoModel>("Mantenimiento/Update-Mantenimiento", model);
         }
     }
 }

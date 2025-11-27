@@ -1,6 +1,7 @@
 ﻿using SGHR.Web.Data.Interfaces.Operaciones;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Operaciones.Pago;
+using SGHR.Web.Models.Operaciones.Reporte;
 using SGHR.Web.Services.ClienteAPIService.Interface;
 using SGHR.Web.Services.Interfaces.Operaciones;
 
@@ -9,20 +10,20 @@ namespace SGHR.Web.Services.ServiceAPI.Operaciones
     public class PagoServiceAPI : IPagoServiceAPI
     {
         private readonly IPagoRepositoryMemory _memory;
-        private readonly IClientAPI<PagoModel> _clientAPI;
+        private readonly IClientAPI _clientAPI;
 
-        public PagoServiceAPI(IPagoRepositoryMemory memory, IClientAPI<PagoModel> clientAPI)
+        public PagoServiceAPI(IPagoRepositoryMemory memory, IClientAPI clientAPI)
         {
             _memory = memory;
             _clientAPI = clientAPI;
         }
 
-        public async Task<ServicesResultModel> AnularPago(int idPago)
+        public async Task<ApiResult<PagoModel>> AnularPago(int idPago)
         {
-            return await _clientAPI.DeleteAsync($"Pago/Anular-Pago?idPago={idPago}");
+            return await _clientAPI.DeleteAsync<PagoModel>($"Pago/Anular-Pago?idPago={idPago}");
         }
 
-        public ServicesResultModel getPagoById(int id)
+        public ApiResult<PagoModel> getPagoById(int id)
         {
             return _memory.GetByIDModel(id);
         }
@@ -32,14 +33,14 @@ namespace SGHR.Web.Services.ServiceAPI.Operaciones
             return _memory.GetModels();
         }
 
-        public async Task<ServicesResultModel> GetResumenDePagos()
+        public async Task<ApiResult<ResumenPagoModel>> GetResumenDePagos()
         {
-            return await _clientAPI.GetResumenPagoAsync("Pago/Get-Resumen-Pagos");
+            return await _clientAPI.GetAsync<ResumenPagoModel>("Pago/Get-Resumen-Pagos");
         }
 
-        public async Task<ServicesResultModel> RealizarPago(RealizarPagoModel realizarPago)
+        public async Task<ApiResult<PagoModel>> RealizarPago(RealizarPagoModel realizarPago)
         {
-            return await _clientAPI.PostAsync("Pago/Realizar-Pago", realizarPago);
+            return await _clientAPI.PostAsJsonAsync<RealizarPagoModel, PagoModel>("Pago/Realizar-Pago", realizarPago);
         }
     }
 }

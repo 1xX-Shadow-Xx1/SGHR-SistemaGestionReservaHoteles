@@ -15,13 +15,13 @@ namespace SGHR.Presentacion.Test.Habitaciones
     public class PisoServiceAPI_Tests
     {
         private readonly Mock<IPisoRepositoryMemory> _memoryMock;
-        private readonly Mock<IClientAPI<PisoModel>> _clientApiMock;
+        private readonly Mock<IClientAPI> _clientApiMock;
         private readonly PisoServiceAPI _service;
 
         public PisoServiceAPI_Tests()
         {
             _memoryMock = new Mock<IPisoRepositoryMemory>();
-            _clientApiMock = new Mock<IClientAPI<PisoModel>>();
+            _clientApiMock = new Mock<IClientAPI>();
             _service = new PisoServiceAPI(_memoryMock.Object, _clientApiMock.Object);
         }
 
@@ -32,7 +32,7 @@ namespace SGHR.Presentacion.Test.Habitaciones
         public void GetByIDServices_ShouldReturnResultFromMemory()
         {
             // Arrange
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<PisoModel>.Ok(new PisoModel());
             _memoryMock.Setup(m => m.GetByIDModel(1)).Returns(expected);
 
             // Act
@@ -68,9 +68,9 @@ namespace SGHR.Presentacion.Test.Habitaciones
         public async Task RemoveServicesPut_ShouldCallDeleteAsync()
         {
             // Arrange
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<PisoModel>.Ok(new PisoModel());
             _clientApiMock
-                .Setup(api => api.DeleteAsync("Piso/Remove-Piso?id=1"))
+                .Setup(api => api.DeleteAsync<PisoModel>("Piso/Remove-Piso?id=1"))
                 .ReturnsAsync(expected);
 
             // Act
@@ -78,7 +78,7 @@ namespace SGHR.Presentacion.Test.Habitaciones
 
             // Assert
             Assert.Equal(expected, result);
-            _clientApiMock.Verify(api => api.DeleteAsync("Piso/Remove-Piso?id=1"), Times.Once);
+            _clientApiMock.Verify(api => api.DeleteAsync<PisoModel>("Piso/Remove-Piso?id=1"), Times.Once);
         }
 
         // ---------------------------------------------------------
@@ -89,10 +89,10 @@ namespace SGHR.Presentacion.Test.Habitaciones
         {
             // Arrange
             var model = new CreatePisoModel();
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<PisoModel>.Ok(new PisoModel());
 
             _clientApiMock
-                .Setup(api => api.PostAsync("Piso/Create-Piso", model))
+                .Setup(api => api.PostAsJsonAsync<CreatePisoModel, PisoModel>("Piso/Create-Piso", model))
                 .ReturnsAsync(expected);
 
             // Act
@@ -100,7 +100,7 @@ namespace SGHR.Presentacion.Test.Habitaciones
 
             // Assert
             Assert.Equal(expected, result);
-            _clientApiMock.Verify(api => api.PostAsync("Piso/Create-Piso", model), Times.Once);
+            _clientApiMock.Verify(api => api.PostAsJsonAsync<CreatePisoModel, PisoModel>("Piso/Create-Piso", model), Times.Once);
         }
 
         // ---------------------------------------------------------
@@ -111,10 +111,10 @@ namespace SGHR.Presentacion.Test.Habitaciones
         {
             // Arrange
             var model = new UpdatePisoModel();
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<PisoModel>.Ok(new PisoModel());
 
             _clientApiMock
-                .Setup(api => api.PutAsync("Piso/Update-Piso", model))
+                .Setup(api => api.PutAsJsonAsync<UpdatePisoModel, PisoModel>("Piso/Update-Piso", model))
                 .ReturnsAsync(expected);
 
             // Act
@@ -122,7 +122,7 @@ namespace SGHR.Presentacion.Test.Habitaciones
 
             // Assert
             Assert.Equal(expected, result);
-            _clientApiMock.Verify(api => api.PutAsync("Piso/Update-Piso", model), Times.Once);
+            _clientApiMock.Verify(api => api.PutAsJsonAsync<UpdatePisoModel, PisoModel>("Piso/Update-Piso", model), Times.Once);
         }
     }
 }

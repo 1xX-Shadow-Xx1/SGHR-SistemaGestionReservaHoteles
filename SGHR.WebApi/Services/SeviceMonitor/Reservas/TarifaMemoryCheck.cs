@@ -1,5 +1,7 @@
 ﻿using SGHR.Web.Data.Interfaces.Reservas;
 using SGHR.Web.Models;
+using SGHR.Web.Models.Reservas.Tarifa;
+using SGHR.Web.Models.Usuarios.Usuario;
 using SGHR.Web.Services.SeviceMonitor.Interface.Reservas;
 
 namespace SGHR.Web.Services.SeviceMonitor.Reservas
@@ -15,7 +17,7 @@ namespace SGHR.Web.Services.SeviceMonitor.Reservas
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<ServicesResultModel> CheckData()
+        public async Task<ApiResult<List<TarifaModel>>> CheckData()
         {
             return await _memory.CheckDataAPI("Tarifa/Get-Tarifas");
         }

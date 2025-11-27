@@ -8,17 +8,17 @@ namespace SGHR.Web.Data.Repositories.Operaciones
 {
     public class PagoRepositoryMemory : BaseRepositoryMemory<PagoModel> , IPagoRepositoryMemory
     {
-        public PagoRepositoryMemory(IClientAPI<PagoModel> clienteAPI) : base(clienteAPI)
+        public PagoRepositoryMemory(IClientAPI clienteAPI) : base(clienteAPI)
         {
         }
 
-        public override ServicesResultModel GetByIDModel(int id)
+        public override ApiResult<PagoModel> GetByIDModel(int id)
         {
             var result = base.GetByIDModel(id);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, result.Data, "Pago obtenido correctamente.");
+                return ApiResult<PagoModel>.Ok(result.Data, "Pago obtenido correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, "No se encontro un pago con ese id");
+                return ApiResult<PagoModel>.Fail(result.StatusCode, "No se encontro un pago con ese id");
         }
 
         public override List<PagoModel> GetModels()
@@ -26,13 +26,13 @@ namespace SGHR.Web.Data.Repositories.Operaciones
             return base.GetModels();
         }
 
-        public override async Task<ServicesResultModel> CheckDataAPI(string endpoint)
+        public override async Task<ApiResult<List<PagoModel>>> CheckDataAPI(string endpoint)
         {
             var result = await base.CheckDataAPI(endpoint);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, "Lista de pagos actualizada correctamente.");
+                return ApiResult<List<PagoModel>>.Ok(result.Data, "Lista de pagos actualizada correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, result.Message);
+                return ApiResult<List<PagoModel>>.Fail(result.StatusCode, result.Message);
         }
     }
 }

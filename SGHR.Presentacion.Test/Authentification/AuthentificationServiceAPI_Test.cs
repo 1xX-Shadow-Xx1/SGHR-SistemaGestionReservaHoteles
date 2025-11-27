@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Moq;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Sesion;
@@ -15,13 +16,13 @@ namespace SGHR.Presentacion.Test.Authentification
 {
     public class AuthentificationServiceAPI_Test
     {
-        private readonly Mock<IClientAPI<SesionLoginModel>> _clientMock;
+        private readonly Mock<IClientAPI> _clientMock;
         private readonly Mock<IHttpContextAccessor> _httpContextMock;
         private readonly AuthentificationServiceAPI _service;
 
         public AuthentificationServiceAPI_Test()
         {
-            _clientMock = new Mock<IClientAPI<SesionLoginModel>>();
+            _clientMock = new Mock<IClientAPI>();
             _httpContextMock = new Mock<IHttpContextAccessor>();
 
             // Simular HttpContext y Session
@@ -43,8 +44,8 @@ namespace SGHR.Presentacion.Test.Authentification
         public async Task CheckSesionAsync_ShouldCallClientAPI_GetSesionAsync()
         {
             // Arrange
-            var expected = ServicesResultModel.Ok(200);
-            _clientMock.Setup(x => x.GetSesionAsync(It.IsAny<string>()))
+            var expected = new ApiResult<CheckSesionModel> { Success = true};
+            _clientMock.Setup(x => x.GetAsync<CheckSesionModel>(It.IsAny<string>()))
                        .ReturnsAsync(expected);
 
             // Act
@@ -52,7 +53,7 @@ namespace SGHR.Presentacion.Test.Authentification
 
             // Assert
             Assert.Equal(expected, result);
-            _clientMock.Verify(x => x.GetSesionAsync("Sesion/CheckSesionActivityByUserID?userId=10"), Times.Once);
+            _clientMock.Verify(x => x.GetAsync<CheckSesionModel>("Sesion/CheckSesionActivityByUserID?userId=10"), Times.Once);
         }
 
         // -----------------------------
@@ -62,15 +63,15 @@ namespace SGHR.Presentacion.Test.Authentification
         public async Task CloseSesionAsync_ShouldCallClientAPI_PutAsync()
         {
             // Arrange
-            var expected = ServicesResultModel.Ok(200);
-            _clientMock.Setup(x => x.PutAsync(It.IsAny<string>(), null)).ReturnsAsync(expected);
+            var expected = new ApiResult<dynamic> { Success = true };
+            _clientMock.Setup(x => x.PutAsync<dynamic>(It.IsAny<string>(), null)).ReturnsAsync(expected);
 
             // Act
             var result = await _service.CloseSesionAsync();
 
             // Assert
             Assert.Equal(expected, result);
-            _clientMock.Verify(x => x.PutAsync("Authentication/Authentication-CloseSesion?id=10", null), Times.Once);
+            _clientMock.Verify(x => x.PutAsync<dynamic>("Authentication/Authentication-CloseSesion?id=10", null), Times.Once);
         }
 
         // -----------------------------
@@ -80,8 +81,8 @@ namespace SGHR.Presentacion.Test.Authentification
         public async Task LoginAsync_ShouldCallClientAPI_PutAsync_WithUserCredentials()
         {
             // Arrange
-            var expected = ServicesResultModel.Ok(200);
-            _clientMock.Setup(x => x.PutAsync(It.IsAny<string>(), null)).ReturnsAsync(expected);
+            var expected = new ApiResult<SesionLoginModel> { Success =  true };
+            _clientMock.Setup(x => x.PutAsync<SesionLoginModel>(It.IsAny<string>(), null)).ReturnsAsync(expected);
 
             // Act
             var result = await _service.LoginAsync("kevin", "1234");
@@ -89,7 +90,7 @@ namespace SGHR.Presentacion.Test.Authentification
             // Assert
             Assert.Equal(expected, result);
             _clientMock.Verify(
-                x => x.PutAsync("Authentication/Authentication-Login?correo=kevin&contraseña=1234", null),
+                x => x.PutAsync<SesionLoginModel>("Authentication/Authentication-Login?correo=kevin&contraseña=1234", null),
                 Times.Once
             );
         }
@@ -101,10 +102,10 @@ namespace SGHR.Presentacion.Test.Authentification
         public async Task RegisterAsync_ShouldCallClientAPI_PostAsync()
         {
             // Arrange
-            var expected = ServicesResultModel.Ok(200);
+            var expected = new ApiResult<SesionLoginModel> { Success = true };
             var model = new CreateUsuarioModel { Nombre = "Kevin" };
 
-            _clientMock.Setup(x => x.PostAsync("Authentication/Authentication-Register", model))
+            _clientMock.Setup(x => x.PostAsJsonAsync<CreateUsuarioModel, SesionLoginModel>("Authentication/Authentication-Register", model))
                        .ReturnsAsync(expected);
 
             // Act
@@ -113,7 +114,7 @@ namespace SGHR.Presentacion.Test.Authentification
             // Assert
             Assert.Equal(expected, result);
             _clientMock.Verify(
-                x => x.PostAsync("Authentication/Authentication-Register", model),
+                x => x.PostAsJsonAsync<CreateUsuarioModel ,SesionLoginModel>("Authentication/Authentication-Register", model),
                 Times.Once
             );
         }
@@ -125,8 +126,8 @@ namespace SGHR.Presentacion.Test.Authentification
         public async Task UpdateActivitySesionAsync_ShouldCallClientAPI_PutAsync()
         {
             // Arrange
-            var expected = ServicesResultModel.Ok(200);
-            _clientMock.Setup(x => x.PutAsync(It.IsAny<string>(), null))
+            var expected = new ApiResult<CheckSesionModel> { Success = true };
+            _clientMock.Setup(x => x.PutAsync<CheckSesionModel>(It.IsAny<string>(), null))
                        .ReturnsAsync(expected);
 
             // Act
@@ -135,7 +136,7 @@ namespace SGHR.Presentacion.Test.Authentification
             // Assert
             Assert.Equal(expected, result);
             _clientMock.Verify(
-                x => x.PutAsync("Sesion/UpdateActivitySesionByUser?userId=10", null),
+                x => x.PutAsync<CheckSesionModel>("Sesion/UpdateActivitySesionByUser?userId=10", null),
                 Times.Once
             );
         }

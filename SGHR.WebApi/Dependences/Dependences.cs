@@ -36,8 +36,9 @@ namespace SGHR.Web.Dependences
             services = services.AddHabitacionDependences();
             services = services.AddCategoriaDependences();
             services = services.AddAmenityDependences();
-            
-            services.AddScoped(typeof(IClientAPI<>), typeof(ClienteAPI<>));
+
+
+            services.AddScoped<IClientAPI, ClienteAPI>();
             services.AddScoped<IAuthentificationServiceAPI, AuthentificationServiceAPI>();
             services.AddHostedService<RepositoryMonitorServices>();
             services.AddScoped<IDashBoardServiceAPI, DashBoardServiceAPI>();

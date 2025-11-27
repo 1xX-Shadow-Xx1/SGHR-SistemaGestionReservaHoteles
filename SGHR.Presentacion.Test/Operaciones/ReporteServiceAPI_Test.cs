@@ -15,13 +15,13 @@ namespace SGHR.Presentacion.Test.Operaciones
     public class ReporteServiceAPI_Tests
     {
         private readonly Mock<IReporteRepositoryMemory> _memoryMock;
-        private readonly Mock<IClientAPI<ReporteModel>> _clientMock;
+        private readonly Mock<IClientAPI> _clientMock;
         private readonly ReporteServiceAPI _service;
 
         public ReporteServiceAPI_Tests()
         {
             _memoryMock = new Mock<IReporteRepositoryMemory>();
-            _clientMock = new Mock<IClientAPI<ReporteModel>>();
+            _clientMock = new Mock<IClientAPI>();
 
             _service = new ReporteServiceAPI(
                 _memoryMock.Object,
@@ -35,7 +35,7 @@ namespace SGHR.Presentacion.Test.Operaciones
         [Fact]
         public void GetByIDServices_ReturnsCorrectModel()
         {
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<ReporteModel> { Success = true };
 
             _memoryMock.Setup(m => m.GetByIDModel(10)).Returns(expected);
 
@@ -68,17 +68,17 @@ namespace SGHR.Presentacion.Test.Operaciones
         public async Task RemoveServicesPut_CallsCorrectEndpoint()
         {
             int id = 5;
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<ReporteModel>.Ok(new ReporteModel());
 
             string endpoint = $"Reporte/Remove-Reporte?id={id}";
 
-            _clientMock.Setup(c => c.DeleteAsync(endpoint))
+            _clientMock.Setup(c => c.DeleteAsync<ReporteModel>(endpoint))
                        .ReturnsAsync(expected);
 
             var result = await _service.RemoveServicesPut(id);
 
             Assert.Equal(expected, result);
-            _clientMock.Verify(c => c.DeleteAsync(endpoint), Times.Once);
+            _clientMock.Verify(c => c.DeleteAsync<ReporteModel>(endpoint), Times.Once);
         }
 
         // ======================================================
@@ -88,17 +88,17 @@ namespace SGHR.Presentacion.Test.Operaciones
         public async Task SaveServicesPost_CallsCorrectEndpoint()
         {
             var model = new CreateReporteModel();
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<ReporteModel>.Ok(new ReporteModel());
 
             string endpoint = "Reporte/create-Reporte";
 
-            _clientMock.Setup(c => c.PostAsync(endpoint, model))
+            _clientMock.Setup(c => c.PostAsJsonAsync<CreateReporteModel, ReporteModel>(endpoint, model))
                        .ReturnsAsync(expected);
 
             var result = await _service.SaveServicesPost(model);
 
             Assert.Equal(expected, result);
-            _clientMock.Verify(c => c.PostAsync(endpoint, model), Times.Once);
+            _clientMock.Verify(c => c.PostAsJsonAsync<CreateReporteModel, ReporteModel>(endpoint, model), Times.Once);
         }
 
         // ======================================================
@@ -108,17 +108,17 @@ namespace SGHR.Presentacion.Test.Operaciones
         public async Task UpdateServicesPut_CallsCorrectEndpoint()
         {
             var model = new UpdateReporteModel();
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<ReporteModel>.Ok(new ReporteModel());
 
             string endpoint = "Reporte/update-Reporte";
 
-            _clientMock.Setup(c => c.PutAsync(endpoint, model))
+            _clientMock.Setup(c => c.PutAsJsonAsync<UpdateReporteModel, ReporteModel>(endpoint, model))
                        .ReturnsAsync(expected);
 
             var result = await _service.UpdateServicesPut(model);
 
             Assert.Equal(expected, result);
-            _clientMock.Verify(c => c.PutAsync(endpoint, model), Times.Once);
+            _clientMock.Verify(c => c.PutAsJsonAsync<UpdateReporteModel, ReporteModel>(endpoint, model), Times.Once);
         }
     }
 }

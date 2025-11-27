@@ -9,15 +9,15 @@ namespace SGHR.Web.Services.ServiceAPI.Operaciones
     public class ReporteServiceAPI : IReporteServiceAPI
     {
         private readonly IReporteRepositoryMemory _memory;
-        private readonly IClientAPI<ReporteModel> _clientAPI;
+        private readonly IClientAPI _clientAPI;
 
-        public ReporteServiceAPI(IReporteRepositoryMemory memory, IClientAPI<ReporteModel> clientAPI)
+        public ReporteServiceAPI(IReporteRepositoryMemory memory, IClientAPI clientAPI)
         {
             _memory = memory;
             _clientAPI = clientAPI;
         }
 
-        public ServicesResultModel GetByIDServices(int id)
+        public ApiResult<ReporteModel> GetByIDServices(int id)
         {
             return _memory.GetByIDModel(id);
         }
@@ -27,19 +27,19 @@ namespace SGHR.Web.Services.ServiceAPI.Operaciones
             return _memory.GetModels();
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPut(int id)
+        public async Task<ApiResult<ReporteModel>> RemoveServicesPut(int id)
         {
-            return await _clientAPI.DeleteAsync($"Reporte/Remove-Reporte?id={id}");
+            return await _clientAPI.DeleteAsync<ReporteModel>($"Reporte/Remove-Reporte?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPost(CreateReporteModel model)
+        public async Task<ApiResult<ReporteModel>> SaveServicesPost(CreateReporteModel model)
         {
-            return await _clientAPI.PostAsync("Reporte/create-Reporte", model);
+            return await _clientAPI.PostAsJsonAsync<CreateReporteModel, ReporteModel>("Reporte/create-Reporte", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPut(UpdateReporteModel model)
+        public async Task<ApiResult<ReporteModel>> UpdateServicesPut(UpdateReporteModel model)
         {
-            return await _clientAPI.PutAsync("Reporte/update-Reporte", model);
+            return await _clientAPI.PutAsJsonAsync<UpdateReporteModel, ReporteModel>("Reporte/update-Reporte", model);
         }
     }
 }

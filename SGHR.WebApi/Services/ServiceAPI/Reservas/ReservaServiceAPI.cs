@@ -9,11 +9,11 @@ namespace SGHR.Web.Services.ServiceAPI.Reservas
 {
     public class ReservaServiceAPI : IReservaServiceAPI
     {
-        private readonly IClientAPI<ReservaModel> _clientAPI;
+        private readonly IClientAPI _clientAPI;
         private readonly IReservaRepositoryMemory _memory;
         private readonly IServicioAdicionalRepositoryMemory _servicioMemory;
 
-        public ReservaServiceAPI(IClientAPI<ReservaModel> clientAPI, 
+        public ReservaServiceAPI(IClientAPI clientAPI, 
                                             IReservaRepositoryMemory memory, 
                                             IServicioAdicionalRepositoryMemory repositoryMemory)
         {
@@ -22,7 +22,7 @@ namespace SGHR.Web.Services.ServiceAPI.Reservas
             _servicioMemory = repositoryMemory;
         }
 
-        public ServicesResultModel GetByIDServices(int id)
+        public ApiResult<ReservaModel> GetByIDServices(int id)
         {
             return _memory.GetByIDModel(id);
         }
@@ -32,34 +32,34 @@ namespace SGHR.Web.Services.ServiceAPI.Reservas
             return _memory.GetModels();
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPut(int id)
+        public async Task<ApiResult<ReservaModel>> RemoveServicesPut(int id)
         {
-            return await _clientAPI.DeleteAsync($"Reserva/Remove-Reserva?id={id}");
+            return await _clientAPI.DeleteAsync<ReservaModel>($"Reserva/Remove-Reserva?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPost(CreateReservaModel model)
+        public async Task<ApiResult<ReservaModel>> SaveServicesPost(CreateReservaModel model)
         {
-            return await _clientAPI.PostAsync("Reserva/Create-Reserva", model);
+            return await _clientAPI.PostAsJsonAsync<CreateReservaModel, ReservaModel>("Reserva/Create-Reserva", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPut(UpdateReservaModel model)
+        public async Task<ApiResult<ReservaModel>> UpdateServicesPut(UpdateReservaModel model)
         {
-            return await _clientAPI.PutAsync("Reserva/Update-Reserva", model);
+            return await _clientAPI.PutAsJsonAsync<UpdateReservaModel, ReservaModel>("Reserva/Update-Reserva", model);
         }
 
-        public async Task<ServicesResultModel> AddServicio_ReservaPut(string nameServicio, int idreserva)
+        public async Task<ApiResult<ReservaModel>> AddServicio_ReservaPut(string nameServicio, int idreserva)
         {
-            return await _clientAPI.PutAsync($"Reserva/Add-Servicio-Adicional-to-Reserva?id={idreserva}&nameServicio={nameServicio}");
+            return await _clientAPI.PutAsJsonAsync<UpdateReservaModel, ReservaModel>($"Reserva/Add-Servicio-Adicional-to-Reserva?id={idreserva}&nameServicio={nameServicio}", null);
         }
 
-        public async Task<ServicesResultModel> RemoveServicio_ReservaPut(string nameServicio, int idreserva)
+        public async Task<ApiResult<ReservaModel>> RemoveServicio_ReservaPut(string nameServicio, int idreserva)
         {
-            return await _clientAPI.PutAsync($"Reserva/Remove-Servicio-Adicional-to-Reserva?id={idreserva}&nombreServicio={nameServicio}");
+            return await _clientAPI.PutAsJsonAsync<UpdateReservaModel, ReservaModel>($"Reserva/Remove-Servicio-Adicional-to-Reserva?id={idreserva}&nombreServicio={nameServicio}", null);
         }
 
-        public async Task<ServicesResultModel> GetServicesbyReserva(int idreserva)
+        public async Task<ApiResult<List<ServicioAdicionalModel>>> GetServicesbyReserva(int idreserva)
         {
-            return await _clientAPI.GetListAsync($"Reserva/Get-Servicios-By-ReservaID?id={idreserva}");
+            return await _clientAPI.GetAsync<List<ServicioAdicionalModel>>($"Reserva/Get-Servicios-By-ReservaID?id={idreserva}");
         }
 
         public List<ServicioAdicionalModel> GetServiciosAdicionalesdisponibles()

@@ -31,7 +31,7 @@ namespace SGHR.Web.Validador
             GatewayTimeout = 504
         }
 
-        public bool ValidatorStatus(int status, out string errorMessage)
+        public bool ValidatorStatus(int status, out string? errorMessage)
         {
             if (Enum.IsDefined(typeof(HttpStatus), status))
             {
@@ -61,9 +61,9 @@ namespace SGHR.Web.Validador
         public static string GetDisplayName(Enum enumValue)
         {
             var attr = enumValue.GetType()
-                .GetField(enumValue.ToString())
-                .GetCustomAttributes(typeof(DisplayAttribute), false)
-                .FirstOrDefault() as DisplayAttribute;
+                                .GetField(enumValue.ToString())
+                                .GetCustomAttributes(typeof(DisplayAttribute), false)
+                                .FirstOrDefault() as DisplayAttribute;
 
             return attr?.Name ?? enumValue.ToString();
         }

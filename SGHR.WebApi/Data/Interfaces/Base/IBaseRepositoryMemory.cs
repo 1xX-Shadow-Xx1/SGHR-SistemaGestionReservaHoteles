@@ -5,7 +5,7 @@ namespace SGHR.Web.Data.Interfaces.Base
     public interface IBaseRepositoryMemory<TModel> where TModel : class
     {
         List<TModel> GetModels();
-        ServicesResultModel GetByIDModel(int id);
-        Task<ServicesResultModel> CheckDataAPI(string endpoint);
+        ApiResult<TModel> GetByIDModel(int id);
+        Task<ApiResult<List<TModel>>> CheckDataAPI(string endpoint);
     }
 }

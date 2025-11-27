@@ -1,6 +1,7 @@
 ﻿using SGHR.Web.Data.Interfaces.Reservas;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Reservas.ServicioAdicional;
+using SGHR.Web.Models.Reservas.Tarifa;
 using SGHR.Web.Services.ClienteAPIService.Interface;
 using SGHR.Web.Services.Interfaces.Reservas;
 
@@ -8,16 +9,16 @@ namespace SGHR.Web.Services.ServiceAPI.Reservas
 {
     public class ServicioAdicionalServiceAPI : IServicioAdicionalServiceAPI
     {
-        private readonly IClientAPI<ServicioAdicionalModel> _httpAPI;
+        private readonly IClientAPI _httpAPI;
         private readonly IServicioAdicionalRepositoryMemory _memory;
 
-        public ServicioAdicionalServiceAPI(IClientAPI<ServicioAdicionalModel> httpAPI, IServicioAdicionalRepositoryMemory memory)
+        public ServicioAdicionalServiceAPI(IClientAPI httpAPI, IServicioAdicionalRepositoryMemory memory)
         {
             _httpAPI = httpAPI;
             _memory = memory;
         }
 
-        public ServicesResultModel GetByIDServices(int id)
+        public ApiResult<ServicioAdicionalModel> GetByIDServices(int id)
         {
             return _memory.GetByIDModel(id);
         }
@@ -27,19 +28,19 @@ namespace SGHR.Web.Services.ServiceAPI.Reservas
             return _memory.GetModels();
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPut(int id)
+        public async Task<ApiResult<ServicioAdicionalModel>> RemoveServicesPut(int id)
         {
-            return await _httpAPI.DeleteAsync($"ServicioAdicional/Remove-Servicio-Adicional?id={id}");
+            return await _httpAPI.DeleteAsync<ServicioAdicionalModel>($"ServicioAdicional/Remove-Servicio-Adicional?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPost(CreateServicioAdicionalModel model)
+        public async Task<ApiResult<ServicioAdicionalModel>> SaveServicesPost(CreateServicioAdicionalModel model)
         {
-            return await _httpAPI.PostAsync("ServicioAdicional/Create-Servicio-Adicional", model);
+            return await _httpAPI.PostAsJsonAsync<CreateServicioAdicionalModel, ServicioAdicionalModel>("ServicioAdicional/Create-Servicio-Adicional", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPut(UpdateServicioAdicionalModel model)
+        public async Task<ApiResult<ServicioAdicionalModel>> UpdateServicesPut(UpdateServicioAdicionalModel model)
         {
-            return await _httpAPI.PutAsync("ServicioAdicional/Update-Servicio-Adicional", model);
+            return await _httpAPI.PutAsJsonAsync<UpdateServicioAdicionalModel, ServicioAdicionalModel>("ServicioAdicional/Update-Servicio-Adicional", model);
         }
     }
 }

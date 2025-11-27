@@ -30,11 +30,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                 {
                     var result = _reservaServiceAPI.GetByIDServices((int)id);
 
-                    var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                    var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                     if (!validate && errorMessage != string.Empty)
                     {
                         ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                     }
 
                     if (result != null && result.Success)
@@ -70,11 +70,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = _reservaServiceAPI.GetByIDServices(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -115,11 +115,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = await _reservaServiceAPI.SaveServicesPost(model);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -148,11 +148,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = _reservaServiceAPI.GetByIDServices(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -195,11 +195,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = await _reservaServiceAPI.UpdateServicesPut(model);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -228,11 +228,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = _reservaServiceAPI.GetByIDServices(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -262,11 +262,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = await _reservaServiceAPI.RemoveServicesPut(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -302,11 +302,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = await _reservaServiceAPI.GetServicesbyReserva(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -355,11 +355,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = await _reservaServiceAPI.AddServicio_ReservaPut(nombreServicio, idReserva);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -389,11 +389,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = await _reservaServiceAPI.RemoveServicio_ReservaPut(nombreServicio, idReserva);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)

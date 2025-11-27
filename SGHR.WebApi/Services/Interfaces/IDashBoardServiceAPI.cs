@@ -1,9 +1,10 @@
-﻿using SGHR.Web.Models;
+﻿using SGHR.Web.Areas.Administrador.Models;
+using SGHR.Web.Models;
 
 namespace SGHR.Web.Services.Interfaces
 {
     public interface IDashBoardServiceAPI
     {
-        Task<ServicesResultModel> GetDashBoard();
+        Task<ApiResult<DashboardViewModel>> GetDashBoard();
     }
 }

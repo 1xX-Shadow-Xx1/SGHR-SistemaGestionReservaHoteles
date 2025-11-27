@@ -6,6 +6,6 @@ namespace SGHR.Web.Data.Interfaces.Usuarios
 {
     public interface IClienteRepositoryMemory : IBaseRepositoryMemory<ClienteModel>
     {
-        ServicesResultModel GetByCedulaModel(string cedula);
+        ApiResult<ClienteModel> GetByCedulaModel(string cedula);
     }
 }

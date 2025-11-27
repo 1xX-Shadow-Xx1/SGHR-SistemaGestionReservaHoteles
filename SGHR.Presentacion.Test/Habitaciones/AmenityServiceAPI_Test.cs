@@ -15,13 +15,13 @@ namespace SGHR.Presentacion.Test.Habitaciones
     public class AmenityServiceAPI_Test
     {
         private readonly Mock<IAmenityRepositoryMemory> _memoryMock;
-        private readonly Mock<IClientAPI<AmenityModel>> _clientAPIMock;
+        private readonly Mock<IClientAPI> _clientAPIMock;
         private readonly AmenityServiceAPI _service;
 
         public AmenityServiceAPI_Test()
         {
             _memoryMock = new Mock<IAmenityRepositoryMemory>();
-            _clientAPIMock = new Mock<IClientAPI<AmenityModel>>();
+            _clientAPIMock = new Mock<IClientAPI>();
 
             _service = new AmenityServiceAPI(
                 _memoryMock.Object,
@@ -35,7 +35,7 @@ namespace SGHR.Presentacion.Test.Habitaciones
         [Fact]
         public void GetByIDServices_ReturnsCorrectModel()
         {
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<AmenityModel> { Success = true };
 
             _memoryMock.Setup(m => m.GetByIDModel(10)).Returns(expected);
 
@@ -70,16 +70,16 @@ namespace SGHR.Presentacion.Test.Habitaciones
         [Fact]
         public async Task RemoveServicesPut_CallsCorrectApiEndpoint()
         {
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<AmenityModel> { Success = true };
             string endpoint = "Amenity/Remove-Amenity?id=5";
 
-            _clientAPIMock.Setup(api => api.DeleteAsync(endpoint))
+            _clientAPIMock.Setup(api => api.DeleteAsync<AmenityModel>(endpoint))
                           .ReturnsAsync(expected);
 
             var result = await _service.RemoveServicesPut(5);
 
             Assert.Equal(expected, result);
-            _clientAPIMock.Verify(api => api.DeleteAsync(endpoint), Times.Once);
+            _clientAPIMock.Verify(api => api.DeleteAsync<AmenityModel>(endpoint), Times.Once);
         }
 
         // -----------------------------------------------------
@@ -93,16 +93,16 @@ namespace SGHR.Presentacion.Test.Habitaciones
                 Nombre = "Jacuzzi"
             };
 
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<AmenityModel> { Success = true };
             string endpoint = "Amenity/Create-Amenity";
 
-            _clientAPIMock.Setup(api => api.PostAsync(endpoint, model))
+            _clientAPIMock.Setup(api => api.PostAsJsonAsync<CreateAmenityModel, AmenityModel>(endpoint, model))
                           .ReturnsAsync(expected);
 
             var result = await _service.SaveServicesPost(model);
 
             Assert.Equal(expected, result);
-            _clientAPIMock.Verify(api => api.PostAsync(endpoint, model), Times.Once);
+            _clientAPIMock.Verify(api => api.PostAsJsonAsync<CreateAmenityModel, AmenityModel>(endpoint, model), Times.Once);
         }
 
         // -----------------------------------------------------
@@ -117,16 +117,16 @@ namespace SGHR.Presentacion.Test.Habitaciones
                 Nombre = "Gimnasio"
             };
 
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<AmenityModel> { Success = true };
             string endpoint = "Amenity/Update-Amenity";
 
-            _clientAPIMock.Setup(api => api.PutAsync(endpoint, model))
+            _clientAPIMock.Setup(api => api.PutAsJsonAsync<UpdateAmenityModel, AmenityModel>(endpoint, model))
                           .ReturnsAsync(expected);
 
             var result = await _service.UpdateServicesPut(model);
 
             Assert.Equal(expected, result);
-            _clientAPIMock.Verify(api => api.PutAsync(endpoint, model), Times.Once);
+            _clientAPIMock.Verify(api => api.PutAsJsonAsync<UpdateAmenityModel, AmenityModel>(endpoint, model), Times.Once);
         }
 
     }

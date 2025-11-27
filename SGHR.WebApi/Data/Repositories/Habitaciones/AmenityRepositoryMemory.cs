@@ -8,17 +8,17 @@ namespace SGHR.Web.Data.Repositories.Habitaciones
 {
     public class AmenityRepositoryMemory : BaseRepositoryMemory<AmenityModel> , IAmenityRepositoryMemory
     {
-        public AmenityRepositoryMemory(IClientAPI<AmenityModel> clienteAPI) : base(clienteAPI)
+        public AmenityRepositoryMemory(IClientAPI clienteAPI) : base(clienteAPI)
         {
         }
 
-        public override ServicesResultModel GetByIDModel(int id)
+        public override ApiResult<AmenityModel> GetByIDModel(int id)
         {
             var result = base.GetByIDModel(id);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, result.Data, "Amenity obtenido correctamente.");
+                return ApiResult<AmenityModel>.Ok( result.Data, "Amenity obtenido correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, "No se encontro un amenity con ese id");
+                return ApiResult<AmenityModel>.Fail(result.StatusCode, "No se encontro un amenity con ese id");
         }
 
         public override List<AmenityModel> GetModels()
@@ -26,13 +26,13 @@ namespace SGHR.Web.Data.Repositories.Habitaciones
             return base.GetModels();
         }
 
-        public override async Task<ServicesResultModel> CheckDataAPI(string endpoint)
+        public override async Task<ApiResult<List<AmenityModel>>> CheckDataAPI(string endpoint)
         {
             var result = await base.CheckDataAPI(endpoint);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, "Lista de amenities actualizada correctamente.");
+                return ApiResult<List<AmenityModel>>.Ok(result.Data, "Lista de amenities actualizada correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, result.Message);
+                return ApiResult<List<AmenityModel>>.Fail(result.StatusCode, result.Message);
         }
     }
 }

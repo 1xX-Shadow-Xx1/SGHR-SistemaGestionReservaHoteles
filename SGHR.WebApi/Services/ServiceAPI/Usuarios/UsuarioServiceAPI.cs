@@ -8,39 +8,40 @@ namespace SGHR.Web.Services.ServiceAPI.Usuarios
 {
     public class UsuarioServiceAPI : IUsuarioServiceAPI
     {
-        private readonly IClientAPI<UsuarioModel> _httpAPI;
-        private readonly IUsuarioRepositoryMemory _usuarioMemory;
+        private readonly IClientAPI _httpAPI;
+        private readonly IUsuarioRepositoryMemory _memory;
 
-        public UsuarioServiceAPI(IClientAPI<UsuarioModel> clientAP,
+        public UsuarioServiceAPI(IClientAPI clientAP,
                                  IUsuarioRepositoryMemory repositoryMemory)
         {
             _httpAPI = clientAP;
-            _usuarioMemory = repositoryMemory;
+            _memory = repositoryMemory;
         }
 
-        public ServicesResultModel GetByIDServices(int id)
+        public ApiResult<UsuarioModel> GetByIDServices(int id)
         {
-            return _usuarioMemory.GetByIDModel(id);
+            return _memory.GetByIDModel(id);
         }
 
         public List<UsuarioModel> GetServices()
         {
-            return _usuarioMemory.GetModels();
+            return _memory.GetModels();
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPut(int id)
+        public async Task<ApiResult<UsuarioModel>> RemoveServicesPut(int id)
         {
-            return await _httpAPI.DeleteAsync($"Usuario/Remove-Usuario?id={id}");
+            return await _httpAPI.DeleteAsync<UsuarioModel>($"Usuario/Remove-Usuario?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPost(CreateUsuarioModel model)
+        public async Task<ApiResult<UsuarioModel>> SaveServicesPost(CreateUsuarioModel model)
         {
-            return await _httpAPI.PostAsync($"Usuario/create-Usuario", model);
+            return await _httpAPI.PostAsJsonAsync<CreateUsuarioModel, UsuarioModel>($"Usuario/create-Usuario", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPut(UpdateUsuarioModel model)
+        public async Task<ApiResult<UsuarioModel>> UpdateServicesPut(UpdateUsuarioModel model)
         {
-            return await _httpAPI.PutAsync($"Usuario/update-Usuario", model);
+            return await _httpAPI.PutAsJsonAsync<UpdateUsuarioModel, UsuarioModel>($"Usuario/update-Usuario", model);
         }
+
     }
 }

@@ -1,6 +1,7 @@
 using Moq;
 using SGHR.Web.Data.Interfaces.Usuarios;
 using SGHR.Web.Models;
+using SGHR.Web.Models.Usuarios.Cliente;
 using SGHR.Web.Models.Usuarios.Usuario;
 using SGHR.Web.Services.ClienteAPIService.Interface;
 using SGHR.Web.Services.ServiceAPI.Usuarios;
@@ -9,13 +10,13 @@ namespace SGHR.Presentacion.Test.Usuarios
 {
     public class UsuarioServiceAPI_Tests
     {
-        private readonly Mock<IClientAPI<UsuarioModel>> _clientMock;
+        private readonly Mock<IClientAPI> _clientMock;
         private readonly Mock<IUsuarioRepositoryMemory> _memoryMock;
         private readonly UsuarioServiceAPI _service;
 
         public UsuarioServiceAPI_Tests()
         {
-            _clientMock = new Mock<IClientAPI<UsuarioModel>>();
+            _clientMock = new Mock<IClientAPI>();
             _memoryMock = new Mock<IUsuarioRepositoryMemory>();
 
             _service = new UsuarioServiceAPI(_clientMock.Object, _memoryMock.Object);
@@ -28,7 +29,7 @@ namespace SGHR.Presentacion.Test.Usuarios
         public void GetByIDServices_ReturnsModelFromMemory()
         {
             // Arrange
-            var expected = ServicesResultModel.Ok(200, "OK");
+            var expected = ApiResult<UsuarioModel>.Ok(new UsuarioModel(), "OK");
             _memoryMock.Setup(x => x.GetByIDModel(5)).Returns(expected);
 
             // Act
@@ -67,10 +68,10 @@ namespace SGHR.Presentacion.Test.Usuarios
         public async Task RemoveServicesPut_CallsClientDeleteAsync()
         {
             // Arrange
-            var expected = ServicesResultModel.Ok(200, "Eliminado");
+            var expected = ApiResult<UsuarioModel>.Ok(new UsuarioModel(), "Eliminado");
 
             _clientMock
-                .Setup(x => x.DeleteAsync("Usuario/Remove-Usuario?id=10"))
+                .Setup(x => x.DeleteAsync<UsuarioModel>("Usuario/Remove-Usuario?id=10"))
                 .ReturnsAsync(expected);
 
             // Act
@@ -80,7 +81,7 @@ namespace SGHR.Presentacion.Test.Usuarios
             Assert.Equal(expected, result);
 
             _clientMock.Verify(
-                x => x.DeleteAsync("Usuario/Remove-Usuario?id=10"),
+                x => x.DeleteAsync<UsuarioModel>("Usuario/Remove-Usuario?id=10"),
                 Times.Once
             );
         }
@@ -93,10 +94,10 @@ namespace SGHR.Presentacion.Test.Usuarios
         {
             // Arrange
             var model = new CreateUsuarioModel { Nombre = "Kevin" };
-            var expected = ServicesResultModel.Ok(200, "Creado");
+            var expected = ApiResult<UsuarioModel>.Ok(new UsuarioModel(), "Creado");
 
             _clientMock
-                .Setup(x => x.PostAsync("Usuario/create-Usuario", model))
+                .Setup(x => x.PostAsJsonAsync<CreateUsuarioModel, UsuarioModel>("Usuario/create-Usuario", model))
                 .ReturnsAsync(expected);
 
             // Act
@@ -106,7 +107,7 @@ namespace SGHR.Presentacion.Test.Usuarios
             Assert.Equal(expected, result);
 
             _clientMock.Verify(
-                x => x.PostAsync("Usuario/create-Usuario", model),
+                x => x.PostAsJsonAsync<CreateUsuarioModel, UsuarioModel>("Usuario/create-Usuario", model),
                 Times.Once
             );
         }
@@ -119,10 +120,10 @@ namespace SGHR.Presentacion.Test.Usuarios
         {
             // Arrange
             var model = new UpdateUsuarioModel { Id = 1, Nombre = "Nuevo Nombre" };
-            var expected = ServicesResultModel.Ok(200, "Actualizado");
+            var expected = ApiResult<UsuarioModel>.Ok(new UsuarioModel(),"Actualizado");
 
             _clientMock
-                .Setup(x => x.PutAsync("Usuario/update-Usuario", model))
+                .Setup(x => x.PutAsJsonAsync<UpdateUsuarioModel, UsuarioModel>("Usuario/update-Usuario", model))
                 .ReturnsAsync(expected);
 
             // Act
@@ -132,7 +133,7 @@ namespace SGHR.Presentacion.Test.Usuarios
             Assert.Equal(expected, result);
 
             _clientMock.Verify(
-                x => x.PutAsync("Usuario/update-Usuario", model),
+                x => x.PutAsJsonAsync<UpdateUsuarioModel, UsuarioModel>("Usuario/update-Usuario", model),
                 Times.Once
             );
         }

@@ -34,11 +34,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                 {
                     var result = _mantenimientoServiceAPI.GetByIDServices(id.Value);
 
-                    var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                    var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                     if (!validate && errorMessage != string.Empty)
                     {
                         ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                     }
 
                     if (result != null && result.Success)
@@ -74,11 +74,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
             {
                 var result = _mantenimientoServiceAPI.GetByIDServices(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -120,11 +120,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
             {
                 var result = await _mantenimientoServiceAPI.SaveServicesPost(model);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -154,11 +154,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
             {
                 var result = _mantenimientoServiceAPI.GetByIDServices(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -170,7 +170,7 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
                         RealizadoPor = result.Data.RealizadoPor,
                         Descripcion = result.Data.Descripcion,
                         NumeroHabitacion = result.Data.NumeroHabitacion,
-                        NumeroPiso = result.Data.NumeroPiso,
+                        NumeroPiso = (int)result.Data.NumeroPiso,
                         Estado = result.Data.Estado,
                         FechaInicio = result.Data.FechaInicio,
                         FechaFin = result.Data.FechaFin
@@ -203,11 +203,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
             {
                 var result = await _mantenimientoServiceAPI.UpdateServicesPut(model);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -237,11 +237,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
             {
                 var result = _mantenimientoServiceAPI.GetByIDServices(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -272,11 +272,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.OperacionesAPI
             {
                 var result = await _mantenimientoServiceAPI.RemoveServicesPut(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)

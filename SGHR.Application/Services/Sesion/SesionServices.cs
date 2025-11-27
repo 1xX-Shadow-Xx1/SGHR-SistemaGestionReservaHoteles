@@ -105,21 +105,25 @@ namespace SGHR.Application.Services.Sesion
             {
                 var sesiones = await _sesionRepository.GetActiveSessionsAsync();
 
-                foreach (var s in sesiones.Data)
+                if (sesiones != null)
                 {
-                    if ((DateTime.Now - s.UltimaActividad).TotalMinutes > TIEMPO_MAXIMO_INACTIVIDAD)
+                    foreach (var s in sesiones.Data)
                     {
-                        s.Estado = false;
-                        await _sesionRepository.UpdateAsync(s);
-
-                        // También marca al usuario como inactivo
-                        var usuario = await _usuarioRepository.GetByIdAsync(s.IdUsuario);
-                        if (usuario.Success)
+                        if ((DateTime.Now - s.UltimaActividad).TotalMinutes > TIEMPO_MAXIMO_INACTIVIDAD)
                         {
-                            usuario.Data.Estado = EstadoUsuario.Inactivo;
-                            await _usuarioRepository.UpdateAsync(usuario.Data);
+                            s.Estado = false;
+                            await _sesionRepository.UpdateAsync(s);
+
+                            // También marca al usuario como inactivo
+                            var usuario = await _usuarioRepository.GetByIdAsync(s.IdUsuario);
+                            if (usuario.Success)
+                            {
+                                usuario.Data.Estado = EstadoUsuario.Inactivo;
+                                await _usuarioRepository.UpdateAsync(usuario.Data);
+                            }
                         }
                     }
+
                 }
 
             }

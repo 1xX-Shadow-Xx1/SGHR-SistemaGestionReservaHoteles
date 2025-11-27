@@ -8,17 +8,17 @@ namespace SGHR.Web.Data.Repositories.Operaciones
 {
     public class MantenimientoRepositoryMemory : BaseRepositoryMemory<MantenimientoModel> , IMantenimientoRepositoryMemory
     {
-        public MantenimientoRepositoryMemory(IClientAPI<MantenimientoModel> clienteAPI) : base(clienteAPI)
+        public MantenimientoRepositoryMemory(IClientAPI clienteAPI) : base(clienteAPI)
         {
         }
 
-        public override ServicesResultModel GetByIDModel(int id)
+        public override ApiResult<MantenimientoModel> GetByIDModel(int id)
         {
             var result = base.GetByIDModel(id);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, result.Data, "Mantenimiento obtenido correctamente.");
+                return ApiResult<MantenimientoModel>.Ok(result.Data, "Mantenimiento obtenido correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, "No se encontro un mantenimiento con ese id");
+                return ApiResult<MantenimientoModel>.Fail(result.StatusCode, "No se encontro un mantenimiento con ese id");
         }
 
         public override List<MantenimientoModel> GetModels()
@@ -26,13 +26,13 @@ namespace SGHR.Web.Data.Repositories.Operaciones
             return base.GetModels();
         }
 
-        public override async Task<ServicesResultModel> CheckDataAPI(string endpoint)
+        public override async Task<ApiResult<List<MantenimientoModel>>> CheckDataAPI(string endpoint)
         {
             var result = await base.CheckDataAPI(endpoint);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, "Lista de mantenimientos actualizada correctamente.");
+                return ApiResult<List<MantenimientoModel>>.Ok(result.Data, "Lista de mantenimientos actualizada correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, result.Message);
+                return ApiResult<List<MantenimientoModel>>.Fail(result.StatusCode, result.Message);
         }
     }
 }

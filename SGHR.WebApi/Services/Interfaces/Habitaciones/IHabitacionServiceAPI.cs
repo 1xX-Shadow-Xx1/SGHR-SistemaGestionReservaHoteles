@@ -6,8 +6,8 @@ namespace SGHR.Web.Services.Interfaces.Habitaciones
 {
     public interface IHabitacionServiceAPI : IBaseServicesAPI<HabitacionModel, CreateHabitacionModel,  UpdateHabitacionModel>
     {
-        Task<ServicesResultModel> GetHabitacionesDisponiblesRangeDate(DateTime startDate, DateTime endDate);
-        Task<ServicesResultModel> GetHabitacionesDisponibles();
-        ServicesResultModel GetHabitacionByNumero(string numeroHabitacion);
+        Task<ApiResult<List<HabitacionModel>>> GetHabitacionesDisponiblesRangeDate(DateTime startDate, DateTime endDate);
+        Task<ApiResult<HabitacionModel>> GetHabitacionesDisponibles();
+        ApiResult<HabitacionModel> GetHabitacionByNumero(string numeroHabitacion);
     }
 }

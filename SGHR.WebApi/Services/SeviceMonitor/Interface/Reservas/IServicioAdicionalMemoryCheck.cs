@@ -1,6 +1,8 @@
-﻿namespace SGHR.Web.Services.SeviceMonitor.Interface.Reservas
+﻿using SGHR.Web.Models.Reservas.ServicioAdicional;
+
+namespace SGHR.Web.Services.SeviceMonitor.Interface.Reservas
 {
-    public interface IServicioAdicionalMemoryCheck : IBaseMemoryChecks
+    public interface IServicioAdicionalMemoryCheck : IBaseMemoryChecks<ServicioAdicionalModel>
     {
     }
 }

@@ -8,17 +8,17 @@ namespace SGHR.Web.Data.Repositories.Habitaciones
 {
     public class PisoRepositoryMemory : BaseRepositoryMemory<PisoModel> , IPisoRepositoryMemory
     {
-        public PisoRepositoryMemory(IClientAPI<PisoModel> clienteAPI) : base(clienteAPI)
+        public PisoRepositoryMemory(IClientAPI clienteAPI) : base(clienteAPI)
         {
         }
 
-        public override ServicesResultModel GetByIDModel(int id)
+        public override ApiResult<PisoModel> GetByIDModel(int id)
         {
             var result = base.GetByIDModel(id);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, result.Data, "Piso obtenido correctamente.");
+                return ApiResult<PisoModel>.Ok(result.Data, "Piso obtenido correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, "No se encontro un piso con ese id");
+                return ApiResult<PisoModel>.Fail(result.StatusCode, "No se encontro un piso con ese id");
         }
 
         public override List<PisoModel> GetModels()
@@ -26,13 +26,13 @@ namespace SGHR.Web.Data.Repositories.Habitaciones
             return base.GetModels();
         }
 
-        public override async Task<ServicesResultModel> CheckDataAPI(string endpoint)
+        public override async Task<ApiResult<List<PisoModel>>> CheckDataAPI(string endpoint)
         {
             var result = await base.CheckDataAPI(endpoint);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, "Lista de pisos actualizada correctamente.");
+                return ApiResult<List<PisoModel>>.Ok(result.Data, "Lista de pisos actualizada correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, result.Message);
+                return ApiResult<List<PisoModel>>.Fail(result.StatusCode, result.Message);
         }
     }
 }

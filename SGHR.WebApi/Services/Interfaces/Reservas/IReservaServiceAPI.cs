@@ -7,9 +7,9 @@ namespace SGHR.Web.Services.Interfaces.Reservas
 {
     public interface IReservaServiceAPI : IBaseServicesAPI<ReservaModel, CreateReservaModel, UpdateReservaModel>
     {
-        Task<ServicesResultModel> RemoveServicio_ReservaPut(string nameServicio, int idreserva);
-        Task<ServicesResultModel> AddServicio_ReservaPut(string nameServicio, int idreserva);
-        Task<ServicesResultModel> GetServicesbyReserva(int idreserva);
+        Task<ApiResult<ReservaModel>> RemoveServicio_ReservaPut(string nameServicio, int idreserva);
+        Task<ApiResult<ReservaModel>> AddServicio_ReservaPut(string nameServicio, int idreserva);
+        Task<ApiResult<List<ServicioAdicionalModel>>> GetServicesbyReserva(int idreserva);
         List<ServicioAdicionalModel> GetServiciosAdicionalesdisponibles();
     }
 }

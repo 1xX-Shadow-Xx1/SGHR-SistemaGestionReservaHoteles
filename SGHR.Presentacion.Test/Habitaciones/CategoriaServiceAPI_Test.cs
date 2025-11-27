@@ -15,13 +15,13 @@ namespace SGHR.Presentacion.Test.Habitaciones
     public class CategoriaServiceAPI_Test
     {
         private readonly Mock<ICategoriaRepositoryMemory> _memoryMock;
-        private readonly Mock<IClientAPI<CategoriaModel>> _clientAPIMock;
+        private readonly Mock<IClientAPI> _clientAPIMock;
         private readonly CategoriaServiceAPI _service;
 
         public CategoriaServiceAPI_Test()
         {
             _memoryMock = new Mock<ICategoriaRepositoryMemory>();
-            _clientAPIMock = new Mock<IClientAPI<CategoriaModel>>();
+            _clientAPIMock = new Mock<IClientAPI>();
 
             _service = new CategoriaServiceAPI(
                 _memoryMock.Object,
@@ -35,7 +35,7 @@ namespace SGHR.Presentacion.Test.Habitaciones
         [Fact]
         public void GetByIDServices_ReturnsCorrectModel()
         {
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<CategoriaModel> { Success = true };
 
             _memoryMock.Setup(m => m.GetByIDModel(2)).Returns(expected);
 
@@ -70,17 +70,17 @@ namespace SGHR.Presentacion.Test.Habitaciones
         [Fact]
         public async Task RemoveServicesPut_CallsCorrectApiEndpoint()
         {
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<CategoriaModel> { Success = true };
 
             string endpoint = "Categoria/Remove-Categoria?id=3";
 
-            _clientAPIMock.Setup(api => api.DeleteAsync(endpoint))
+            _clientAPIMock.Setup(api => api.DeleteAsync<CategoriaModel>(endpoint))
                           .ReturnsAsync(expected);
 
             var result = await _service.RemoveServicesPut(3);
 
             Assert.Equal(expected, result);
-            _clientAPIMock.Verify(api => api.DeleteAsync(endpoint), Times.Once);
+            _clientAPIMock.Verify(api => api.DeleteAsync<CategoriaModel>(endpoint), Times.Once);
         }
 
         // -----------------------------------------------------
@@ -94,17 +94,17 @@ namespace SGHR.Presentacion.Test.Habitaciones
                 Nombre = "Premium"
             };
 
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<CategoriaModel> { Success = true };
 
             string endpoint = "Categoria/Create-Categoria";
 
-            _clientAPIMock.Setup(api => api.PostAsync(endpoint, model))
+            _clientAPIMock.Setup(api => api.PostAsJsonAsync<CreateCategoriaModel, CategoriaModel>(endpoint, model))
                           .ReturnsAsync(expected);
 
             var result = await _service.SaveServicesPost(model);
 
             Assert.Equal(expected, result);
-            _clientAPIMock.Verify(api => api.PostAsync(endpoint, model), Times.Once);
+            _clientAPIMock.Verify(api => api.PostAsJsonAsync<CreateCategoriaModel, CategoriaModel>(endpoint, model), Times.Once);
         }
 
         // -----------------------------------------------------
@@ -119,17 +119,17 @@ namespace SGHR.Presentacion.Test.Habitaciones
                 Nombre = "Deluxe"
             };
 
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<CategoriaModel> { Success = true };
 
             string endpoint = "Categoria/Update-Categoria";
 
-            _clientAPIMock.Setup(api => api.PutAsync(endpoint, model))
+            _clientAPIMock.Setup(api => api.PutAsJsonAsync<UpdateCategoriaModel, CategoriaModel>(endpoint, model))
                           .ReturnsAsync(expected);
 
             var result = await _service.UpdateServicesPut(model);
 
             Assert.Equal(expected, result);
-            _clientAPIMock.Verify(api => api.PutAsync(endpoint, model), Times.Once);
+            _clientAPIMock.Verify(api => api.PutAsJsonAsync<UpdateCategoriaModel, CategoriaModel>(endpoint, model), Times.Once);
         }
     }
 

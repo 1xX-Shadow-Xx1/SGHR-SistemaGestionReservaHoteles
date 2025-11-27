@@ -15,13 +15,13 @@ namespace SGHR.Presentacion.Test.Habitaciones
     public class HabitacionServiceAPI_Test
     {
         private readonly Mock<IHabitacionRepositoryMemory> _memoryMock;
-        private readonly Mock<IClientAPI<HabitacionModel>> _clientApiMock;
+        private readonly Mock<IClientAPI> _clientApiMock;
         private readonly HabitacionServiceAPI _service;
 
         public HabitacionServiceAPI_Test()
         {
             _memoryMock = new Mock<IHabitacionRepositoryMemory>();
-            _clientApiMock = new Mock<IClientAPI<HabitacionModel>>();
+            _clientApiMock = new Mock<IClientAPI>();
             _service = new HabitacionServiceAPI(_memoryMock.Object, _clientApiMock.Object);
         }
 
@@ -31,7 +31,7 @@ namespace SGHR.Presentacion.Test.Habitaciones
         [Fact]
         public void GetByIDServices_ShouldReturnResultFromMemory()
         {
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<HabitacionModel>.Ok(new HabitacionModel());
             _memoryMock.Setup(m => m.GetByIDModel(1)).Returns(expected);
 
             var result = _service.GetByIDServices(1);
@@ -61,7 +61,7 @@ namespace SGHR.Presentacion.Test.Habitaciones
         [Fact]
         public void GetHabitacionByNumero_ShouldReturnResultFromMemory()
         {
-            var expected = ServicesResultModel.Fail(400, "");
+            var expected = ApiResult<HabitacionModel>.Fail(400, "");
             _memoryMock.Setup(m => m.GetHabitacionByNumero("101")).Returns(expected);
 
             var result = _service.GetHabitacionByNumero("101");
@@ -76,15 +76,15 @@ namespace SGHR.Presentacion.Test.Habitaciones
         [Fact]
         public async Task RemoveServicesPut_ShouldCallDeleteAsync()
         {
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<HabitacionModel>.Ok(new HabitacionModel());
             _clientApiMock
-                .Setup(api => api.DeleteAsync("Habitacion/Remove-Habitacion?id=1"))
+                .Setup(api => api.DeleteAsync<HabitacionModel>("Habitacion/Remove-Habitacion?id=1"))
                 .ReturnsAsync(expected);
 
             var result = await _service.RemoveServicesPut(1);
 
             Assert.Equal(expected, result);
-            _clientApiMock.Verify(api => api.DeleteAsync("Habitacion/Remove-Habitacion?id=1"), Times.Once);
+            _clientApiMock.Verify(api => api.DeleteAsync<HabitacionModel>("Habitacion/Remove-Habitacion?id=1"), Times.Once);
         }
 
         // --------------------------------------------------------------------
@@ -94,16 +94,16 @@ namespace SGHR.Presentacion.Test.Habitaciones
         public async Task SaveServicesPost_ShouldCallPostAsync()
         {
             var model = new CreateHabitacionModel();
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<HabitacionModel>.Ok(new HabitacionModel());
 
             _clientApiMock
-                .Setup(api => api.PostAsync("Habitacion/Create-Habitacion", model))
+                .Setup(api => api.PostAsJsonAsync<CreateHabitacionModel, HabitacionModel>("Habitacion/Create-Habitacion", model))
                 .ReturnsAsync(expected);
 
             var result = await _service.SaveServicesPost(model);
 
             Assert.Equal(expected, result);
-            _clientApiMock.Verify(api => api.PostAsync("Habitacion/Create-Habitacion", model), Times.Once);
+            _clientApiMock.Verify(api => api.PostAsJsonAsync<CreateHabitacionModel, HabitacionModel>("Habitacion/Create-Habitacion", model), Times.Once);
         }
 
         // --------------------------------------------------------------------
@@ -113,16 +113,16 @@ namespace SGHR.Presentacion.Test.Habitaciones
         public async Task UpdateServicesPut_ShouldCallPutAsync()
         {
             var model = new UpdateHabitacionModel();
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<HabitacionModel>.Ok(new HabitacionModel());
 
             _clientApiMock
-                .Setup(api => api.PutAsync("Habitacion/Update-Habitacion", model))
+                .Setup(api => api.PutAsJsonAsync<UpdateHabitacionModel, HabitacionModel>("Habitacion/Update-Habitacion", model))
                 .ReturnsAsync(expected);
 
             var result = await _service.UpdateServicesPut(model);
 
             Assert.Equal(expected, result);
-            _clientApiMock.Verify(api => api.PutAsync("Habitacion/Update-Habitacion", model), Times.Once);
+            _clientApiMock.Verify(api => api.PutAsJsonAsync<UpdateHabitacionModel, HabitacionModel>("Habitacion/Update-Habitacion", model), Times.Once);
         }
 
         // --------------------------------------------------------------------
@@ -131,16 +131,16 @@ namespace SGHR.Presentacion.Test.Habitaciones
         [Fact]
         public async Task GetHabitacionesDisponibles_ShouldCallGetListAsync()
         {
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<HabitacionModel>.Ok(new HabitacionModel());
 
             _clientApiMock
-                .Setup(api => api.GetListAsync("Habitacion/Get-Habitaciones-disponibles"))
+                .Setup(api => api.GetAsync<HabitacionModel>("Habitacion/Get-Habitaciones-disponibles"))
                 .ReturnsAsync(expected);
 
             var result = await _service.GetHabitacionesDisponibles();
 
             Assert.Equal(expected, result);
-            _clientApiMock.Verify(api => api.GetListAsync("Habitacion/Get-Habitaciones-disponibles"), Times.Once);
+            _clientApiMock.Verify(api => api.GetAsync<HabitacionModel>("Habitacion/Get-Habitaciones-disponibles"), Times.Once);
         }
 
         // --------------------------------------------------------------------
@@ -152,19 +152,19 @@ namespace SGHR.Presentacion.Test.Habitaciones
             var start = new DateTime(2025, 1, 1);
             var end = new DateTime(2025, 1, 5);
 
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<List<HabitacionModel>>.Ok(new List<HabitacionModel>());
 
             string expectedUrl =
                 $"Habitacion/Get-Habitaciones-disponibles-date?fechainicio={start}&fechafin={end}";
 
             _clientApiMock
-                .Setup(api => api.GetListAsync(expectedUrl))
+                .Setup(api => api.GetAsync<List<HabitacionModel>>(expectedUrl))
                 .ReturnsAsync(expected);
 
             var result = await _service.GetHabitacionesDisponiblesRangeDate(start, end);
 
             Assert.Equal(expected, result);
-            _clientApiMock.Verify(api => api.GetListAsync(expectedUrl), Times.Once);
+            _clientApiMock.Verify(api => api.GetAsync<List<HabitacionModel>>(expectedUrl), Times.Once);
         }
     }
 }

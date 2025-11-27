@@ -9,13 +9,13 @@ namespace SGHR.Presentacion.Test.Usuarios
 {
     public class ClienteServiceAPI_Tests
     {
-        private readonly Mock<IClientAPI<ClienteModel>> _clientMock;
+        private readonly Mock<IClientAPI> _clientMock;
         private readonly Mock<IClienteRepositoryMemory> _memoryMock;
         private readonly ClienteServiceAPI _service;
 
         public ClienteServiceAPI_Tests()
         {
-            _clientMock = new Mock<IClientAPI<ClienteModel>>();
+            _clientMock = new Mock<IClientAPI>();
             _memoryMock = new Mock<IClienteRepositoryMemory>();
 
             _service = new ClienteServiceAPI(_clientMock.Object, _memoryMock.Object);
@@ -28,7 +28,7 @@ namespace SGHR.Presentacion.Test.Usuarios
         public void GetByIDServices_ReturnsModelFromMemory()
         {
             // Arrange
-            var expected = ServicesResultModel.Ok(200, "OK");
+            var expected = ApiResult<ClienteModel>.Ok(new ClienteModel(), "OK");
             _memoryMock.Setup(x => x.GetByIDModel(7)).Returns(expected);
 
             // Act
@@ -68,7 +68,7 @@ namespace SGHR.Presentacion.Test.Usuarios
         public void GetByCedulaCliente_ReturnsModelFromMemory()
         {
             // Arrange
-            var expected = ServicesResultModel.Ok(200, "Encontrado");
+            var expected = ApiResult<ClienteModel>.Ok(new ClienteModel(), "Encontrado");
             _memoryMock.Setup(x => x.GetByCedulaModel("00123456789")).Returns(expected);
 
             // Act
@@ -93,7 +93,7 @@ namespace SGHR.Presentacion.Test.Usuarios
 
             // Assert
             Assert.False(result.Success);
-            Assert.Equal(400, result.Statuscode);
+            Assert.Equal(400, result.StatusCode);
             Assert.Equal("Tiene que introducir una cedula para comenzar a buscar.", result.Message);
 
             _memoryMock.Verify(x => x.GetByCedulaModel(It.IsAny<string>()), Times.Never);
@@ -106,9 +106,9 @@ namespace SGHR.Presentacion.Test.Usuarios
         public async Task RemoveServicesPut_CallsDeleteAsync()
         {
             // Arrange
-            var expected = ServicesResultModel.Ok(200, "Eliminado");
+            var expected = ApiResult<ClienteModel>.Ok(new ClienteModel(), "Eliminado");
             _clientMock
-                .Setup(x => x.DeleteAsync("Cliente/Remove-Cliente?id=15"))
+                .Setup(x => x.DeleteAsync<ClienteModel>("Cliente/Remove-Cliente?id=15"))
                 .ReturnsAsync(expected);
 
             // Act
@@ -116,7 +116,7 @@ namespace SGHR.Presentacion.Test.Usuarios
 
             // Assert
             Assert.Equal(expected, result);
-            _clientMock.Verify(x => x.DeleteAsync("Cliente/Remove-Cliente?id=15"), Times.Once);
+            _clientMock.Verify(x => x.DeleteAsync<ClienteModel>("Cliente/Remove-Cliente?id=15"), Times.Once);
         }
 
         // -----------------------------------------------------------
@@ -127,10 +127,10 @@ namespace SGHR.Presentacion.Test.Usuarios
         {
             // Arrange
             var model = new CreateClienteModel { Nombre = "Pedro" };
-            var expected = ServicesResultModel.Ok(200, "Creado");
+            var expected = ApiResult<ClienteModel>.Ok(new ClienteModel(), "Creado");
 
             _clientMock
-                .Setup(x => x.PostAsync("Cliente/Create-Cliente", model))
+                .Setup(x => x.PostAsJsonAsync<CreateClienteModel, ClienteModel>("Cliente/Create-Cliente", model))
                 .ReturnsAsync(expected);
 
             // Act
@@ -138,7 +138,7 @@ namespace SGHR.Presentacion.Test.Usuarios
 
             // Assert
             Assert.Equal(expected, result);
-            _clientMock.Verify(x => x.PostAsync("Cliente/Create-Cliente", model), Times.Once);
+            _clientMock.Verify(x => x.PostAsJsonAsync<CreateClienteModel, ClienteModel>("Cliente/Create-Cliente", model), Times.Once);
         }
 
         // -----------------------------------------------------------
@@ -149,10 +149,10 @@ namespace SGHR.Presentacion.Test.Usuarios
         {
             // Arrange
             var model = new UpdateClienteModel { Id = 3, Nombre = "Nuevo Cliente" };
-            var expected = ServicesResultModel.Ok(200, "Actualizado");
+            var expected = ApiResult<ClienteModel>.Ok(new ClienteModel(), "Actualizado");
 
             _clientMock
-                .Setup(x => x.PutAsync("Cliente/Update-Cliente", model))
+                .Setup(x => x.PutAsJsonAsync<UpdateClienteModel, ClienteModel>("Cliente/Update-Cliente", model))
                 .ReturnsAsync(expected);
 
             // Act
@@ -160,7 +160,7 @@ namespace SGHR.Presentacion.Test.Usuarios
 
             // Assert
             Assert.Equal(expected, result);
-            _clientMock.Verify(x => x.PutAsync("Cliente/Update-Cliente", model), Times.Once);
+            _clientMock.Verify(x => x.PutAsJsonAsync<UpdateClienteModel, ClienteModel>("Cliente/Update-Cliente", model), Times.Once);
         }
     }
 }

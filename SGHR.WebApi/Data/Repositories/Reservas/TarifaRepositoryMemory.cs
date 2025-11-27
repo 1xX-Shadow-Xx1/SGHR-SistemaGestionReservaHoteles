@@ -8,30 +8,30 @@ namespace SGHR.Web.Data.Repositories.Reservas
 {
     public class TarifaRepositoryMemory : BaseRepositoryMemory<TarifaModel>, ITarifaRepositoryMemory
     {
-        public TarifaRepositoryMemory(IClientAPI<TarifaModel> clienteAPI) : base(clienteAPI)
+        public TarifaRepositoryMemory(IClientAPI clienteAPI) : base(clienteAPI)
         {
         }
 
-        public override ServicesResultModel GetByIDModel(int id)
+        public override ApiResult<TarifaModel> GetByIDModel(int id)
         {
             var result = base.GetByIDModel(id);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, result.Data, "Tarifa obtenida correctamente.");
+                return ApiResult<TarifaModel>.Ok(result.Data, "Tarifa obtenida correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, "No se encontro una tarifa con ese id");
+                return ApiResult<TarifaModel>.Fail(result.StatusCode, "No se encontro una tarifa con ese id");
         }
 
         public override  List<TarifaModel> GetModels()
         {
             return base.GetModels();   
         }
-        public override async Task<ServicesResultModel> CheckDataAPI(string endpoint)
+        public override async Task<ApiResult<List<TarifaModel>>> CheckDataAPI(string endpoint)
         {
             var result = await base.CheckDataAPI(endpoint);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, "Lista de tarifas actualizada correctamente.");
+                return ApiResult<List<TarifaModel>>.Ok(result.Data, "Lista de tarifas actualizada correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, result.Message);
+                return ApiResult<List<TarifaModel>>.Fail(result.StatusCode, result.Message);
         }
     }
 }

@@ -3,8 +3,8 @@ using SGHR.Web.Models;
 
 namespace SGHR.Web.Services.SeviceMonitor.Interface
 {
-    public interface IBaseMemoryChecks
+    public interface IBaseMemoryChecks<TModel>
     {
-        Task<ServicesResultModel> CheckData();
+        Task<ApiResult<List<TModel>>> CheckData();
     }
 }

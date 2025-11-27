@@ -32,11 +32,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
                 {
                     var result = _tarifaServiceAPI.GetByIDServices((int)id);
 
-                    var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                    var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                     if (!validate && errorMessage != string.Empty)
                     {
                         ViewBag.Error = errorMessage;
-                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                        return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                     }
 
                     if (result != null && result.Success)
@@ -74,11 +74,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = _tarifaServiceAPI.GetByIDServices(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -121,11 +121,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = await _tarifaServiceAPI.SaveServicesPost(model);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -154,11 +154,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = _tarifaServiceAPI.GetByIDServices(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -199,11 +199,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = await _tarifaServiceAPI.UpdateServicesPut(model);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -232,11 +232,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = _tarifaServiceAPI.GetByIDServices(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)
@@ -266,11 +266,11 @@ namespace SGHR.Web.Areas.Administrador.Controllers.ReservasAPI
             {
                 var result = await _tarifaServiceAPI.RemoveServicesPut(id);
 
-                var validate = new ValidateStatusCode().ValidatorStatus(result.Statuscode, out string errorMessage);
+                var validate = new ValidateStatusCode().ValidatorStatus(result.StatusCode, out string errorMessage);
                 if (!validate && errorMessage != string.Empty)
                 {
                     ViewBag.Error = errorMessage;
-                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.Statuscode, ErrorMessage = errorMessage });
+                    return RedirectToAction("ErrorPage", "Error", new { StatusCode = result.StatusCode, ErrorMessage = errorMessage });
                 }
 
                 if (result != null && result.Success)

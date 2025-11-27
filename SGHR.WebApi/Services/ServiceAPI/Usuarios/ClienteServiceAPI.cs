@@ -8,44 +8,44 @@ namespace SGHR.Web.Services.ServiceAPI.Usuarios
 {
     public class ClienteServiceAPI : IClienteServiceAPI
     {
-        private readonly IClientAPI<ClienteModel> _httpAPI;
-        private readonly IClienteRepositoryMemory _clienteMemory;
-        public ClienteServiceAPI(IClientAPI<ClienteModel> clientAPI, IClienteRepositoryMemory clienteRepositoryMemory)
+        private readonly IClientAPI _httpAPI;
+        private readonly IClienteRepositoryMemory _memory;
+        public ClienteServiceAPI(IClientAPI clientAPI, IClienteRepositoryMemory clienteRepositoryMemory)
         {
             _httpAPI = clientAPI;
-            _clienteMemory = clienteRepositoryMemory;
+            _memory = clienteRepositoryMemory;
         }
-        public ServicesResultModel GetByIDServices(int id)
+        public ApiResult<ClienteModel> GetByIDServices(int id)
         {
-            return _clienteMemory.GetByIDModel(id);
+            return _memory.GetByIDModel(id);
         }
 
         public List<ClienteModel> GetServices()
         {
-            return _clienteMemory.GetModels();
+            return _memory.GetModels();
         }
 
-        public ServicesResultModel GetByCedulaCliente(string cedula)
+        public ApiResult<ClienteModel> GetByCedulaCliente(string cedula)
         {
             if (string.IsNullOrWhiteSpace(cedula))
-                return ServicesResultModel.Fail(400, "Tiene que introducir una cedula para comenzar a buscar.");
+                return ApiResult<ClienteModel>.Fail(400, "Tiene que introducir una cedula para comenzar a buscar.");
 
-            return _clienteMemory.GetByCedulaModel(cedula);
+            return _memory.GetByCedulaModel(cedula);
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPut(int id)
+        public async Task<ApiResult<ClienteModel>> RemoveServicesPut(int id)
         {
-            return await _httpAPI.DeleteAsync($"Cliente/Remove-Cliente?id={id}");
+            return await _httpAPI.DeleteAsync<ClienteModel>($"Cliente/Remove-Cliente?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPost(CreateClienteModel model)
+        public async Task<ApiResult<ClienteModel>> SaveServicesPost(CreateClienteModel model)
         {
-            return await _httpAPI.PostAsync("Cliente/Create-Cliente", model);
+            return await _httpAPI.PostAsJsonAsync<CreateClienteModel ,ClienteModel>("Cliente/Create-Cliente", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPut(UpdateClienteModel model)
+        public async Task<ApiResult<ClienteModel>> UpdateServicesPut(UpdateClienteModel model)
         {
-            return await _httpAPI.PutAsync($"Cliente/Update-Cliente", model);
+            return await _httpAPI.PutAsJsonAsync<UpdateClienteModel, ClienteModel>($"Cliente/Update-Cliente", model);
         }
     }
 }

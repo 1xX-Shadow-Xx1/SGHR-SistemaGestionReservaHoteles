@@ -8,17 +8,17 @@ namespace SGHR.Web.Data.Repositories.Habitaciones
 {
     public class HabitacionRepositoryMemory : BaseRepositoryMemory<HabitacionModel> , IHabitacionRepositoryMemory
     {
-        public HabitacionRepositoryMemory(IClientAPI<HabitacionModel> clienteAPI) : base(clienteAPI)
+        public HabitacionRepositoryMemory(IClientAPI clienteAPI) : base(clienteAPI)
         {
         }
 
-        public override ServicesResultModel GetByIDModel(int id)
+        public override ApiResult<HabitacionModel> GetByIDModel(int id)
         {
             var result = base.GetByIDModel(id);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, result.Data, "Habitacion obtenida correctamente.");
+                return ApiResult<HabitacionModel>.Ok(result.Data, "Habitacion obtenida correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, "No se encontro una habitacion con ese id");
+                return ApiResult<HabitacionModel>.Fail(result.StatusCode, "No se encontro una habitacion con ese id");
         }
 
         public override List<HabitacionModel> GetModels()
@@ -26,22 +26,22 @@ namespace SGHR.Web.Data.Repositories.Habitaciones
             return base.GetModels();
         }
 
-        public ServicesResultModel GetHabitacionByNumero(string numeroHabitacion)
+        public ApiResult<HabitacionModel> GetHabitacionByNumero(string numeroHabitacion)
         {
             var result = baseModelsData.OfType<HabitacionModel>().FirstOrDefault(h => h.Numero ==  numeroHabitacion);
             if (result != null)
-                return ServicesResultModel.Ok(200, result, "Habitacion obtenida correctamente.");
+                return ApiResult<HabitacionModel>.Ok(result, "Habitacion obtenida correctamente.");
             else
-                return ServicesResultModel.Fail(400, "No se encontro una habitacion con ese id");
+                return ApiResult<HabitacionModel>.Fail(400, "No se encontro una habitacion con ese id");
         }
 
-        public override async Task<ServicesResultModel> CheckDataAPI(string endpoint)
+        public override async Task<ApiResult<List<HabitacionModel>>> CheckDataAPI(string endpoint)
         {
             var result = await base.CheckDataAPI(endpoint);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, "Lista de habitaciones actualizada correctamente.");
+                return ApiResult<List<HabitacionModel>>.Ok(result.Data, "Lista de habitaciones actualizada correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, result.Message);
+                return ApiResult<List<HabitacionModel>>.Fail(result.StatusCode, result.Message);
         }
     }
 }

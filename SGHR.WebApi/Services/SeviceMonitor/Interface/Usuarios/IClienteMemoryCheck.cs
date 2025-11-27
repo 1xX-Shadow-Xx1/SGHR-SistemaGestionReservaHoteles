@@ -1,6 +1,8 @@
-﻿namespace SGHR.Web.Services.SeviceMonitor.Interface.Usuarios
+﻿using SGHR.Web.Models.Usuarios.Cliente;
+
+namespace SGHR.Web.Services.SeviceMonitor.Interface.Usuarios
 {
-    public interface IClienteMemoryCheck : IBaseMemoryChecks
+    public interface IClienteMemoryCheck : IBaseMemoryChecks<ClienteModel>
     {
     }
 }

@@ -8,17 +8,17 @@ namespace SGHR.Web.Data.Repositories.Reservas
 {
     public class ServicioAdicionalRepositoryMemory : BaseRepositoryMemory<ServicioAdicionalModel> , IServicioAdicionalRepositoryMemory
     {
-        public ServicioAdicionalRepositoryMemory(IClientAPI<ServicioAdicionalModel> clienteAPI) : base(clienteAPI)
+        public ServicioAdicionalRepositoryMemory(IClientAPI clienteAPI) : base(clienteAPI)
         {
         }
 
-        public override ServicesResultModel GetByIDModel(int id)
+        public override ApiResult<ServicioAdicionalModel> GetByIDModel(int id)
         {
             var result = base.GetByIDModel(id);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, result.Data, "Servicio obtenido correctamente.");
+                return ApiResult<ServicioAdicionalModel>.Ok(result.Data, "Servicio obtenido correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, "No se encontro un servicio con ese id");
+                return ApiResult<ServicioAdicionalModel>.Fail(result.StatusCode, "No se encontro un servicio con ese id");
         }
 
         public override List<ServicioAdicionalModel> GetModels()
@@ -26,13 +26,13 @@ namespace SGHR.Web.Data.Repositories.Reservas
             return base.GetModels();
         }
 
-        public override async Task<ServicesResultModel> CheckDataAPI(string endpoint)
+        public override async Task<ApiResult<List<ServicioAdicionalModel>>> CheckDataAPI(string endpoint)
         {
             var result = await base.CheckDataAPI(endpoint);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, "Lista de serivicios actualizada correctamente.");
+                return ApiResult<List<ServicioAdicionalModel>>.Ok(result.Data, "Lista de serivicios actualizada correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, result.Message);
+                return ApiResult<List<ServicioAdicionalModel>>.Fail(result.StatusCode, result.Message);
         }
     }
 }

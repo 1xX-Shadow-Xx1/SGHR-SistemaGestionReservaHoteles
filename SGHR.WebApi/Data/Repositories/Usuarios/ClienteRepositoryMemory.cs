@@ -8,41 +8,41 @@ namespace SGHR.Web.Data.Repositories.Usuarios
 {
     public class ClienteRepositoryMemory : BaseRepositoryMemory<ClienteModel>, IClienteRepositoryMemory
     {
-        public ClienteRepositoryMemory(IClientAPI<ClienteModel> clienteAPI) : base(clienteAPI) { }
+        public ClienteRepositoryMemory(IClientAPI clienteAPI) : base(clienteAPI) { }
 
         public override List<ClienteModel> GetModels()
         {
             return base.GetModels();
         }
 
-        public override ServicesResultModel GetByIDModel(int id)
+        public override ApiResult<ClienteModel> GetByIDModel(int id)
         {
             var result = base.GetByIDModel(id);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, result.Data, "Cliente obtenido correctamente.");
+                return ApiResult<ClienteModel>.Ok(result.Data, "Cliente obtenido correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, "No se encontro un cliente con ese id");
+                return ApiResult<ClienteModel>.Fail(result.StatusCode, "No se encontro un cliente con ese id");
         }
 
-        public ServicesResultModel GetByCedulaModel(string cedula)
+        public ApiResult<ClienteModel> GetByCedulaModel(string cedula)
         {
             var cliente = baseModelsData.OfType<ClienteModel>().FirstOrDefault(c => c.Cedula == cedula);
             if (cliente == null)
-                return ServicesResultModel.Fail(400, "No se encontro un cliente con esa cedula");
+                return ApiResult<ClienteModel>.Fail(400, "No se encontro un cliente con esa cedula");
             else
-                return ServicesResultModel.Ok(200, cliente, "Cliente obtenido correctamente.");
+                return ApiResult<ClienteModel>.Ok(cliente, "Cliente obtenido correctamente.");
         }
 
-        public override async Task<ServicesResultModel> CheckDataAPI(string endpoint)
+        public override async Task<ApiResult<List<ClienteModel>>> CheckDataAPI(string endpoint)
         {
             var result = await base.CheckDataAPI(endpoint);
             if (result.Success)
             {
-                return ServicesResultModel.Ok(result.Statuscode, "Lista de clientes actualizada correctamente.");
+                return ApiResult<List<ClienteModel>>.Ok(result.Data, "Lista de clientes actualizada correctamente.");
             }
             else
             {
-                return ServicesResultModel.Fail(result.Statuscode, result.Message);
+                return ApiResult<List<ClienteModel>>.Fail(result.StatusCode, result.Message);
             }
 
         }

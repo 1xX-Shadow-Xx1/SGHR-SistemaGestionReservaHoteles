@@ -3,21 +3,22 @@ using SGHR.Web.Models;
 using SGHR.Web.Models.Habitaciones.Habitacion;
 using SGHR.Web.Services.ClienteAPIService.Interface;
 using SGHR.Web.Services.Interfaces.Habitaciones;
+using System.Collections.Generic;
 
 namespace SGHR.Web.Services.ServiceAPI.Habitaciones
 {
     public class HabitacionServiceAPI : IHabitacionServiceAPI
     {
         private readonly IHabitacionRepositoryMemory _memory;
-        private readonly IClientAPI<HabitacionModel> _clientAPI;
+        private readonly IClientAPI _clientAPI;
 
-        public HabitacionServiceAPI(IHabitacionRepositoryMemory memory, IClientAPI<HabitacionModel> clientAPI)
+        public HabitacionServiceAPI(IHabitacionRepositoryMemory memory, IClientAPI clientAPI)
         {
             _memory = memory;
             _clientAPI = clientAPI;
         }
 
-        public ServicesResultModel GetByIDServices(int id)
+        public ApiResult<HabitacionModel> GetByIDServices(int id)
         {
             return _memory.GetByIDModel(id);
         }
@@ -27,34 +28,34 @@ namespace SGHR.Web.Services.ServiceAPI.Habitaciones
             return _memory.GetModels();
         }
 
-        public ServicesResultModel GetHabitacionByNumero(string numeroHabitacion)
+        public ApiResult<HabitacionModel> GetHabitacionByNumero(string numeroHabitacion)
         {
             return _memory.GetHabitacionByNumero(numeroHabitacion);
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPut(int id)
+        public async Task<ApiResult<HabitacionModel>> RemoveServicesPut(int id)
         {
-            return await _clientAPI.DeleteAsync($"Habitacion/Remove-Habitacion?id={id}");
+            return await _clientAPI.DeleteAsync<HabitacionModel>($"Habitacion/Remove-Habitacion?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPost(CreateHabitacionModel model)
+        public async Task<ApiResult<HabitacionModel>> SaveServicesPost(CreateHabitacionModel model)
         {
-            return await _clientAPI.PostAsync("Habitacion/Create-Habitacion", model);
+            return await _clientAPI.PostAsJsonAsync<CreateHabitacionModel, HabitacionModel>("Habitacion/Create-Habitacion", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPut(UpdateHabitacionModel model)
+        public async Task<ApiResult<HabitacionModel>> UpdateServicesPut(UpdateHabitacionModel model)
         {
-            return await _clientAPI.PutAsync("Habitacion/Update-Habitacion", model);
+            return await _clientAPI.PutAsJsonAsync<UpdateHabitacionModel, HabitacionModel>("Habitacion/Update-Habitacion", model);
         }
 
-        public async Task<ServicesResultModel> GetHabitacionesDisponibles()
+        public async Task<ApiResult<HabitacionModel>> GetHabitacionesDisponibles()
         {
-            return await _clientAPI.GetListAsync("Habitacion/Get-Habitaciones-disponibles");
+            return await _clientAPI.GetAsync<HabitacionModel>("Habitacion/Get-Habitaciones-disponibles");
         }
 
-        public async Task<ServicesResultModel> GetHabitacionesDisponiblesRangeDate(DateTime startDate, DateTime endDate)
+        public async Task<ApiResult<List<HabitacionModel>>> GetHabitacionesDisponiblesRangeDate(DateTime startDate, DateTime endDate)
         {
-            return await _clientAPI.GetListAsync($"Habitacion/Get-Habitaciones-disponibles-date?fechainicio={startDate}&fechafin={endDate}");
+            return await _clientAPI.GetAsync<List<HabitacionModel>>($"Habitacion/Get-Habitaciones-disponibles-date?fechainicio={startDate}&fechafin={endDate}");
         }
     }
 }

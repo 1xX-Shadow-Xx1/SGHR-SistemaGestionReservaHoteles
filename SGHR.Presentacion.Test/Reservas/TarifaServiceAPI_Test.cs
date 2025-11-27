@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Moq;
 using SGHR.Web.Data.Interfaces.Reservas;
 using SGHR.Web.Models;
 using SGHR.Web.Models.Reservas.Tarifa;
@@ -14,13 +15,13 @@ namespace SGHR.Presentacion.Test.Reservas
 {
     public class TarifaServiceAPI_Tests
     {
-        private readonly Mock<IClientAPI<TarifaModel>> _clientMock;
+        private readonly Mock<IClientAPI> _clientMock;
         private readonly Mock<ITarifaRepositoryMemory> _memoryMock;
         private readonly TarifaServiceAPI _service;
 
         public TarifaServiceAPI_Tests()
         {
-            _clientMock = new Mock<IClientAPI<TarifaModel>>();
+            _clientMock = new Mock<IClientAPI>();
             _memoryMock = new Mock<ITarifaRepositoryMemory>();
 
             _service = new TarifaServiceAPI(
@@ -35,7 +36,7 @@ namespace SGHR.Presentacion.Test.Reservas
         [Fact]
         public void GetByIDServices_ReturnsCorrectModel()
         {
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<TarifaModel> { Success = true };
 
             _memoryMock.Setup(m => m.GetByIDModel(2)).Returns(expected);
 
@@ -67,17 +68,17 @@ namespace SGHR.Presentacion.Test.Reservas
         public async Task RemoveServicesPut_CallsCorrectEndpoint()
         {
             int id = 7;
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<TarifaModel>.Ok(new TarifaModel());
 
             string endpoint = $"Tarifa/Remove-Tarifa?id={id}";
 
-            _clientMock.Setup(c => c.DeleteAsync(endpoint))
+            _clientMock.Setup(c => c.DeleteAsync<TarifaModel>(endpoint))
                        .ReturnsAsync(expected);
 
             var result = await _service.RemoveServicesPut(id);
 
             Assert.Equal(expected, result);
-            _clientMock.Verify(c => c.DeleteAsync(endpoint), Times.Once);
+            _clientMock.Verify(c => c.DeleteAsync<TarifaModel>(endpoint), Times.Once);
         }
 
         // ======================================================
@@ -87,17 +88,17 @@ namespace SGHR.Presentacion.Test.Reservas
         public async Task SaveServicesPost_CallsCorrectEndpoint()
         {
             var model = new CreateTarifaModel();
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<TarifaModel>.Ok(new TarifaModel());
 
             string endpoint = "Tarifa/Create-Tarifa";
 
-            _clientMock.Setup(c => c.PostAsync(endpoint, model))
+            _clientMock.Setup(c => c.PostAsJsonAsync<CreateTarifaModel, TarifaModel>(endpoint, model))
                        .ReturnsAsync(expected);
 
             var result = await _service.SaveServicesPost(model);
 
             Assert.Equal(expected, result);
-            _clientMock.Verify(c => c.PostAsync(endpoint, model), Times.Once);
+            _clientMock.Verify(c => c.PostAsJsonAsync<CreateTarifaModel, TarifaModel>(endpoint, model), Times.Once);
         }
 
         // ======================================================
@@ -107,17 +108,17 @@ namespace SGHR.Presentacion.Test.Reservas
         public async Task UpdateServicesPut_CallsCorrectEndpoint()
         {
             var model = new UpdateTarifaModel();
-            var expected = ServicesResultModel.Ok(200);
+            var expected = ApiResult<TarifaModel>.Ok(new TarifaModel());
 
             string endpoint = "Tarifa/Update-Tarifa";
 
-            _clientMock.Setup(c => c.PutAsync(endpoint, model))
+            _clientMock.Setup(c => c.PutAsJsonAsync<UpdateTarifaModel, TarifaModel>(endpoint, model))
                        .ReturnsAsync(expected);
 
             var result = await _service.UpdateServicesPut(model);
 
             Assert.Equal(expected, result);
-            _clientMock.Verify(c => c.PutAsync(endpoint, model), Times.Once);
+            _clientMock.Verify(c => c.PutAsJsonAsync<UpdateTarifaModel, TarifaModel>(endpoint, model), Times.Once);
         }
     }
 }

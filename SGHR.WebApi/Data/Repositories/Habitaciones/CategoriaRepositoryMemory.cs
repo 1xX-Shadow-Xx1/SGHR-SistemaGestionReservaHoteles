@@ -8,17 +8,17 @@ namespace SGHR.Web.Data.Repositories.Habitaciones
 {
     public class CategoriaRepositoryMemory : BaseRepositoryMemory<CategoriaModel> , ICategoriaRepositoryMemory
     {
-        public CategoriaRepositoryMemory(IClientAPI<CategoriaModel> clienteAPI) : base(clienteAPI)
+        public CategoriaRepositoryMemory(IClientAPI clienteAPI) : base(clienteAPI)
         {
         }
 
-        public override ServicesResultModel GetByIDModel(int id)
+        public override ApiResult<CategoriaModel> GetByIDModel(int id)
         {
             var result = base.GetByIDModel(id);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, result.Data, "Categoria obtenida correctamente.");
+                return ApiResult<CategoriaModel>.Ok(result.Data, "Categoria obtenida correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, "No se encontro una categoria con ese id");
+                return ApiResult<CategoriaModel>.Fail(result.StatusCode, "No se encontro una categoria con ese id");
         }
 
         public override List<CategoriaModel> GetModels()
@@ -26,13 +26,13 @@ namespace SGHR.Web.Data.Repositories.Habitaciones
             return base.GetModels();
         }
 
-        public override async Task<ServicesResultModel> CheckDataAPI(string endpoint)
+        public override async Task<ApiResult<List<CategoriaModel>>> CheckDataAPI(string endpoint)
         {
             var result = await base.CheckDataAPI(endpoint);
             if (result.Success)
-                return ServicesResultModel.Ok(result.Statuscode, "Lista de categorias actualizada correctamente.");
+                return ApiResult<List<CategoriaModel>>.Ok(result.Data, "Lista de categorias actualizada correctamente.");
             else
-                return ServicesResultModel.Fail(result.Statuscode, result.Message);
+                return ApiResult<List<CategoriaModel>>.Fail(result.StatusCode, result.Message);
         }
     }
 }

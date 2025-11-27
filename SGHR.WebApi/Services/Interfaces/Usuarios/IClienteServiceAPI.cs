@@ -7,6 +7,6 @@ namespace SGHR.Web.Services.Interfaces.Usuarios
 {
     public interface IClienteServiceAPI : IBaseServicesAPI<ClienteModel, CreateClienteModel, UpdateClienteModel>
     {
-        ServicesResultModel GetByCedulaCliente(string cedula);
+        ApiResult<ClienteModel> GetByCedulaCliente(string cedula);
     }
 }

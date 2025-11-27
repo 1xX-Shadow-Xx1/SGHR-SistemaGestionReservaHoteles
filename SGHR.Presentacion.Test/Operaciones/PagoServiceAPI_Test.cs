@@ -15,13 +15,13 @@ namespace SGHR.Presentacion.Test.Operaciones
     public class PagoServiceAPI_Tests
     {
         private readonly Mock<IPagoRepositoryMemory> _memoryMock;
-        private readonly Mock<IClientAPI<PagoModel>> _clientApiMock;
+        private readonly Mock<IClientAPI> _clientApiMock;
         private readonly PagoServiceAPI _service;
 
         public PagoServiceAPI_Tests()
         {
             _memoryMock = new Mock<IPagoRepositoryMemory>();
-            _clientApiMock = new Mock<IClientAPI<PagoModel>>();
+            _clientApiMock = new Mock<IClientAPI>();
 
             _service = new PagoServiceAPI(
                 _memoryMock.Object,
@@ -35,7 +35,7 @@ namespace SGHR.Presentacion.Test.Operaciones
         [Fact]
         public void GetPagoById_ReturnsFromMemory()
         {
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<PagoModel> { Success = true };
             _memoryMock.Setup(m => m.GetByIDModel(1)).Returns(expected);
 
             var result = _service.getPagoById(1);
@@ -69,16 +69,16 @@ namespace SGHR.Presentacion.Test.Operaciones
         [Fact]
         public async Task AnularPago_CallsApiAndReturnsResult()
         {
-            var response = new ServicesResultModel { Success = true };
+            var response = new ApiResult<PagoModel> { Success = true };
 
             _clientApiMock
-                .Setup(api => api.DeleteAsync("Pago/Anular-Pago?idPago=5"))
+                .Setup(api => api.DeleteAsync<PagoModel>("Pago/Anular-Pago?idPago=5"))
                 .ReturnsAsync(response);
 
             var result = await _service.AnularPago(5);
 
             Assert.Equal(response, result);
-            _clientApiMock.Verify(api => api.DeleteAsync("Pago/Anular-Pago?idPago=5"), Times.Once);
+            _clientApiMock.Verify(api => api.DeleteAsync<PagoModel>("Pago/Anular-Pago?idPago=5"), Times.Once);
         }
 
         // -----------------------------------------------------
@@ -87,16 +87,16 @@ namespace SGHR.Presentacion.Test.Operaciones
         [Fact]
         public async Task GetResumenDePagos_CallsApi()
         {
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<ResumenPagoModel> { Success = true };
 
             _clientApiMock
-                .Setup(api => api.GetResumenPagoAsync("Pago/Get-Resumen-Pagos"))
+                .Setup(api => api.GetAsync<ResumenPagoModel>("Pago/Get-Resumen-Pagos"))
                 .ReturnsAsync(expected);
 
             var result = await _service.GetResumenDePagos();
 
             Assert.Equal(expected, result);
-            _clientApiMock.Verify(api => api.GetResumenPagoAsync("Pago/Get-Resumen-Pagos"), Times.Once);
+            _clientApiMock.Verify(api => api.GetAsync<ResumenPagoModel>("Pago/Get-Resumen-Pagos"), Times.Once);
         }
 
         // -----------------------------------------------------
@@ -111,16 +111,16 @@ namespace SGHR.Presentacion.Test.Operaciones
                 Monto = 5000
             };
 
-            var expected = new ServicesResultModel { Success = true };
+            var expected = new ApiResult<PagoModel> { Success = true };
 
             _clientApiMock
-                .Setup(api => api.PostAsync("Pago/Realizar-Pago", input))
+                .Setup(api => api.PostAsJsonAsync<RealizarPagoModel, PagoModel>("Pago/Realizar-Pago", input))
                 .ReturnsAsync(expected);
 
             var result = await _service.RealizarPago(input);
 
             Assert.Equal(expected, result);
-            _clientApiMock.Verify(api => api.PostAsync("Pago/Realizar-Pago", input), Times.Once);
+            _clientApiMock.Verify(api => api.PostAsJsonAsync<RealizarPagoModel, PagoModel>("Pago/Realizar-Pago", input), Times.Once);
         }
     }
 }

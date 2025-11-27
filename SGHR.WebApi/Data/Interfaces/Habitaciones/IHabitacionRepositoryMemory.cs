@@ -6,6 +6,6 @@ namespace SGHR.Web.Data.Interfaces.Habitaciones
 {
     public interface IHabitacionRepositoryMemory : IBaseRepositoryMemory<HabitacionModel>
     {
-        ServicesResultModel GetHabitacionByNumero(string numeroHabitacion);
+        ApiResult<HabitacionModel> GetHabitacionByNumero(string numeroHabitacion);
     }
 }

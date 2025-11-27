@@ -9,15 +9,15 @@ namespace SGHR.Web.Services.ServiceAPI.Habitaciones
     public class PisoServiceAPI : IPisoServiceAPI
     {
         private readonly IPisoRepositoryMemory _memory;
-        private readonly IClientAPI<PisoModel> _clientAPI;
+        private readonly IClientAPI _clientAPI;
 
-        public PisoServiceAPI(IPisoRepositoryMemory memory, IClientAPI<PisoModel> clientAPI)
+        public PisoServiceAPI(IPisoRepositoryMemory memory, IClientAPI clientAPI)
         {
             _memory = memory;
             _clientAPI = clientAPI;
         }
 
-        public ServicesResultModel GetByIDServices(int id)
+        public ApiResult<PisoModel> GetByIDServices(int id)
         {
             return _memory.GetByIDModel(id);
         }
@@ -27,19 +27,19 @@ namespace SGHR.Web.Services.ServiceAPI.Habitaciones
             return _memory.GetModels();
         }
 
-        public async Task<ServicesResultModel> RemoveServicesPut(int id)
+        public async Task<ApiResult<PisoModel>> RemoveServicesPut(int id)
         {
-            return await _clientAPI.DeleteAsync($"Piso/Remove-Piso?id={id}");
+            return await _clientAPI.DeleteAsync<PisoModel>($"Piso/Remove-Piso?id={id}");
         }
 
-        public async Task<ServicesResultModel> SaveServicesPost(CreatePisoModel model)
+        public async Task<ApiResult<PisoModel>> SaveServicesPost(CreatePisoModel model)
         {
-            return await _clientAPI.PostAsync("Piso/Create-Piso", model);
+            return await _clientAPI.PostAsJsonAsync<CreatePisoModel, PisoModel>("Piso/Create-Piso", model);
         }
 
-        public async Task<ServicesResultModel> UpdateServicesPut(UpdatePisoModel model)
+        public async Task<ApiResult<PisoModel>> UpdateServicesPut(UpdatePisoModel model)
         {
-            return await _clientAPI.PutAsync("Piso/Update-Piso", model);
+            return await _clientAPI.PutAsJsonAsync<UpdatePisoModel, PisoModel>("Piso/Update-Piso", model);
         }
     }
 }

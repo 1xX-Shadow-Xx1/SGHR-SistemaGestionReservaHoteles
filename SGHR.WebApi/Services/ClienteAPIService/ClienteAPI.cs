@@ -1,13 +1,12 @@
-﻿using SGHR.Web.Data;
+﻿using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using SGHR.Web.Data;
 using SGHR.Web.Models;
-using SGHR.Web.Models.Operaciones.Pago;
-using SGHR.Web.Models.Sesion;
 using SGHR.Web.Services.ClienteAPIService.Interface;
-using SGHR.Web.Validador;
 
 namespace SGHR.Web.Services.ClienteAPIService
 {
-    public class ClienteAPI<T> : IClientAPI<T> where T : class
+    public class ClienteAPI : IClientAPI
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
@@ -16,188 +15,177 @@ namespace SGHR.Web.Services.ClienteAPIService
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<ServicesResultModel> DeleteAsync(string endpoint)
+        private HttpClient CreateClient() => _httpClientFactory.CreateClient("SGHRAPI");
+
+        public async Task<ApiResult<T>> GetAsync<T>(string endpoint)
         {
             try
             {
-                using (HttpClient httpClient = _httpClientFactory.CreateClient("SGHRAPI"))
+                var client = CreateClient();
+                using var response = await client.GetAsync(endpoint);
+
+                if (!response.IsSuccessStatusCode)
                 {
-                    var responsive = await httpClient.PutAsync(endpoint, null);
-                    var validate = new ValidateStatusCode().ValidatorStatus((int)responsive.StatusCode, out string errorMessage);
-                    if (!validate)
-                        return ServicesResultModel.Fail((int)responsive.StatusCode, errorMessage);
-
-                    var result = await new JsonConvertidor<T>().Deserializar(responsive);
-
-                    return result;
+                    return ApiResult<T>.Fail((int)response.StatusCode);
                 }
-            }
-            catch (HttpRequestException ex)
-            {
-                var validate = new ValidateStatusCode().ValidatorStatus(503, out string errorMessage);
-                return ServicesResultModel.Fail(503, errorMessage);
+
+                return await new JsonConvertidor<T>().Deserializar(response);
 
             }
-            catch (Exception ex)
+            catch (HttpRequestException)
             {
-                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
-                return ServicesResultModel.Fail(500, errorMessage);
+                return ApiResult<T>.Fail(503);
+            }
+            catch (TaskCanceledException)
+            {
+                return ApiResult<T>.Fail(504);
+            }
+            catch (Exception)
+            {
+                return ApiResult<T>.Fail(500);
             }
         }
 
-        public async Task<ServicesResultModel> GetAsync(string endpoint)
+        public async Task<ApiResult<TResponse>> PostAsJsonAsync<TRequest, TResponse>(string endpoint, TRequest body)
         {
             try
             {
-                using (HttpClient httpClient = _httpClientFactory.CreateClient("SGHRAPI"))
+                var client = CreateClient();
+                using var response = await client.PostAsJsonAsync(endpoint, body);
+
+                if (!response.IsSuccessStatusCode)
                 {
-                    var responsive = await httpClient.GetAsync(endpoint);
-
-                    var result = await new JsonConvertidor<T>().Deserializar(responsive);
-
-                    return result;
+                    return ApiResult<TResponse>.Fail((int)response.StatusCode);
                 }
-            }
-            catch (HttpRequestException ex)
-            {
-                var validate = new ValidateStatusCode().ValidatorStatus(503, out string errorMessage);
-                return ServicesResultModel.Fail(503, errorMessage);
+
+                return await new JsonConvertidor<TResponse>().Deserializar(response);
 
             }
-            catch (Exception ex)
+            catch (HttpRequestException)
             {
-                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
-                return ServicesResultModel.Fail(500, errorMessage);
+                return ApiResult<TResponse>.Fail(503);
+            }
+            catch (TaskCanceledException)
+            {
+                return ApiResult<TResponse>.Fail(504);
+            }
+            catch (Exception)
+            {
+                return ApiResult<TResponse>.Fail(500);
             }
         }
 
-        public async Task<ServicesResultModel> GetListAsync(string endpoint)
+        public async Task<ApiResult<TResponse>> PutAsJsonAsync<TRequest, TResponse>(string endpoint, TRequest body )
         {
             try
             {
-                using (HttpClient httpClient = _httpClientFactory.CreateClient("SGHRAPI"))
+                var client = CreateClient();
+                using var response = await client.PutAsJsonAsync(endpoint, body);
+
+                if (!response.IsSuccessStatusCode)
                 {
-                    var responsive = await httpClient.GetAsync(endpoint);
-
-                    var result = await new JsonConvertidor<T>().DeserializarList(responsive);
-
-                    return result;
+                    return ApiResult<TResponse>.Fail((int)response.StatusCode);
                 }
-            }
-            catch (HttpRequestException ex)
-            {
-                var validate = new ValidateStatusCode().ValidatorStatus(503, out string errorMessage);
-                return ServicesResultModel.Fail(503, errorMessage);
+
+                return await new JsonConvertidor<TResponse>().Deserializar(response);
 
             }
-            catch (Exception ex)
+            catch (HttpRequestException)
             {
-                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
-                return ServicesResultModel.Fail(500, errorMessage);
+                return ApiResult<TResponse>.Fail(503);
+            }
+            catch (TaskCanceledException)
+            {
+                return ApiResult<TResponse>.Fail(504);
+            }
+            catch (Exception)
+            {
+                return ApiResult<TResponse>.Fail(500);
             }
         }
 
-        public async Task<ServicesResultModel> GetSesionAsync(string endpoint)
+        public async Task<ApiResult<T>> DeleteAsync<T>(string endpoint)
         {
             try
             {
-                using (HttpClient httpClient = _httpClientFactory.CreateClient("SGHRAPI"))
+                var client = CreateClient();
+                using var response = await client.PutAsync(endpoint, null);
+
+                if (!response.IsSuccessStatusCode)
                 {
-                    var responsive = await httpClient.GetAsync(endpoint);
-
-                    var result = await new JsonConvertidor<CheckSesionModel>().Deserializar(responsive);
-
-                    return result;
+                    return ApiResult<T>.Fail((int)response.StatusCode);
                 }
-            }
-            catch (HttpRequestException ex)
-            {
-                var validate = new ValidateStatusCode().ValidatorStatus(503, out string errorMessage);
-                return ServicesResultModel.Fail(503, errorMessage);
+
+                return await new JsonConvertidor<T>().Deserializar(response);
 
             }
-            catch (Exception ex)
+            catch (HttpRequestException)
             {
-                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
-                return ServicesResultModel.Fail(500, errorMessage);
+                return ApiResult<T>.Fail(503);
+            }
+            catch (TaskCanceledException)
+            {
+                return ApiResult<T>.Fail(504);
+            }
+            catch (Exception)
+            {
+                return ApiResult<T>.Fail(500);
             }
         }
-
-        public async Task<ServicesResultModel> PostAsync(string endpoint, object? data = null)
+        public async Task<ApiResult<TResponse>> PostAsync<TResponse>(string endpoint, HttpContent? content = null)
         {
             try
             {
-                using (HttpClient httpClient = _httpClientFactory.CreateClient("SGHRAPI"))
+                var client = CreateClient();
+                using var response = await client.PostAsync(endpoint, content);
+
+                if (!response.IsSuccessStatusCode)
                 {
-                    var responsive = await httpClient.PostAsJsonAsync(endpoint, data);
-
-                    var result = await new JsonConvertidor<T>().Deserializar(responsive);
-
-                    return result;
+                    return ApiResult<TResponse>.Fail((int)response.StatusCode);
                 }
-            }
-            catch (HttpRequestException ex)
-            {
-                var validate = new ValidateStatusCode().ValidatorStatus(503, out string errorMessage);
-                return ServicesResultModel.Fail(503, errorMessage);
+
+                return await new JsonConvertidor<TResponse>().Deserializar(response);
 
             }
-            catch (Exception ex)
+            catch (HttpRequestException)
             {
-                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
-                return ServicesResultModel.Fail(500, errorMessage);
+                return ApiResult<TResponse>.Fail(503);
+            }
+            catch (TaskCanceledException)
+            {
+                return ApiResult<TResponse>.Fail(504);
+            }
+            catch (Exception)
+            {
+                return ApiResult<TResponse>.Fail(500);
             }
         }
-
-        public async Task<ServicesResultModel> PutAsync(string endpoint, object? data = null)
+        public async Task<ApiResult<TResponse>> PutAsync<TResponse>(string endpoint, HttpContent? content = null)
         {
             try
             {
-                using (HttpClient httpClient = _httpClientFactory.CreateClient("SGHRAPI"))
+                var client = CreateClient();
+                using var response = await client.PutAsync(endpoint, content);
+
+                if (!response.IsSuccessStatusCode)
                 {
-                    var responsive = await httpClient.PutAsJsonAsync(endpoint, data);
-
-
-                    var result = await new JsonConvertidor<T>().Deserializar(responsive);
-
-                    return result;
+                    return ApiResult<TResponse>.Fail((int)response.StatusCode);
                 }
-            }
-            catch (HttpRequestException ex)
-            {
-                var validate = new ValidateStatusCode().ValidatorStatus(503, out string errorMessage);
-                return ServicesResultModel.Fail(503, errorMessage);
+
+                return await new JsonConvertidor<TResponse>().Deserializar(response);
 
             }
-            catch (Exception ex)
+            catch (HttpRequestException)
             {
-                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
-                return ServicesResultModel.Fail(500, errorMessage);
+                return ApiResult<TResponse>.Fail(503);
             }
-        }
-        public async Task<ServicesResultModel> GetResumenPagoAsync(string endpoint)
-        {
-            try
+            catch (TaskCanceledException)
             {
-                using (HttpClient httpClient = _httpClientFactory.CreateClient("SGHRAPI"))
-                {
-                    var responsive = await httpClient.GetAsync(endpoint);
-
-                    var result = await new JsonConvertidor<ResumenPagoModel>().Deserializar(responsive);
-
-                    return result;
-                }
+                return ApiResult<TResponse>.Fail(504);
             }
-            catch (HttpRequestException ex)
+            catch (Exception)
             {
-                var validate = new ValidateStatusCode().ValidatorStatus(503, out string errorMessage);
-                return ServicesResultModel.Fail(503, errorMessage);
-
-            }
-            catch (Exception ex)
-            {
-                var validate = new ValidateStatusCode().ValidatorStatus(500, out string errorMessage);
-                return ServicesResultModel.Fail(500, errorMessage);
+                return ApiResult<TResponse>.Fail(500);
             }
         }
     }
