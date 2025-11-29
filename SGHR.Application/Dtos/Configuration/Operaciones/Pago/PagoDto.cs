@@ -10,6 +10,6 @@ namespace SGHR.Application.Dtos.Configuration.Operaciones.Pago
         public decimal Monto { get; set; }
         public MetodoPago MetodoPago { get; set; }
         public DateTime FechaPago { get; set; } 
-        public string Estado { get; set; } 
+        public EstadoPago Estado { get; set; } 
     }
 }

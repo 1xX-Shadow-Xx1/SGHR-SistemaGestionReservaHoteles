@@ -155,7 +155,7 @@ namespace SGHR.Application.Services.Operaciones
                         Monto = p.Monto,
                         MetodoPago = p.MetodoPago,
                         FechaPago = p.FechaPago,
-                        Estado = p.Estado.ToString()
+                        Estado = p.Estado
                     })                    
                     .ToList();
 
@@ -366,7 +366,7 @@ namespace SGHR.Application.Services.Operaciones
                         Monto = p.Monto,
                         MetodoPago = p.MetodoPago,
                         FechaPago = p.FechaPago,
-                        Estado = p.Estado.ToString()
+                        Estado = p.Estado
                     })
                     .ToList();
 
@@ -404,7 +404,7 @@ namespace SGHR.Application.Services.Operaciones
                     Monto = pago.Monto,
                     MetodoPago = pago.MetodoPago,
                     FechaPago = pago.FechaPago,
-                    Estado = pago.Estado.ToString()
+                    Estado = pago.Estado
                 };
                 result.Success = true;
                 result.Data = pagoDto;
@@ -438,7 +438,7 @@ namespace SGHR.Application.Services.Operaciones
                         Monto = p.Monto,
                         MetodoPago = p.MetodoPago,
                         FechaPago = p.FechaPago,
-                        Estado = p.Estado.ToString()
+                        Estado = p.Estado
                     })
                     .ToList();
                 result.Success = true;

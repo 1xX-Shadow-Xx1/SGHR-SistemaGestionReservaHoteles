@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
+﻿
 using SGHR.Web.Models;
 using System.Text.Json;
 
